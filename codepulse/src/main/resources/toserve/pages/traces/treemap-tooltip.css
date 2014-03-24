@@ -1,0 +1,50 @@
+.qtip.treemap-tooltip {
+	background: rgba(0,0,0,0.7);
+	border: none;
+	pointer-events: none;
+	max-width: initial;
+}
+
+.qtip.treemap-tooltip .qtip-titlebar {
+	background-color: rgba(0,0,0,0.6); /* Additive with the main tooltip */
+	color: silver;
+	word-wrap: break-word;
+	padding: 5px;
+}
+
+.qtip.treemap-tooltip .qtip-content {
+	color: white;
+	padding: 0;
+}
+
+.qtip.treemap-tooltip .content-padded {
+	padding: 2px 5px 5px 5px;
+}
+
+.qtip.treemap-tooltip .indent {
+	padding-left: 10px;
+}
+
+.qtip.treemap-tooltip .name.package-node {
+	color: #E0E0E0;
+}
+
+.qtip.treemap-tooltip .name.class-node {
+	color: #B2FFAE;
+}
+
+.qtip.treemap-tooltip .name.method-node {
+	color: #7EE0FF;
+}
+
+.qtip.treemap-tooltip .coverage-area {
+	max-width: 350px;
+	padding-bottom: 3px;
+	border-bottom: 1px solid rgba(255,255,255,0.5);
+}
+.qtip.treemap-tooltip .coverage-label {
+	display: inline-block;
+	margin-right: 5px;
+	padding: 0 4px;
+	border-radius: 5px;
+}

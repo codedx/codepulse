@@ -1,0 +1,3 @@
+[submodule "bytefrog"]
+	path = bytefrog
+	url = git://github.com/secdec/bytefrog

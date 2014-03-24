@@ -1,0 +1,369 @@
+/***********************\
+| Base Widget Row Style |
+\***********************/
+
+ .widget-row {
+ 	height: 20px;
+ 	overflow-y: hidden;
+ 	margin-bottom: 4px;
+ }
+ 
+ .widget-row::after {
+ 	display: table;
+ 	content: "";
+ 	line-height: 0;
+ 	clear: both;
+ }
+
+/********************\
+| Header Area Styles |
+\********************/
+
+ .packages-header {
+ 	box-shadow: 0 2px 2px #000;
+ 	margin-bottom: 5px;
+ 	border-top: 1px solid rgba(0,0,0,.2);
+ 
+ 	position: fixed;
+ 	top: 60px;
+ 	width: calc(100% - 250px);
+ 	z-index: 2;
+ }
+ 
+ .packages-header .header-row {
+ 	height: 40px;
+ }
+ 
+ .packages-header .header-label,
+ .packages-header .header-method-count,
+ .packages-header .header-barchart {
+ 
+ 	float: left;
+ 	color: #FFF;
+ 	box-sizing: border-box;
+ }
+ 
+ .packages-header .header-label {
+ 	width: 200px;
+ 	padding-left: 5px;
+ 	line-height: 40px;
+ 	background-color: #7E7E7E;
+ }
+ 
+ .packages-header .header-method-count {
+ 	width: 50px;
+ 	text-align: center;
+ 	font-size: small;
+ 	background-color: #9C9C9C;
+ }
+ 
+ .packages-header .header-barchart {
+ 	width: calc(100% - 250px);
+ 	padding-left: 5px;
+ 	line-height: 40px;
+ 	background-color: #6D6D6D;
+ }
+
+/*****************************\
+| Clear All Selections Button |
+\*****************************/
+
+#clear-selections-button {
+	margin-bottom: 3px;
+	width: 200px;
+	color: white;
+	font-size: small;
+	padding: 0px 4px;
+	box-sizing: border-box;
+	cursor: pointer;
+
+	background-color: #66B6B6;
+}
+
+#clear-selections-button:hover {
+	background-color: #2C9494;
+}
+
+#clear-selections-button.hidden {
+	visibility: hidden;
+}
+
+/*****************************\
+| Package Widget Label Styles |
+\*****************************/
+
+ .widget-label {
+ 	width: 200px;
+ 	display: table;
+ 	height: 20px;
+ 	float: left;
+ 	box-sizing: border-box;
+ 	word-break: break-word;
+ 	color: white;
+ }
+ 
+ .widget-label .indent {
+ 	float: left;
+ 	min-height: 1px;
+ 	width: 0px;
+ }
+ 
+ .widget-label .widget-collapser {
+ 	float: left;
+ 	height: 20px;
+ 	padding: 1px 3px;
+ 	/* dimensions should end up as 20x20 */
+ 	box-sizing: border-box;
+ 	/*background-color: #7E7E7E;*/
+ 
+ 	cursor: pointer;
+ 	visibility: hidden;
+ }
+ 
+ /* Label collapser is only visible if the widget has children */
+ .widget-container.has-children > .widget-row .widget-collapser {
+ 	visibility: visible;
+ }
+ 
+ .widget-label .content {
+ 	float: left;
+ 	border-left: 4px solid #6D6D6D;
+ 	box-sizing: border-box;
+ 	width: calc(180px);
+ 
+ 	cursor: pointer;
+ }
+ 
+ /* Selected Border Color for the label content */
+ .selected > .widget-row > .widget-label .content {
+ 	/*border-color: #2C9494;*/
+ }
+ 
+ /* Default Background Color for the label collapser and content */
+ .widget-label .widget-collapser,
+ .widget-label .content {
+ 
+ 	background-color: #7E7E7E;
+ }
+ 
+ /* Hover Background Color for the label collapser and content */
+ .widget-label .widget-collapser:hover,
+ .widget-label .content:hover {
+ 
+ 	background-color: #9C9C9C;
+ }
+ 
+ /* Selected Background Color for the label collapser and content */
+ .selected > .widget-row .widget-label .widget-collapser,
+ .selected > .widget-row .widget-label .content {
+ 
+ 	background-color: #66B6B6;
+ }
+ 
+ /* Selected + Hover Background color for the label collapser and content */
+ .selected > .widget-row .widget-label .widget-collapser:hover,
+ .selected > .widget-row .widget-label .content:hover {
+ 
+ 	background-color: #2C9494;
+ }
+ 
+ /* The actual text inside the label */
+ .widget-label .label-text {
+ 	line-height: 20px;
+ 	font-size: 12px;
+ 	padding-left: 23px;
+ 
+ 	overflow: hidden;
+ 	text-overflow: ellipsis;
+ 	white-space: nowrap;
+ }
+
+ .widget-label .label-text:before {
+ 	font-family: FontAwesome;
+ 	-webkit-font-smoothing: antialiased;
+
+ 	position: absolute;
+ 	left: 0;
+ 	width: 20px;
+ 	text-align: center;
+ 	font-size: 13px;
+
+ 	content: '\f096'; /* fa-square-o */
+ 	color: rgb(182,182,182);
+ 	background-color: rgb(138,138,138);
+ }
+
+ .selected > .widget-row .widget-label .label-text:before {
+ 	content: '\f00c'; /* fa-check */
+ 	color: rgb(20, 78, 78);
+ 	background-color: rgb(82, 163, 163);
+ }
+
+ .selected.partial-select > .widget-row .widget-label .label-text:before {
+ 	content: '\f0c8'; /* fa-minus-square */
+ }
+
+/*****************************\
+| Widget Method Counts Styles |
+\*****************************/
+
+ /* Some parts of the .widget-label will be highlighted, by showing a
+  * .highlight div behind the regular content.
+  */
+ .highlight-container {
+ 	position: relative;
+ }
+ 
+ /* Things in the highlight container are pushed toward the front,
+  * so that they can be in front of the actual .highlight div. They
+  * should avoid having a background-color, or else the highlight
+  * will be hidden.
+  */
+ .highlight-container > * {
+ 	position: relative;
+ 	z-index: 1;
+ }
+ 
+ /* The actual highlight div takes up the full area of its container.
+  * It is orange, but completely transparent. Its opacity will be
+  * set programmatically.
+  */
+ .highlight-container > .highlight {
+ 	position: absolute;
+ 	top: 0;
+ 	left: 0;
+ 	height: 100%;
+ 	width: 100%;
+ 	z-index: 0;
+ 	pointer-events: none;
+ 
+ 	background-color: orange;
+ 	opacity: 0; /* opacity should be set and transitioned with javascript */
+ }
+
+
+/*****************************\
+| Widget Method Counts Styles |
+\*****************************/
+
+ .widget-method-count {
+ 	background-color: #9C9C9C;
+ 	width: 50px;
+ 	display: inline-block;
+ 	float: left;
+ 	height: 20px;
+ 	text-align: center;
+ 	box-sizing: border-box;
+ 	color: white;
+ }
+ 
+ .widget-method-count .count-number {
+ 	font-size: small;
+ }
+
+
+/************************\
+| Widget Barchart Styles |
+\************************/
+
+ .widget-barchart {
+ 	width: calc(100% - 250px);
+ 	display: inline-block;
+ 	height: 20px;
+ }
+ 
+ /* The 'complete' bar of the barchart */
+ .widget-barchart .bar-shell {
+ 	height: 14px;
+ 	background-color: #9C9C9C;
+ 	border: 1px solid #616161;
+ 	box-sizing: border-box;
+ 	margin-top: 3px;
+ }
+ 
+ /* The 'fill' part of the barchart. The width will be set by javascript. */
+ .widget-barchart .bar-shell .bar-fill {
+ 	background-color: white;
+ 	height: 100%;
+ 	position: relative;
+ }
+ 
+ /* The percentage label that floats over the barchart.
+  *
+  */
+ .widget-barchart .bar-shell .bar-label {
+ 	background-color: #5E5E5E;
+ 	position: absolute;
+ 	top: -4px;
+ 	display: inline-block;
+ 	width: 40px;
+ 	overflow: hidden;
+ 
+ 	box-sizing: border-box;
+ 	font-size: small;
+ 	text-overflow: clip;
+ 
+ 	text-align: center;
+ 	line-height: 20px;
+ 	font-weight: bold;
+ 	padding: 0 2px;
+ 
+ 	color: #B8B8B8;
+ 
+ 	transition: left .3s ease;
+ }
+ 
+ /* If the package is 'covered' by the trace, set the floating label's text color to white */
+ .widget-barchart .bar-shell .bar-fill.covered .bar-label {
+ 	color: white;
+ }
+ 
+ /* By default, the bar label positions itself directly in the center of the bar fill. */
+ .widget-barchart .bar-shell .bar-fill .bar-label {
+ 	left: calc(50% - 20px);
+ }
+ 
+ /* If the bar fill is 'small', position the label 10px to the right of the bar fill */
+ .widget-barchart .bar-shell .bar-fill.small .bar-label {
+ 	left: calc(100% + 10px);
+ }
+ 
+ /* If the label is in a 'compact' element, the bar label hugs the left edge of the barchart */
+ .compact .widget-barchart .bar-shell .bar-fill .bar-label {
+ 	left: 0;
+ }
+
+/******************************************\
+| Style Overrides for the 'Overall' Widget |
+\******************************************/
+
+ .package-totals .widget-row { height: 30px; }
+ .package-totals .widget-collapser { display: none; }
+ .package-totals .indent { display: none; }
+ .package-totals .widget-label .content {
+ 	width: 100%;
+ 	height: 30px;
+ 	line-height: 30px;
+ 	border-left: none;
+ }
+ .package-totals .widget-label .content .label-text {
+ 	line-height: 30px;
+ }
+ .package-totals .widget-method-count {
+ 	height: 30px;
+ 	line-height: 30px;
+ }
+ .package-totals .bar-shell {
+ 	height: 20px;
+ 	margin-top: 5px;
+ }
+ .package-totals .widget-barchart .bar-shell .bar-label {
+ 	line-height: 30px;
+ 	top: -6px;
+ }
+ .package-totals .widget-label .label-text {
+ 	padding-left: 3px;
+ }
+ .package-totals .widget-label .label-text:before {
+ 	display: none;
+ }

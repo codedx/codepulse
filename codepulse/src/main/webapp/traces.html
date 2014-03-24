@@ -1,0 +1,104 @@
+<lift:surround with="desktop" at="content">
+<lift:head>
+	<link class="lift:Includes.d3"></link>
+	<link class="lift:Includes.baconjs_min"></link>
+	<link class="lift:Includes.codetreemap"></link>
+	<link class="lift:Includes.tracesPage"></link>
+</lift:head>
+
+<div class="lift:TraceWidgetry">
+
+	<div id="fixed-subheader" class="titlearea">	
+		<div class="wscope">
+			<trace:nameconflict>
+				<i class="icon-white icon-warning-sign warningIcon"></i>
+				<div class="warningText">
+				This trace has the same name as another trace. Click the name to change it now.
+				</div>
+
+				<h1 class="editable trace:name">
+					<div class="edit-content">
+						<trace:name></trace:name>
+					</div>
+					<div class="editor">
+						<input type="text"/>
+						<span class="editor-save">&#x23ce;</span>
+					</div>
+				</h1>
+			</trace:nameconflict>
+			<div class="header-detail">
+				<span class="detail-name">created on</span>
+				<span class="date">
+					<trace:creationdate></trace:creationdate>
+				</span>
+			</div>
+			<trace:ifimported>
+				<div class="header-detail">
+					<span class="detail-name">imported on</span>
+					<span class="date">
+						<trace:importdate></trace:importdate>
+					</span>
+				</div>
+			</trace:ifimported>
+			<div class="header-detail">
+				<i class="icon-share icon-white"></i>
+				<trace:exportlink>Export</trace:exportlink>
+			</div>
+		</div>
+
+		<div class="trace-switcher-button btn btn-flat" data-toggle="TraceSwitcher">
+			Traces
+		</div>
+	</div>
+
+	<lift:embed what="TraceSwitcher"></lift:embed>
+
+	<!-- Provides the base HTML for the PackageWidget (see PackageWidget.js) -->
+	<lift:embed what="package-widget-template"></lift:embed>
+
+		
+	<div class="traces-scope">
+			
+		<!-- package header area -->
+		<div class="packages-header">
+			<div class="header-row">
+				<div class="header-label">Package Name</div>
+				<div class="header-method-count">method count</div>
+				<div class="header-barchart">Coverage Barchart</div>
+			</div>
+		</div>
+
+		<div class="main-column" id="packages">
+			<div class="package-totals" id="totals">
+				<!-- auto-generated content for the root package -->
+			</div>
+
+			<div id="clear-selections-button" class="hidden">
+				Clear all selections
+			</div>
+
+			<!-- auto-generated content for package widgets/barchart stuff -->
+		</div>
+
+		<div class="middle-column-alt fixed-sidebar" id="treemap">
+			<div id="show-treemap-button">
+				<!-- Show/Hide treemap button, floating as a tab on the treemap drawer -->
+			</div>
+			
+			<div id="treemap-container">
+				<div class="widget-body"><!-- Treemap goes here --></div>
+				<div id="performance-warning">
+					<a name="close">[dismiss]</a>
+					The visualization performance may be degraded due to how many items are currently displayed.
+				</div>
+			</div>
+		</div>
+		
+		<div class="side-column fixed-sidebar" id="trace-controls">
+			
+			<lift:embed what="trace-recording-controls"></lift:embed>
+		</div>
+	</div>
+
+</div>
+</lift:surround>

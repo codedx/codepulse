@@ -1,0 +1,43 @@
+.color-legend {
+	cursor: default;
+}
+
+.color-legend::before {
+	content: "Legend:";
+	margin-right: 10px;
+}
+
+.color-legend .legend-entry {
+	display: inline-block;
+	background-color: rgba(0, 0, 0, 0);
+	padding: 3px;
+	cursor: pointer;
+	border: 1px solid #AAA;
+	margin-right: 5px;
+}
+
+.color-legend .legend-entry:hover {
+	background-color: rgba(0, 0, 0, .1);
+}
+
+.color-legend .legend-entry.active {
+	background-color: rgba(255, 128, 0, .3);
+}
+
+.color-legend .legend-entry.active:hover {
+	background-color: rgba(255, 128, 0, .5);
+}
+
+.color-legend .legend-entry .color-swatch {
+	display: inline-block;
+	padding: 0 5px;
+}
+
+.color-legend .legend-entry .color-swatch .counter {
+	font-size: 80%;
+	color: white;
+}
+
+.color-legend .legend-entry .legend-text {
+	font-size: 80%;
+}

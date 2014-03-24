@@ -1,0 +1,36 @@
+#fixed-subheader {
+	position: fixed;
+	top: 0px;
+	height: 60px;
+	left: 0;
+	right: 0;
+
+	z-index: 3;
+}
+
+#footer {
+	position: fixed;
+	bottom: 0px;
+	height: 25px;	
+	left: 0;
+	right: 0;
+
+	z-index: 3;
+}
+
+.fixed-sidebar {
+	position: fixed;
+	top: 60px; /* below #fixed-subheader */
+	bottom: 25px; /* above #fixed-footer */
+	/* horizontal positioning up to the instance to decide */
+}
+
+#content-wrapper {
+	padding-top: 60px;
+	padding-bottom: 25px;
+}
+
+#footer .half {
+	padding: 2px 5px;
+	width: 50%;
+}

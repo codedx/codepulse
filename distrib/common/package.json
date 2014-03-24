@@ -1,0 +1,14 @@
+{
+	"name": "Code Pulse",
+	"main": "app/startup.html",
+	"node-main": "app/main.js",
+	"node-remote": "<local>",
+	"user-agent": "CodePulse (node-webkit)",
+	"window": {
+		"title": "Code Pulse",
+		"icon": "app/icon.png",
+		"toolbar": false,
+		"width": 1024,
+		"height": 768
+	}
+}

@@ -1,0 +1,79 @@
+<div id="recording-controls">
+	<div style="display: none;" data-role="templates-container">
+	
+		<!-- START/STOP TRACE BUTTONS -->
+		<div data-role="trace-setup" class="trace-setup-area">
+			<div class="control-button big" data-role="new-trace">
+				Start a Trace
+			</div>
+			<div class="control-button" data-role="connection-waiting">
+				Waiting for a trace connection...
+			</div>
+			<div class="control-button big" data-role="end-trace">
+				End Trace
+			</div>
+		</div>
+	
+		<!-- ADD RECORDING BUTTON -->
+		<div data-role="custom-recording-adder" class="recording adder-button fat">
+			<div class="add-icon">
+				<i class="icon-plus"></i>
+			</div>
+			<div class="add-label">
+				Start a Recording
+			</div>
+		</div>
+		
+		<!-- RECORDING WIDGET TEMPLATE -->
+		<div data-role="recording-template" class="recording in-progress clearfix">
+			<div class="swatch-container">
+				<div class="swatch"></div>
+			</div>
+			<!-- <div class="recording-icon" title="Recording in progress. Click to stop.">
+				<div class="circle"></div>
+			</div> -->
+			<div class="recording-label">
+				<div class="text">Untitled</div>
+				<input type="text" class="text-edit" placeholder="Untitled Recording"/>
+				<span class="text-edit-save">&#x23ce;</span>
+			</div>
+			<div class="menu-badge">
+				<abbr>0%</abbr>
+			</div>
+			<div class="btn-group">
+				<div data-toggle="dropdown" class="btn btn-flat btn-secondary dropdown-toggle">
+					<i class="icon-th-list"></i>
+				</div>
+				<ul class="dropdown-menu pull-right">
+					<!-- auto generated content:
+						<li><a href="..."><i class="icon-xxx"/><span>Label!</span></a></li>
+					-->
+				</ul>
+			</div>
+			<div class="disabled-overlay"></div>
+		</div>
+
+		<!-- COLOR PICKER POPUP CONTENTS -->
+		<div data-role="colorpicker-template">
+			<div class="picker-wrapper">
+				<div class="picker"></div>
+				<div class="picker-indicator"></div>
+			</div>
+			<div class="slider-wrapper">
+				<div class="slider"></div>
+				<div class="slider-indicator"></div>
+			</div>
+			<div class="btn-toolbar pull-right">
+				<div class="btn-group">
+					<a name="cancel" class="btn btn-flat btn-secondary">Cancel</a>
+				</div>
+				<div class="btn-group">
+					<a name="ok" class="btn btn-flat btn-primary">OK</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- ^ end of #templates-container ^ -->
+
+
+</div>

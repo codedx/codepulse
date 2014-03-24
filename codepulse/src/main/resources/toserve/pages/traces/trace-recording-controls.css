@@ -1,0 +1,318 @@
+/*************************\
+| Recording Widget Styles |
+\*************************/
+
+ .recording {
+ 	background-color: lightgray;
+ 	margin-bottom: 2px;
+ 	cursor: pointer;
+ 
+ 	border-top: 1px solid #B9B9B9;
+ 	border-bottom: 1px solid #B9B9B9;
+
+ 	position: relative;
+ }
+ 
+ .recording:hover {
+ 	background-color: #DEDEDE;
+ }
+ 
+ .recording.selected {
+ 	background-color: #174242;
+ 	color: white;
+ }
+ 
+ .recording.selected:hover {
+ 	background-color: #427F80;
+ }
+ 
+ .recording.fat {
+ 	padding: 5px 0;
+ }
+ 
+ /* Striped Background Effect for .in-progress recordings */
+ @keyframes stripe-animation {
+ 	from { background-position: 40px 0; }
+ 	to { background-position: 0 0; }
+ }
+ @-webkit-keyframes stripe-animation {
+ 	from { background-position: 40px 0; }
+ 	to { background-position: 0 0; }
+ }
+ 
+ .recording.in-progress {
+ 	background-image: linear-gradient(45deg, 
+ 		rgba(255, 255, 255, 0.15) 25%, rgba(0, 0, 0, 0) 25%, 
+ 		rgba(0, 0, 0, 0) 50%, rgba(255, 255, 255, 0.15) 50%, 
+ 		rgba(255, 255, 255, 0.15) 75%, rgba(0, 0, 0, 0) 75%, 
+ 		rgba(0, 0, 0, 0)
+ 	);
+ 
+ 	background-size: 40px 40px;
+ 
+ }
+ /* show an animation on the stripes when the trace is running */
+ [trace-running=true] .recording.in-progress {
+ 	animation: stripe-animation 2s linear infinite;
+ 	-webkit-animation: stripe-animation 2s linear infinite;
+ }
+
+/****************************\
+| Recording Label and Editor |
+\****************************/
+
+ .recording .recording-label {
+ 	float: left;
+ 	display: table;
+ 	min-height: 30px;
+ 	width: calc(100% - 90px);
+ 	
+ 	font-size: small;
+ 	box-sizing: border-box;
+ }
+ 
+ /*
+  The label contains a .text and a .text-edit
+  which are only displayed one at a time. The
+  .text-edit is an input field that is used to
+  allow users to rename recordings. The .text
+  simply displays the current label.
+  */
+ 
+ .recording .recording-label .text {
+ 	display: table-cell;
+ 	vertical-align: middle;
+ 	padding: 0 5px;
+ }
+
+ .recording.in-progress .recording-label .text:before {
+ 	font-family: FontAwesome;
+ 	content: '\f03d'; /* fa-video-camera */
+ 	margin-right: 3px;
+ }
+
+ [trace-running=true] .recording .recording-label .text:before {
+ 	-webkit-text-stroke: 1px white;
+ 	-moz-text-stroke: 1px white;
+ 	-ms-text-stroke: 1px white;
+ 	text-stroke: 1px white;
+ }
+
+ [trace-running=true] .recording.in-progress .recording-label .text:before {
+ 	color: red;
+ }
+ 
+ .recording .recording-label.editing .text {
+ 	display: none;
+ }
+ 
+ .recording .recording-label .text-edit {
+ 	display: none;
+ 	
+ 	box-sizing: border-box;
+ 	margin: 0;
+ 	height: 30px;
+ 	width: 100%;
+ 	
+ 	padding-right: 25px;
+ 	margin-right: -25px;
+ }
+ 
+ .recording .recording-label.editing .text-edit {
+ 	display: initial;
+ }
+ 
+ .recording .recording-label .text-edit-save {
+ 	display: none;
+ 	
+ 	line-height: 20px;
+ 	vertical-align: middle;
+ 	color: silver;
+ }
+ .recording .recording-label.editing .text-edit-save {
+ 	display: initial;
+ }
+ .recording .recording-label .text-edit-save:hover {
+ 	color: black;
+ }
+
+/****************\
+| Recording Menu |
+\****************/
+
+ .recording .btn-group {
+ 	vertical-align: top;
+ 	float: right;
+ }
+ 
+ .recording .dropdown-toggle {
+ 	width: 30px;
+ 	height: 30px;
+ 	line-height: 30px;
+ 	box-sizing: border-box;
+ 	padding: 0;
+ }
+
+/************************\
+| Recording Adder Button |
+\************************/
+
+ .recording.adder-button {
+ 	position: absolute;
+ 	bottom: 0;
+ 	width: 100%;
+ 	display: none;
+ }
+
+ [trace-running=true] .recording.adder-button {
+ 	display: block;
+ }
+
+ .recording.adder-button .add-icon {
+ 	line-height: 30px;
+ 	width: 30px;
+ 	display: inline-block;
+ 	text-align: center;
+ 	float: left;
+ }
+ 
+ .recording.adder-button .add-icon i {
+ 	vertical-align: baseline;
+ }
+ 
+ .recording.adder-button .add-label {
+ 	line-height: 30px;
+ 	display: inline-block;
+ }
+
+
+
+/***************************\
+| Start/Stop Trace Controls |
+\***************************/
+
+ .trace-setup-area {
+ 	padding: 5px;
+ 	background-color: lightgray;
+ 	margin-bottom: 2px;
+ }
+ 
+ .trace-setup-area .control-button {
+ 	padding: 10px;
+ 	text-align: center;
+ 	cursor: pointer;
+ }
+ 
+ .trace-setup-area .control-button.big {
+ 	font-size: 1.5em;
+ }
+ 
+ .trace-setup-area .control-button:hover {
+ 	background-color: #DEDEDE;
+ }
+
+
+/****************************\
+| Recording "Coverage" Badge |
+\****************************/
+
+ .recording .menu-badge {
+ 	float: left;
+ 
+ 	font-size: xx-small;
+ 	text-align: center;
+ 	box-sizing: border-box;
+ 	width: 30px;
+ 	max-width: 30px;
+ 	text-overflow: clip;
+ 	display: inline-block;
+ 
+ 	margin-top: 6px;
+ 	line-height: 14px;
+ 	border-radius: 9px;
+ 	padding: 2px 0px;
+ 
+ 	color: #FFF;
+ 	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+ 	background-color: #999;
+ }
+ 
+ [trace-running=true] .recording.in-progress .menu-badge {
+ 	background-color: red;
+ }
+
+/*********************\
+| Color Swatch Styles |
+\*********************/
+
+ .recording .swatch-container {
+ 	height: 30px;
+ 	max-height: 30px;
+ 	box-sizing: border-box;
+ 	display: inline-block;
+ 	float: left;
+ 	vertical-align: top;
+ 
+ 	padding: 6px;
+ }
+ 
+ .recording .swatch-container:hover {
+ 	background-color: rgba(238,238,238,0.5);
+ }
+ 
+ .recording .swatch-container.editor-open {
+ 	background-color: rgba(255,255,255,0.5);
+ }
+ 
+ .recording .swatch-container .swatch {
+ 	height: 16px;
+ 	width: 16px;
+ 	box-sizing: border-box;
+ 	border: 1px solid white;
+ 	background-color: black;
+ }
+
+/*************************************************\
+| Special overrides for the 'multiples-recording' |
+\*************************************************/
+
+ .recording.multiples-recording {
+ 	margin-bottom: 10px;
+ }
+
+ /* The 'multiples' recording hides the coverage and menu button,
+  * so the label doesn't need to save the extra 60px for them.
+  */
+ .recording.multiples-recording .recording-label {
+ 	width: calc(100% - 30px);
+ }
+ 
+ 
+ .recording.multiples-recording .dropdown-toggle {
+ 	display: none;
+ }
+ 
+ .recording.multiples-recording .menu-badge {
+ 	display: none;
+ }
+
+/***************************\
+| Disabled Recording Styles |
+\***************************/
+
+.recording .disabled-overlay {
+	display: none;
+}
+
+.recording.disabled .disabled-overlay {
+	display: block;
+
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+	
+	background-color: rgba(190,190,190,0.7);
+	cursor: default;
+}

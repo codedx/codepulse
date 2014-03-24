@@ -1,0 +1,14 @@
+.DS_Store
+.scala_dependencies
+.settings/
+.classpath
+.cache
+.project
+.idea
+.idea_modules
+target/
+outputs/
+
+distrib/dependencies/
+
+*.log

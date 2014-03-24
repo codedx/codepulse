@@ -1,0 +1,47 @@
+.overlay {
+	/* Positioning info */
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	
+	/* Coloring info */
+	background-color: #EEEEEE;
+	opacity: 0.9;
+	
+	/* Animation junk */
+	
+	animation: fadein 1s;
+	-moz-animation: fadein 1s;
+	-webkit-animation: fadein 1s;
+	-o-animation: fadein 1s;
+	
+}
+
+.overlay-container {
+	display: block;
+	position: relative;
+}
+
+.overlay-container .spinner {
+	left: 50% !important;
+	top: 50% !important;
+}
+
+@keyframes fadein {
+	0% { opacity: 0; }
+	100% { opacity: 0.9; }
+}
+@-moz-keyframes fadein {
+	0% { opacity: 0; }
+	100% { opacity: 0.9; }
+}
+@-webkit-keyframes fadein {
+	0% { opacity: 0; }
+	100% { opacity: 0.9; }
+}
+@-o-keyframes fadein {
+	0% { opacity: 0; }
+	100% { opacity: 0.9; }
+}
