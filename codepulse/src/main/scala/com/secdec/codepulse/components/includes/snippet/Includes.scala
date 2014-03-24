@@ -27,7 +27,43 @@ import scala.xml.Text
 import scala.xml.Null
 import language.implicitConversions
 
-object Includes extends DispatchSnippet {
+trait IncludesRegistry {
+
+	trait Dependency { def asXml: NodeSeq }
+	case class Registration(key: String, dep: Dependency) extends Dependency { def asXml = dep.asXml }
+
+	/** Remembers the Registrations made by calling `register`. Can be used
+	  * to dispatch XML from the registration keys.
+	  */
+	protected val registry = collection.mutable.Map.empty[String, Registration]
+
+	/** Register several dependencies under the given `key`. The arguments `dep0`, and
+	  * `depN` are to allow the use of varargs syntax but prevent a 0-argument usage.
+	  */
+	protected def register(key: String, dep0: Dependency, depN: Dependency*): Registration = {
+		val reg = Registration(key, dep0 +: depN)
+		registry.put(key, reg)
+		reg
+	}
+
+	/** A Javascript Dependency, rendered as a `<script>` tag */
+	case class JS(src: String) extends Dependency {
+		lazy val asXml = <script class="lift:with-resource-id lift:head" type="text/javascript" src={ "/" + LiftRules.resourceServerPath + "/" + src } lift:eagereval="true"/>
+	}
+
+	/** A CSS Dependency, rendered as a stylesheet `<link>` */
+	case class CSS(src: String) extends Dependency {
+		lazy val asXml = <link class="lift:with-resource-id lift:head" href={ "/" + LiftRules.resourceServerPath + "/" + src } rel="stylesheet" type="text/css"></link>
+	}
+
+	/** Allows a sequence of dependencies to be treated as a single dependency */
+	implicit class DependencySeq(seq: Seq[Dependency]) extends Dependency {
+		lazy val asXml: NodeSeq = seq flatMap { _.asXml }
+	}
+
+}
+
+object Includes extends DispatchSnippet with IncludesRegistry {
 
 	/** Causes the resource server to allow the directories that this
 	  * object intends to provide access to. This method only needs to
@@ -38,100 +74,71 @@ object Includes extends DispatchSnippet {
 			case "common" :: _ => true
 			case "widgets" :: _ => true
 			case "pages" :: _ => true
+			case "thirdparty" :: _ => true
 		})
 		true
 	}
 
-	def script(src: String) = <script class="lift:with-resource-id lift:head" type="text/javascript" src={ "/" + LiftRules.resourceServerPath + "/" + src } lift:eagereval="true"/>
-	def css(src: String) = <link class="lift:with-resource-id lift:head" href={ "/" + LiftRules.resourceServerPath + "/" + src } rel="stylesheet" type="text/css"></link>
-
-	implicit def nsToNsNs(nodes: NodeSeq) = (_: NodeSeq) => nodes
-
-	private def spinnerScript = script("common/spin.min.js")
-
-	private def themeCss(src: String, tag: String) = css(src) % Attribute("data-theme", Text(tag), Null)
-
-	private val baseIncludes: PartialFunction[String, NodeSeq => NodeSeq] = PartialFunction.empty
-	private var includes: List[PartialFunction[String, NodeSeq => NodeSeq]] = baseIncludes :: Nil
-
-	lazy val dispatch = includes.foldLeft(baseIncludes) { _ orElse _ }
-
-	def prepend(i: PartialFunction[String, NodeSeq => NodeSeq]) = {
-		includes = i :: includes
-		this
+	/** Snippet dispatch looks in the `registry` for each `key`, returning
+	  * the registration's XML representation.
+	  */
+	object dispatch extends PartialFunction[String, NodeSeq => NodeSeq] {
+		def isDefinedAt(key: String) = registry contains key
+		def apply(key: String) = { _ => registry(key).asXml }
 	}
 
-	def append(i: PartialFunction[String, NodeSeq => NodeSeq]) = {
-		includes = includes ::: List(i)
-		this
-	}
+	/*
+	 * Third party dependencies:
+	 */
 
-	append {
+	val bacon = register("baconjs", JS("thirdparty/bacon/Bacon-0.7.2-min.js"))
+	val bootstrap = register("bootstrap", JS("thirdparty/bootstrap/js/bootstrap.min.js"), CSS("thirdparty/bootstrap/css/bootstrap.min.css"))
+	val colorpicker = register("colorpicker", JS("thirdparty/colorpicker/colorpicker.min.js"))
+	val d3 = register("d3", JS("thirdparty/d3/d3.min.js"))
+	val fileupload = register("jqfileupload", JS("thirdparty/fileupload/jquery.ui.widget.js"),
+		JS("thirdparty/fileupload/jquery.iframe-transport.js"),
+		JS("thirdparty/fileupload/jquery.fileupload.js"))
+	val fontAwesome = register("FontAwesome", CSS("thirdparty/fontawesome/css/font-awesome.min.css"))
+	val jquery = register("jquery", JS("thirdparty/jquery/jquery-2.0.2.min.js"))
+	val qtip2 = register("qtip2", JS("thirdparty/qtip2/jquery.qtip.min.js"), CSS("thirdparty/qtip2/jquery.qtip.min.css"))
+	val spinner = register("spinner", JS("thirdparty/spin/spin.min.js"))
+	val timeago = register("timeago", JS("thirdparty/timeago/jquery.timeago.js"))
 
-		case "jquery" => script("common/jquery-2.0.2.min.js")
+	/*
+	 * Hand-crafted-with-love dependencies:
+	 */
 
-		case "baconjs" => script("common/bacon/Bacon-0.7.2.js")
-		case "baconjs_min" => script("common/bacon/Bacon-0.7.2-min.js")
+	val overlay = register("overlay", spinner, JS("widgets/overlay/overlay.js"), CSS("widgets/overlay/overlay.css"))
+	val commonStyle = register("commonStyle", CSS("common/common.css"))
+	val desktopStyle = register("desktopStyle", CSS("common/desktop.css"))
+	val traceList = register("TraceList", JS("pages/TraceList/TraceList.js"))
+	val traceSwitcher = register("TraceSwitcher", JS("pages/TraceSwitcher/TraceSwitcher.js"), CSS("pages/TraceSwitcher/TraceSwitcher.css"))
+	val codepulseCommon = register("CodePulseCommon", JS("common/CodePulse.js"))
+	val downloader = register("Downloader", JS("common/Downloader.js"))
+	val traceAPI = register("TraceAPI", JS("pages/traces/TraceAPI.js"))
+	val codeTreemap = register("codetreemap", overlay, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
 
-		case "d3" => script("common/d3/d3.min.js")
-
-		case "bootstrap" => script("common/bootstrap/js/bootstrap.min.js") +:
-			css("common/bootstrap/css/bootstrap.min.css")
-
-		case "spinner" => spinnerScript
-
-		case "overlay" => css("widgets/overlay/overlay.css") +:
-			script("widgets/overlay/overlay.js") +:
-			spinnerScript
-
-		case "common" => css("common/common.css")
-
-		case "qtip2" => script("common/qtip2/jquery.qtip.min.js");
-		case "qtip2style" => css("common/qtip2/jquery.qtip.min.css");
-
-		case "jqfileupload" => script("widgets/file_upload/js/vendor/jquery.ui.widget.js") +:
-			script("widgets/file_upload/js/jquery.iframe-transport.js") +:
-			script("widgets/file_upload/js/jquery.fileupload.js")
-
-		case "CodePulseCommon" => script("common/CodePulse.js")
-		case "Downloader" => script("common/Downloader.js")
-		case "TraceAPI" => script("pages/traces/TraceAPI.js")
-		case "FontAwesome" => css("common/fontawesome/css/font-awesome.min.css")
-		case "TraceList" => script("pages/TraceList/TraceList.js")
-		case "codetreemap" => script("widgets/codetreemap/treemap.js") +:
-			css("widgets/codetreemap/treemap.css") +:
-			Includes.dispatch("overlay")(Nil)
-
-		case "tracesPage" =>
-			script("pages/traces/Set.js") +:
-				script("pages/traces/TraceAPI.js") +:
-				script("pages/traces/TreeData.js") +:
-				script("pages/traces/TreeProjector.js") +:
-				script("pages/traces/betterAffix.js") +:
-				css("pages/traces/PackageWidget.css") +:
-				script("pages/traces/PackageWidget.js") +:
-				script("pages/traces/PackageController.js") +:
-				css("pages/traces/treemap-tooltip.css") +:
-				script("common/colorpicker.min.js") +:
-				css("pages/traces/colorpicker-tooltip.css") +:
-				script("common/qtip2/jquery.qtip.min.js") +:
-				css("common/qtip2/jquery.qtip.min.css") +:
-				script("pages/traces/Recording.js") +:
-				script("pages/traces/RecordingWidget.js") +:
-				script("pages/traces/RecordingManager.js") +:
-				script("pages/traces/trace-recording-controls.js") +:
-				css("pages/traces/trace-recording-controls.css") +:
-				script("pages/traces/editable.js") +:
-				script("pages/traces/traces.js") +:
-				css("pages/traces/traces.css") +:
-				script("pages/traces/color-legend.js") +:
-				css("pages/traces/color-legend.css")
-
-		case "desktopStyle" =>
-			css("common/desktop.css")
-
-		case "TraceSwitcher" =>
-			css("pages/TraceSwitcher/TraceSwitcher.css") +:
-				script("pages/TraceSwitcher/TraceSwitcher.js")
-	}
+	val tracesPage = register("tracesPage",
+		JS("pages/traces/Set.js"),
+		traceAPI,
+		JS("pages/traces/TreeData.js"),
+		JS("pages/traces/TreeProjector.js"),
+		JS("pages/traces/betterAffix.js"),
+		CSS("pages/traces/PackageWidget.css"),
+		JS("pages/traces/PackageWidget.js"),
+		JS("pages/traces/PackageController.js"),
+		CSS("pages/traces/treemap-tooltip.css"),
+		colorpicker,
+		CSS("pages/traces/colorpicker-tooltip.css"),
+		qtip2,
+		JS("pages/traces/Recording.js"),
+		JS("pages/traces/RecordingWidget.js"),
+		JS("pages/traces/RecordingManager.js"),
+		JS("pages/traces/trace-recording-controls.js"),
+		CSS("pages/traces/trace-recording-controls.css"),
+		JS("pages/traces/editable.js"),
+		JS("pages/traces/traces.js"),
+		CSS("pages/traces/traces.css"),
+		JS("pages/traces/color-legend.js"),
+		CSS("pages/traces/color-legend.css"))
 }
