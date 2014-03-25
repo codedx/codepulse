@@ -119,11 +119,9 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val codeTreemap = register("codetreemap", overlay, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
 
 	val tracesPage = register("tracesPage",
-		JS("pages/traces/Set.js"),
 		traceAPI,
 		JS("pages/traces/TreeData.js"),
 		JS("pages/traces/TreeProjector.js"),
-		JS("pages/traces/betterAffix.js"),
 		CSS("pages/traces/PackageWidget.css"),
 		JS("pages/traces/PackageWidget.js"),
 		JS("pages/traces/PackageController.js"),
@@ -138,7 +136,5 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		CSS("pages/traces/trace-recording-controls.css"),
 		JS("pages/traces/editable.js"),
 		JS("pages/traces/traces.js"),
-		CSS("pages/traces/traces.css"),
-		JS("pages/traces/color-legend.js"),
-		CSS("pages/traces/color-legend.css"))
+		CSS("pages/traces/traces.css"))
 }
