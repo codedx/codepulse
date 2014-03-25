@@ -16,3 +16,7 @@ Code Pulse is a code coverage tool that works on running programs in real time. 
  - Eclipse Users:
   - Within SBT, run `eclipse` to generate Eclipse project files.
   - In Eclipse, import the generated projects to your workspace.
+
+##License
+
+Code Pulse is made available under the terms of the Apache License 2.0. See the LICENSE file that accompanies this distribution for the full text of the license.
