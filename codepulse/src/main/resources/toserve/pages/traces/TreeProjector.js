@@ -35,20 +35,11 @@
 			return addProjectionId(projectionId++,
 				projectPackageFilterTree(self.rawNodes, packageFilter, makeSelfNodes))
 		}
-	}
 
-	// function addSelfNodes(rawNodes){
-	// 	//
-	// 	var childrenById = {}
-	// 	for(var id in rawNodes){
-	// 		var node = rawNodes[id]
-	// 		var parentId = node.parentId
-	// 		if(parentId != undefined){
-	// 			var clist = childrenById[parentId] || (childrenById[parentId] = [])
-	// 			clist.push(node)
-	// 		}
-	// 	}
-	// }
+		this.projectEmptyTree = function(){
+			return new TreeData({})
+		}
+	}
 
 	function addProjectionId(id, tree){
 		tree.forEachNode(true, function(n){

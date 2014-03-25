@@ -27,8 +27,10 @@ function logTime(label, func) {
 
 $(document).ready(function(){
 	
-	// initialize a treemap widget
-	var treemapWidget = window.treemap = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
+	var treemapContainer = $('#treemap-container'),
+
+		// initialize a treemap widget
+		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
 		
 		// REST endpoint that generates code coverage data for nodes in the treemap
 		treemapDataUrl = document.location.href + '/coverage-treemap.json',
@@ -49,7 +51,7 @@ $(document).ready(function(){
 		 * Controller for the trace controls on the side of the page. Exposes events for various
 		 * data updates that happen during a running trace.
 		 */
-		traceControls = window.traceControls = new TraceRecordingControlsWidget(traceInfo),
+		traceControls = new TraceRecordingControlsWidget(traceInfo),
 
 		/*
 		 * Create a large spinner (provided by spin.js) that appears in place
@@ -164,10 +166,12 @@ $(document).ready(function(){
 				return false
 			})()
 
+			treemapContainer.toggleClass('no-selection', !hasSelection)
+
 			if(hasSelection) {
 				return treeProjector.projectPackageFilterTree(function(n){ return sel[n.id] })
 			} else {
-				return treeProjector.projectFullTree()
+				return treeProjector.projectEmptyTree()
 			}
 		})
 
@@ -225,15 +229,6 @@ $(document).ready(function(){
 				$('#performance-warning').toggleClass('in-view', showWarning)
 			})
 	})
-
-	function joinLegendWithCoverage(legendData, coverageRecords){
-		console.log('stuff!', legendData, coverageRecords)
-		// TODO: formulate the TooltipContentProvider based on the combined values
-	}
-
-	Bacon.combineWith(joinLegendWithCoverage, traceControls.legendData, traceControls.coverageRecords)
-		// .map(function(){ return 'should update that stuff'})
-		// .log('legend+coverage')
 
 	var treemapTooltipContentProvider = {
 		/*

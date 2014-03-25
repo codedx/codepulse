@@ -27,56 +27,6 @@
 	var severityColor = d3.scale.linear()
 		.domain([0,1,2,3])
 		.range(['white', 'yellow', 'orange', 'red'])
-
-	var treemapColoringOptions = {
-		'max-severity': function(allNodes){
-			var getMaxSeverity = selectPath('weaknessStats', 'maxSeverity')
-			
-			return function(node){ 
-				if(node.kind == 'package') return 'grey'
-				if(node.kind == 'root') return 'grey'
-				var s = getMaxSeverity(node)
-				if(s) return severityColor(s)
-				else return 'lightgrey'
-			}
-		},
-		
-		'avg-severity': function(allNodes){
-			var getAvgSeverity = selectPath('weaknessStats', 'avgSeverity')
-			return function(node){
-				if(node.kind == 'package') return 'grey'
-				if(node.kind == 'root') return 'grey'
-				var s = getAvgSeverity(node)
-				if(s) return severityColor(s)
-				else return 'lightgrey'
-			}
-		},
-		
-		'weakness-count': function(allNodes){
-			var getWeaknessCount = selectPath('weaknessStats', 'count')
-			var maxCount = d3.max(allNodes, function(t){
-				if(t.kind == 'package') return 0
-				return getWeaknessCount(t) || 0
-			})
-			var countScale = d3.scale.linear()
-				.domain([0, maxCount])
-				.range(['white', 'red'])
-			return function(node){
-				if(node.kind == 'package') return 'grey'
-				if(node.kind == 'root') return 'grey'
-				var count = getWeaknessCount(node) || 0
-				return countScale(count)
-			}
-		},
-		
-		'coverage': function(allNodes){
-			return function(node){
-				if(node.kind == 'package' || node.kind == 'root') return 'grey'
-				if(node.coverage.length) return 'purple'
-				else return 'silver'
-			}
-		}
-	}
 	
 	// timing values that are considered "slow" for specific tasks
 	var profileTimingSlowThresholds = {
@@ -201,8 +151,6 @@
 			.toProperty(false)
 			.skipDuplicates()
 			//.log('timing slow?')
-
-		window.treemapPrivate = privateState
 		
 		resetLayout(privateState)
 
@@ -763,17 +711,14 @@
 	/**
 	 * Returns the appropriate fill function for the treemap's
 	 * nodes based on the current value of widgetState.nodeColoring.
-	 * For string values, return the coloring function from 
-	 * `treemapColoringOptions`; for function values, return the 
-	 * value of the function evaluated on the current `treemapNodes`.
+	 * `nodeColoring` should be a function, which will be evaluated
+	 * on the current `treemapNodes` in order to return the new fill
+	 * function.
 	 */
 	function updateFillFunction(widgetState){
 		var c = widgetState.nodeColoring,
 			treemapNodes = widgetState.dataArray || []
-			ct = typeof c
-		if(ct == 'string') return widgetState.nodeFillFunc = treemapColoringOptions[c](treemapNodes)
-		if(ct == 'function') return widgetState.nodeFillFunc = c(treemapNodes)
-		throw 'Invalid type for treemapColoring: ' + ct
+		return widgetState.nodeFillFunc = c(treemapNodes)
 	}
 	
 	function labelStyle(){ this

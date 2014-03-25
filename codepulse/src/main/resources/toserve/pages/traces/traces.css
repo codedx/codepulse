@@ -306,3 +306,29 @@ body {
  	text-decoration: none;
  	color: black;
  }
+
+/***********************************\
+| Treemap Area No Selection Message |
+\***********************************/
+
+ #treemap-container.no-selection .widget-body { display: none; }
+ #treemap-container.no-selection .no-selection-message { display: block; }
+
+ #treemap-container .no-selection-message {
+ 	position: absolute;
+ 	top: 10%;
+ 	left: 10%;
+ 	bottom: 10%;
+ 	right: 10%;
+
+ 	padding: 35% 10% 0 10%;
+ 	line-height: 30px;
+ 	font-size: x-large;
+ 	text-align: center;
+
+ 	color: silver;
+ 	border: 3px dashed;
+
+ 	/* not displayed unless the container has '.no-selection' */
+ 	display: none;
+ }
