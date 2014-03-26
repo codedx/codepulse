@@ -20,9 +20,9 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
-import com.secdec.codepulse.data.model.bytecode.AsmVisitors
-import com.secdec.codepulse.data.model.bytecode.CodeForestBuilder
-import com.secdec.codepulse.data.util.ZipEntryChecker
+import com.secdec.codepulse.data.bytecode.AsmVisitors
+import com.secdec.codepulse.data.bytecode.CodeForestBuilder
+import com.secdec.codepulse.util.ZipEntryChecker
 import net.liftweb.common.Box
 import net.liftweb.common.Box.option2Box
 import net.liftweb.common.Failure

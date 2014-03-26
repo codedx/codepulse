@@ -30,7 +30,7 @@ import net.liftweb.json.JsonParser
 import net.liftweb.json.Printer
 import net.liftweb.util.Helpers.AsInt
 import java.util.zip.ZipInputStream
-import com.secdec.codepulse.data.model.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 
 /** Object that is responsible for serializing and deserializing TraceData instances.
   * The serialized format for a TraceData is JSON, compressed in a Zip file, in the

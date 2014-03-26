@@ -24,7 +24,7 @@ import scala.collection.mutable.{ Map => MutableMap }
 import scala.collection.mutable.{ Set => MutableSet }
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
-import com.secdec.codepulse.data.model.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import reactive.EventSource
 import reactive.EventStream
 

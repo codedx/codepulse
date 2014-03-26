@@ -22,7 +22,7 @@ package com.secdec.codepulse.tracer
 import scala.util.Random
 import java.io.File
 import java.io.BufferedInputStream
-import com.secdec.codepulse.data.util.RichFile._
+import com.secdec.codepulse.util.RichFile._
 import org.apache.commons.io.IOUtils
 
 class TraceDataSaveManager(saveDir: File) {

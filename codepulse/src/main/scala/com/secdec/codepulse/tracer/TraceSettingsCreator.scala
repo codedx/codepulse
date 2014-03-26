@@ -20,7 +20,7 @@
 package com.secdec.codepulse.tracer
 
 import com.secdec.bytefrog.hq.config.TraceSettings
-import com.secdec.codepulse.data.model.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 
 object TraceSettingsCreator {
 
