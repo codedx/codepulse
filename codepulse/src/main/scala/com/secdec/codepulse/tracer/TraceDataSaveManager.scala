@@ -24,6 +24,7 @@ import java.io.File
 import java.io.BufferedInputStream
 import com.secdec.codepulse.util.RichFile._
 import org.apache.commons.io.IOUtils
+import com.secdec.codepulse.data.trace.TraceId
 
 class TraceDataSaveManager(saveDir: File) {
 

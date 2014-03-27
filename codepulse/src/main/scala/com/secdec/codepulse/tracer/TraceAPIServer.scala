@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
 import scala.concurrent.Future
 import language.implicitConversions
+import com.secdec.codepulse.data.trace.TraceId
 
 class TraceAPIServer(manager: TraceManager) extends RestHelper {
 

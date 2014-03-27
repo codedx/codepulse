@@ -30,6 +30,7 @@ import concurrent.duration._
 import net.liftweb.util.Helpers.AsInt
 import reactive.Observing
 import reactive.EventSource
+import com.secdec.codepulse.data.trace.TraceId
 
 object TraceManager {
 	lazy val defaultActorSystem = {

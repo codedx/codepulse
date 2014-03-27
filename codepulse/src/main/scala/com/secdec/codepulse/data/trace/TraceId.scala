@@ -17,7 +17,8 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.tracer
+package com.secdec.codepulse.data.trace
+
 import net.liftweb.util.Helpers.AsInt
 
 /** Identifier class associated with TracingTargets.

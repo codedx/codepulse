@@ -30,6 +30,7 @@ import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
+import com.secdec.codepulse.data.trace.TraceId
 
 sealed trait TracingTargetEvent
 object TracingTargetEvent {

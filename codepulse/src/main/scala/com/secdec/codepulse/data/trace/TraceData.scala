@@ -17,27 +17,30 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.pages.traces
+package com.secdec.codepulse.data.trace
 
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.tracer.TraceManager
-import com.secdec.codepulse.tracer.TracingTarget
+/** Main entry point for getting a `TraceData` for a certain trace ID.
+  *
+  * @author robertf
+  */
+trait TraceDataProvider {
+	def getTrace(id: TraceId): TraceData
+	def traceList: List[TraceId]
+}
 
-import net.liftweb.common.Box
-import net.liftweb.sitemap.Menu
+/** Access trait for complete set of trace data.
+  *
+  * @author robertf
+  */
+trait TraceData {
+	def metadata: TraceMetadata
+	def treeNodeData: TreeNodeDataAccess
+	def recordings: RecordingMetadataAccess
+	def encounters: TraceEncounterDataAccess
 
-object TraceDetailsPage {
+	/** Flush any buffered data to the backing data store without detaching. */
+	def flush(): Unit
 
-	def traceMenu(traceManager: TraceManager) = {
-		def parse(link: String): Box[TracingTarget] = for {
-			traceId <- TraceId unapply link
-			target <- traceManager getTrace traceId
-		} yield target
-		def encode(target: TracingTarget): String = target.id.num.toString
-
-		Menu.param[TracingTarget]("Trace", "Trace", parse, encode) / "traces"
-	}
-
-	def traceHref(traceId: TraceId) = s"/traces/${traceId.num}"
-
+	/** Cleanly detach from whatever backing data store is in place. */
+	def close(): Unit
 }

@@ -29,6 +29,7 @@ import akka.actor.Props
 import net.liftweb.common.Loggable
 import scala.concurrent.Promise
 import scala.concurrent.Future
+import com.secdec.codepulse.data.trace.TraceId
 
 trait TraceDataSaver {
 	def requestSave(id: TraceId, data: TraceData): Unit

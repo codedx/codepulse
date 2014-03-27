@@ -17,27 +17,14 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.pages.traces
+package com.secdec.codepulse.data.trace
 
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.tracer.TraceManager
-import com.secdec.codepulse.tracer.TracingTarget
-
-import net.liftweb.common.Box
-import net.liftweb.sitemap.Menu
-
-object TraceDetailsPage {
-
-	def traceMenu(traceManager: TraceManager) = {
-		def parse(link: String): Box[TracingTarget] = for {
-			traceId <- TraceId unapply link
-			target <- traceManager getTrace traceId
-		} yield target
-		def encode(target: TracingTarget): String = target.id.num.toString
-
-		Menu.param[TracingTarget]("Trace", "Trace", parse, encode) / "traces"
-	}
-
-	def traceHref(traceId: TraceId) = s"/traces/${traceId.num}"
-
+/** Access trait for nodes encountered.
+  *
+  * @author robertf
+  */
+trait TraceEncounterDataAccess {
+	def record(recordings: List[Int], encounteredNodes: List[Int]): Unit
+	def get(): Set[Int]
+	def get(recording: Int): Set[Int]
 }
