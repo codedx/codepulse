@@ -48,7 +48,7 @@ object TraceManager {
 	lazy val default = new TraceManager(defaultActorSystem, defaultStorageDir)
 }
 
-class TraceManager(actorSystem: ActorSystem, storageDir: File) extends Observing {
+class TraceManager(val actorSystem: ActorSystem, storageDir: File) extends Observing {
 
 	private val traces = MutableMap.empty[TraceId, TracingTarget]
 	private val saveManager = new TraceDataSaveManager(storageDir)
@@ -128,7 +128,7 @@ class TraceManager(actorSystem: ActorSystem, storageDir: File) extends Observing
 
 		// Schedule an auto-save request 3 times a second
 		import actorSystem.dispatcher
-		actorSystem.scheduler.schedule(333.millis, 333.millis) { saveDirtyTraces }
+		// actorSystem.scheduler.schedule(333.millis, 333.millis) { saveDirtyTraces }
 
 		// Also make sure any dirty traces are saved when the JVM goes down
 		Runtime.getRuntime.addShutdownHook(new Thread {

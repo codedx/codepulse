@@ -41,7 +41,9 @@ import net.liftweb.http.InMemoryResponse
 import java.text.SimpleDateFormat
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
 import scala.concurrent.Future
+import scala.concurrent.duration._
 import language.implicitConversions
+import akka.actor.Cancellable
 
 class TraceAPIServer(manager: TraceManager) extends RestHelper {
 
@@ -49,6 +51,47 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 		LiftRules.dispatch.append(TraceAPIServer.this)
 		this
 	}
+
+	val accumulationRequestControllers = collection.mutable.Map.empty[TraceId, AccumulationRequestController]
+
+	/*
+	 * For a TracingTarget, initialize a "Controller" that can match requests for trace accumulation
+	 * data to the actual data, delaying each request's response by up to 10 seconds if no data is
+	 * available at the time the request is made.
+	 * 
+	 * When the Controller is created, set up a task that polls the trace data 3 times per second,
+	 * putting it into the controller. Meanwhile, as API requests for the accumulation data come in,
+	 * they are forwarded to the same Controller.
+	 * 
+	 * Note that targets may be deleted (removed from the trace manager), but there is no event to
+	 * listen for this. As a workaround, check that the `target` is still in the trace manager before
+	 * reading its data. If the target has been removed, cancel the polling task, so that there isn't
+	 * an extra reference to the target that prevents it from being GC'd.
+	 */
+	def getAccumulationRequestController(target: TracingTarget) = accumulationRequestControllers getOrElseUpdate (target.id, {
+		val actorSystem = manager.actorSystem
+		val interval = 333.millis
+
+		val controller = new AccumulationRequestController(actorSystem)
+		var task: Option[Cancellable] = None
+
+		val c: Cancellable = actorSystem.scheduler.schedule(interval, interval) {
+			// ensure that the target is still managed...
+			manager.getTrace(target.id) match {
+				case None =>
+					task foreach { _.cancel }
+
+				case Some(_) =>
+					target.traceData.getAndClearRecentlyEncounteredNodes { data =>
+						controller.enterData(data)
+					}
+			}
+		}
+
+		task = Some(c)
+
+		controller
+	})
 
 	/** Describes a means of converting a path to and from a piece of data.
 	  * PathMatchers can be used as extractors within this server for handling
@@ -308,10 +351,18 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 		// GET recently traced method ids as a json array
 		//  - list contains method ids that were traced since the last request to this URL
 		case Paths.Accumulation(target) Get req =>
-			val methodIdsJson = target.traceData.getAndClearRecentlyEncounteredNodes { itr =>
-				JArray(itr.map(JInt(_)).toList)
+			RestContinuation.async { sendResponse =>
+				val controller = getAccumulationRequestController(target)
+
+				// make the request through the controller, so that it will respond when
+				// it has some actual data (or if it waits too long to get the data)
+				controller.makeRequest { accumulatedMethodIds =>
+					val ids = accumulatedMethodIds.toList
+					val json: JValue = ids
+					val response = JsonResponse(json)
+					sendResponse(response)
+				}
 			}
-			JsonResponse(methodIdsJson)
 	}
 }
 

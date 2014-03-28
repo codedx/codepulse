@@ -197,17 +197,28 @@ trait HasRecordingsAndTheirEncounters extends HasDirtyFlag {
 
 trait HasAccumulatingEncounterData extends HasDirtyFlag {
 	val recentlyEncounteredNodes = MutableSet.empty[Int]
+	protected val encountersLock = new concurrent.Lock
 
 	def addRecentlyEncounteredNodes(nodeIds: TraversableOnce[Int]): Unit = {
-		recentlyEncounteredNodes ++= nodeIds
-		markDirty()
+		encountersLock.acquire
+		try {
+			recentlyEncounteredNodes ++= nodeIds
+			markDirty()
+		} finally {
+			encountersLock.release()
+		}
 	}
 
-	def getAndClearRecentlyEncounteredNodes[T](f: TraversableOnce[Int] => T): T = {
-		val result = f(recentlyEncounteredNodes)
-		if (!recentlyEncounteredNodes.isEmpty) markDirty()
-		recentlyEncounteredNodes.clear()
-		result
+	def getAndClearRecentlyEncounteredNodes[T](f: Traversable[Int] => T): T = {
+		encountersLock.acquire
+		try {
+			val result = f(recentlyEncounteredNodes.toSet)
+			if (!recentlyEncounteredNodes.isEmpty) markDirty()
+			recentlyEncounteredNodes.clear()
+			result
+		} finally {
+			encountersLock.release()
+		}
 	}
 }
 

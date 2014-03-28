@@ -17,20 +17,12 @@
  * limitations under the License.
  */
 
-;(function(exports){
-
-	// Bacon.js Busses and Properties are lazy, so if nothing is listening
-	// to them, they won't do work. This leads to bugs where a property isn't
-	// updated when its underlying Bus is updated. This function ensures that
-	// a listener is added to the Bus or Property, to avoid these bugs.
-	function listenToBacon(bacon){
-		bacon.onValue(function(){})
-	}
-
-	Bacon.Observable.prototype.noLazy = function(){
-		this.onValue(function(){})
-		return this
-	}
+// Recording Management:
+// 
+// This file adds methods to the 'Trace' global object, for 'managing' recordings.
+// It also handles requests for live trace data accumulation and trace coverage
+// records, exposing them as event streams and properties.
+;(function(Trace){
 
 	// ---------------------------------------------------------------
 	// Recording Manager:
@@ -40,103 +32,128 @@
 	// It manages a selection state, and will continuously request
 	// data updates for the recorded methods of the selected recording.
 	// ----------------------------------------------------------------
-	function RecordingManager(traceInfo) {
-		var nextId = 0,
-			recordings = {},
-			activeRecordings = {},
-			traceEnded = false,
-			self = this
-		
-		var legendData = {},
-			legendDataEvents = new Bacon.Bus()
+	var nextId = 0,
+		recordings = {},
+		activeRecordings = d3.set()
+	
+	var activeRecordingsChanges = new Bacon.Bus()
+	Trace.activeRecordingsProp = activeRecordingsChanges.toProperty(activeRecordings).noLazy()
 
-		this.legendDataProp = legendDataEvents.toProperty(legendData).debounce(100).noLazy()
+	// Add a Recording for management. Doing so associates the
+	// given `recording` with an ID, which is returned.
+	Trace.addRecording = function(recording){
+		var id = nextId++
 
-		var activeRecordingsChanges = new Bacon.Bus()
-		this.activeRecordingsProp = activeRecordingsChanges.toProperty(activeRecordings).noLazy()
+		recordings[id] = recording
 
-		this.addRecording = function(recording){
-			var id = nextId++
-
-			recordings[id] = recording
-
-			// listen for selection changes on the recording
-			recording.selected.onValue(function(selected){
-				activeRecordings[id] = selected
+		// listen for selection changes on the recording
+		recording.selected
+			.takeWhile(function(){ return recordings[id] == recording })
+			.onValue(function(selected){
+				activeRecordings[selected? 'add' : 'remove'](id)
+				// activeRecordings[id] = selected
 				activeRecordingsChanges.push(activeRecordings)
 			})
 
-			// treat the label and color as legend data, sending it to the `legendDataEvents` bus
-			recording.label
-				.combine(recording.color, function(label, color){ 
-					return {label: label || 'Untitled Recording', color: color} 
-				})
-				.onValue(function(o){ legendData[id] = o; legendDataEvents.push(legendData) })
+		return id
+	}
 
-			return id
-		}
+	// Look up a managed recording by its ID.
+	Trace.getRecording = function(id){
+		return recordings[id]
+	}
 
-		this.traceEnded = function(){
-			traceEnded = true
-			// TODO: the initial intent for this was to run side-effects... so do that.
+	// Iterate through each managed recording with `f`.
+	// argument: f = function(recording, id){...}
+	Trace.forEachRecording = function(f){
+		for(var id in recordings){
+			var rec = recordings[id]
+			f(rec, id)
 		}
-		
-		this.removeRecording = function(recId){
-			delete activeRecordings[recId]
-			delete recordings[recId]
-		}
+	}
 
-		this.toggleSelect = function(id){
-			if(!recordings[id]) return
-			
-			var makeItActive = activeRecordings[id] = !activeRecordings[id]
-			
-			//set the new one to the opposite state
-			recordings[id]['ui-activate'](makeItActive)
-		}
+	// Get an array of each managed recording's IDs.
+	Trace.getManagedRecordingIds = function(){
+		return Object.keys(recordings)
+	}
 
-		function getRecordsReqParams(){
-			var p = {}
-			for(var k in activeRecordings){
-				if(activeRecordings[k]) {
-					var rec = recordings[k]
-					p[rec.getDataKey()] = k
-				}
+	// Get an array of managed recordings that are current `selected`.
+	Trace.getActiveRecordingIds = function(){
+		var s = d3.set()
+		for(var id in recordings){
+			var rec = recordings[id]
+			rec.isSelected() && s.add(id)
+		}
+		return s
+	}
+	
+	// Remove a recording by its managed ID.
+	Trace.removeRecording = function(recId){
+		// delete activeRecordings[recId]
+		activeRecordings.remove(recId)
+		activeRecordingChanges.push(activeRecordings)
+		delete recordings[recId]
+	}
+
+	// For use with the trace coverage request. This function generates
+	// an object to represent the request parameters, e.g.
+	// {'all': 0, 'recent/10000': 1, 'recording/5': 2}
+	// The keys are recording `dataKey`s, and the values are the
+	// managed IDs. When the trace coverage request is answered, the
+	// values are used to represent their respective recordings.
+	function getRecordsReqParams(){
+		var p = {}
+		for(var id in recordings){
+			var rec = recordings[id]
+			p[rec.getDataKey()] = id
+		}
+		return p
+	}
+
+	// Exposes the trace coverage (as detailed records) for each
+	// of the currently-selected recordings, as an event stream
+	// which updates roughly every 2 seconds.
+	Trace.coverageRecords = Trace
+		.requestResponseStream(
+			Trace.traceCoverageUpdateRequests.debounce(100),
+			500, // throttle time after requests finish
+			function(request, callback){
+				TraceAPI.requestTraceCoverageRecords(getRecordsReqParams(), callback)
 			}
-			return p
-		}
+		)
+		.toProperty().noLazy()
 
-		function getCoverageReqParams(){
-			var reqParams = {}
+	// As the trace coverage is updated, calculate how many methods were covered
+	// by each recording, then update their coverage counts accordingly.
+	Trace.coverageRecords
+		.map(function(records){
+			var coverageCounts = {}
 			for(var id in recordings){
-				var rec = recordings[id]
-				reqParams[rec.getDataKey()] = id
+				coverageCounts[id] = 0
 			}
-			return reqParams
-		}
-
-		// Every 2 seconds, find the trace coverage counts for each recording,
-		// and set their UI state according to their trace coverage percentage.
-		TraceAPI.streamTraceCoverageCounts(getCoverageReqParams, 2000).onValue(function(json){
-			for(id in json){
-				var numCovered = json[id]
-				recordings[id].setCoverage(numCovered, traceInfo.totalNumMethods)
+			for(var methodId in records){
+				var coverage = records[methodId]
+				coverage.forEach(function(id){
+					coverageCounts[id]++
+				})
+			}
+			return coverageCounts
+		})
+		.onValue(function(coverageCounts){
+			for(var id in coverageCounts){
+				recordings[id].setCoverage(coverageCounts[id], Trace.totalNumMethods)
 			}
 		})
 
-		// Exposes the trace coverage (as detailed records) for each
-		// of the currently-selected recordings, as an event stream
-		// which updates roughly every 2 seconds.
-		this.coverageRecordEvents = TraceAPI.streamTraceCoverageRecords(getRecordsReqParams, 2000)
+	// Exposes the latest live trace data events. Each event is an
+	// array of IDs of methods that were traced since the last request.
+	// Events are requested roughly 3 times per second.
+	Trace.liveTraceData = TraceAPI.streamTraceCoverageEvents(300).filter('.length')
 
-		// Exposes the latest live trace data events. Each event is an
-		// array of IDs of methods that were traced since the last request.
-		// Events are requested roughly 3 times per second.
-		this.liveTraceData = TraceAPI.streamTraceCoverageEvents(300)
+	// Incoming live trace data means that the coverage may have changed, so a new
+	// trace coverage request should be made.
+	Trace.traceCoverageUpdateRequests.plug(
+		Trace.liveTraceData
+	)
 
-	}
-	// End RecordingManager class definition
-
-	exports.RecordingManager = RecordingManager
-
-})(this);
+})(this.Trace || (this.Trace = {}));

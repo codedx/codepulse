@@ -20,6 +20,7 @@
 package com.secdec.codepulse
 
 import language.implicitConversions
+import akka.actor.ActorSystem
 
 package object tracer {
 
@@ -35,13 +36,16 @@ package object tracer {
 
 	implicit def bootVarToInstance[T](v: BootVar[T]): T = v.apply()
 
+	val traceActorSystem = new BootVar[ActorSystem]
 	val traceManager = new BootVar[TraceManager]
 	val traceFileUploadServer = new BootVar[TraceFileUploadHandler]
 	val traceAPIServer = new BootVar[TraceAPIServer]
 
 	def boot() {
-		val tm = TraceManager.default
+		val as = TraceManager.defaultActorSystem
+		val tm = new TraceManager(as, TraceManager.defaultStorageDir)
 
+		traceActorSystem set as
 		traceManager set tm
 		traceFileUploadServer set new TraceFileUploadHandler(tm).initializeServer
 		traceAPIServer set new TraceAPIServer(tm).initializeServer
