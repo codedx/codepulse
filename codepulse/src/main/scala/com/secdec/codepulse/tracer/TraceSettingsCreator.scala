@@ -26,16 +26,16 @@ import com.secdec.codepulse.data.trace.TraceData
 object TraceSettingsCreator {
 
 	def generateTraceSettings(traceData: TraceData): TraceSettings = {
-		val inclusions = traceData.treeNodeData.iterate {
-			for {
-				treeNode <- _
+		val inclusions = traceData.treeNodeData.iterate { it =>
+			(for {
+				treeNode <- it
 				if treeNode.kind == CodeTreeNodeKind.Pkg
 			} yield {
 				val slashedName = treeNode.label.replace('.', '/')
 				"^" + slashedName + "/[^/]+$"
-			}
+			}).toList
 		}
 
-		TraceSettings(exclusions = List(".*"), inclusions.toList)
+		TraceSettings(exclusions = List(".*"), inclusions)
 	}
 }
