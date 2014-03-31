@@ -29,14 +29,15 @@ body {
  	/* width = full screen minus:
  	   - 200px (the width of the .widget-label)
  	   -  50px (the width of the .widget-method-count)
- 	   -  40px (the width of the percentage marker compact)
+ 	   -  60px (the width of the percentage marker compact)
  	   - 241px (the width of the side bar)
- 	   = 531px
+ 	   = 551px
  	*/
- 	width: calc(100% - 531px);
+ 	width: calc(100% - 551px);
  
  	transition: left .3s ease;
  	background-color: #9C9C9C;
+ 	border-left: 1px solid black;
  }
  
  .middle-column-alt:not(.in-view):hover {
@@ -47,10 +48,11 @@ body {
  	/* left = 
  		+ 200px (width of .widget-label)
  		+  50px (width of .widget-method-count)
- 		+  40px (width of percentage marker compact)
- 		= 290px
+ 		+  60px (width of percentage marker compact)
+ 		= 310px
  	*/
- 	left: 290px;
+ 	left: 310px;
+ 	border-left: none;
  }
 
  /* Special case for the traceSwitcher. It needs to be in front of
@@ -219,7 +221,11 @@ body {
 
  .treemap-header {
  	height: 40px;
- 	box-shadow: 0px 4px 2px -2px black;
+ 	border-bottom: 2px solid black;
+ }
+
+ .in-view .treemap-header {
+ 	border-color: black;
  }
 
  .treemap-header .header-text {
@@ -247,6 +253,7 @@ body {
  
  	background-color: #9C9C9C;
  	display: inline-block;
+ 	border-left: 1px solid black;
  }
  
  #show-treemap-button:hover {
@@ -255,6 +262,7 @@ body {
 
  #show-treemap-button.expanded {
  	left: 0;
+ 	border-left: none;
  }
 
  #show-treemap-button:after { content: "\25C0"; }

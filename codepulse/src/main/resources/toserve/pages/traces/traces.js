@@ -165,6 +165,7 @@ $(document).ready(function(){
 		// Match the 'compactMode' with the 'showTreemap' state.
 		showTreemap.onValue(function(show){
 			controller.compactMode(show)
+			$('.packages-header').toggleClass('compact', show)
 		})
 
 		// Highlight the package widgets when trace data comes in
