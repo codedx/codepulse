@@ -24,6 +24,9 @@ package com.secdec.codepulse.data.trace
   * @author robertf
   */
 trait RecordingMetadataAccess {
+	def all: List[RecordingMetadata]
+	def contains(id: Int): Boolean
+
 	def create(): RecordingMetadata
 	def get(id: Int): RecordingMetadata
 	def remove(id: Int): Unit

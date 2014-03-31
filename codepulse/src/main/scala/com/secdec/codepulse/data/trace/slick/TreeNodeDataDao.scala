@@ -46,7 +46,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		def parentId = column[Option[Int]]("parent_id")
 		def label = column[String]("label", O.NotNull)
 		def kind = column[CodeTreeNodeKind]("kind", O.NotNull)
-		def * = (id, parentId, label, kind) <> (TreeNode.tupled, TreeNode.unapply)
+		def size = column[Option[Int]]("size", O.Nullable)
+		def * = (id, parentId, label, kind, size) <> (TreeNode.tupled, TreeNode.unapply)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
 
@@ -78,11 +79,19 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		} finally it.close
 	}
 
-	def storeMethodSignature(signature: String, node: TreeNode)(implicit session: Session) {
-		methodSignatureNodeMap += signature -> node.id
+	def storeMethodSignature(signature: String, nodeId: Int)(implicit session: Session) {
+		methodSignatureNodeMap += signature -> nodeId
+	}
+
+	def storeMethodSignatures(signatures: Iterable[(String, Int)])(implicit session: Session) {
+		methodSignatureNodeMap ++= signatures
 	}
 
 	def storeNode(node: TreeNode)(implicit session: Session) {
 		treeNodeData += node
+	}
+
+	def storeNodes(nodes: Iterable[TreeNode])(implicit session: Session) {
+		treeNodeData ++= nodes
 	}
 }

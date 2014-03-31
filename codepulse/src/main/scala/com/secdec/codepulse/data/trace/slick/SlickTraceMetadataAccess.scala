@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.data.trace.slick
 
-import scala.slick.jdbc.JdbcBackend.Database
+import scala.slick.jdbc.JdbcBackend.{ Database, Session }
 import com.secdec.codepulse.data.trace.TraceMetadataAccess
 import net.liftweb.util.Helpers.AsLong
 
@@ -28,30 +28,39 @@ import net.liftweb.util.Helpers.AsLong
   * @author robertf
   */
 private[slick] class SlickTraceMetadataAccess(dao: TraceMetadataDao, db: Database) extends TraceMetadataAccess {
+	private val cache = collection.mutable.Map.empty[String, Option[String]]
+
+	private def get(key: String)(implicit session: Session) = cache.getOrElseUpdate(key, dao get key)
+	private def set(key: String, value: String)(implicit session: Session): Unit = set(key, Some(value))
+	private def set(key: String, value: Option[String])(implicit session: Session) {
+		dao.set(key, value)
+		cache += key -> value
+	}
+
 	def name = db withSession { implicit session =>
-		dao get "name"
+		get("name")
 	} getOrElse "Untitled"
 
 	def name_=(newName: String) = db withTransaction { implicit transaction =>
-		dao.set("name", newName)
+		set("name", newName)
 		newName
 	}
 
 	def creationDate = db withSession { implicit session =>
-		dao.get("creationDate").flatMap(AsLong.unapply)
+		get("creationDate").flatMap(AsLong.unapply)
 	} getOrElse System.currentTimeMillis
 
 	def creationDate_=(newDate: Long) = db withTransaction { implicit transaction =>
-		dao.set("creationDate", newDate.toString)
+		set("creationDate", newDate.toString)
 		newDate
 	}
 
 	def importDate = db withSession { implicit session =>
-		dao.get("importDate").flatMap(AsLong.unapply)
+		get("importDate").flatMap(AsLong.unapply)
 	}
 
 	def importDate_=(newDate: Option[Long]) = db withTransaction { implicit transaction =>
-		dao.set("importDate", newDate.map(_.toString))
+		set("importDate", newDate.map(_.toString))
 		newDate
 	}
 }

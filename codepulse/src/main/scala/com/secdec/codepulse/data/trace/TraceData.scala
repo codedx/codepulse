@@ -25,7 +25,23 @@ package com.secdec.codepulse.data.trace
   */
 trait TraceDataProvider {
 	def getTrace(id: TraceId): TraceData
+	def removeTrace(id: TraceId): Unit
 	def traceList: List[TraceId]
+}
+
+/** Provides instances of the default TraceDataProvider implementation.
+  *
+  * @author robertf
+  */
+object TraceDataProvider {
+	lazy val storageDir = {
+		val basePath = com.secdec.codepulse.paths.appData
+		val dir = new java.io.File(basePath, "codepulse-traces")
+		dir.mkdirs
+		dir
+	}
+
+	lazy val default: TraceDataProvider = new slick.SlickH2TraceDataProvider(storageDir)
 }
 
 /** Access trait for complete set of trace data.

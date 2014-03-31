@@ -21,16 +21,19 @@ package com.secdec.codepulse.tracer
 
 import com.secdec.bytefrog.hq.config.TraceSettings
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.trace.TraceData
 
 object TraceSettingsCreator {
 
 	def generateTraceSettings(traceData: TraceData): TraceSettings = {
-		val inclusions = for {
-			treeNode <- traceData.treeNodes
-			if treeNode.kind == CodeTreeNodeKind.Pkg
-		} yield {
-			val slashedName = treeNode.label.replace('.', '/')
-			"^" + slashedName + "/[^/]+$"
+		val inclusions = traceData.treeNodeData.iterate {
+			for {
+				treeNode <- _
+				if treeNode.kind == CodeTreeNodeKind.Pkg
+			} yield {
+				val slashedName = treeNode.label.replace('.', '/')
+				"^" + slashedName + "/[^/]+$"
+			}
 		}
 
 		TraceSettings(exclusions = List(".*"), inclusions.toList)

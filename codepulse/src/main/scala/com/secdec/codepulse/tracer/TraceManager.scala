@@ -31,6 +31,8 @@ import net.liftweb.util.Helpers.AsInt
 import reactive.Observing
 import reactive.EventSource
 import com.secdec.codepulse.data.trace.TraceId
+import com.secdec.codepulse.data.trace.TraceDataProvider
+import com.secdec.codepulse.data.trace.TraceData
 
 object TraceManager {
 	lazy val defaultActorSystem = {
@@ -39,23 +41,15 @@ object TraceManager {
 		sys
 	}
 
-	lazy val defaultStorageDir = {
-		val basePath = com.secdec.codepulse.paths.appData
-		val dir = new File(basePath, "codepulse-traces")
-		dir.mkdirs
-		dir
-	}
-
-	lazy val default = new TraceManager(defaultActorSystem, defaultStorageDir)
+	lazy val default = new TraceManager(defaultActorSystem)
 }
 
-class TraceManager(actorSystem: ActorSystem, storageDir: File) extends Observing {
+class TraceManager(actorSystem: ActorSystem) extends Observing {
 
 	private val traces = MutableMap.empty[TraceId, TracingTarget]
-	private val saveManager = new TraceDataSaveManager(storageDir)
+	private val dataProvider: TraceDataProvider = traceDataProvider
+	private val transientDataProvider: TransientTraceDataProvider = transientTraceDataProvider
 	val traceListUpdates = new EventSource[Unit]
-
-	val traceDataSaver = TraceDataSaveActor(actorSystem, saveManager)
 
 	/** Looks up a TracingTarget from the given `traceId` */
 	def getTrace(traceId: TraceId): Option[TracingTarget] = traces.get(traceId)
@@ -65,24 +59,25 @@ class TraceManager(actorSystem: ActorSystem, storageDir: File) extends Observing
 	/** Creates and adds a new TracingTarget with the given `traceData`, and an
 	  * automatically-selected TraceId.
 	  */
-	def addTrace(traceData: TraceData): TracingTarget = {
+	def createTrace(): TraceId = {
 		val traceId =
 			if (traces.isEmpty) TraceId(0)
 			else traces.keysIterator.max + 1
 
-		addTrace(traceId, traceData)
+		registerTrace(traceId, dataProvider getTrace traceId)
+
+		traceId
 	}
 
 	/** Creates a new TracingTarget based on the given `traceId` and `traceData`,
 	  * and returns it after adding it to this TraceManager.
 	  */
-	def addTrace(traceId: TraceId, traceData: TraceData): TracingTarget = {
-		val target = AkkaTracingTarget(actorSystem, traceId, traceData)
+	private def registerTrace(traceId: TraceId, traceData: TraceData) {
+		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId)
 		traces.put(traceId, target)
-		traceData.markDirty() // so it will be saved soon
 
 		// cause a traceListUpdate when this trace's name changes
-		traceData.nameChanges ->> { traceListUpdates fire () }
+		traceData.metadata.nameChanges ->> { traceListUpdates fire () }
 
 		// also cause a traceListUpdate right now, since we're adding to the list
 		traceListUpdates fire ()
@@ -91,49 +86,33 @@ class TraceManager(actorSystem: ActorSystem, storageDir: File) extends Observing
 		target.subscribe { stateUpdates =>
 			stateUpdates ->> { traceListUpdates fire () }
 		}
-
-		target
 	}
 
 	def removeTrace(traceId: TraceId): Option[TracingTarget] = {
 		for (trace <- traces remove traceId) yield {
-			saveManager.delete(traceId)
+			dataProvider.removeTrace(traceId)
 			traceListUpdates fire ()
 			trace
 		}
 	}
 
-	/** For each tracing target, if its data has been marked as dirty,
-	  * save the data and clear the dirtiness flag.
+	/** For each tracing target, make sure all data has been flushed.
 	  */
-	def saveDirtyTraces = for { (id, target) <- traces } {
-		val data = target.traceData
-		data.clearDirtyWith {
-			traceDataSaver.requestSave(id, data)
-		}
-	}
+	def flushTraces = traces.values.foreach(_.traceData.flush)
 
 	/* Initialization */ {
 		// Load trace data files that are stored by the save manager.
 		for {
-			id <- saveManager.listStoredIds
-			data <- saveManager.load(id)
+			id <- dataProvider.traceList
+			data = dataProvider.getTrace(id)
 		} {
 			println(s"loaded trace $id")
-			addTrace(id, data)
-
-			// addTrace automatically marks the data as dirty, but this is
-			// a special case, where the data is fresh off the disk.
-			data.clearDirtyWith()
+			registerTrace(id, data)
 		}
-
-		// Schedule an auto-save request 3 times a second
-		import actorSystem.dispatcher
-		actorSystem.scheduler.schedule(333.millis, 333.millis) { saveDirtyTraces }
 
 		// Also make sure any dirty traces are saved when the JVM goes down
 		Runtime.getRuntime.addShutdownHook(new Thread {
-			override def run = { saveDirtyTraces }
+			override def run = flushTraces
 		})
 	}
 

@@ -23,8 +23,9 @@ import com.secdec.bytefrog.hq.data.processing.DataProcessor
 import com.secdec.bytefrog.hq.protocol.DataMessageContent
 import com.secdec.codepulse.data.MethodSignature
 import com.secdec.codepulse.data.MethodSignatureParser
+import com.secdec.codepulse.data.trace.TraceData
 
-class TraceRecorderDataProcessor(traceData: TraceData) extends DataProcessor {
+class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientTraceData) extends DataProcessor {
 
 	val methodCor = collection.mutable.Map[Int, Int]()
 
@@ -33,11 +34,16 @@ class TraceRecorderDataProcessor(traceData: TraceData) extends DataProcessor {
 
 		// handle method encounters
 		case DataMessageContent.MethodEntry(methodId, timestamp, _) =>
-			traceData.addEncounters(methodCor get methodId)
+			val runningRecordings = traceData.recordings.all.filter(_.running).map(_.id)
+
+			for (nodeId <- methodCor get methodId) {
+				traceData.encounters.record(runningRecordings, nodeId :: Nil)
+				transientData addEncounter nodeId
+			}
 
 		// make method correlations
 		case DataMessageContent.MapMethodSignature(sig, id) =>
-			for (treemapNodeId <- traceData.getMappedNodeId(sig)) methodCor.put(id, treemapNodeId)
+			for (treemapNodeId <- traceData.treeNodeData.getNodeId(sig)) methodCor.put(id, treemapNodeId)
 
 		// ignore everything else
 		case _ => ()

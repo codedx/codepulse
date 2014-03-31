@@ -20,6 +20,8 @@
 package com.secdec.codepulse
 
 import language.implicitConversions
+import com.secdec.codepulse.data.trace.TraceDataProvider
+import com.secdec.codepulse.tracer.TransientTraceDataProvider
 
 package object tracer {
 
@@ -36,10 +38,15 @@ package object tracer {
 	implicit def bootVarToInstance[T](v: BootVar[T]): T = v.apply()
 
 	val traceManager = new BootVar[TraceManager]
+	val traceDataProvider = new BootVar[TraceDataProvider]
+	val transientTraceDataProvider = new BootVar[TransientTraceDataProvider]
 	val traceFileUploadServer = new BootVar[TraceFileUploadHandler]
 	val traceAPIServer = new BootVar[TraceAPIServer]
 
 	def boot() {
+		traceDataProvider set TraceDataProvider.default
+		transientTraceDataProvider set new TransientTraceDataProvider
+
 		val tm = TraceManager.default
 
 		traceManager set tm

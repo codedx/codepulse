@@ -43,8 +43,22 @@ import com.secdec.codepulse.pages.traces.TraceDetailsPage
 import scala.concurrent.Future
 import language.implicitConversions
 import com.secdec.codepulse.data.trace.TraceId
+import com.secdec.codepulse.data.trace.RecordingMetadata
+import com.secdec.codepulse.data.trace.TraceData
 
 class TraceAPIServer(manager: TraceManager) extends RestHelper {
+
+	implicit class RichRecordingMetadata(rec: RecordingMetadata) {
+		def toJson = {
+			val idField = Some { JField("id", rec.id) }
+			val runningField = Some { JField("running", rec.running) }
+			val labelField = for (label <- rec.clientLabel) yield JField("label", label)
+			val colorField = for (color <- rec.clientColor) yield JField("color", color)
+
+			val fields = List(idField, runningField, labelField, colorField).flatten
+			JObject(fields)
+		}
+	}
 
 	def initializeServer() = {
 		LiftRules.dispatch.append(TraceAPIServer.this)
@@ -136,10 +150,10 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 		val Accumulation = simpleTargetPath("accumulation")
 
 		/** /trace-api/<target.id>/recording/<recording.id> */
-		val Recording = TargetPath.map[(TracingTarget, TraceRecording)](
+		val Recording = TargetPath.map[(TracingTarget, RecordingMetadata)](
 			{
-				case (target, List("recording", AsInt(recordingId))) if target.traceData.getRecording(recordingId).isDefined =>
-					val rec = target.traceData.getRecording(recordingId).get
+				case (target, List("recording", AsInt(recordingId))) if target.traceData.recordings.contains(recordingId) =>
+					val rec = target.traceData.recordings.get(recordingId)
 					(target, rec)
 			},
 			{ case (target, recording) => (target, List("recording", recording.id.toString)) })
@@ -180,9 +194,9 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 				val href = TraceDetailsPage.traceHref(target.id)
 
 				for (traceState <- target.getState) yield ("id" -> target.id.num) ~
-					("name" -> data.name) ~
-					("created" -> prettyDate(data.creationDate)) ~
-					("imported" -> data.importDate.map(prettyDate)) ~
+					("name" -> data.metadata.name) ~
+					("created" -> prettyDate(data.metadata.creationDate)) ~
+					("imported" -> data.metadata.importDate.map(prettyDate)) ~
 					("href" -> href) ~
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
@@ -214,18 +228,19 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 
 		// GET a trace data export (as a zip file)
 		case Paths.Export(target) Get req =>
-			RestContinuation.async { sendResponse =>
-				manager.traceDataSaver.requestRawLoad(target.id) onComplete {
-					case Failure(_) => sendResponse { InternalServerErrorResponse() }
-					case Success(bytes) => sendResponse {
-						val filename = s"trace-export.zip"
-						val headers = List(
-							"Content-Disposition" -> s"attachment; filename='$filename'",
-							"Content-Type" -> "application/octet-stream")
-						new InMemoryResponse(bytes, headers, cookies = Nil, code = 200)
-					}
-				}
-			}
+			???
+		//			RestContinuation.async { sendResponse =>
+		//				manager.traceDataSaver.requestRawLoad(target.id) onComplete {
+		//					case Failure(_) => sendResponse { InternalServerErrorResponse() }
+		//					case Success(bytes) => sendResponse {
+		//						val filename = s"trace-export.zip"
+		//						val headers = List(
+		//							"Content-Disposition" -> s"attachment; filename='$filename'",
+		//							"Content-Type" -> "application/octet-stream")
+		//						new InMemoryResponse(bytes, headers, cookies = Nil, code = 200)
+		//					}
+		//				}
+		//			}
 
 		// POST rename a trace
 		// query: name=newName
@@ -233,13 +248,13 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 			req.param("name").toOption match {
 				case None => BadResponse()
 				case Some(newName) =>
-					target.traceData.name = newName
+					target.traceData.metadata.name = newName
 
 					// check for a name conflict
 					val thisId = target.id
 					val hasConflict = manager.tracesIterator
 						.filterNot(_.id == thisId)
-						.find(_.traceData.name == newName)
+						.find(_.traceData.metadata.name == newName)
 						.isDefined
 
 					if (hasConflict) {
@@ -249,16 +264,15 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 
 		// GET the trace's treemap data as json
 		case Paths.Treemap(target) Get req =>
-			val fields = target.traceData.treeNodes.map { _.asJsonField }
-			JsonResponse(JObject(fields.toList))
+			TreemapDataStreamer.streamTreemapData(target.traceData)
 
 		// GET a JSON listing of all of the custom recordings for a trace.
 		case Paths.Recordings(target) Get req =>
-			JsonResponse(target.traceData.recordings.map(_.toJson).toList)
+			JsonResponse(target.traceData.recordings.all.map(_.toJson))
 
 		// POST Add a new custom recording to a trace
 		case Paths.NewRecording(target) Post req =>
-			JsonResponse(target.traceData.addNewRecording.toJson)
+			JsonResponse(target.traceData.recordings.create.toJson)
 
 		// GET a recording's metadata as json
 		case Paths.Recording(traceData, recording) Get req =>
@@ -271,12 +285,11 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 			for (color <- req.param("color")) recording.clientColor = Some(color)
 			for (label <- req.param("label")) recording.clientLabel = Some(label)
 			for (AsBoolean(running) <- req.param("running")) recording.running = running
-			target.traceData.markDirty()
 			OkResponse()
 
 		// DELETE a recording
 		case Paths.Recording(target, recording) Delete req =>
-			target.traceData.removeRecording(recording.id)
+			target.traceData.recordings.remove(recording.id)
 			OkResponse()
 
 		// GET coverage counts for recordings in the trace
@@ -286,7 +299,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 		case Paths.Coverage(target) Get req =>
 			val fieldsMap = for {
 				(ar, respKey) <- parseActivityRequests(req.params)
-			} yield respKey -> ar.lookup(target.traceData).size
+			} yield respKey -> ar.lookup(target.traceData, target.transientData).size
 
 			JsonResponse(fieldsMap)
 
@@ -299,7 +312,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 			def buf(id: Int) = m.getOrElseUpdate(id, new ListBuffer)
 			for {
 				(ar, respKey) <- parseActivityRequests(req.params)
-				methodId <- ar.lookup(target.traceData)
+				methodId <- ar.lookup(target.traceData, target.transientData)
 			} buf(methodId) += respKey
 
 			val fields = for ((id, keys) <- m) yield JField(id.toString, keys.result)
@@ -309,7 +322,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 		// GET recently traced method ids as a json array
 		//  - list contains method ids that were traced since the last request to this URL
 		case Paths.Accumulation(target) Get req =>
-			val methodIdsJson = target.traceData.getAndClearRecentlyEncounteredNodes { itr =>
+			val methodIdsJson = target.transientData.getAndClearRecentlyEncounteredNodes { itr =>
 				JArray(itr.map(JInt(_)).toList)
 			}
 			JsonResponse(methodIdsJson)
@@ -323,7 +336,7 @@ sealed trait ActivityRequest {
 	  * Returning `Iterable` leaves the door open for a quick O(1) `.size`
 	  * call, instead of O(n) if the return type were `Iterator`.
 	  */
-	def lookup(traceData: TraceData): Iterable[Int]
+	def lookup(traceData: TraceData, transientTraceData: TransientTraceData): Iterable[Int]
 }
 
 /** Provides parsing facilities for `ActivityRequest`s with a focus on HTTP request parameters.
@@ -348,19 +361,19 @@ sealed trait ActivityRequest {
 object ActivityRequest {
 
 	case class RecordingActivity(recordingId: Int) extends ActivityRequest {
-		def lookup(traceData: TraceData) = {
-			traceData.getNodesEncounteredByRecording(recordingId)
+		def lookup(traceData: TraceData, transientTraceData: TransientTraceData) = {
+			traceData.encounters.get(recordingId)
 		}
 	}
 	case class RecentActivity(windowDuration: Int) extends ActivityRequest {
-		def lookup(traceData: TraceData) = {
-			val thresholdTime = traceData.now - windowDuration
-			traceData.getNodesEncounteredAfterTime(thresholdTime)
+		def lookup(traceData: TraceData, transientTraceData: TransientTraceData) = {
+			val thresholdTime = transientTraceData.now - windowDuration
+			transientTraceData.getNodesEncounteredAfterTime(thresholdTime)
 		}
 	}
 	case object AllActivity extends ActivityRequest {
-		def lookup(traceData: TraceData) = {
-			traceData.getAllEncounteredNodes
+		def lookup(traceData: TraceData, transientTraceData: TransientTraceData) = {
+			traceData.encounters.get
 		}
 	}
 
@@ -389,44 +402,5 @@ object ActivityRequest {
 
 	def parseActivityRequests(params: Map[String, List[String]]): Map[ActivityRequest, String] = {
 		params.flatMap { parseActivityRequest }
-	}
-}
-
-/** Represents metadata associated with a "recording," which clients
-  * may create and interact with through the REST api. A running trace
-  * will associate any encountered methods with all TraceRecordings that
-  * are known to the recorder and are currently running.
-  *
-  * @param id An identifier that should be used to distinguish this recording
-  * from others. (It is the only criterea for `equals` and `hashCode`).
-  */
-class TraceRecording(val id: Int) {
-	var running = true
-	var clientLabel: Option[String] = None
-	var clientColor: Option[String] = None
-
-	override def equals(that: Any) = {
-		if (that.isInstanceOf[TraceRecording]) that.asInstanceOf[TraceRecording].id == this.id
-		else false
-	}
-
-	override def hashCode = id.hashCode
-
-	def toJson = {
-		val idField = Some { JField("id", id) }
-		val runningField = Some { JField("running", running) }
-		val labelField = for (label <- clientLabel) yield JField("label", label)
-		val colorField = for (color <- clientColor) yield JField("color", color)
-
-		val fields = List(idField, runningField, labelField, colorField).flatten
-		JObject(fields)
-	}
-
-	override def toString = {
-		val fields = List(
-			Some(s"running:$running"),
-			clientLabel.map { lb => s"label:$lb" },
-			clientColor.map { c => s"color:$c" }).flatten.mkString(", ")
-		s"TraceRecording($id){$fields}"
 	}
 }

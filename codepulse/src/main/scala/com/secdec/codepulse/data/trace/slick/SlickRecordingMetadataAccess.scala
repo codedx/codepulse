@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.data.trace.slick
 
-import scala.slick.jdbc.JdbcBackend.Database
+import scala.slick.jdbc.JdbcBackend.{ Database, Session }
 import com.secdec.codepulse.data.trace.{ RecordingMetadata, RecordingMetadataAccess }
 import net.liftweb.util.Helpers.AsBoolean
 
@@ -28,30 +28,39 @@ import net.liftweb.util.Helpers.AsBoolean
   * @author robertf
   */
 private[slick] class SlickRecordingMetadata(val id: Int, dao: RecordingMetadataDao, db: Database) extends RecordingMetadata {
+	private val cache = collection.mutable.Map.empty[String, Option[String]]
+
+	private def get(key: String)(implicit session: Session) = cache.getOrElseUpdate(key, dao.get(id, key))
+	private def set(key: String, value: String)(implicit session: Session): Unit = set(key, Some(value))
+	private def set(key: String, value: Option[String])(implicit session: Session) {
+		dao.set(id, key, value)
+		cache += key -> value
+	}
+
 	def running = db withSession { implicit session =>
-		dao.get(id, "running").flatMap(AsBoolean.unapply) getOrElse false
+		get("running").flatMap(AsBoolean.unapply) getOrElse false
 	}
 
 	def running_=(newState: Boolean) = db withTransaction { implicit transaction =>
-		dao.set(id, "running", newState.toString)
+		set("running", newState.toString)
 		newState
 	}
 
 	def clientLabel = db withSession { implicit session =>
-		dao.get(id, "clientLabel")
+		get("clientLabel")
 	}
 
 	def clientLabel_=(newLabel: Option[String]) = db withTransaction { implicit transaction =>
-		dao.set(id, "clientLabel", newLabel)
+		set("clientLabel", newLabel)
 		newLabel
 	}
 
 	def clientColor = db withSession { implicit session =>
-		dao.get(id, "clientColor")
+		get("clientColor")
 	}
 
 	def clientColor_=(newColor: Option[String]) = db withTransaction { implicit transaction =>
-		dao.set(id, "clientColor", newColor)
+		set("clientColor", newColor)
 		newColor
 	}
 }
@@ -61,16 +70,28 @@ private[slick] class SlickRecordingMetadata(val id: Int, dao: RecordingMetadataD
   * @author robertf
   */
 private[slick] class SlickRecordingMetadataAccess(dao: RecordingMetadataDao, db: Database) extends RecordingMetadataAccess {
+	private def metadataFor(id: Int) = new SlickRecordingMetadata(id, dao, db)
+
+	private lazy val cache = {
+		val recordings = collection.mutable.Map.empty[Int, RecordingMetadata]
+		recordings ++= db withSession { dao.getRecordings()(_) } map { id => id -> metadataFor(id) }
+		recordings
+	}
+
+	def all: List[RecordingMetadata] = cache.values.toList
+	def contains(id: Int): Boolean = cache.contains(id)
+
 	def create(): RecordingMetadata = db withTransaction { implicit transaction =>
 		val newId = dao.createRecording
 		get(newId)
 	}
 
-	def get(id: Int): RecordingMetadata = new SlickRecordingMetadata(id, dao, db)
+	def get(id: Int): RecordingMetadata = cache.getOrElseUpdate(id, metadataFor(id))
 
 	def remove(id: Int) {
 		db withTransaction { implicit transaction =>
 			dao deleteRecording id
+			cache -= id
 		}
 	}
 }

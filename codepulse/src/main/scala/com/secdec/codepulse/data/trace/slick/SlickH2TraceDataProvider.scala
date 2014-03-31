@@ -35,6 +35,8 @@ import com.secdec.codepulse.util.RichFile.RichFile
 class SlickH2TraceDataProvider(folder: File) extends TraceDataProvider {
 	private val EncountersBufferSize = 500
 
+	private val cache = collection.mutable.Map.empty[TraceId, TraceData]
+
 	private object TraceFilename {
 		def apply(traceId: TraceId) = s"${getDbName(traceId)}.h2.db"
 		def getDbName(traceId: TraceId) = s"trace-${traceId.num}"
@@ -47,7 +49,7 @@ class SlickH2TraceDataProvider(folder: File) extends TraceDataProvider {
 		}
 	}
 
-	def getTrace(id: TraceId): TraceData = {
+	def getTrace(id: TraceId): TraceData = cache.getOrElseUpdate(id, {
 		val needsInit = !(folder / TraceFilename(id)).exists
 
 		val db = Database.forURL(s"jdbc:h2:file:${(folder / TraceFilename.getDbName(id)).getCanonicalPath}", driver = "org.h2.Driver")
@@ -56,6 +58,16 @@ class SlickH2TraceDataProvider(folder: File) extends TraceDataProvider {
 		if (needsInit) data.init
 
 		data
+	})
+
+	def removeTrace(id: TraceId) {
+		for (cached <- cache get id) {
+			cached.close
+			cache -= id
+		}
+
+		val file = folder / TraceFilename(id)
+		if (file.exists) file.delete
 	}
 
 	def traceList: List[TraceId] = {

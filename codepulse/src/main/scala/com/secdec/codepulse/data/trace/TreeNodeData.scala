@@ -30,21 +30,24 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
   * @param size A number indicating the size of the node (e.g. lines of code). If unspecified,
   * the size of a node is assumed to be the sum of its childrens' sizes.
   */
-case class TreeNode(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind)
+case class TreeNode(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int])
 
 /** Access trait for tree node data.
   *
   * @author robertf
   */
 trait TreeNodeDataAccess {
-	def iterateNodes(f: TreeNode => Unit): Unit
+	def foreach(f: TreeNode => Unit): Unit
+	def iterate[T](f: Iterator[TreeNode] => T): T
 
 	def getNode(id: Int): Option[TreeNode]
 
 	def getNodeId(signature: String): Option[Int]
 	def getNode(signature: String): Option[TreeNode]
-	def mapMethodSignature(signature: String, node: TreeNode): Unit
+
+	def mapMethodSignature(signature: String, nodeId: Int): Unit
+	def mapMethodSignatures(signatures: Iterable[(String, Int)]): Unit = signatures foreach { case (signature, nodeId) => mapMethodSignature(signature, nodeId) }
 
 	def storeNode(node: TreeNode): Unit
-	def storeNodes(nodes: TraversableOnce[TreeNode]) = nodes.foreach(storeNode)
+	def storeNodes(nodes: Iterable[TreeNode]) = nodes foreach storeNode
 }

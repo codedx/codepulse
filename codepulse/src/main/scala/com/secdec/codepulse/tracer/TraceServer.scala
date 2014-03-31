@@ -26,6 +26,7 @@ import com.secdec.bytefrog.hq.config.MonitorConfiguration
 import com.secdec.bytefrog.hq.trace.Trace
 import net.liftweb.http.LiftRules
 import bootstrap.liftweb.AppCleanup
+import com.secdec.codepulse.data.trace.TraceData
 
 object TraceServer {
 

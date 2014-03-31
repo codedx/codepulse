@@ -27,11 +27,13 @@ import com.secdec.codepulse.data.trace.{ TreeNode, TreeNodeDataAccess }
   * @author robertf
   */
 private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database) extends TreeNodeDataAccess {
-	def iterateNodes(f: TreeNode => Unit) {
+	def foreach(f: TreeNode => Unit) {
+		iterate { _.foreach(f) }
+	}
+
+	def iterate[T](f: Iterator[TreeNode] => T): T = {
 		db withSession { implicit session =>
-			dao.iterateWith { iterator =>
-				iterator.foreach(f)
-			}
+			dao.iterateWith { f(_) }
 		}
 	}
 
@@ -47,11 +49,19 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao getId sig
 	}
 
-	def mapMethodSignature(sig: String, node: TreeNode) = db withTransaction { implicit transaction =>
-		dao.storeMethodSignature(sig, node)
+	def mapMethodSignature(sig: String, nodeId: Int) = db withTransaction { implicit transaction =>
+		dao.storeMethodSignature(sig, nodeId)
+	}
+
+	override def mapMethodSignatures(signatures: Iterable[(String, Int)]) = db withTransaction { implicit transaction =>
+		dao storeMethodSignatures signatures
 	}
 
 	def storeNode(node: TreeNode) = db withTransaction { implicit transaction =>
 		dao storeNode node
+	}
+
+	override def storeNodes(nodes: Iterable[TreeNode]) = db withTransaction { implicit transaction =>
+		dao storeNodes nodes
 	}
 }

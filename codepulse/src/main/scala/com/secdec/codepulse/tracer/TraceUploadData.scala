@@ -22,6 +22,7 @@ package com.secdec.codepulse.tracer
 import java.io.File
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
+import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.util.ZipEntryChecker
 import net.liftweb.common.Box
 import net.liftweb.common.Box.option2Box
@@ -29,25 +30,25 @@ import net.liftweb.common.Failure
 
 object TraceUploadData {
 
-	def detectTraceExport(file: File): Box[TraceData] = {
-		try {
-			var result = TraceDataSerialization.traceDataFromZip(file)
+	//	def detectTraceExport(file: File): Box[TraceData] = {
+	//		try {
+	//			var result = TraceDataSerialization.traceDataFromZip(file)
+	//
+	//			// Note: the `creationDate` for trace data detected in this manner
+	//			// should already be filled in with a non-default value. On the
+	//			// other hand, the `importDate` is now.
+	//			for (d <- result) d.importDate = Some(System.currentTimeMillis)
+	//
+	//			result
+	//
+	//		} catch {
+	//			case err: Exception =>
+	//				println(s"$file clearly isn't a zip...")
+	//				None
+	//		}
+	//	}
 
-			// Note: the `creationDate` for trace data detected in this manner
-			// should already be filled in with a non-default value. On the
-			// other hand, the `importDate` is now.
-			for (d <- result) d.importDate = Some(System.currentTimeMillis)
-
-			result
-
-		} catch {
-			case err: Exception =>
-				println(s"$file clearly isn't a zip...")
-				None
-		}
-	}
-
-	def detectBinaryZip(file: File): Box[TraceData] = {
+	def handleBinaryZip(file: File): Box[TraceId] = {
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = List.newBuilder[(String, Int)]
 		ZipEntryChecker.forEachEntry(file) { (entry, contents) =>
@@ -63,21 +64,22 @@ object TraceUploadData {
 		val methodCorrelations = methodCorrelationsBuilder.result
 
 		if (treemapNodes.isEmpty) None else Some {
-			val traceData = new TraceData
+			val traceId = traceManager.createTrace
+			val traceData = traceDataProvider getTrace traceId
 
 			// Note: the `creationDate` for trace data detected in this manner
 			// should use its default value ('now'), as this is when the data
 			// was actually 'created'.
 
-			traceData.addOrUpdateTreeNodes(treemapNodes)
-			traceData.addMethodSignatureCorrelations(methodCorrelations)
-			traceData.clearDirtyWith()
-			traceData
+			traceData.treeNodeData.storeNodes(treemapNodes)
+			traceData.treeNodeData.mapMethodSignatures(methodCorrelations)
+
+			traceId
 		}
 	}
 
-	def detectUploadData(file: File): Box[TraceData] = {
-		detectTraceExport(file) or detectBinaryZip(file) or Failure("Invalid upload file")
+	def handleUpload(file: File): Box[TraceId] = {
+		handleBinaryZip(file) or Failure("Invalid upload file")
 	}
 
 }

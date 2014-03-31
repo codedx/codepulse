@@ -58,6 +58,9 @@ private[slick] class RecordingMetadataDao(val driver: JdbcProfile) {
 		(for (r <- recordings if r.id === id) yield r).delete
 	}
 
+	def getRecordings()(implicit session: Session): List[Int] =
+		(for (r <- recordings) yield r.id).list
+
 	def getMap(recordingId: Int)(implicit session: Session): Map[String, String] =
 		(for (r <- recordingMetadata if r.recordingId === recordingId) yield (r.key, r.value)).list.toMap
 
