@@ -42,6 +42,10 @@ object Dependencies {
 		"org.ow2.asm" % "asm-commons" % "4.1"
 	)
 	lazy val jna = "net.java.dev.jna" % "jna" % "3.5.2"
+	lazy val jackson = Seq(
+		"com.fasterxml.jackson.core" % "jackson-core" % "2.3.2",
+		"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.2"
+	)
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
