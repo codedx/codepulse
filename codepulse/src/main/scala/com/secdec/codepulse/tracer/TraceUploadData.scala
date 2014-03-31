@@ -20,33 +20,41 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
+
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.trace.TraceId
+import com.secdec.codepulse.tracer.export.TraceImporter
 import com.secdec.codepulse.util.ZipEntryChecker
+
 import net.liftweb.common.Box
-import net.liftweb.common.Box.option2Box
 import net.liftweb.common.Failure
 
 object TraceUploadData {
 
-	//	def detectTraceExport(file: File): Box[TraceData] = {
-	//		try {
-	//			var result = TraceDataSerialization.traceDataFromZip(file)
-	//
-	//			// Note: the `creationDate` for trace data detected in this manner
-	//			// should already be filled in with a non-default value. On the
-	//			// other hand, the `importDate` is now.
-	//			for (d <- result) d.importDate = Some(System.currentTimeMillis)
-	//
-	//			result
-	//
-	//		} catch {
-	//			case err: Exception =>
-	//				println(s"$file clearly isn't a zip...")
-	//				None
-	//		}
-	//	}
+	def handleTraceExport(file: File): Box[TraceId] = {
+		if (TraceImporter.canImportFrom(file)) {
+			val traceId = traceManager.createTrace
+			val traceData = traceDataProvider getTrace traceId
+
+			try {
+				TraceImporter.importFrom(file, traceData)
+
+				// Note: the `creationDate` for trace data detected in this manner
+				// should already be filled in with a non-default value. On the
+				// other hand, the `importDate` is now.
+				traceData.metadata.importDate = Some(System.currentTimeMillis)
+
+				Some(traceId)
+			} catch {
+				case err: Exception =>
+					println(s"Error importing file: $err")
+					err.printStackTrace
+					traceManager.removeTrace(traceId)
+					None
+			}
+		} else None
+	}
 
 	def handleBinaryZip(file: File): Box[TraceId] = {
 		val builder = new CodeForestBuilder
@@ -79,7 +87,7 @@ object TraceUploadData {
 	}
 
 	def handleUpload(file: File): Box[TraceId] = {
-		handleBinaryZip(file) or Failure("Invalid upload file")
+		handleTraceExport(file) or handleBinaryZip(file) or Failure("Invalid upload file")
 	}
 
 }

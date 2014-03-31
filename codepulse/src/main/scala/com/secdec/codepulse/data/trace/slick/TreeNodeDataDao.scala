@@ -79,6 +79,13 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		} finally it.close
 	}
 
+	def iterateMappingsWith[T](f: Iterator[(String, Int)] => T)(implicit session: Session): T = {
+		val it = methodSignatureNodeMap.iterator
+		try {
+			f(it)
+		} finally it.close
+	}
+
 	def storeMethodSignature(signature: String, nodeId: Int)(implicit session: Session) {
 		methodSignatureNodeMap += signature -> nodeId
 	}

@@ -45,6 +45,9 @@ trait TreeNodeDataAccess {
 	def getNodeId(signature: String): Option[Int]
 	def getNode(signature: String): Option[TreeNode]
 
+	def foreachMapping(f: (String, Int) => Unit): Unit
+	def iterateMappings[T](f: Iterator[(String, Int)] => T): T
+
 	def mapMethodSignature(signature: String, nodeId: Int): Unit
 	def mapMethodSignatures(signatures: Iterable[(String, Int)]): Unit = signatures foreach { case (signature, nodeId) => mapMethodSignature(signature, nodeId) }
 

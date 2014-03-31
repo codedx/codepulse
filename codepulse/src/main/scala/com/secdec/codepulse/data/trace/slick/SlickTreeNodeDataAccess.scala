@@ -33,7 +33,7 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 
 	def iterate[T](f: Iterator[TreeNode] => T): T = {
 		db withSession { implicit session =>
-			dao.iterateWith { f(_) }
+			dao.iterateWith(f)
 		}
 	}
 
@@ -47,6 +47,16 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 
 	def getNodeId(sig: String): Option[Int] = db withSession { implicit session =>
 		dao getId sig
+	}
+
+	def foreachMapping(f: (String, Int) => Unit) {
+		iterateMappings { _.foreach { case (method, nodeId) => f(method, nodeId) } }
+	}
+
+	def iterateMappings[T](f: Iterator[(String, Int)] => T): T = {
+		db withSession { implicit session =>
+			dao.iterateMappingsWith(f)
+		}
 	}
 
 	def mapMethodSignature(sig: String, nodeId: Int) = db withTransaction { implicit transaction =>

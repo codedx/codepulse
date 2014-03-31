@@ -263,21 +263,9 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 		case Paths.Status(target) Get req =>
 			target.getState map { state => PlainTextResponse(stateToString(state)) }
 
-		// GET a trace data export (as a zip file)
+		// GET a trace data export (as a .pulse file)
 		case Paths.Export(target) Get req =>
-			???
-		//			RestContinuation.async { sendResponse =>
-		//				manager.traceDataSaver.requestRawLoad(target.id) onComplete {
-		//					case Failure(_) => sendResponse { InternalServerErrorResponse() }
-		//					case Success(bytes) => sendResponse {
-		//						val filename = s"trace-export.zip"
-		//						val headers = List(
-		//							"Content-Disposition" -> s"attachment; filename='$filename'",
-		//							"Content-Type" -> "application/octet-stream")
-		//						new InMemoryResponse(bytes, headers, cookies = Nil, code = 200)
-		//					}
-		//				}
-		//			}
+			export.TraceExporter.exportResponse(target.traceData)
 
 		// POST rename a trace
 		// query: name=newName
