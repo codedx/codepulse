@@ -172,6 +172,10 @@
 			return repeatingGetCommand({ url: commandPath('/records'), getData: loadParams, interval: interval })
 		},
 
+		'requestTraceCoverageRecords': function(params, callback){
+			getCommand('/records', params, callback)
+		},
+
 		'streamTraceCoverageEvents': function(interval){
 			return repeatingGetCommand({ url: commandPath('/accumulation'), getData: null, interval: interval })
 		},

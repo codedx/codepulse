@@ -634,6 +634,7 @@
 
 		function fadeMeOut(){ 
 			this
+				.interrupt()
 				.style('opacity', 1)
 			.transition().duration(5000)
 				.style('opacity', 0)
@@ -778,6 +779,8 @@
 	}
 	
 	function updateLabels(widgetState, treemapNodes){
+		console.log('updateLabels')
+
 		var measure = (widgetState.textMeasurer || (widgetState.textMeasurer = new TextMeasurer(widgetState, labelStyle))).measure
 		var labelsLayer = widgetState.svg.selectAll('g.treemap-labels').data([1])
 		

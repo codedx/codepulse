@@ -19,14 +19,11 @@
 
 ;(function(exports){
 
-	var nextRecordingId = 0
-
 	function Recording(){
 
 		// local variables
 
 		var self = this,
-			id = nextRecordingId++,
 
 			_color = 'black',
 			_colorChange = new Bacon.Bus(),
@@ -109,24 +106,14 @@
 
 		// properties (Bacon.js)
 
-		this.color = _colorChange.toProperty(_color)
-		this.label = _labelChange.toProperty(_label)
-		this.coverage = _coverageChange.toProperty(_coverage)
-		this.menu = _menuChange.toProperty(_menu)
-		this.dataKey = _dataKeyChange.toProperty(_dataKey)
-		this.selected = _selectedChange.toProperty(_selected)
-		this.running = _runningChange.toProperty(_running)
+		this.color = _colorChange.toProperty(_color).noLazy()
+		this.label = _labelChange.toProperty(_label).noLazy()
+		this.coverage = _coverageChange.toProperty(_coverage).noLazy()
+		this.menu = _menuChange.toProperty(_menu).noLazy()
+		this.dataKey = _dataKeyChange.toProperty(_dataKey).noLazy()
+		this.selected = _selectedChange.toProperty(_selected).noLazy()
+		this.running = _runningChange.toProperty(_running).noLazy()
 
-		// add dummy subscribers to the properties or else bacon will ignore any initialization events
-		var noop = function(){}
-
-		this.color.onValue(noop)
-		this.label.onValue(noop)
-		this.coverage.onValue(noop)
-		this.menu.onValue(noop)
-		this.dataKey.onValue(noop)
-		this.selected.onValue(noop)
-		this.running.onValue(noop)
 	}
 
 	exports.Recording = Recording

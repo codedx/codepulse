@@ -36,22 +36,10 @@ $(document).ready(function(){
 		treemapDataUrl = document.location.href + '/coverage-treemap.json',
 
 		/**
-		 * Object that contains values about the trace. Used to share data
-		 * between this script and the trace recording controls.
-		 */
-		traceInfo = new TraceInfo(),
-
-		/**
-		 * Map[node.id -> Set(recording ids that traced the node)]
-		 * This map gets updated while a trace is running.
-		 */
-		coverageSets = {},
-
-		/**
 		 * Controller for the trace controls on the side of the page. Exposes events for various
 		 * data updates that happen during a running trace.
 		 */
-		traceControls = new TraceRecordingControlsWidget(traceInfo),
+		traceControls = new TraceRecordingControlsWidget(),
 
 		/*
 		 * Create a large spinner (provided by spin.js) that appears in place
@@ -66,9 +54,12 @@ $(document).ready(function(){
 			return spinner
 		})()
 
-	traceControls.legendData.onValue(function(legendData){
-		console.log('legendData changed:', legendData)
-		var coloringFunc = treemapColoring(legendData)
+	// When the `treemapColoringStateChanges` fires, use the current `legendData`
+	// to generate a new treemap coloring function, and update the treemap's colors
+	// with that.
+	Trace.treemapColoringStateChanges.onValue(function(){
+		var colorLegend = Trace.getColorLegend()
+		var coloringFunc = treemapColoring(colorLegend)
 		treemapWidget.nodeColoring(coloringFunc)
 	})
 
@@ -83,40 +74,49 @@ $(document).ready(function(){
 	 * package and root nodes, which are hardwired to grey, and nodes that were covered by
 	 * multiple recordings, which are hardwired to purple.
 	 */
-	function treemapColoring(legendData){
+	function treemapColoring(colorLegend){
 		if(!arguments.length){
 			var latest = treemapColoring.latest
 			if(latest) return latest
-			else legendData = {}
+			else colorLegend = {}
 		}
 		var ignoredKinds = d3.set(['package', 'root'])
 
 		var coloringFunc = function(allNodes){
 
+			var activeRecordingIds = Trace.getActiveRecordingIds()
+
+			function countActiveCoverings(coverage){
+				if(!coverage) return 0
+				var count = 0
+				coverage.forEach(function(id){
+					if(activeRecordingIds.has(id)){
+						count++
+					}
+				})
+				return count
+			}
+
 			return function(node){
 				if(ignoredKinds.has(node.kind)) return 'grey'
-				var coverage = coverageSets[node.id],
-					numCovered = coverage ? coverage.size() : 0
+				var coverage = Trace.coverageSets[node.id],
+					numCovered = countActiveCoverings(coverage)
+					// numCovered = coverage ? coverage.size() : 0
 
 				if(numCovered == 0) return 'lightgrey'
-				if(numCovered > 1) return legendData['multi'].color
+				if(numCovered > 1) return colorLegend['multi']
 
 				var entryId = undefined
-				coverage.forEach(function(id){ entryId = id})
-				var entry = legendData[entryId]
+				coverage.forEach(function(id){ if(activeRecordingIds.has(id)) entryId = id })
+				var entry = colorLegend[entryId]
 
-				return entry? entry.color : 'yellow'
+				return entry? entry : 'yellow'
 			}
 		}
 
 		treemapColoring.latest = coloringFunc
 		return coloringFunc
 	}
-
-	// Create a boolean Property that tells whether the treemap 'drawer' is currently visible
-	// var showTreemapClicks = $('#show-treemap-button').asEventStream('click').map(true),
-	// 	hideTreemapClicks = $('#hide-treemap-button').asEventStream('click').map(false),
-	// 	showTreemap = showTreemapClicks.merge(hideTreemapClicks)
 
 	var showTreemap = $('#show-treemap-button').asEventStream('click').scan(false, function(b){ return !b })
 
@@ -136,22 +136,9 @@ $(document).ready(function(){
 	 * Once the data has loaded, stop the treemap spinner (mentioned above)
 	 * and apply the data to the treemap widget.
 	 */
-	//d3.json(treemapDataUrl, function(d){
-	TraceAPI.loadTreemap(function(d){
-		
-		var treeProjector = new TreeProjector(d),
-			fullTree = treeProjector.projectFullTree(true /* generate self nodes for packages */),
-			numMethods = 0
+	Trace.onTreeDataReady(function(){
 
-		// Assign a Set to each node to indicate what its 'trace coverage' is.
-		// Also count the number of 'method' nodes in the tree, for the `traceInfo`
-		fullTree.forEachNode(true, function(n){
-			coverageSets[n.id] = d3.set()
-			if(n.kind == 'method') numMethods++
-		})
-		traceInfo.totalNumMethods = numMethods
-
-		var controller = new PackageController(fullTree, $('#packages'), $('#totals'), $('#clear-selections-button'))
+		var controller = new PackageController(Trace.fullTree, $('#packages'), $('#totals'), $('#clear-selections-button'))
 
 		/**
 		 * An Rx Property that represents the treemap's TreeData as it
@@ -169,9 +156,9 @@ $(document).ready(function(){
 			treemapContainer.toggleClass('no-selection', !hasSelection)
 
 			if(hasSelection) {
-				return treeProjector.projectPackageFilterTree(function(n){ return sel[n.id] })
+				return Trace.treeProjector.projectPackageFilterTree(function(n){ return sel[n.id] })
 			} else {
-				return treeProjector.projectEmptyTree()
+				return Trace.treeProjector.projectEmptyTree()
 			}
 		})
 
@@ -181,10 +168,12 @@ $(document).ready(function(){
 		})
 
 		// Highlight the package widgets when trace data comes in
-		traceControls.liveTraceData.onValue(controller.highlightPackages)
+		Trace.liveTraceData.onValue(controller.highlightPackages)
 
-		// Update method coverage counts when the data is changed
-		traceControls.coverageRecords.onValue(controller.applyMethodCoverage)
+		// Update method coverage counts when the data is changed (or when recording selections change)
+		Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings){
+			controller.applyMethodCoverage(coverage, activeRecordings)
+		})
 
 		treemapSpinner.stop()
 		
@@ -196,10 +185,14 @@ $(document).ready(function(){
 			treemapWidget.data(tree).update()
 		})
 
-		traceControls.coverageRecords.onValue(setTreemapCoverage)
-		traceControls.liveTraceData.onValue(treemapWidget.highlightNodesById)
+		Trace.coverageRecords.onValue(setTreemapCoverage)
+		Trace.liveTraceData.onValue(treemapWidget.highlightNodesById)
+
+		// Fire a coverage update request in order to get the initial coverage data.
+		Trace.traceCoverageUpdateRequests.push('initial load')
 
 		function setTreemapCoverage(recordData){
+			var coverageSets = Trace.coverageSets
 			function recurse(node){
 				var s = coverageSets[node.id] = d3.set(),
 					rd = recordData[node.id],
@@ -210,7 +203,7 @@ $(document).ready(function(){
 					coverageSets[kid.id].forEach(function(c){ s.add(c) })
 				})
 			}
-			recurse(fullTree.root)
+			recurse(Trace.fullTree.root)
 			treemapWidget.nodeColoring(treemapColoring())
 		}
 
@@ -246,8 +239,6 @@ $(document).ready(function(){
 		 * they are represented only as a title.
 		 */
 		'calculateContent': (function(){
-			var latestLegendData = {}
-			traceControls.legendData.onValue(function(ld){ latestLegendData = ld })
 
 			return function(node){
 				if(node.kind == 'package'){
@@ -259,8 +250,8 @@ $(document).ready(function(){
 
 					// Check if the node was encountered by any recordings;
 					// if so, create an indication of which ones
-					var recordings = coverageSets[node.id].values()
-						.map(function(recId){ return latestLegendData[recId] })
+					var recordings = Trace.coverageSets[node.id].values()
+						.map(function(recId){ return Trace.getRecording(recId) })
 						.filter(function(d){ return d })
 
 					if(recordings.length){
@@ -270,13 +261,13 @@ $(document).ready(function(){
 							.addClass('coverage-area')
 						
 						recordings.forEach(function(ld){ 
-							var bg = ld.color,
+							var bg = ld.getColor,
 								lightness = d3.hsl(bg).l,
 								textColor = (lightness > 0.4) ? 'black' : 'white'
 
 							$('<div>')
 								.addClass('coverage-label')
-								.text(ld.label)
+								.text(ld.getLabel() || 'Untitled Recording')
 								.css('background-color', bg)
 								.css('color', textColor)
 								.appendTo(container)

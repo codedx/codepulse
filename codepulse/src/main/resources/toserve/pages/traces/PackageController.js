@@ -198,8 +198,8 @@
 			highlightPackages(treeData, widgets, methodIds)
 		}
 
-		this.applyMethodCoverage = function(coverageRecords){
-			applyMethodCoverage(treeData, widgets, coverageRecords)
+		this.applyMethodCoverage = function(coverageRecords, activeRecordings){
+			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings)
 		}
 	}
 
@@ -287,19 +287,32 @@
 	 *   is from the trace recording controls, and its presence in the
 	 *   array means that particular recording encountered the respective
 	 *   method.
-
+	 * @param activeRecordings - A set of recording IDs. Coverage only
+	 *   counts if the recording that covered a method was selected.
 	*/
-	function applyMethodCoverage(treeData, widgets, coverageRecords){
+	function applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings){
+
+		function isCoveredBySelectedRecording(node){
+			var records = coverageRecords[node.id]
+			if(!records) return false
+			for(var i in records){
+				var recordingId = records[i]
+				if(activeRecordings.has(recordingId)) return true
+			}
+			return false
+		}
+
 		function computeAndApplyCoverage(node){
 			var coverage = 0
 
 			// if there was a record for the current node, count that as 1 coverage point
-			if(coverageRecords[node.id] && coverageRecords[node.id].length){
-				coverage += 1
-			}
+			// if(coverageRecords[node.id] && coverageRecords[node.id].length){
+			// 	coverage += 1
+			// }
+			coverage += isCoveredBySelectedRecording(node)
 
 			// also include the sum of the childrens' coverages (recursive)
-			(node.children || []).forEach(function(kid){
+			;(node.children || []).forEach(function(kid){
 				coverage += computeAndApplyCoverage(kid)
 			})
 

@@ -53,14 +53,18 @@ trait HasAccumulatingEncounterData {
 	val recentlyEncounteredNodes = collection.mutable.Set.empty[Int]
 
 	def addRecentlyEncounteredNode(nodeId: Int) {
-		recentlyEncounteredNodes += nodeId
+		recentlyEncounteredNodes.synchronized {
+			recentlyEncounteredNodes += nodeId
+		}
 	}
 
-	def addRecentlyEncounteredNodes(nodeIds: TraversableOnce[Int]) {
-		recentlyEncounteredNodes ++= nodeIds
+	def addRecentlyEncounteredNodes(nodeIds: Traversable[Int]) {
+		recentlyEncounteredNodes.synchronized {
+			recentlyEncounteredNodes ++= nodeIds
+		}
 	}
 
-	def getAndClearRecentlyEncounteredNodes[T](f: TraversableOnce[Int] => T): T = {
+	def getAndClearRecentlyEncounteredNodes[T](f: Traversable[Int] => T): T = recentlyEncounteredNodes.synchronized {
 		val result = f(recentlyEncounteredNodes)
 		recentlyEncounteredNodes.clear
 		result

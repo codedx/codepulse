@@ -44,7 +44,7 @@ object TraceManager {
 	lazy val default = new TraceManager(defaultActorSystem)
 }
 
-class TraceManager(actorSystem: ActorSystem) extends Observing {
+class TraceManager(val actorSystem: ActorSystem) extends Observing {
 
 	private val traces = MutableMap.empty[TraceId, TracingTarget]
 	private val dataProvider: TraceDataProvider = traceDataProvider
