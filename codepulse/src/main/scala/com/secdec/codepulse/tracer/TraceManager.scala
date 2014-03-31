@@ -110,10 +110,8 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 			registerTrace(id, data)
 		}
 
-		// Also make sure any dirty traces are saved when the JVM goes down
-		Runtime.getRuntime.addShutdownHook(new Thread {
-			override def run = flushTraces
-		})
+		// Also make sure any dirty traces are saved when exiting
+		AppCleanup.add { () => flushTraces }
 	}
 
 }
