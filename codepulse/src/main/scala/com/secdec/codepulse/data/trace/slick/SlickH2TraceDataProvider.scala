@@ -52,7 +52,7 @@ class SlickH2TraceDataProvider(folder: File) extends TraceDataProvider {
 	def getTrace(id: TraceId): TraceData = cache.getOrElseUpdate(id, {
 		val needsInit = !(folder / TraceFilename(id)).exists
 
-		val db = Database.forURL(s"jdbc:h2:file:${(folder / TraceFilename.getDbName(id)).getCanonicalPath}", driver = "org.h2.Driver")
+		val db = Database.forURL(s"jdbc:h2:file:${(folder / TraceFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
 		val data = new SlickTraceData(db, H2Driver, EncountersBufferSize)
 
 		if (needsInit) data.init

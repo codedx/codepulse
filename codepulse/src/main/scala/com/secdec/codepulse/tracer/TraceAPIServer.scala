@@ -33,6 +33,7 @@ import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
 
 import akka.actor.Cancellable
+import net.liftweb.common.Loggable
 import net.liftweb.http._
 import net.liftweb.http.rest._
 import net.liftweb.json.JsonAST._
@@ -40,7 +41,7 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.util.Helpers.AsBoolean
 import net.liftweb.util.Helpers.AsInt
 
-class TraceAPIServer(manager: TraceManager) extends RestHelper {
+class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 	import ActivityRequest._
 
@@ -214,7 +215,9 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper {
 	private implicit def futureResponseToResponse(f: Future[LiftResponse]) = RestContinuation.async { callback =>
 		f onComplete {
 			case Success(response) => callback(response)
-			case Failure(_) => callback(InternalServerErrorResponse())
+			case Failure(e) =>
+				logger.error("Future response failed", e)
+				callback(InternalServerErrorResponse())
 		}
 	}
 
