@@ -20,6 +20,9 @@
 package com.secdec.codepulse
 
 import language.implicitConversions
+import com.secdec.codepulse.data.trace.TraceDataProvider
+import com.secdec.codepulse.data.trace.slick.SlickH2TraceDataProvider
+import com.secdec.codepulse.tracer.TransientTraceDataProvider
 import akka.actor.ActorSystem
 
 package object tracer {
@@ -38,12 +41,18 @@ package object tracer {
 
 	val traceActorSystem = new BootVar[ActorSystem]
 	val traceManager = new BootVar[TraceManager]
+	val traceDataProvider = new BootVar[TraceDataProvider]
+	val transientTraceDataProvider = new BootVar[TransientTraceDataProvider]
 	val traceFileUploadServer = new BootVar[TraceFileUploadHandler]
 	val traceAPIServer = new BootVar[TraceAPIServer]
 
 	def boot() {
 		val as = TraceManager.defaultActorSystem
-		val tm = new TraceManager(as, TraceManager.defaultStorageDir)
+
+		traceDataProvider set new SlickH2TraceDataProvider(TraceDataProvider.DefaultStorageDir, as)
+		transientTraceDataProvider set new TransientTraceDataProvider
+
+		val tm = new TraceManager(as)
 
 		traceActorSystem set as
 		traceManager set tm

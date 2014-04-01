@@ -17,27 +17,34 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.pages.traces
+package com.secdec.codepulse.data.trace
 
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.tracer.TraceManager
-import com.secdec.codepulse.tracer.TracingTarget
+/** Access trait for recording metadata.
+  *
+  * @author robertf
+  */
+trait RecordingMetadataAccess {
+	def all: List[RecordingMetadata]
+	def contains(id: Int): Boolean
 
-import net.liftweb.common.Box
-import net.liftweb.sitemap.Menu
+	def create(): RecordingMetadata
+	def get(id: Int): RecordingMetadata
+	def remove(id: Int): Unit
+}
 
-object TraceDetailsPage {
+/** Access trait for recording metadata.
+  *
+  * @author robertf
+  */
+trait RecordingMetadata {
+	def id: Int
 
-	def traceMenu(traceManager: TraceManager) = {
-		def parse(link: String): Box[TracingTarget] = for {
-			traceId <- TraceId unapply link
-			target <- traceManager getTrace traceId
-		} yield target
-		def encode(target: TracingTarget): String = target.id.num.toString
+	def running: Boolean
+	def running_=(newState: Boolean): Boolean
 
-		Menu.param[TracingTarget]("Trace", "Trace", parse, encode) / "traces"
-	}
+	def clientLabel: Option[String]
+	def clientLabel_=(newLabel: Option[String]): Option[String]
 
-	def traceHref(traceId: TraceId) = s"/traces/${traceId.num}"
-
+	def clientColor: Option[String]
+	def clientColor_=(newColor: Option[String]): Option[String]
 }

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.data.util
+package com.secdec.codepulse.util
 
 import java.io.File
 import java.io.InputStream

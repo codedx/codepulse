@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.data.model.bytecode
+package com.secdec.codepulse.data.bytecode
 
 import com.secdec.codepulse.data.MethodSignatureParser
 import com.secdec.codepulse.data.MethodSignature

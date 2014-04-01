@@ -36,36 +36,37 @@ exports.log = {
 };
 
 var childProcess = false, cpUrl = false, cpEvent = new events.EventEmitter();
+var stopPort = false, stopKey = false;
+
+function getJava() {
+	var platform = require('os').platform;
+
+	switch (platform()) {
+		case 'darwin':
+			return 'jre/Contents/Home/bin/java'
+
+		case 'linux':
+			return 'jre/bin/java'
+
+		case 'win32':
+			return 'jre/bin/java.exe';
+
+		default:
+			throw 'unknown platform ' + platform();
+	}
+}
 
 function startCodePulse() {
-	var platform = require('os').platform,
-	    spawn = require('child_process').spawn;
+	var spawn = require('child_process').spawn,
 	    chmodSync = require('fs').chmodSync;
 
 	try {
-		var java = false;
-
-		switch (platform()) {
-			case 'darwin':
-				java = 'jre/Contents/Home/bin/java'
-				break;
-
-			case 'linux':
-				java = 'jre/bin/java'
-				break;
-
-			case 'win32':
-				java = 'jre/bin/java.exe';
-				break;
-
-			default:
-				throw 'unknown platform ' + platform();
-		}
+		var java = getJava();
 
 		// make sure java is executable...
 		chmodSync(java, 0755);
 
-		var args = [ '-XX:MaxPermSize=128M', '-Xmx1024M', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
+		var args = [ '-XX:MaxPermSize=128M', '-Xmx1024M', '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
 
 		writeLog('Starting Code Pulse...\n');
 		writeLog('Using Java: ' + java + '\n');
@@ -77,14 +78,53 @@ function startCodePulse() {
 		childProcess.stdout.setEncoding('utf-8');
 		childProcess.stderr.setEncoding('utf-8');
 
-		childProcess.stderr.on('data', function(data) {
-			var m = data.match(/Started ServerConnector@\w+\{HTTP\/1.1\}\{([^\}]+)\}/)
-			if (m) {
-				writeLog('Code Pulse running on ' + m[1] + '\n');
-				cpUrl = 'http://' + m[1] + '/';
-				cpEvent.emit('started', cpUrl);
+		var dataChecks = [
+			function(data) {
+				var m = data.match(/STOP\.PORT=(\d+)/)
+				if (m) {
+					stopPort = m[1];
+					writeLog('Stop port is ' + stopPort + '\n');
+					return true;
+				}
+
+				return false;
+			},
+
+			function(data) {
+				var m = data.match(/STOP\.KEY=(.+)/)
+				if (m) {
+					stopKey = m[1];
+					writeLog('Stop key is ' + stopKey + '\n');
+					return true;
+				}
+
+				return false;
+			},
+
+			function(data) {
+				var m = data.match(/Started ServerConnector@\w+\{HTTP\/1.1\}\{([^\}]+)\}/)
+				if (m) {
+					writeLog('Code Pulse running on ' + m[1] + '\n');
+					cpUrl = 'http://' + m[1] + '/';
+					cpEvent.emit('started', cpUrl);
+					return true;
+				}
+
+				return false;
 			}
-		});
+		];
+
+		function doDataChecks(data) {
+			for (var i = 0; i < dataChecks.length; i++) {
+				if (dataChecks[i](data)) {
+					dataChecks.splice(i, 1);
+					i--;
+				}
+			}
+		}
+
+		childProcess.stdout.on('data', doDataChecks);
+		childProcess.stderr.on('data', doDataChecks);
 
 		childProcess.stdout.on('data', writeLog);
 		childProcess.stderr.on('data', writeLog);
@@ -104,11 +144,28 @@ function startCodePulse() {
 }
 
 function killCodePulse(signal) {
+	if (stopPort && stopKey) {
+		var spawn = require('child_process').spawn;
+
+		// make an effort to stop using stop.port/stop.key
+		try {
+			var args = [ '-DSTOP.PORT=' + stopPort, '-DSTOP.KEY=' + stopKey, '-jar', 'start.jar', '--stop' ];
+			writeLog('Stopping Code Pulse (with args: ' + args + ')\n');
+			childProcess = spawn('../' + getJava(), args, { cwd: './backend' });
+			return true;
+		} catch (err) {
+			writeLog('Error stopping Code Pulse: ' + err + '\n');
+		}
+	}
+
 	if (childProcess) {
+		// fall back on sending SIGINT, which may not work on Windows
+		writeLog('Stopping Code Pulse using SIGINT\n');
 		childProcess.kill(signal || 'SIGINT');
 		return true;
-	} else
-		return false;
+	}
+
+	return false;
 }
 
 function checkNewCPEvent(event, listener) {
@@ -136,7 +193,7 @@ exports.registerMainWindow = function(window) {
 		writeLog('Registering main window...\n');
 
 		window.on('close', function() {
-			writeLog('Window closed, sending SIGINT to Code Pulse...\n');
+			writeLog('Window closed, stopping Code Pulse...\n');
 			
 			this.hide();
 			if (childProcess)

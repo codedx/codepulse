@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.data.model.bytecode
+package com.secdec.codepulse.data.bytecode
 
 import com.secdec.codepulse.data.MethodTypeParam
 import com.secdec.codepulse.data.MethodSignature
@@ -25,7 +25,7 @@ import scala.collection.mutable.SortedSet
 import CodeForestBuilder._
 import java.lang.reflect.Modifier
 import com.secdec.codepulse.data.MethodSignatureParser
-import com.secdec.codepulse.tracer.TreeNode
+import com.secdec.codepulse.data.trace.TreeNode
 
 object CodeForestBuilder {
 

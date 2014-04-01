@@ -19,17 +19,15 @@
 
 package com.secdec.codepulse.util
 
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.FileReader
 import java.io.InputStream
 import java.io.OutputStream
-import java.io.BufferedOutputStream
-import java.io.Closeable
-import scala.util.control.Exception._
-import java.io.IOException
-import java.io.BufferedInputStream
-import scala.util.Try
 
 object RichFile {
 	/** Extended File class.
@@ -69,23 +67,41 @@ object RichFile {
 			path(file).reverse
 		}
 
-		def read[A](body: InputStream => A): A = {
-			val in = new FileInputStream(file)
-			try {
-				body(in)
-			} finally {
-				in.close
-			}
+		def stream[T](f: FileInputStream => T): T = {
+		val stream = new FileInputStream(file)
+		try {
+			f(stream)
+		} finally {
+			stream.close()
 		}
+	}
 
-		def readBuffered[A](body: BufferedInputStream => A): A = read { in =>
-			val buffered = new BufferedInputStream(in)
-			try {
-				body(buffered)
-			} finally {
-				buffered.close
-			}
+	def streamBuffered[T](f: BufferedInputStream => T) = {
+		val stream = new BufferedInputStream(new FileInputStream(file))
+		try {
+			f(stream)
+		} finally {
+			stream.close()
 		}
+	}
+
+	def read[T](f: FileReader => T): T = {
+		val reader = new FileReader(file)
+		try {
+			f(reader)
+		} finally {
+			reader.close()
+		}
+	}
+
+	def readBuffered[T](f: BufferedReader => T): T = {
+		val reader = new BufferedReader(new FileReader(file))
+		try {
+			f(reader)
+		} finally {
+			reader.close()
+		}
+	}
 
 		/** Write to this file.
 		  * @param body A function that takes an output stream and writes to it.

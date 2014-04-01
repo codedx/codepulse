@@ -17,27 +17,36 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.pages.traces
+package com.secdec.codepulse.tracer.export
 
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.tracer.TraceManager
-import com.secdec.codepulse.tracer.TracingTarget
+import java.io.InputStream
+import java.io.OutputStream
 
-import net.liftweb.common.Box
-import net.liftweb.sitemap.Menu
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
 
-object TraceDetailsPage {
+/** JSON Helpers for import/export purposes.
+  *
+  * @author robertf
+  */
+trait JsonHelpers {
+	private val Json = new JsonFactory
 
-	def traceMenu(traceManager: TraceManager) = {
-		def parse(link: String): Box[TracingTarget] = for {
-			traceId <- TraceId unapply link
-			target <- traceManager getTrace traceId
-		} yield target
-		def encode(target: TracingTarget): String = target.id.num.toString
+	protected def streamJson[T](out: OutputStream, usePrettyPrint: Boolean = true)(f: JsonGenerator => T): T = {
+		val jg = Json createGenerator out
+		if (usePrettyPrint) jg.useDefaultPrettyPrinter
 
-		Menu.param[TracingTarget]("Trace", "Trace", parse, encode) / "traces"
+		try {
+			f(jg)
+		} finally jg.flush
 	}
 
-	def traceHref(traceId: TraceId) = s"/traces/${traceId.num}"
+	protected def readJson(in: InputStream)(f: JsonParser => Unit) {
+		val jp = Json createParser in
 
+		try {
+			f(jp)
+		} finally jp.close
+	}
 }

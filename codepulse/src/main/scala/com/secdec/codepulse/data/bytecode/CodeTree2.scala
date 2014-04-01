@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.codepulse.data.model.bytecode
+package com.secdec.codepulse.data.bytecode
 
 import collection.mutable.SortedSet
 import scala.math.Ordering

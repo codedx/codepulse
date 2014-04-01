@@ -69,13 +69,12 @@ class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 	def serveFileUpload(upfile: File): LiftResponse = {
 		println(s"Uploaded file ${upfile.getName}")
 
-		val uploadData = TraceUploadData.detectUploadData(upfile)
-		println(s"Parsed the uploadData as $uploadData")
+		val uploadedTraceId = TraceUploadData.handleUpload(upfile)
+		println(s"Upload resulted in trace: $uploadedTraceId")
 
-		uploadData match {
-			case Full(traceData) =>
-				val target = traceManager.addTrace(traceData)
-				val traceId = target.id
+		uploadedTraceId match {
+			case Full(traceId) =>
+				val target = traceManager.getTrace(traceId)
 				val href = TraceDetailsPage.traceHref(traceId)
 				JsonResponse("href" -> href)
 			case Empty =>

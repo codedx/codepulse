@@ -42,13 +42,13 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 		val dateFormat = new SimpleDateFormat("EEE, MMM d, yyyy 'at' HH:mm:ss z")
 		val data = target.traceData
 
-		val creationDate = dateFormat.format(new Date(data.creationDate))
-		val importDate = data.importDate map { d =>
+		val creationDate = dateFormat.format(new Date(data.metadata.creationDate))
+		val importDate = data.metadata.importDate map { d =>
 			dateFormat.format(new Date(d))
 		}
 
 		def runBinding(xml: NodeSeq): NodeSeq = bind("trace", xml,
-			"name" -> Text(data.name),
+			"name" -> Text(data.metadata.name),
 			"creationdate" -> Text(creationDate),
 			"importdate" -> Text(importDate getOrElse "???"),
 			"ifimported" -> { (xml: NodeSeq) =>
@@ -60,7 +60,7 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 				val thisId = target.id
 				val conflictClass = manager.tracesIterator
 					.filterNot(_.id == thisId) // only check other traces
-					.find(_.traceData.name == target.traceData.name) // find one with the same name as this
+					.find(_.traceData.metadata.name == target.traceData.metadata.name) // find one with the same name as this
 					.map { _ => "hasConflict" } // if found, this will be a Some
 
 				// If there was a conflict, this div has the "nameConflict" class attribute.
@@ -78,6 +78,6 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 	}
 
 	def renderName(ignored: NodeSeq): NodeSeq = {
-		Text(target.traceData.name)
+		Text(target.traceData.metadata.name)
 	}
 }

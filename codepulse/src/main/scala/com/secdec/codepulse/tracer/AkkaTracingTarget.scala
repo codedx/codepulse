@@ -30,6 +30,8 @@ import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
+import com.secdec.codepulse.data.trace.TraceId
+import com.secdec.codepulse.data.trace.TraceData
 
 sealed trait TracingTargetEvent
 object TracingTargetEvent {
@@ -67,6 +69,7 @@ trait TracingTarget {
 	def getState: Future[TracingTargetState]
 
 	def traceData: TraceData
+	def transientData: TransientTraceData
 }
 
 object AkkaTracingTarget {
@@ -86,7 +89,7 @@ object AkkaTracingTarget {
 	// implicit Timeout used for the Akka ask (?) method in getState
 	private implicit val timeout = new Timeout(5000)
 
-	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData) extends TracingTarget with AskSupport {
+	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
 		def subscribe(sub: EventStream[TracingTargetEvent] => Unit) = actor ! Subscribe(sub)
 		def requestNewTraceConnection() = actor ! RequestTraceConnect
 		def requestTraceEnd() = actor ! RequestTraceEnd
@@ -96,11 +99,10 @@ object AkkaTracingTarget {
 		}
 	}
 
-	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData): TracingTarget = {
-
-		val props = Props(classOf[AkkaTracingTarget], /*analysis,*/ traceId, traceData)
+	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData): TracingTarget = {
+		val props = Props(classOf[AkkaTracingTarget], traceId, traceData, transientTraceData)
 		val actorRef = actorSystem.actorOf(props)
-		new TracingTargetImpl(traceId, actorRef, traceData)
+		new TracingTargetImpl(traceId, actorRef, traceData, transientTraceData)
 	}
 
 }
@@ -123,7 +125,7 @@ object AkkaTracingTarget {
   * finishing, it may or may not transition through the Ending state before
   * returning to Idle.
   */
-class AkkaTracingTarget( /*analysis: AnalysisRun, */ traceId: TraceId, traceData: TraceData) extends Actor {
+class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData) extends Actor {
 
 	import AkkaTracingTarget._
 
@@ -213,7 +215,7 @@ class AkkaTracingTarget( /*analysis: AnalysisRun, */ traceId: TraceId, traceData
 		for (reason <- t.completion) self ! TraceEnded(reason)
 
 		// set up data management for the trace
-		val dataManager = new StreamingTraceDataManager(traceData /*, methodCorrelator*/ )
+		val dataManager = new StreamingTraceDataManager(traceData, transientTraceData)
 
 		// remember this trace
 		trace = Some(t)
