@@ -91,6 +91,10 @@
  	margin-right: 3px;
  }
 
+ .recording.in-progress .recording-label.no-icon .text:before {
+ 	display: none;
+ }
+
  [trace-running=true] .recording .recording-label .text:before {
  	-webkit-text-stroke: 1px white;
  	-moz-text-stroke: 1px white;
@@ -157,33 +161,22 @@
 | Recording Adder Button |
 \************************/
 
- .recording.adder-button {
- 	width: 100%;
+ .recording-adder-button {
  	display: none;
+
+ 	padding: 5px;
+ 	margin-top: 20px;
+ 	margin-bottom: 2px;
+ 	cursor: pointer;
  }
 
- [trace-running=true] .recording.adder-button {
+ .recording-adder-button:hover {
+ 	background-color: rgba(255,255,255,0.2);
+ }
+
+ [trace-running=true] .recording-adder-button {
  	display: block;
  }
-
- .recording.adder-button .add-icon {
- 	line-height: 30px;
- 	width: 30px;
- 	display: inline-block;
- 	text-align: center;
- 	float: left;
- }
- 
- .recording.adder-button .add-icon i {
- 	vertical-align: baseline;
- }
- 
- .recording.adder-button .add-label {
- 	line-height: 30px;
- 	display: inline-block;
- }
-
-
 
 /***************************\
 | Start/Stop Trace Controls |
@@ -278,6 +271,12 @@
  	position: absolute;
  	bottom: 0;
  	width: 100%;
+ }
+
+ .recordingsLegend .legend-label {
+ 	border-bottom: 1px solid;
+ 	margin: 0 5px;
+ 	font-size: small;
  }
 
  .recordingsLegend .legend-entry {
