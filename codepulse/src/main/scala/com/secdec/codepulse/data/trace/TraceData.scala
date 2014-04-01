@@ -19,6 +19,9 @@
 
 package com.secdec.codepulse.data.trace
 
+import scala.concurrent.duration._
+import akka.actor.ActorSystem
+
 /** Main entry point for getting a `TraceData` for a certain trace ID.
   *
   * @author robertf
@@ -34,14 +37,12 @@ trait TraceDataProvider {
   * @author robertf
   */
 object TraceDataProvider {
-	lazy val storageDir = {
+	lazy val DefaultStorageDir = {
 		val basePath = com.secdec.codepulse.paths.appData
 		val dir = new java.io.File(basePath, "codepulse-traces")
 		dir.mkdirs
 		dir
 	}
-
-	lazy val default: TraceDataProvider = new slick.SlickH2TraceDataProvider(storageDir)
 }
 
 /** Access trait for complete set of trace data.

@@ -19,16 +19,18 @@
 
 package com.secdec.codepulse.data.trace.slick
 
+import scala.concurrent.duration.FiniteDuration
 import scala.slick.driver.JdbcProfile
 import scala.slick.jdbc.JdbcBackend.Database
 
+import akka.actor.ActorSystem
 import com.secdec.codepulse.data.trace._
 
 /** Main access to trace data, using Slick, with `db` and `driver`.
   *
   * @author robertf
   */
-private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, encounterBufferSize: Int) extends TraceData {
+private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends TraceData {
 	private val traceMetadataDao = new TraceMetadataDao(driver)
 	private val metadataAccess = new SlickTraceMetadataAccess(traceMetadataDao, db) with DefaultTraceMetadataUpdates with TraceMetadata
 
@@ -39,7 +41,7 @@ private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, e
 	private val recordingMetadataAccess = new SlickRecordingMetadataAccess(recordingMetadataDao, db)
 
 	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao)
-	private val encountersAccess = new SlickTraceEncounterDataAccess(encountersDao, db, encounterBufferSize)
+	private val encountersAccess = new SlickTraceEncounterDataAccess(encountersDao, db, encounterBufferSize, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem)
 
 	def metadata: TraceMetadata = metadataAccess
 	def treeNodeData: TreeNodeDataAccess = treeNodeDataAccess
@@ -59,6 +61,6 @@ private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, e
 	}
 
 	def close() {
-		flush
+		encountersAccess.close
 	}
 }

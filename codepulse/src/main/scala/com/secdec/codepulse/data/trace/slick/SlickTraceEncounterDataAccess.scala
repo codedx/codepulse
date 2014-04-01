@@ -19,15 +19,24 @@
 
 package com.secdec.codepulse.data.trace.slick
 
+import scala.concurrent.duration.FiniteDuration
 import scala.slick.jdbc.JdbcBackend.Database
+import akka.actor.ActorSystem
 import com.secdec.codepulse.data.trace.TraceEncounterDataAccess
+import com.secdec.codepulse.util.TaskScheduler
 
 /** Slick-backed TraceEncoutnerDataAccess implementation.
-  * Buffers encounter data and batches database writes for efficiency. No thread-safety guarantees are made.
+  * Buffers encounter data and batches database writes for efficiency. The buffering
+  * interaction is done in a thread-safe manner.
   *
   * @author robertf
   */
-private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Database, bufferSize: Int) extends TraceEncounterDataAccess {
+private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Database, bufferSize: Int, flushInterval: FiniteDuration, actorSystem: ActorSystem) extends TraceEncounterDataAccess {
+	private val flusher = TaskScheduler(actorSystem, flushInterval) {
+		if (!pendingRecordingEncounters.isEmpty || !pendingUnassociatedEncounters.isEmpty)
+			bufferLock.synchronized { flushPreLocked }
+	}
+
 	// lazily load
 	private lazy val (recordingEncounters, unassociatedEncounters) = {
 		val recordingEncounters = collection.mutable.HashMap.empty[Int, collection.mutable.Set[Int]]
@@ -45,11 +54,12 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 		(recordingEncounters, unassociatedEncounters)
 	}
 
+	private val bufferLock = new Object
 	private val pendingRecordingEncounters = collection.mutable.ListBuffer.empty[(Int, Int)]
 	private val pendingUnassociatedEncounters = collection.mutable.ListBuffer.empty[Int]
 
-	/** Flush anything cached for writing out to the db */
-	def flush() {
+	private def flushPreLocked() {
+		// this is to be called when locking has already been done for us
 		db withTransaction { implicit transaction =>
 			val associated = pendingRecordingEncounters.toIterable.map {
 				case (recordingId, nodeId) => Some(recordingId) -> nodeId
@@ -65,38 +75,51 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 		pendingUnassociatedEncounters.clear
 	}
 
-	private def flushIfFull() {
+	/** Flush anything cached for writing out to the db */
+	def flush() {
+		flusher.trigger
+	}
+
+	def close() {
+		flusher.stop(true)
+	}
+
+	private def flushIfFullPreLocked() {
 		if ((pendingRecordingEncounters.size + pendingUnassociatedEncounters.size) > bufferSize)
-			flush
+			flushPreLocked
 	}
 
 	def record(recordings: List[Int], encounteredNodes: List[Int]) {
-		recordings match {
-			case Nil =>
-				val additions = encounteredNodes.filterNot(unassociatedEncounters.contains)
-				pendingUnassociatedEncounters ++= additions
-				unassociatedEncounters ++= additions
+		bufferLock.synchronized {
+			recordings match {
+				case Nil =>
+					val additions = encounteredNodes.filterNot(unassociatedEncounters.contains)
+					pendingUnassociatedEncounters ++= additions
+					unassociatedEncounters ++= additions
 
-			case recordings =>
-				for {
-					nodeId <- encounteredNodes
+				case recordings =>
+					for {
+						nodeId <- encounteredNodes
 
-					recordingId <- recordings
-					recording = recordingEncounters.getOrElseUpdate(recordingId, collection.mutable.HashSet.empty)
+						recordingId <- recordings
+						recording = recordingEncounters.getOrElseUpdate(recordingId, collection.mutable.HashSet.empty)
 
-					if !(recording contains nodeId)
-				} {
-					pendingRecordingEncounters += recordingId -> nodeId
-					recording += nodeId
-				}
+						if !(recording contains nodeId)
+					} {
+						pendingRecordingEncounters += recordingId -> nodeId
+						recording += nodeId
+					}
+			}
+
+			flushIfFullPreLocked
 		}
 
-		flushIfFull
+		flusher.start
 	}
 
 	def get(): Set[Int] = // get all encounters
-		(recordingEncounters.flatMap(_._2) ++ unassociatedEncounters).toSet
+		bufferLock.synchronized { (recordingEncounters.flatMap(_._2) ++ unassociatedEncounters).toSet }
 
 	def get(recordingId: Int): Set[Int] = // get encounters for one recording
-		recordingEncounters.getOrElse(recordingId, Nil).toSet
+		bufferLock.synchronized { recordingEncounters.getOrElse(recordingId, Nil).toSet }
 }

@@ -21,19 +21,23 @@ package com.secdec.codepulse.data.trace.slick
 
 import java.io.File
 
+import scala.concurrent.duration._
 import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend.Database
 
 import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.util.RichFile.RichFile
 
+import akka.actor.ActorSystem
+
 /** Provides `SlickTraceData` instances for traces, basing storage in `folder`.
   * Uses H2 for data storage.
   *
   * @author robertf
   */
-class SlickH2TraceDataProvider(folder: File) extends TraceDataProvider {
+class SlickH2TraceDataProvider(folder: File, actorSystem: ActorSystem) extends TraceDataProvider {
 	private val EncountersBufferSize = 500
+	private val EncountersFlushInterval = 1.second
 
 	private val cache = collection.mutable.Map.empty[TraceId, TraceData]
 
@@ -53,7 +57,7 @@ class SlickH2TraceDataProvider(folder: File) extends TraceDataProvider {
 		val needsInit = !(folder / TraceFilename(id)).exists
 
 		val db = Database.forURL(s"jdbc:h2:file:${(folder / TraceFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
-		val data = new SlickTraceData(db, H2Driver, EncountersBufferSize)
+		val data = new SlickTraceData(db, H2Driver, EncountersBufferSize, EncountersFlushInterval, actorSystem)
 
 		if (needsInit) data.init
 

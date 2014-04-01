@@ -40,8 +40,6 @@ object TraceManager {
 		AppCleanup.add { () => sys.shutdown() }
 		sys
 	}
-
-	lazy val default = new TraceManager(defaultActorSystem)
 }
 
 class TraceManager(val actorSystem: ActorSystem) extends Observing {
