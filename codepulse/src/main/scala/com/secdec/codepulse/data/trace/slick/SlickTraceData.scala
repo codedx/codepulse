@@ -22,6 +22,7 @@ package com.secdec.codepulse.data.trace.slick
 import scala.concurrent.duration.FiniteDuration
 import scala.slick.driver.JdbcProfile
 import scala.slick.jdbc.JdbcBackend.Database
+import scala.slick.jdbc.{ StaticQuery => Q }
 
 import akka.actor.ActorSystem
 import com.secdec.codepulse.data.trace._
@@ -62,5 +63,13 @@ private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, e
 
 	def close() {
 		encountersAccess.close
+	}
+
+	def delete() {
+		close
+
+		db withTransaction { implicit session =>
+			(Q updateNA "DROP ALL OBJECTS DELETE FILES").execute
+		}
 	}
 }

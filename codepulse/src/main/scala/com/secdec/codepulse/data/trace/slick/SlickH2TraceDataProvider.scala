@@ -39,7 +39,7 @@ class SlickH2TraceDataProvider(folder: File, actorSystem: ActorSystem) extends T
 	private val EncountersBufferSize = 500
 	private val EncountersFlushInterval = 1.second
 
-	private val cache = collection.mutable.Map.empty[TraceId, TraceData]
+	private val cache = collection.mutable.Map.empty[TraceId, SlickTraceData]
 
 	private object TraceFilename {
 		def apply(traceId: TraceId) = s"${getDbName(traceId)}.h2.db"
@@ -53,25 +53,22 @@ class SlickH2TraceDataProvider(folder: File, actorSystem: ActorSystem) extends T
 		}
 	}
 
-	def getTrace(id: TraceId): TraceData = cache.getOrElseUpdate(id, {
+	def getTrace(id: TraceId): TraceData = getTraceInternal(id)
+
+	private def getTraceInternal(id: TraceId, suppressInit: Boolean = false) = cache.getOrElseUpdate(id, {
 		val needsInit = !(folder / TraceFilename(id)).exists
 
 		val db = Database.forURL(s"jdbc:h2:file:${(folder / TraceFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
 		val data = new SlickTraceData(db, H2Driver, EncountersBufferSize, EncountersFlushInterval, actorSystem)
 
-		if (needsInit) data.init
+		if (!suppressInit && needsInit) data.init
 
 		data
 	})
 
 	def removeTrace(id: TraceId) {
-		for (cached <- cache get id) {
-			cached.close
-			cache -= id
-		}
-
-		val file = folder / TraceFilename(id)
-		if (file.exists) file.delete
+		getTraceInternal(id, true).delete
+		cache -= id
 	}
 
 	def traceList: List[TraceId] = {
