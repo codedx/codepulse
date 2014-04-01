@@ -38,7 +38,7 @@ private[slick] class SlickRecordingMetadata(val id: Int, dao: RecordingMetadataD
 	}
 
 	def running = db withSession { implicit session =>
-		get("running").flatMap(AsBoolean.unapply) getOrElse false
+		get("running").flatMap(AsBoolean.unapply) getOrElse true
 	}
 
 	def running_=(newState: Boolean) = db withTransaction { implicit transaction =>
