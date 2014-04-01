@@ -167,6 +167,7 @@
 
 		this.flashHighlight = function(){
 			self.uiParts.highlightsD3
+				.interrupt()
 				.style('opacity', .8)
 			.transition().duration(5000)
 				.style('opacity', 0)
