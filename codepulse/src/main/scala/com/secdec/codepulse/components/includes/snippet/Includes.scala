@@ -116,7 +116,8 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val codepulseCommon = register("CodePulseCommon", JS("common/CodePulse.js"))
 	val downloader = register("Downloader", JS("common/Downloader.js"))
 	val traceAPI = register("TraceAPI", JS("pages/traces/TraceAPI.js"))
-	val codeTreemap = register("codetreemap", overlay, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
+	val codeTreemap = register("codetreemap", overlay, qtip2, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
+	val colorpickerTooltip = register("colorpickerTooltip", colorpicker, qtip2, JS("pages/traces/colorpicker-tooltip.js"), CSS("pages/traces/colorpicker-tooltip.css"))
 
 	val tracesPage = register("tracesPage",
 		JS("pages/traces/common.js"),
@@ -126,13 +127,11 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("pages/traces/TreeData.js"),
 		JS("pages/traces/TreeProjector.js"),
 		JS("pages/traces/TraceTreeData.js"),
+		colorpickerTooltip,
 		CSS("pages/traces/PackageWidget.css"),
 		JS("pages/traces/PackageWidget.js"),
 		JS("pages/traces/PackageController.js"),
 		CSS("pages/traces/treemap-tooltip.css"),
-		colorpicker,
-		CSS("pages/traces/colorpicker-tooltip.css"),
-		qtip2,
 		JS("pages/traces/Recording.js"),
 		JS("pages/traces/RecordingWidget.js"),
 		JS("pages/traces/RecordingManager.js"),

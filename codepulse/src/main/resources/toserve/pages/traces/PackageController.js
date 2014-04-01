@@ -292,14 +292,23 @@
 	*/
 	function applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings){
 
+		// If anything is selected, use that selection to determine coverage.
+		// If nothing is selected, all coverage data counts (i.e. 'all activity' is what's covered)
+		var noSelectedRecordings = activeRecordings.empty()
+
 		function isCoveredBySelectedRecording(node){
 			var records = coverageRecords[node.id]
 			if(!records) return false
-			for(var i in records){
-				var recordingId = records[i]
-				if(activeRecordings.has(recordingId)) return true
+
+			if(noSelectedRecordings){
+				return records.length > 0
+			} else {
+				for(var i in records){
+					var recordingId = records[i]
+					if(activeRecordings.has(recordingId)) return true
+				}
+				return false
 			}
-			return false
 		}
 
 		function computeAndApplyCoverage(node){
