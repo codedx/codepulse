@@ -20,14 +20,12 @@
 ;(function(exports){
 	
 	// define variables to represent
-	var recordingTemplate,
-		colorPickerTemplate
+	var recordingTemplate
 	
 	// once the DOM has loaded, initialize the template/container variables
 	$(document).ready(function(){
 		var templatesContainer = $('#recording-controls [data-role=templates-container]')
 		recordingTemplate = templatesContainer.find('[data-role=recording-template]')
-		colorPickerTemplate = templatesContainer.find('[data-role=colorpicker-template]')
 	})
 
 	function RecordingWidget(){
@@ -176,118 +174,13 @@
 		}
 
 		this.enableColorEditor = function(){
-			setupColorpicker(swatchContainer, _color || 'black', {
+			colorpickerTooltip(swatchContainer, _color || 'black', {
 				'progressCallback': function(current){ self.setColor(current) },
 				'finishedCallback': function(choice){ choice && colorEdits.push(choice) },
 				'onOpen': function(){ swatchContainer.addClass('editor-open') },
 				'onClose': function(){ swatchContainer.removeClass('editor-open') }
 			})
 		}
-	}
-
-	/*
-	 * Uses the 'Flexi' ColorPicker widget in conjunction with qTip2
-	 * to install a color chooser dialog to the left of the given jquery
-	 * selected `$elem`.
-	 *
-	 * @param $elem - the trigger element. Clicking it will activate the tooltip/chooser
-	 * @param initialColorRaw - a css color string (it will be sanitized via d3.rgb)
-	 * @param callbacksObject - an object that contains callback functions:
-	 *   callbacksObject.progressCallback - called when the color chooser's cursors are moved
-	 *   callbacksObject.finishedCallback - called when ok/cancel is pressed, or the tooltip
-	 *                                      is hidden for other reasons. If OK, the argument is
-	 *                                      the color that the user picked
-	 *   callbackObjects.onOpen - called when the tooltip opens
-	 *   callbackObjects.onClose - called when the tooltip closes
-	 */
-	function setupColorpicker($elem, initialColorRaw, callbacksObject){
-		var template = colorPickerTemplate.clone(),
-			slider = template.find('.slider')[0],
-			picker = template.find('.picker')[0],
-			pickerCursor = template.find('.picker-indicator')[0],
-			sliderCursor = template.find('.slider-indicator')[0],
-			okButton = template.find('[name=ok]'),
-			cancelButton = template.find('[name=cancel]'),
-			initialColor = d3.rgb(initialColorRaw).toString(),
-			currentColor = initialColor,
-			qtipApi = undefined,
-			qtipHide = undefined,
-			qtipOpen = false,
-			okClicked = false
-
-		callbacksObject = callbacksObject || {}
-		var noop = function(){},
-			progressCallback = callbacksObject['progressCallback'] || noop,
-			finishedCallback = callbacksObject['finishedCallback'] || noop,
-			onOpen = callbacksObject['onOpen'] || noop,
-			onClose = callbacksObject['onClose'] || noop
-
-		// puts "pointerEvents: none;" on the cursors' styles
-		ColorPicker.fixIndicators(pickerCursor, sliderCursor)
-
-		function pickerCallback(hex, hsv, rgb, pickerCoord, sliderCoord){
-			ColorPicker.positionIndicators(
-				sliderCursor, pickerCursor,
-				sliderCoord, pickerCoord)
-
-			progressCallback(hex)
-			currentColor = hex
-		}
-
-		function onOk(e){
-			okClicked = true
-			$elem.qtip('hide')
-		}
-
-		function onCancel(e){
-			okClicked = false
-			$elem.qtip('hide')
-		}
-
-		okButton.click(onOk)
-		cancelButton.click(onCancel)
-
-		var cp = new ColorPicker(slider, picker, pickerCallback)
-		cp.setHex(currentColor)
-
-		$elem.qtip({
-			content: template,
-			style: 'colorpicker-tooltip',
-			position: {
-				my: 'right center',
-				at: 'left center',
-				viewport: $(window)
-			},
-			show: {
-				event: 'click',
-				effect: function(){
-					cp.setHex(initialColor)
-					qtipOpen = true
-					okClicked = false
-					$(this).show()
-					onOpen()
-				},
-				delay: 0
-			},
-			hide: {
-				fixed: true,
-				event: 'unfocus',
-				effect: function(){
-					if(okClicked){
-						initialColor = currentColor
-						finishedCallback(currentColor)
-					} else {
-						cp.setHex(initialColor)
-						finishedCallback()
-					}
-
-					qtipOpen = false
-					onClose()
-				},
-				delay: 0
-			}
-		})
-
 	}
 
 	exports.RecordingWidget = RecordingWidget

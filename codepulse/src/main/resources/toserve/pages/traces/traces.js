@@ -57,7 +57,7 @@ $(document).ready(function(){
 	// When the `treemapColoringStateChanges` fires, use the current `legendData`
 	// to generate a new treemap coloring function, and update the treemap's colors
 	// with that.
-	Trace.treemapColoringStateChanges.onValue(function(){
+	Trace.treemapColoringStateChanges.toProperty('init').onValue(function(){
 		var colorLegend = Trace.getColorLegend()
 		var coloringFunc = treemapColoring(colorLegend)
 		treemapWidget.nodeColoring(coloringFunc)
@@ -84,10 +84,13 @@ $(document).ready(function(){
 
 		var coloringFunc = function(allNodes){
 
-			var activeRecordingIds = Trace.getActiveRecordingIds()
+			var activeRecordingIds = Trace.getActiveRecordingIds(),
+				allActivityId = Trace.allActivityRecordingId,
+				allActivityColor = colorLegend[allActivityId],
+				allActivityColorFaded = d3.interpolate('lightgray', allActivityColor)(.2)
 
 			function countActiveCoverings(coverage){
-				if(!coverage) return 0
+				// if(!coverage) return 0
 				var count = 0
 				coverage.forEach(function(id){
 					if(activeRecordingIds.has(id)){
@@ -99,11 +102,18 @@ $(document).ready(function(){
 
 			return function(node){
 				if(ignoredKinds.has(node.kind)) return 'grey'
+
 				var coverage = Trace.coverageSets[node.id],
 					numCovered = countActiveCoverings(coverage)
-					// numCovered = coverage ? coverage.size() : 0
 
-				if(numCovered == 0) return 'lightgrey'
+				if(numCovered == 0) {
+					if(coverage.has(allActivityId)){
+						if(activeRecordingIds.empty()) return allActivityColor
+						else return allActivityColorFaded
+					} else {
+						return 'lightgrey'
+					}
+				}
 				if(numCovered > 1) return colorLegend['multi']
 
 				var entryId = undefined
@@ -165,6 +175,7 @@ $(document).ready(function(){
 		// Match the 'compactMode' with the 'showTreemap' state.
 		showTreemap.onValue(function(show){
 			controller.compactMode(show)
+			$('.packages-header').toggleClass('compact', show)
 		})
 
 		// Highlight the package widgets when trace data comes in

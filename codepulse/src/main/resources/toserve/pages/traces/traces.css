@@ -29,16 +29,15 @@ body {
  	/* width = full screen minus:
  	   - 200px (the width of the .widget-label)
  	   -  50px (the width of the .widget-method-count)
- 	   -  40px (the width of the percentage marker compact)
+ 	   -  60px (the width of the percentage marker compact)
  	   - 241px (the width of the side bar)
- 	   = 531px
+ 	   = 551px
  	*/
- 	width: calc(100% - 531px);
+ 	width: calc(100% - 551px);
  
  	transition: left .3s ease;
- 	background-color: #FFF;
- 	border-left: 1px solid steelblue;
- 	border-top: 1px solid steelblue;
+ 	background-color: #9C9C9C;
+ 	border-left: 1px solid black;
  }
  
  .middle-column-alt:not(.in-view):hover {
@@ -49,10 +48,11 @@ body {
  	/* left = 
  		+ 200px (width of .widget-label)
  		+  50px (width of .widget-method-count)
- 		+  40px (width of percentage marker compact)
- 		= 290px
+ 		+  60px (width of percentage marker compact)
+ 		= 310px
  	*/
- 	left: 290px;
+ 	left: 310px;
+ 	border-left: none;
  }
 
  /* Special case for the traceSwitcher. It needs to be in front of
@@ -216,33 +216,53 @@ body {
  }
 
 /*********************\
+| Treemap Header Area |
+\*********************/
+
+ .treemap-header {
+ 	height: 40px;
+ 	border-bottom: 2px solid black;
+ }
+
+ .in-view .treemap-header {
+ 	border-color: black;
+ }
+
+ .treemap-header .header-text {
+ 	color: white;
+ 	display: inline-block;
+ }
+
+/*********************\
 | Show Treemap Button |
 \*********************/
 
  #show-treemap-button {
- 	color: gray;
+ 	color: lightgray;
  	cursor: pointer;
  
- 	position: absolute;
- 	right: 100%;
- 	top: -1px;
+ 	width: 30px;
+ 	text-align: center;
+
+ 	height: 40px;
+ 	line-height: 40px;
+
+ 	position: relative;
+ 	left: -30px;
+ 	transition: left .3s ease;
  
- 	/* The triangle character is not vertically centered,
- 	 so we compensate by having mismatched top and bottom padding
- 	 */
- 	padding-top: 4px; 
- 	padding-bottom: 8px;
- 	padding-left: 9px;
- 	padding-right: 9px;
- 
- 	background-color: #FFF;
- 
- 	border: 1px solid steelblue;
- 	border-right: none;
+ 	background-color: #9C9C9C;
+ 	display: inline-block;
+ 	border-left: 1px solid black;
  }
  
  #show-treemap-button:hover {
- 	color: black;
+ 	color: white;
+ }
+
+ #show-treemap-button.expanded {
+ 	left: 0;
+ 	border-left: none;
  }
 
  #show-treemap-button:after { content: "\25C0"; }
@@ -252,18 +272,10 @@ body {
 | Treemap Area Boundaries |
 \*************************/
 
- #treemap-legend-container {
- 	/* With the default 3 items, it's this big by default.
- 	 * I'm just setting the maximum at a fixed size so I
- 	 * can set the treemap container's height based on this.
- 	 */
- 	max-height: 39px;
- }
-
  #treemap-container {
  	overflow-y: hidden;
- 	/* Take up all vertical space except for the legend */
- 	height: 100%;
+ 	/* Take up all vertical space except for the header */
+ 	height: calc(100% - 40px);
  }
 
  #treemap-container .widget-body {
@@ -326,7 +338,7 @@ body {
  	font-size: x-large;
  	text-align: center;
 
- 	color: silver;
+ 	color: lightgray;
  	border: 3px dashed;
 
  	/* not displayed unless the container has '.no-selection' */

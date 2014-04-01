@@ -4,7 +4,7 @@
 
  .widget-row {
  	height: 20px;
- 	overflow-y: hidden;
+ 	overflow: hidden;
  	margin-bottom: 4px;
  }
  
@@ -20,9 +20,8 @@
 \********************/
 
  .packages-header {
- 	box-shadow: 0 2px 2px #000;
+ 	border-bottom: 2px solid black;
  	margin-bottom: 5px;
- 	border-top: 1px solid rgba(0,0,0,.2);
  
  	position: fixed;
  	top: 60px;
@@ -58,10 +57,19 @@
  }
  
  .packages-header .header-barchart {
- 	width: calc(100% - 250px);
- 	padding-left: 5px;
- 	line-height: 40px;
  	background-color: #6D6D6D;
+
+ 	width: calc(100% - 250px); 
+ 	line-height: 40px;
+ 	padding-left: 5px;
+ }
+
+ .packages-header.compact .header-barchart {
+ 	width: 60px;
+ 	font-size: small;
+ 	text-align: center;
+ 	line-height: inherit;
+ 	padding-left: 0;
  }
 
 /*****************************\
@@ -296,7 +304,7 @@
  	position: absolute;
  	top: -4px;
  	display: inline-block;
- 	width: 40px;
+ 	width: 60px;
  	overflow: hidden;
  
  	box-sizing: border-box;
@@ -320,7 +328,7 @@
  
  /* By default, the bar label positions itself directly in the center of the bar fill. */
  .widget-barchart .bar-shell .bar-fill .bar-label {
- 	left: calc(50% - 20px);
+ 	left: calc(50% - 30px);
  }
  
  /* If the bar fill is 'small', position the label 10px to the right of the bar fill */

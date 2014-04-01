@@ -86,48 +86,24 @@
 		generateMenu(recording.setMenu)
 	}
 
-	function OverlapsRecordingController(){
-		var recording = this.recording = new Recording(),
-			widget = this.widget = new RecordingWidget()
+	function setupOverlapsRecording(){
+		var recording = new Recording()
 
 		recording
-			.setLabel('multiple recordings')
+			.setLabel('overlaps')
 			.setColor('purple')
+			.setDataKey('overlaps')
 
-		recording.color.onValue(widget.setColor)
-		recording.label.onValue(widget.setLabel)
-
-		widget.colorEdits.onValue(recording.setColor)
-		widget.enableColorEditor()
-		widget.setSelected(true)
-
-		this.getUi = function(){ return widget.$ui }
-	}
-
-	function setupOverlapsRecording($uiContainer){
-		var controller = new OverlapsRecordingController()
-		controller.getUi()
-			.appendTo($uiContainer)
-			.addClass('multiples-recording')
-		
-		var managedId = Trace.addRecording(controller.recording)
-
-		// Show or Hide the widget depending on whether or not the recording manager
-		// has multiple selections.
-		Trace.activeRecordingsProp
-			.map(function(activeById){ return d3.sum(d3.values(activeById)) > 1 })
-			.onValue(function(hasMultipleSelection){
-				controller.widget.setDisabled(!hasMultipleSelection)
-				controller.widget.setInProgress(hasMultipleSelection)
-				controller.widget.setSelected(hasMultipleSelection)
-			})
+		var managedId = Trace.addRecording(recording)
 
 		// Watch the recording for coloring changes, sending the events
 		// to the treemapColoringStateChanges stream.
-		Trace.treemapColoringStateChanges.plug(
-			watchForTreemapColoringUpdates(controller.recording, managedId, true)
-		)
-		console.log('plug color changes for overlaps recording')
+		recording.color.onValue(function(color){
+			var msg = 'Recording Update: color(overlaps) -> ' + color
+			Trace.treemapColoringStateChanges.push(msg)
+		})
+
+		setupRecordingColorpicker(recording, '#overlaps-color-swatch')
 
 		return managedId
 	}
@@ -228,20 +204,63 @@
 		return first.concat(poll)
 	}
 
+	/**
+	 * Convenience method for setting up a colorpickerTooltip on a recording color swatch.
+	 * Note: 'custom' recordings already do this. This method is really just for use in the
+	 * 'legend' recordings, i.e. 'all activity' and 'overlaps'.
+	 *
+	 * @param recording the Recording whose color will be changed when the tooltip is used
+	 * @param swatchContainer a selector string describing the swatch widget's container element
+	 */
+	function setupRecordingColorpicker(recording, swatchContainer){
+		var $swatchContainer = $(swatchContainer),
+			$swatch = $swatchContainer.find('.swatch')
+
+		colorpickerTooltip($swatch, recording.getColor(), {
+			progressCallback: function(current){ $swatch.css('background-color', current) },
+			finishedCallback: function(choice){ choice && recording.setColor(choice) },
+			onOpen: function(){ $swatchContainer.addClass('editor-open') },
+			onClose: function(){ $swatchContainer.removeClass('editor-open') }
+		})
+	}
+
+	function createAllActivityRecording(){
+		var recording = new Recording()
+
+		recording
+			.setLabel('all activity')
+			.setDataKey('all')
+			.setColor('steelblue')
+
+		var managedId = Trace.addRecording(recording)
+
+		// Watch the recording for coloring changes, sending the events
+		// to the treemapColoringStateChanges stream.
+		Trace.treemapColoringStateChanges.plug(
+			recording.color.map(function(color){
+				return 'Recording Update: color(all activity) -> ' + color
+			})
+		)
+
+		setupRecordingColorpicker(recording, '#all-activity-color-swatch')
+
+		return managedId
+	}
+
 	function createRecentRecording(controlsContainer){
 		var recording = new Recording(),
 			widget = new RecordingWidget()
 
-		recording.setColor('steelblue')
+		recording.setColor('darkgreen')
+
+		widget.$ui.find('.recording-label').addClass('no-icon')
 
 		var timeWindows = [
-			{label: 'all activity', dataKey: 'all'},
-			{divider: true},
-			{label: 'latest 10 seconds', dataKey: 'recent/10000'},
-			{label: 'latest 60 seconds', dataKey: 'recent/60000'},
-			{label: 'latest 2 minutes', dataKey: 'recent/120000'},
-			{label: 'latest 5 minutes', dataKey: 'recent/300000'},
-			{label: 'latest 10 minutes', dataKey: 'recent/600000'}
+			{label: 'Latest 10 seconds', dataKey: 'recent/10000'},
+			{label: 'Latest 60 seconds', dataKey: 'recent/60000'},
+			{label: 'Latest 2 minutes', dataKey: 'recent/120000'},
+			{label: 'Latest 5 minutes', dataKey: 'recent/300000'},
+			{label: 'Latest 10 minutes', dataKey: 'recent/600000'}
 		]
 
 		function generateMenu(setMenu){
@@ -258,7 +277,7 @@
 					dataKey = timeWindows[index].dataKey
 
 				recording
-					.setLabel((index == 0 ? 'Show ' : 'Show the ') + label)
+					.setLabel(label)
 					.setDataKey(dataKey)
 
 				setMenu(createMenu())
@@ -426,6 +445,8 @@
 			self = this
 
 		
+		Trace.allActivityRecordingId = createAllActivityRecording(controlsContainer)
+
 		// Add a Recording/Widget for the "all activity"/"latest XXX"
 		var timeWindowsController = createRecentRecording(controlsContainer)
 

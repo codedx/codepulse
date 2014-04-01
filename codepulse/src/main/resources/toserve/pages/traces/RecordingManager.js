@@ -77,7 +77,7 @@
 		return Object.keys(recordings)
 	}
 
-	// Get an array of managed recordings that are current `selected`.
+	// Get a set of managed recordings that are current `selected`.
 	Trace.getActiveRecordingIds = function(){
 		var s = d3.set()
 		for(var id in recordings){

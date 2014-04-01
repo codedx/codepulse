@@ -15,13 +15,8 @@
 		</div>
 	
 		<!-- ADD RECORDING BUTTON -->
-		<div data-role="custom-recording-adder" class="recording adder-button fat">
-			<div class="add-icon">
-				<i class="icon-plus"></i>
-			</div>
-			<div class="add-label">
-				Start a Recording
-			</div>
+		<div data-role="custom-recording-adder" class="recording-adder-button">
+			<i class="fa fa-plus"></i> Start a Recording
 		</div>
 		
 		<!-- RECORDING WIDGET TEMPLATE -->
@@ -75,5 +70,23 @@
 	</div>
 	<!-- ^ end of #templates-container ^ -->
 
+	<div class="recordingsLegend">
+		<div class="legend-label">Legend:</div>
+
+		<div class="legend-entry clearfix">
+			<div class="swatch-container" id="all-activity-color-swatch">
+				<div class="swatch" style="background-color: red"></div>
+			</div>
+			<div class="legend-text">All Activity</div>
+		</div>
+
+		<div class="legend-entry clearfix">
+			<div class="swatch-container" id="overlaps-color-swatch">
+				<div class="swatch" style="background-color: blue"></div>
+			</div>
+			<div class="legend-text">Overlaps</div>
+		</div>
+
+	</div>
 
 </div>

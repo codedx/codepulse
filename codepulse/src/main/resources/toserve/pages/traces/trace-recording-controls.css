@@ -158,8 +158,6 @@
 \************************/
 
  .recording.adder-button {
- 	position: absolute;
- 	bottom: 0;
  	width: 100%;
  	display: none;
  }
@@ -245,7 +243,7 @@
 | Color Swatch Styles |
 \*********************/
 
- .recording .swatch-container {
+ .swatch-container {
  	height: 30px;
  	max-height: 30px;
  	box-sizing: border-box;
@@ -256,21 +254,36 @@
  	padding: 6px;
  }
  
- .recording .swatch-container:hover {
+ .swatch-container:hover {
  	background-color: rgba(238,238,238,0.5);
  }
  
- .recording .swatch-container.editor-open {
+ .swatch-container.editor-open {
  	background-color: rgba(255,255,255,0.5);
  }
  
- .recording .swatch-container .swatch {
+ .swatch-container .swatch {
  	height: 16px;
  	width: 16px;
  	box-sizing: border-box;
  	border: 1px solid white;
  	background-color: black;
  }
+
+/************************\
+| Activity Legend Styles |
+\************************/
+
+ .recordingsLegend {
+ 	position: absolute;
+ 	bottom: 0;
+ 	width: 100%;
+ }
+
+ .recordingsLegend .legend-entry {
+ 	line-height: 30px;
+ }
+
 
 /*************************************************\
 | Special overrides for the 'multiples-recording' |
