@@ -22,10 +22,11 @@ package com.secdec.codepulse.tracer.export
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.io.InputStreamReader
+import java.util.Properties
 import java.util.zip.ZipFile
 
 import com.secdec.codepulse.data.trace.TraceData
+import net.liftweb.util.Helpers.AsInt
 
 /** The actual guts of the import process. Handles the actual reading. This is
   * split up for versioning reasons.
@@ -75,12 +76,12 @@ object TraceImporter {
 	}
 
 	def getImporter(zip: ZipFile) = {
-		Option(zip.getEntry(".version")) flatMap { entry =>
-			val reader = new InputStreamReader(zip.getInputStream(entry))
-			try {
-				val version = reader.read
-				Importers.get(version)
-			} finally reader.close
+		Option(zip.getEntry(".manifest")) flatMap { entry =>
+			val in = zip.getInputStream(entry)
+			val props = new Properties
+			try props.load(in) finally in.close
+
+			AsInt.unapply(props getProperty "version") flatMap Importers.get
 		}
 	}
 
