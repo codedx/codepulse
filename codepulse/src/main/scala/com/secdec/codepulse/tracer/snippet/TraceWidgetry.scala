@@ -71,7 +71,7 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 			},
 			"exportlink" -> { (xml: NodeSeq) =>
 				val href = tracer.traceAPIServer.Paths.Export.toHref(target)
-				<a data-downloader={ href } data-filename="export.zip">{ runBinding(xml) }</a>
+				<a data-downloader={ href } data-filename={ s"${data.metadata.name}.pulse" }>{ runBinding(xml) }</a>
 			})
 
 		cometTemplate +: runBinding(template)

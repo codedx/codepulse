@@ -60,7 +60,7 @@
 		// set up the export link
 		$exportLink
 			.attr('data-downloader', data.exportHref)
-			.attr('data-filename', 'export.zip')
+			.attr('data-filename', data.name + '.pulse')
 			.traceDownloader('create')
 
 		// set up the delete link

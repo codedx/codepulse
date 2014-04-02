@@ -35,6 +35,12 @@
 				.css('display', 'none')
 				.appendTo('body')
 
+			function getAbsoluteUrl(relative) {
+				var resolver = document.createElement('a');
+				resolver.href = relative;
+				return resolver.href;
+			}
+
 			function pickFilename(callback){ filenamePicker
 				.val('')
 				.one('change', function(){
@@ -45,12 +51,24 @@
 				.click()
 			}
 
+			function doDownload(url){
+				var http = require('http'), fs = require('fs');
+
+				var request = http.get(getAbsoluteUrl(url), function(response) {
+					if (response.statusCode == '200') {
+						pickFilename(function(path) {
+							var file = fs.createWriteStream(path);
+							response.pipe(file);
+							file.on('finish', function() { file.close(); });
+						});
+					} else
+						alert('Error exporting: statusCode = ' + response.statusCode);
+				}).on('error', function(e) { alert('Error exporting: ' + e); });
+			}
+
 			// clicking the download link triggers the filenamePicker's dialog
 			$elem.click(function(e){
-				pickFilename(function(path){
-					console.log('picked filename: ', path)
-					doDownload(url, path)
-				})
+				doDownload(url)
 			})
 
 			this.destroy = function(){
@@ -67,32 +85,6 @@
 			this.destroy = function(){}
 		}
 
-	}
-
-	function doDownload(url, savePath){
-		var xhr = new XMLHttpRequest()
-		xhr.open('GET', url, true)
-		xhr.responseType = 'arraybuffer'
-
-		xhr.onload = function(e){
-			var uint8array = new Uint8Array(this.response)
-			var arrayBuffer = new Buffer(uint8array)
-
-			console.log('loaded raw data from server; about to save it to ' + savePath, arrayBuffer)
-
-			var fs = require('fs')
-
-			fs.writeFile(savePath, arrayBuffer, function(err){
-				if(err) {
-					console.error('failed to save the array data:', err)
-					alert('Failed to save ' + savePath + '\nError Message: ' + err.message)
-				} else {
-					console.log('saved the array file!')
-				}
-			})
-		}
-
-		xhr.send()
 	}
 
 	$.fn.traceDownloader = function(method){
