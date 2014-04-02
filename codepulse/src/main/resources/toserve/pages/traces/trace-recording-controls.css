@@ -1,3 +1,14 @@
+#recording-controls h1 {
+	font-size: small;
+	border-bottom: 1px solid;
+	line-height: 20px;
+	margin: 5px;
+}
+
+#trace-controls {
+	overflow-y: auto;
+}
+
 /*************************\
 | Recording Widget Styles |
 \*************************/
@@ -165,7 +176,6 @@
  	display: none;
 
  	padding: 5px;
- 	margin-top: 20px;
  	margin-bottom: 2px;
  	cursor: pointer;
  }
@@ -267,20 +277,9 @@
 | Activity Legend Styles |
 \************************/
 
- .recordingsLegend {
- 	position: absolute;
- 	bottom: 0;
- 	width: 100%;
- }
-
- .recordingsLegend .legend-label {
- 	border-bottom: 1px solid;
- 	margin: 0 5px;
- 	font-size: small;
- }
-
  .recordingsLegend .legend-entry {
  	line-height: 30px;
+ 	font-size: small;
  }
 
 

@@ -1,24 +1,6 @@
 <div id="recording-controls">
 	<div style="display: none;" data-role="templates-container">
-	
-		<!-- START/STOP TRACE BUTTONS -->
-		<div data-role="trace-setup" class="trace-setup-area">
-			<div class="control-button big" data-role="new-trace">
-				Start a Trace
-			</div>
-			<div class="control-button" data-role="connection-waiting">
-				Waiting for a trace connection...
-			</div>
-			<div class="control-button big" data-role="end-trace">
-				End Trace
-			</div>
-		</div>
-	
-		<!-- ADD RECORDING BUTTON -->
-		<div data-role="custom-recording-adder" class="recording-adder-button">
-			<i class="fa fa-plus"></i> Start a Recording
-		</div>
-		
+
 		<!-- RECORDING WIDGET TEMPLATE -->
 		<div data-role="recording-template" class="recording in-progress clearfix">
 			<div class="swatch-container">
@@ -70,9 +52,21 @@
 	</div>
 	<!-- ^ end of #templates-container ^ -->
 
-	<div class="recordingsLegend">
-		<div class="legend-label">Legend:</div>
+	<!-- START/STOP TRACE BUTTONS -->
+	<div class="trace-setup-area">
+		<div class="control-button big" data-role="new-trace">
+			Start a Trace
+		</div>
+		<div class="control-button" data-role="connection-waiting">
+			Waiting for a trace connection...
+		</div>
+		<div class="control-button big" data-role="end-trace">
+			End Trace
+		</div>
+	</div>
 
+	<h1>Treemap Legend</h1>
+	<div class="recordingsLegend">
 		<div class="legend-entry clearfix">
 			<div class="swatch-container" id="all-activity-color-swatch">
 				<div class="swatch" style="background-color: red"></div>
@@ -86,7 +80,29 @@
 			</div>
 			<div class="legend-text">Overlaps</div>
 		</div>
+	</div>
 
+	<h1>
+		Timing Filter
+		<i class="help fa fa-question-circle" title="Select this to view methods that were called recently. You can also change the time window by using the menu button on the right."></i>
+	</h1>
+	<div class="timingFilterArea">
+		<!-- Latest X seconds recording goes here -->
+	</div>
+
+	<h1>
+		Recordings
+		<i class="help fa fa-question-circle" title="You can add recordings while the trace is running, and select them to view the methods that were called while they were active."></i>
+	</h1>
+	<div class="recordingsArea">
+		<!-- ADD RECORDING BUTTON -->
+		<div class="recording-adder-button">
+			<i class="fa fa-plus"></i> Start a Recording
+		</div>
+
+		<div class="recordingsList">
+			<!-- User-added recordings go here -->
+		</div>
 	</div>
 
 </div>

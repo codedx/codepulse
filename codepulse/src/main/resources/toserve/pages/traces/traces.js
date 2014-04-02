@@ -35,12 +35,6 @@ $(document).ready(function(){
 		// REST endpoint that generates code coverage data for nodes in the treemap
 		treemapDataUrl = document.location.href + '/coverage-treemap.json',
 
-		/**
-		 * Controller for the trace controls on the side of the page. Exposes events for various
-		 * data updates that happen during a running trace.
-		 */
-		traceControls = new TraceRecordingControlsWidget(),
-
 		/*
 		 * Create a large spinner (provided by spin.js) that appears in place
 		 * of the treemap, before the treemap has loaded. Activate it before

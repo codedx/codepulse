@@ -21,17 +21,12 @@
 	
 	// define variables to represent
 	var controlsContainer,
-		templatesContainer,
-		traceSetupTemplate,
-		customRecordingAdderTemplate
+		templatesContainer
 	
 	// once the DOM has loaded, initialize the template/container variables
 	$(document).ready(function(){
 		controlsContainer = $('#recording-controls')
 		templatesContainer = controlsContainer.find('[data-role=templates-container]')
-		traceSetupTemplate = templatesContainer.find('[data-role=trace-setup]')
-		customRecordingAdderTemplate = templatesContainer.find('[data-role=custom-recording-adder]')
-		recordingTemplate = templatesContainer.find('[data-role=recording-template]')
 	})
 
 	var traceCoverageUpdateRequests = new Bacon.Bus()
@@ -393,11 +388,9 @@
 	// the AJAX operation of POSTing a /recording/start request to the
 	// server in order to obtain a recording id.
 	// ----------------------------------------------------------------
-	function CustomRecordingAdder(recorderId, $widgetContainer){
+	function CustomRecordingAdder($adderButton, $recordingsList){
 		
-		var button = this.$element = customRecordingAdderTemplate.clone()
-		
-		button.click(function(){
+		$adderButton.click(function(){
 			TraceAPI.requestNewRecording(function(recordingData, error){
 				if(error) alert("failed to start a new recording because: " + error)
 				else addNewRecording(recordingData, true)
@@ -409,7 +402,7 @@
 
 			var toShow = testRecording.widget.$ui
 				.hide()
-				.appendTo($widgetContainer)
+				.appendTo($recordingsList)
 
 			toShow[animate? 'slideDown': 'show']()
 
@@ -428,27 +421,27 @@
 	// End CustomRecordingAdder class definition
 
 	// -------------------------------------------------------------------
-	// TraceRecordingControlsWidget
+	// Create wiring for the page's sidebar.
 	//
-	// Creates wiring that is responsible for starting/ending traces, and
-	// sets up secondary controls that add recordings etc. It also creates
-	// a recordings manager, so that for whichever recording is selected,
-	// it will request the data for that recording and fire it as a 'data
-	// update' event.
+	// The sidebar includes a legend for the 'all activity' and 'overlaps'
+	// colors, and the ability to change those colors; a timing window filter,
+	// which lets users see trace data within a given time window; a list
+	// of user-added recordings, and a button for adding new ones; and buttons
+	// for starting and ending a trace.
 	// -------------------------------------------------------------------
-	function TraceRecordingControlsWidget(){
-		var newTraceArea = traceSetupTemplate.clone().appendTo(controlsContainer),
+
+	$(document).ready(function(){
+		var controlsContainer = $('#recording-controls'),
+			newTraceArea = controlsContainer.find('.trace-setup-area'),
 			newTraceButton = newTraceArea.find('[data-role=new-trace]').hide(),
 			connectionWaitingText = newTraceArea.find('[data-role=connection-waiting]').hide(),
 			endTraceButton = newTraceArea.find('[data-role=end-trace]').hide(),
-			recordingControls = $('#recording-controls'),
-			self = this
-
+			recordingControls = $('#recording-controls')
 		
 		Trace.allActivityRecordingId = createAllActivityRecording(controlsContainer)
 
 		// Add a Recording/Widget for the "all activity"/"latest XXX"
-		var timeWindowsController = createRecentRecording(controlsContainer)
+		var timeWindowsController = createRecentRecording(controlsContainer.find('.timingFilterArea'))
 
 		var legendMultiplesKey = setupOverlapsRecording(controlsContainer)
 
@@ -461,22 +454,21 @@
 			return legend
 		}
 
-		// Create a button that will add new "custom" recordings
-		var customRecordingAdder = new CustomRecordingAdder(self.recorderId, controlsContainer)
-		customRecordingAdder.$element.appendTo(controlsContainer)
+		// Set up a button that will add new "custom" recordings
+		var customRecordingAdder = new CustomRecordingAdder(
+			controlsContainer.find('.recording-adder-button'), 
+			controlsContainer.find('.recordingsList'))
 
+		// Load any existing user-created recordings from the server, adding them to the UI
 		TraceAPI.requestRecordings(function(recordings, error){
 			if(error){ console.error('failed to load recordings') }
 			else {
 				recordings.forEach(function(rec){ customRecordingAdder.addNewRecording(rec, false) })
 			}
 		})
-		
-		// forward all coverageRecordEvents from the recordingManager to the `coverageRecordEvents` bus
-		// coverageRecordEvents.plug( Trace.coverageRecordEvents )
 
-		var traceRunningBus = new Bacon.Bus(),
-			traceRunningProp = traceRunningBus.toProperty().assign(controlsContainer, 'attr', 'trace-running')
+		// assign the 'trace-running' attribute to the controlsContainer, depending on the trace state
+		Trace.running.assign(controlsContainer, 'attr', 'trace-running')
 
 		/*
 		 * Load the current trace status and set the UI accordingly.
@@ -489,7 +481,6 @@
 				newTraceButton.show()
 				connectionWaitingText.hide()
 				endTraceButton.hide().overlay('ready')
-				traceRunningBus.push(false)
 				break
 			case 'connecting':
 				newTraceButton.hide()
@@ -500,7 +491,6 @@
 				newTraceButton.hide()
 				connectionWaitingText.hide()
 				endTraceButton.show().overlay('ready')
-				traceRunningBus.push(true)
 				break
 			case 'ending':
 				newTraceButton.hide()
@@ -528,14 +518,12 @@
 				newTraceButton.hide()
 				connectionWaitingText.slideUp()
 				endTraceButton.slideDown()
-				traceRunningBus.push(true)
 				break
 			case 'finished':
 				newTraceButton.slideDown()
 				connectionWaitingText.hide()
 				endTraceButton.slideUp()
 				endTraceButton.overlay('ready')
-				traceRunningBus.push(false)
 				break
 			case 'deleted':
 				alert('This trace has been deleted. You will be redirected to the home screen')
@@ -558,9 +546,6 @@
 			TraceAPI.requestEnd() 
 		})
 
-	}
-	exports.TraceRecordingControlsWidget = TraceRecordingControlsWidget
-	// End TraceRecordingControlsWidget class definition
-	
+	})	
 
 }(this));
