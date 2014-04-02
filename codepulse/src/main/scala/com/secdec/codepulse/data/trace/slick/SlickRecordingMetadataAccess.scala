@@ -81,8 +81,8 @@ private[slick] class SlickRecordingMetadataAccess(dao: RecordingMetadataDao, db:
 	def all: List[RecordingMetadata] = cache.values.toList
 	def contains(id: Int): Boolean = cache.contains(id)
 
-	def create(): RecordingMetadata = db withTransaction { implicit transaction =>
-		val newId = dao.createRecording
+	def create(): RecordingMetadata = {
+		val newId = db withTransaction { implicit transaction => dao.createRecording }
 		get(newId)
 	}
 
