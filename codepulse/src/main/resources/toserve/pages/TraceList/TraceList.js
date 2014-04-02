@@ -50,6 +50,16 @@
 		itemsSelection.each(updateItem)
 	}
 
+	function checkRunningState(data){
+		switch(data.state){
+			case 'running':
+			case 'ending':
+				return true
+			default:
+				return false
+		}
+	}
+
 	// Set up the export and delete links for the data/item.
 	// This assumes that the hrefs won't change
 	function setupNewItem(data){
@@ -62,16 +72,6 @@
 			.attr('data-downloader', data.exportHref)
 			.attr('data-filename', data.name + '.pulse')
 			.traceDownloader('create')
-
-		// set up the delete link
-		$deleteLink.click(function(){
-			$.ajax(data.deleteHref, {
-				type: 'DELETE',
-				error: function(xhr, status){
-					alert('Deleting failed.')
-				}
-			})
-		})
 	}
 
 	// Update the name and dates for the data/item
@@ -81,7 +81,8 @@
 			$nameDiv = $item.find('.traceName'),
 			$created = $item.find('.date-created span[name=date]'),
 			$importedDiv = $item.find('.date-imported'),
-			$imported = $importedDiv.find('span[name=date]')
+			$imported = $importedDiv.find('span[name=date]'),
+			isTraceRunning = checkRunningState(data)
 
 		$link
 			.attr('href', data.href)
@@ -93,16 +94,24 @@
 		$imported.text(imported)
 		$importedDiv.css('display', imported ? null : 'none')
 
-		switch(data.state){
-			case 'idle':
-			case 'connecting':
-				$item.removeClass('stripedBackground animated')
-				break;
-			case 'running':
-			case 'ending':
-				$item.addClass('stripedBackground animated')
-				break;
+		$item.toggleClass('stripedBackground animated', isTraceRunning)
+
+		function handleDeleteClick(){
+			if(isTraceRunning){
+				var msg = "You can't delete this trace because it is currently running."
+				alert(msg)
+			} else $.ajax(data.deleteHref, {
+				type: 'DELETE',
+				error: function(xhr, status){
+					alert('Deleting failed.')
+				}
+			})
 		}
+
+		// update the delete link: if the trace is running, you can't click it
+		d3.select($item.find('a[name=delete]')[0])
+			.on('click', handleDeleteClick)
+			.attr('disabled', isTraceRunning ? 'disabled' : null)
 	}
 
 	// Initiate an AJAX request to load the trace data list

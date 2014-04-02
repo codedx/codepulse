@@ -184,6 +184,10 @@
 	background-color: #BBB;
  }
 
+ .traceSwitcher .traceListItem .menu-links a[disabled] {
+ 	text-decoration: line-through;
+ }
+
  .traceSwitcher .traceListItem .date {
  	font-size: small;
  }
