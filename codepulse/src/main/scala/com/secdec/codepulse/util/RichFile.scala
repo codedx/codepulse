@@ -68,40 +68,40 @@ object RichFile {
 		}
 
 		def stream[T](f: FileInputStream => T): T = {
-		val stream = new FileInputStream(file)
-		try {
-			f(stream)
-		} finally {
-			stream.close()
+			val stream = new FileInputStream(file)
+			try {
+				f(stream)
+			} finally {
+				stream.close()
+			}
 		}
-	}
 
-	def streamBuffered[T](f: BufferedInputStream => T) = {
-		val stream = new BufferedInputStream(new FileInputStream(file))
-		try {
-			f(stream)
-		} finally {
-			stream.close()
+		def streamBuffered[T](f: BufferedInputStream => T) = {
+			val stream = new BufferedInputStream(new FileInputStream(file))
+			try {
+				f(stream)
+			} finally {
+				stream.close()
+			}
 		}
-	}
 
-	def read[T](f: FileReader => T): T = {
-		val reader = new FileReader(file)
-		try {
-			f(reader)
-		} finally {
-			reader.close()
+		def read[T](f: FileReader => T): T = {
+			val reader = new FileReader(file)
+			try {
+				f(reader)
+			} finally {
+				reader.close()
+			}
 		}
-	}
 
-	def readBuffered[T](f: BufferedReader => T): T = {
-		val reader = new BufferedReader(new FileReader(file))
-		try {
-			f(reader)
-		} finally {
-			reader.close()
+		def readBuffered[T](f: BufferedReader => T): T = {
+			val reader = new BufferedReader(new FileReader(file))
+			try {
+				f(reader)
+			} finally {
+				reader.close()
+			}
 		}
-	}
 
 		/** Write to this file.
 		  * @param body A function that takes an output stream and writes to it.
