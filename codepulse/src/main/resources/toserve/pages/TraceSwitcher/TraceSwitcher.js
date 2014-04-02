@@ -217,7 +217,7 @@ template html.
 			timeout = setTimeout(function(){
 				timeout = null
 				$zone.removeClass('in hover')
-			}, 100)
+			}, 300)
 		})
 	}
 
