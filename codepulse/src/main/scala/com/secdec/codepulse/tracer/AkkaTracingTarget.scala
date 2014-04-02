@@ -32,6 +32,7 @@ import reactive.EventSource
 import reactive.EventStream
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TraceData
+import akka.actor.PoisonPill
 
 sealed trait TracingTargetEvent
 object TracingTargetEvent {
@@ -39,6 +40,8 @@ object TracingTargetEvent {
 	case object Connected extends TracingTargetEvent
 	case class Started(traceId: TraceId) extends TracingTargetEvent
 	case class Finished(reason: TraceEndReason) extends TracingTargetEvent
+
+	case object Deleted extends TracingTargetEvent
 }
 
 sealed trait TracingTargetState
@@ -70,6 +73,8 @@ trait TracingTarget {
 
 	def traceData: TraceData
 	def transientData: TransientTraceData
+
+	def requestDeletion(): Unit
 }
 
 object AkkaTracingTarget {
@@ -86,6 +91,8 @@ object AkkaTracingTarget {
 	private case class TraceConnected(trace: Trace)
 	private case class TraceEnded(reason: TraceEndReason)
 
+	private case object RequestDeletion
+
 	// implicit Timeout used for the Akka ask (?) method in getState
 	private implicit val timeout = new Timeout(5000)
 
@@ -97,6 +104,7 @@ object AkkaTracingTarget {
 			val reply = actor ? RequestState
 			reply.mapTo[TracingTargetState]
 		}
+		def requestDeletion() = actor ! RequestDeletion
 	}
 
 	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData): TracingTarget = {
@@ -152,6 +160,9 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		body orElse {
 			case sub: Subscribe => sub.f(events)
 			case RequestState => sender ! s
+			case RequestDeletion =>
+				events.fire(TracingTargetEvent.Deleted)
+				self ! PoisonPill
 		}
 	}
 

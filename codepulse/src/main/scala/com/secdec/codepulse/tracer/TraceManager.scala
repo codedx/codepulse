@@ -90,6 +90,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 		for (trace <- traces remove traceId) yield {
 			dataProvider.removeTrace(traceId)
 			traceListUpdates fire ()
+			trace.requestDeletion()
 			trace
 		}
 	}

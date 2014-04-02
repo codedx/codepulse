@@ -66,6 +66,8 @@ class CometTracerUI extends CometWidget[TracingTarget, CometTracerUI]
 						case TraceEndReason.Halted => "halted"
 					}
 					sendStatusUpdate { Map("state" -> "finished", "reason" -> s) }
+				case TracingTargetEvent.Deleted =>
+					sendStatusUpdate { Map("state" -> "deleted") }
 			}
 		}
 	}

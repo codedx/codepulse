@@ -537,6 +537,9 @@
 				endTraceButton.overlay('ready')
 				traceRunningBus.push(false)
 				break
+			case 'deleted':
+				alert('This trace has been deleted. You will be redirected to the home screen')
+				window.location.href = '/'
 			}
 		})
 
