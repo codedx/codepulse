@@ -205,13 +205,6 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 		}
 	}
 
-	private def stateToString(state: TracingTargetState): String = state match {
-		case TracingTargetState.Idle => "idle"
-		case TracingTargetState.Connecting => "connecting"
-		case TracingTargetState.Running => "running"
-		case TracingTargetState.Ending => "ending"
-	}
-
 	private implicit def futureResponseToResponse(f: Future[LiftResponse]) = RestContinuation.async { callback =>
 		f onComplete {
 			case Success(response) => callback(response)
@@ -240,7 +233,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 					("href" -> href) ~
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
-					("state" -> stateToString(traceState))
+					("state" -> traceState.name)
 			}
 
 			Future.sequence(traceJsonFutures) map { JsonResponse(_) }
@@ -264,7 +257,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 		// GET the current status of the trace
 		case Paths.Status(target) Get req =>
-			target.getState map { state => PlainTextResponse(stateToString(state)) }
+			target.getState map { state => PlainTextResponse(state.name) }
 
 		// GET a trace data export (as a .pulse file)
 		case Paths.Export(target) Get req =>

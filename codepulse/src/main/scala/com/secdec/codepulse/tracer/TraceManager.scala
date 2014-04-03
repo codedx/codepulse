@@ -70,7 +70,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	/** Creates a new TracingTarget based on the given `traceId` and `traceData`,
 	  * and returns it after adding it to this TraceManager.
 	  */
-	private def registerTrace(traceId: TraceId, traceData: TraceData) {
+	private def registerTrace(traceId: TraceId, traceData: TraceData): TracingTarget = {
 		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId)
 		traces.put(traceId, target)
 
@@ -81,9 +81,11 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 		traceListUpdates fire ()
 
 		// trigger an update when the target state updates
-		target.subscribe { stateUpdates =>
+		target.subscribeToStateChanges { stateUpdates =>
 			stateUpdates ->> { traceListUpdates fire () }
 		}
+
+		target
 	}
 
 	def removeTrace(traceId: TraceId): Option[TracingTarget] = {
@@ -106,7 +108,8 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 			data = dataProvider.getTrace(id)
 		} {
 			println(s"loaded trace $id")
-			registerTrace(id, data)
+			val target = registerTrace(id, data)
+			target.notifyFinishedLoading()
 		}
 
 		// Also make sure any dirty traces are saved when exiting

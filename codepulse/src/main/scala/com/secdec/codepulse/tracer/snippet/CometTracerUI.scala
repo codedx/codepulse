@@ -24,7 +24,7 @@ import scala.xml.NodeSeq
 import com.secdec.codepulse.util.comet.CometWidget
 import com.secdec.codepulse.util.comet.CometWidgetCompanion
 import com.secdec.codepulse.tracer.TracingTarget
-import com.secdec.codepulse.tracer.TracingTargetEvent
+import com.secdec.codepulse.tracer.TracingTargetState
 import com.secdec.bytefrog.hq.trace.TraceEndReason
 
 import net.liftweb.common.Loggable
@@ -52,28 +52,13 @@ class CometTracerUI extends CometWidget[TracingTarget, CometTracerUI]
 	override def localSetup() = {
 		super.localSetup()
 
-		tracingTarget.subscribe { events =>
-			events foreach {
-				case TracingTargetEvent.Connecting =>
-					sendStatusUpdate { Map("state" -> "connecting") }
-				case TracingTargetEvent.Connected =>
-					sendStatusUpdate { Map("state" -> "connected") }
-				case TracingTargetEvent.Started(targetId) =>
-					sendStatusUpdate { Map("state" -> "started") }
-				case TracingTargetEvent.Finished(reason) =>
-					val s = reason match {
-						case TraceEndReason.Normal => "normal"
-						case TraceEndReason.Halted => "halted"
-					}
-					sendStatusUpdate { Map("state" -> "finished", "reason" -> s) }
-				case TracingTargetEvent.Deleted =>
-					sendStatusUpdate { Map("state" -> "deleted") }
-			}
+		tracingTarget.subscribeToStateChanges { stateChanges =>
+			stateChanges foreach { sendStateUpdate }
 		}
 	}
 
-	def sendStatusUpdate(data: JValue) = partialUpdate {
-		Jq(JsVar("document")) ~> JsFunc("trigger", "tracer-state-change", data)
+	def sendStateUpdate(state: TracingTargetState) = partialUpdate {
+		Jq(JsVar("document")) ~> JsFunc("trigger", "tracer-state-change", state.name)
 	}
 
 	def render = NodeSeq.Empty

@@ -48,6 +48,30 @@ $(document).ready(function(){
 			return spinner
 		})()
 
+	// Set a UI state for the 'loading' and 'deleted' states.
+	;(function(){
+		var wasLoading = false
+		Trace.status.onValue(function(status){
+			console.log('watching UI, status = ', status)
+			if(status == 'loading'){
+				wasLoading = true
+				$('body').overlay('wait')
+			} else {
+				$('body').overlay('ready')
+			}
+
+			if(status == 'deleted'){
+				if(wasLoading){
+					alert('Processing upload data failed. You will be redirected to the home screen.')
+				} else {
+					alert('This trace has been deleted. You will be redirected to the home screen.')
+				}
+				window.location.href = '/'
+			}
+		})
+	})()
+
+
 	// When the `treemapColoringStateChanges` fires, use the current `legendData`
 	// to generate a new treemap coloring function, and update the treemap's colors
 	// with that.

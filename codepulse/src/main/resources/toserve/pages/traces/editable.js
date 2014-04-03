@@ -46,9 +46,13 @@ place.
 
 		function saveEditor(){
 			var txt = $input.val().trim()
-			$content.text(txt)
-			setEditing(false)
-			$elem.trigger('edited', txt)
+			if(!txt){
+				closeEditor()
+			} else {
+				$content.text(txt)
+				setEditing(false)
+				$elem.trigger('edited', txt)
+			}
 		}
 
 		function closeEditor(){

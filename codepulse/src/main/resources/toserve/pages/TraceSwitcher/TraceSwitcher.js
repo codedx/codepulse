@@ -148,9 +148,7 @@ template html.
 				onUploadError(e.responseText)
 			},
 			progress: function(e, data){
-				// The actual upload will appear like 90% of the progress.
-				// The remaining 10% is for the server to parse the file and respond.
-				updateProgress(0.9 * +data.loaded / +data.total)
+				updateProgress(+data.loaded / +data.total)
 			}
 		})
 
@@ -178,10 +176,6 @@ template html.
 				error: function(xhr, status){ onUploadError(xhr.responseText) },
 				success: function(data){ onUploadDone(data) }
 			})
-			// TraceAPI.uploadFilePath(path, function(data, err){
-			// 	if(err) onUploadError(err)
-			// 	else onUploadDone(data)
-			// })
 		}
 
 		function updateProgress(ratio){
