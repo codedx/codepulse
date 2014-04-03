@@ -54,13 +54,22 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 
 	def tracesIterator: Iterator[TracingTarget] = traces.valuesIterator
 
+	private var nextTraceNum = 0
+	private val nextTraceNumLock = new Object {}
+	private def getNextTraceId(): TraceId = nextTraceNumLock.synchronized {
+		var id = TraceId(nextTraceNum)
+		nextTraceNum += 1
+		id
+	}
+	private def registerTraceId(id: TraceId): Unit = nextTraceNumLock.synchronized {
+		nextTraceNum = math.max(nextTraceNum, id.num + 1)
+	}
+
 	/** Creates and adds a new TracingTarget with the given `traceData`, and an
 	  * automatically-selected TraceId.
 	  */
 	def createTrace(): TraceId = {
-		val traceId =
-			if (traces.isEmpty) TraceId(0)
-			else traces.keysIterator.max + 1
+		val traceId = getNextTraceId()
 
 		registerTrace(traceId, dataProvider getTrace traceId)
 
@@ -71,6 +80,8 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	  * and returns it after adding it to this TraceManager.
 	  */
 	private def registerTrace(traceId: TraceId, traceData: TraceData): TracingTarget = {
+		registerTraceId(traceId)
+
 		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId)
 		traces.put(traceId, target)
 
