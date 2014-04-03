@@ -22,6 +22,7 @@ package com.secdec.codepulse.data.trace.slick
 import scala.slick.jdbc.JdbcBackend.{ Database, Session }
 import com.secdec.codepulse.data.trace.TraceMetadataAccess
 import net.liftweb.util.Helpers.AsLong
+import net.liftweb.util.Helpers.AsBoolean
 
 /** Slick-backed TraceMetadataAccess implementation.
   *
@@ -43,8 +44,13 @@ private[slick] class SlickTraceMetadataAccess(dao: TraceMetadataDao, db: Databas
 
 	def name_=(newName: String) = db withTransaction { implicit transaction =>
 		set("name", newName)
+		set("hasCustomName", "true")
 		newName
 	}
+
+	def hasCustomName = db withSession { implicit session =>
+		get("hasCustomName") flatMap { AsBoolean.unapply }
+	} getOrElse false
 
 	def creationDate = db withSession { implicit session =>
 		get("creationDate").flatMap(AsLong.unapply)

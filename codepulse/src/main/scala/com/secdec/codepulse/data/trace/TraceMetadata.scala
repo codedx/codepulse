@@ -29,6 +29,8 @@ trait TraceMetadataAccess {
 	def name: String
 	def name_=(newName: String): String
 
+	def hasCustomName: Boolean
+
 	def creationDate: Long
 	def creationDate_=(newDate: Long): Long
 

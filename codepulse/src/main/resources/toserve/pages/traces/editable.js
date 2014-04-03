@@ -51,7 +51,7 @@ place.
 			} else {
 				$content.text(txt)
 				setEditing(false)
-				$elem.trigger('edited', txt)
+				$elem.trigger('editable.save', txt)
 			}
 		}
 
@@ -61,6 +61,7 @@ place.
 			} else {
 				setEditing(false)
 			}
+			$elem.trigger('editable.cancel')
 		}
 
 		$input.keydown(function(e){
@@ -84,6 +85,8 @@ place.
 
 		this.open = function(){ setEditing(true) }
 
+		this.getText = function(){ return $content.text().trim() }
+
 		//$elem.on('click', ':not(.editing)', function(){ setEditing(true) })
 		$content.on('click', function(){
 			setEditing(true) 
@@ -104,6 +107,10 @@ place.
 
 		if(action == 'open'){
 			e.open()
+		}
+
+		if(action == 'getText'){
+			return e.getText()
 		}
 
 		return this

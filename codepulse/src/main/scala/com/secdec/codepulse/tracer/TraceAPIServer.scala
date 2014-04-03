@@ -228,6 +228,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 				for (traceState <- target.getState) yield ("id" -> target.id.num) ~
 					("name" -> data.metadata.name) ~
+					("hasCustomName" -> data.metadata.hasCustomName) ~
 					("created" -> prettyDate(data.metadata.creationDate)) ~
 					("imported" -> data.metadata.importDate.map(prettyDate)) ~
 					("href" -> href) ~

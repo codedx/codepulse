@@ -348,12 +348,33 @@ $(document).ready(function(){
 
 	// Allow the header title to be edited.
 	// When it changes, send the change to the server to check for name conflicts
-	$('h1.editable').editable().on('edited', function(e, newName){
-		TraceAPI.renameTrace(newName, function(reply, error){
-			if(!error){
-				var hasNameConflict = (reply.warn == 'nameConflict')
-				$('.nameConflict').toggleClass('hasConflict', hasNameConflict)
+	$('h1.editable').editable().on('editable.save.cancel', function(e, newName){
+		var n = e.namespace
+		if(!n) return
+
+		var nc = $('.nameConflict')
+
+		var shouldSave = false
+		if(n == 'save') shouldSave = true
+		else if(n == 'cancel'){
+			if(nc.hasClass('noTraceName')){
+				shouldSave = true
+				newName = $(this).editable('getText') || 'Untitled'
 			}
-		})
+		}
+
+		if(shouldSave){
+			TraceAPI.renameTrace(newName, function(reply, error){
+				if(!error){
+					var hasNameConflict = (reply.warn == 'nameConflict')
+					$('.nameConflict').toggleClass('hasConflict', hasNameConflict)
+				}
+			})
+		}
+	})
+
+	// If the nameConflict container has the 'noTraceName' class, open up the name editor now
+	$('.nameConflict.noTraceName').each(function(){
+		$('h1.editable').editable('open')
 	})
 })
