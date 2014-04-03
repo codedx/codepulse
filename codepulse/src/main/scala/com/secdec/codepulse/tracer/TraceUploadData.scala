@@ -37,9 +37,8 @@ object TraceUploadData {
 	def handleTraceExport(file: File): TraceId = createAndLoadTraceData { traceData =>
 		TraceImporter.importFrom(file, traceData)
 
-		// Note: the `creationDate` for trace data detected in this manner
-		// should already be filled in with a non-default value. On the
-		// other hand, the `importDate` is now.
+		// Note: the `creationDate` should have been filled in by the importer.
+		//The `importDate` is now.
 		traceData.metadata.importDate = Some(System.currentTimeMillis)
 	}
 
@@ -119,17 +118,15 @@ object TraceUploadData {
 		if (treemapNodes.isEmpty) {
 			throw new NoSuchElementException("No method data found in analyzed upload file.")
 		} else {
-			//				val traceId = traceManager.createTrace
-			//				val traceData = traceDataProvider getTrace traceId
-
-			// Note: the `creationDate` for trace data detected in this manner
-			// should use its default value ('now'), as this is when the data
-			// was actually 'created'.
 
 			traceData.treeNodeData.storeNodes(treemapNodes)
 			traceData.treeNodeData.mapMethodSignatures(methodCorrelations)
 
-			//				traceId
+			// The `creationDate` for trace data detected in this manner
+			// should use its default value ('now'), as this is when the data
+			// was actually 'created'. The `importDate` should remain blank,
+			// since this is not an import of a .pulse file.
+			traceData.metadata.creationDate = System.currentTimeMillis
 		}
 	}
 
@@ -141,7 +138,6 @@ object TraceUploadData {
 		} else {
 			Failure("Invalid upload file")
 		}
-		//		handleTraceExport(file) or handleBinaryZip(file) or 
 	}
 
 }

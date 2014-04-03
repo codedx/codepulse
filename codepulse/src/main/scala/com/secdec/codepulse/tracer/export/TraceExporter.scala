@@ -89,7 +89,6 @@ object TraceExporter extends JsonHelpers {
 
 			jg.writeStringField("name", metadata.name)
 			jg.writeNumberField("creationDate", metadata.creationDate)
-			for (importDate <- metadata.importDate) jg.writeNumberField("importDate", importDate)
 
 			jg.writeEndObject
 		}
