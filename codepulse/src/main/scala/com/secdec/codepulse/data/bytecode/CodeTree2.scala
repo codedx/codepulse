@@ -63,28 +63,33 @@ trait CodeTreeNode {
 	def isPathNode = { children.size == 1 }
 
 	/** Recursively finds "path" nodes where the node's child has the same `kind` as the node.
-	  * When such a "path" node is found, it is replaced by its child (the node's child becomes
-	  * the direct child of the node's parent, and the original node is discarded). When a node
-	  * is replaced, this method returns the child node; if not, it returns the original node.
+	  * For each node in the tree, its children are replaced with 'condensed' versions of themselves.
+	  *
+	  * In most cases, the condensed version of a node is the node itself. The special case is
+	  * when a node has a single child that is the same type; in this case, the condensed version
+	  * of the node is its child.
+	  *
+	  * A path in the tree like `com -> com.secdec -> com.secdec.codepulse` would be replaced by
+	  * the `com.secdec.codepulse` node.
 	  */
 	def condensePathNodes: CodeTreeNode = {
-		val sameKindChild = findChild(_.kind == this.kind)
-		if (isPathNode && sameKindChild.isDefined) {
-			// This node has one child and the child has the same kind as this;
-			// This node should be removed, and the child should be added to this node's parent.
-			val child = sameKindChild.get
-			for (p <- this.parent) p.addChild(child)
+		val childrenCondensed = children.iterator.map(_.condensePathNodes).toList
+		children.clear()
+		childrenCondensed foreach { _.parent = None }
 
-			// Apply this same transformation to the child node, recursively
-			child.condensePathNodes
-		} else {
-			// This node is not a "path", or its one child is a different kind.
-			// Apply the transformation to each child, and simply return this node
-			val childrenSnapshot = children.toList
-			for (child <- childrenSnapshot) child.condensePathNodes
-			this
+		childrenCondensed match {
+			case child :: Nil if child.kind == this.kind =>
+				// just return that child, and this node is effectively removed
+				child
+			case list =>
+				// Note: children is a Set, so if the list suddenly has duplicates, some nodes will be lost.
+				// This is counteracted by using a 'parent.child' naming scheme for package and class nodes
+				children ++= list
+				list foreach { _.parent = Some(this) }
+				this
 		}
 	}
+
 }
 
 object CodeTreeNode {

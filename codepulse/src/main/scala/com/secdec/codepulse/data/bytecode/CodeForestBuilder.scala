@@ -64,9 +64,11 @@ class CodeForestBuilder {
 	  */
 	def condensePathNodes(): this.type = {
 		val rootsSnapshot = roots.toList
+
 		roots.clear()
 		val rootsCondensed = rootsSnapshot.map(_.condensePathNodes)
 		roots ++= rootsCondensed
+
 		this
 	}
 
@@ -106,12 +108,18 @@ class CodeForestBuilder {
 		}
 	}
 
-	protected def addChildClass(parent: CodeTreeNode, name: String) = parent.findChild { node =>
-		node.name == name && node.kind == CodeTreeNodeKind.Cls
-	} getOrElse {
-		val node = nodeFactory.createClassNode(name)
-		parent.addChild(node)
-		node
+	protected def addChildClass(parent: CodeTreeNode, name: String) = {
+		val className =
+			if (parent.kind == CodeTreeNodeKind.Cls) parent.name + '.' + name
+			else name
+
+		parent.findChild { node =>
+			node.name == className && node.kind == CodeTreeNodeKind.Cls
+		} getOrElse {
+			val node = nodeFactory.createClassNode(className)
+			parent.addChild(node)
+			node
+		}
 	}
 
 	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int) = parent.findChild { node =>

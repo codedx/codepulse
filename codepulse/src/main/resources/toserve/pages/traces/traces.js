@@ -314,6 +314,21 @@ $(document).ready(function(){
 						else i = i.parent
 					}
 
+					// take the last path node of its kind from the path.
+					// e.g. [P1, P2, C1, C2, C3, M] becomes [P2, C3, M]
+					var pathCondensed = []
+					for(i = path.length-1; i>=0; i--){
+						var newPath = path[i],
+							prevPath = path[i+1],
+							newKind = newPath.kind
+							prevKind = prevPath && prevPath.kind
+						if(newKind != prevKind){
+							pathCondensed.unshift(newPath)
+						}
+					}
+					// render the condensed path instead of the full path.
+					path = pathCondensed
+
 					function recurse(i){
 						if(i > path.length) return
 
