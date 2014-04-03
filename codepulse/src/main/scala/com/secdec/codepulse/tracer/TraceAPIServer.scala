@@ -19,8 +19,6 @@
 
 package com.secdec.codepulse.tracer
 
-import java.text.SimpleDateFormat
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -28,6 +26,8 @@ import scala.concurrent.duration.DurationInt
 import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
+
+import org.joda.time.format.DateTimeFormat
 
 import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
@@ -218,8 +218,8 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 		// GET a list of traces
 		case List("trace-api", "traces") Get req =>
-			val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-			def prettyDate(d: Long) = dateFormat.format(new java.util.Date(d))
+			val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+			def prettyDate(d: Long) = dateFormat.print(d)
 			val traces = manager.tracesIterator.toList.sortBy(_.id)
 
 			val traceJsonFutures: List[Future[JObject]] = traces map { target =>
