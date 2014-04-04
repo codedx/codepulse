@@ -91,7 +91,7 @@ class CodeForestBuilder {
 
 	def getOrAddJsp(path: List[String], size: Int): CodeTreeNode = {
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
-			case className :: Nil => addChildClass(parent, className)
+			case className :: Nil => addChildMethod(parent, className, size)
 			case packageNode :: rest => recurse(addChildPackage(parent, packageNode), rest)
 		}
 
