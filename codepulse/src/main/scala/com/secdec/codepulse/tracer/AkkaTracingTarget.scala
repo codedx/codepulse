@@ -227,7 +227,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		for (reason <- t.completion) self ! TraceEnded(reason)
 
 		// set up data management for the trace
-		val dataManager = new StreamingTraceDataManager(traceData, transientTraceData)
+		val dataManager = new StreamingTraceDataManager(traceData, transientTraceData, jspMapper)
 
 		// remember this trace
 		trace = Some(t)

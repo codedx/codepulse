@@ -24,13 +24,11 @@ import com.secdec.bytefrog.hq.protocol.DataMessageContent
 import com.secdec.codepulse.data.MethodSignature
 import com.secdec.codepulse.data.MethodSignatureParser
 import com.secdec.codepulse.data.trace.TraceData
-import com.secdec.codepulse.data.jsp.JasperJspMapper
+import com.secdec.codepulse.data.jsp.JspMapper
 
-class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientTraceData) extends DataProcessor {
+class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor {
 
 	val methodCor = collection.mutable.Map[Int, Int]()
-
-	val jspMapper = JasperJspMapper(traceData.treeNodeData)
 
 	/** Process a single data message */
 	def processMessage(message: DataMessageContent): Unit = message match {
@@ -46,11 +44,7 @@ class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientT
 
 		// make method correlations
 		case DataMessageContent.MapMethodSignature(sig, id) =>
-			if (sig.startsWith("org/apache"))
-				println(s"looking at $sig")
-			val node = traceData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper map sig)
-			if (sig.startsWith("org/apache"))
-				println(node)
+			val node = traceData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
 			for (treemapNodeId <- node) methodCor.put(id, treemapNodeId)
 
 		// ignore everything else

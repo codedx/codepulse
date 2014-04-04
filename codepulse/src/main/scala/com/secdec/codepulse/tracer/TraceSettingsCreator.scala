@@ -36,18 +36,10 @@ object TraceSettingsCreator {
 				"^" + slashedName + "/[^/]+$"
 			}).toList
 		} ++ jspMapper.map { mapper =>
-			println(mapper)
-			try {
-				traceData.treeNodeData.iterateJspMappings { it =>
-					(for ((jspClass, _) <- it) yield mapper getInclusion jspClass).toList
-					//"^org/apache/jsp/.*$" :: Nil
-				}
-			} catch {
-				case e: Exception => e.printStackTrace; Nil
-			} finally { println("out") }
+			traceData.treeNodeData.iterateJspMappings { it =>
+				(for ((jspClass, _) <- it) yield mapper getInclusion jspClass).toList
+			}
 		}.getOrElse(Nil)
-
-		println(inclusions)
 
 		TraceSettings(exclusions = List(".*"), inclusions)
 	}
