@@ -2,7 +2,7 @@ body {
 	background: #6D6D6D;
 }
 
-body .overlay {
+body > .overlay {
 	/* The waiting overlay for when the trace is loading data.
 	 * It needs to be in front of the other fixed-position things,
 	 * but behind the header and footer.
@@ -10,7 +10,7 @@ body .overlay {
 	z-index: 2;
 }
 
-body .overlay:before {
+body > .overlay:before {
 	content: 'Processing upload data...';
 	position: absolute;
 	top: calc(50% - 50px);
