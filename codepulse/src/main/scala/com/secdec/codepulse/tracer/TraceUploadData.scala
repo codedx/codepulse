@@ -20,15 +20,16 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
-
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.tracer.export.TraceImporter
+import com.secdec.codepulse.util.RichFile.RichFile
 import com.secdec.codepulse.util.ZipEntryChecker
-
 import net.liftweb.common.Box
 import net.liftweb.common.Failure
+import org.apache.commons.io.FilenameUtils
+import com.secdec.codepulse.data.jsp.JasperJspAdapter
 
 object TraceUploadData {
 
@@ -59,15 +60,31 @@ object TraceUploadData {
 	def handleBinaryZip(file: File): Box[TraceId] = {
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = List.newBuilder[(String, Int)]
+
+		//TODO: make this configurable somehow
+		val jspAdapter = JasperJspAdapter.default
+
 		ZipEntryChecker.forEachEntry(file) { (entry, contents) =>
-			if (!entry.isDirectory && entry.getName.endsWith(".class")) {
-				val methods = AsmVisitors.parseMethodsFromClass(contents)
-				for {
-					(name, size) <- methods
-					treeNode <- builder.getOrAddMethod(name, size)
-				} methodCorrelationsBuilder += (name -> treeNode.id)
+			if (!entry.isDirectory) {
+				FilenameUtils.getExtension(entry.getName) match {
+					case "class" =>
+						val methods = AsmVisitors.parseMethodsFromClass(contents)
+						for {
+							(name, size) <- methods
+							treeNode <- builder.getOrAddMethod(name, size)
+						} methodCorrelationsBuilder += (name -> treeNode.id)
+
+					case "jsp" =>
+						jspAdapter addJsp entry.getName
+
+					case _ => // nothing
+				}
+			} else if (entry.getName.endsWith("WEB-INF/")) {
+				jspAdapter addWebinf entry.getName
 			}
 		}
+
+		val jspCorrelations = jspAdapter build builder
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
 
@@ -80,6 +97,7 @@ object TraceUploadData {
 			// was actually 'created'.
 
 			traceData.treeNodeData.storeNodes(treemapNodes)
+			traceData.treeNodeData.mapJsps(jspCorrelations)
 			traceData.treeNodeData.mapMethodSignatures(methodCorrelations)
 
 			traceId

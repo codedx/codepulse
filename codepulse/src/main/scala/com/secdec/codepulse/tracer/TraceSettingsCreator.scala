@@ -21,11 +21,12 @@ package com.secdec.codepulse.tracer
 
 import com.secdec.bytefrog.hq.config.TraceSettings
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.trace.TraceData
 
 object TraceSettingsCreator {
 
-	def generateTraceSettings(traceData: TraceData): TraceSettings = {
+	def generateTraceSettings(traceData: TraceData, jspMapper: Option[JspMapper]): TraceSettings = {
 		val inclusions = traceData.treeNodeData.iterate { it =>
 			(for {
 				treeNode <- it
@@ -34,7 +35,19 @@ object TraceSettingsCreator {
 				val slashedName = treeNode.label.replace('.', '/')
 				"^" + slashedName + "/[^/]+$"
 			}).toList
-		}
+		} ++ jspMapper.map { mapper =>
+			println(mapper)
+			try {
+				traceData.treeNodeData.iterateJspMappings { it =>
+					(for ((jspClass, _) <- it) yield mapper getInclusion jspClass).toList
+					//"^org/apache/jsp/.*$" :: Nil
+				}
+			} catch {
+				case e: Exception => e.printStackTrace; Nil
+			} finally { println("out") }
+		}.getOrElse(Nil)
+
+		println(inclusions)
 
 		TraceSettings(exclusions = List(".*"), inclusions)
 	}

@@ -30,6 +30,8 @@ import concurrent.duration._
 import net.liftweb.util.Helpers.AsInt
 import reactive.Observing
 import reactive.EventSource
+import com.secdec.codepulse.data.jsp.JspMapper
+import com.secdec.codepulse.data.jsp.JasperJspMapper
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TraceDataProvider
 import com.secdec.codepulse.data.trace.TraceData
@@ -62,7 +64,10 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 			if (traces.isEmpty) TraceId(0)
 			else traces.keysIterator.max + 1
 
-		registerTrace(traceId, dataProvider getTrace traceId)
+		val data = dataProvider getTrace traceId
+
+		//TODO: make jspmapper configurable somehow
+		registerTrace(traceId, data, Some(JasperJspMapper(data.treeNodeData)))
 
 		traceId
 	}
@@ -70,8 +75,8 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	/** Creates a new TracingTarget based on the given `traceId` and `traceData`,
 	  * and returns it after adding it to this TraceManager.
 	  */
-	private def registerTrace(traceId: TraceId, traceData: TraceData) {
-		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId)
+	private def registerTrace(traceId: TraceId, traceData: TraceData, jspMapper: Option[JspMapper]) {
+		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId, jspMapper)
 		traces.put(traceId, target)
 
 		// cause a traceListUpdate when this trace's name changes
@@ -106,7 +111,8 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 			data = dataProvider.getTrace(id)
 		} {
 			println(s"loaded trace $id")
-			registerTrace(id, data)
+			//TODO: make jspmapper configurable somehow
+			registerTrace(id, data, Some(JasperJspMapper(data.treeNodeData)))
 		}
 
 		// Also make sure any dirty traces are saved when exiting

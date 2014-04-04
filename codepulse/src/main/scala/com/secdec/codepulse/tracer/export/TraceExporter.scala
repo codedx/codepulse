@@ -51,7 +51,8 @@ object TraceExporter extends JsonHelpers {
 			write(zout, ".manifest") { writeManifest(_) }
 			write(zout, "trace.json") { writeMetadata(_, data.metadata) }
 			write(zout, "nodes.json") { writeTreeNodeData(_, data.treeNodeData) }
-			write(zout, "method-correlations.json") { writeMethodCorrelations(_, data.treeNodeData) }
+			write(zout, "method-mappings.json") { writeMethodMappings(_, data.treeNodeData) }
+			write(zout, "jsp-mappings.json") { writeJspMappings(_, data.treeNodeData) }
 			write(zout, "recordings.json") { writeRecordings(_, data.recordings) }
 			write(zout, "encounters.json") { writeEncounters(_, data.recordings, data.encounters) }
 		} finally {
@@ -115,13 +116,28 @@ object TraceExporter extends JsonHelpers {
 		}
 	}
 
-	private def writeMethodCorrelations(out: OutputStream, treeNodeData: TreeNodeDataAccess) {
+	private def writeMethodMappings(out: OutputStream, treeNodeData: TreeNodeDataAccess) {
 		streamJson(out) { jg =>
 			jg.writeStartArray
 
-			treeNodeData.foreachMapping { (sig, nodeId) =>
+			treeNodeData.foreachMethodMapping { (sig, nodeId) =>
 				jg.writeStartObject
 				jg.writeStringField("signature", sig)
+				jg.writeNumberField("node", nodeId)
+				jg.writeEndObject
+			}
+
+			jg.writeEndArray
+		}
+	}
+
+	private def writeJspMappings(out: OutputStream, treeNodeData: TreeNodeDataAccess) {
+		streamJson(out) { jg =>
+			jg.writeStartArray
+
+			treeNodeData.foreachJspMapping { (jspPath, nodeId) =>
+				jg.writeStartObject
+				jg.writeStringField("jsp", jspPath)
 				jg.writeNumberField("node", nodeId)
 				jg.writeEndObject
 			}

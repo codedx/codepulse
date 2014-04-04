@@ -41,21 +41,21 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao get id
 	}
 
-	def getNode(sig: String): Option[TreeNode] = db withSession { implicit session =>
-		dao get sig
+	def getNodeForSignature(sig: String): Option[TreeNode] = db withSession { implicit session =>
+		dao getForSignature sig
 	}
 
-	def getNodeId(sig: String): Option[Int] = db withSession { implicit session =>
-		dao getId sig
+	def getNodeIdForSignature(sig: String): Option[Int] = db withSession { implicit session =>
+		dao getIdForSignature sig
 	}
 
-	def foreachMapping(f: (String, Int) => Unit) {
-		iterateMappings { _.foreach { case (method, nodeId) => f(method, nodeId) } }
+	def foreachMethodMapping(f: (String, Int) => Unit) {
+		iterateMethodMappings { _.foreach { case (method, nodeId) => f(method, nodeId) } }
 	}
 
-	def iterateMappings[T](f: Iterator[(String, Int)] => T): T = {
+	def iterateMethodMappings[T](f: Iterator[(String, Int)] => T): T = {
 		db withSession { implicit session =>
-			dao.iterateMappingsWith(f)
+			dao iterateMethodMappingsWith f
 		}
 	}
 
@@ -65,6 +65,32 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 
 	override def mapMethodSignatures(signatures: Iterable[(String, Int)]) = db withTransaction { implicit transaction =>
 		dao storeMethodSignatures signatures
+	}
+
+	def getNodeForJsp(jspPath: String): Option[TreeNode] = db withSession { implicit session =>
+		dao getForJsp jspPath
+	}
+
+	def getNodeIdForJsp(jspPath: String): Option[Int] = db withSession { implicit session =>
+		dao getIdForJsp jspPath
+	}
+
+	def foreachJspMapping(f: (String, Int) => Unit) {
+		iterateJspMappings { _.foreach { case (method, nodeId) => f(method, nodeId) } }
+	}
+
+	def iterateJspMappings[T](f: Iterator[(String, Int)] => T): T = {
+		db withSession { implicit session =>
+			dao iterateJspMappingsWith f
+		}
+	}
+
+	def mapJsp(jspClass: String, nodeId: Int) = db withTransaction { implicit transaction =>
+		dao.storeJsp(jspClass, nodeId)
+	}
+
+	override def mapJsps(jsps: Iterable[(String, Int)]) = db withTransaction { implicit transaction =>
+		dao storeJsps jsps
 	}
 
 	def storeNode(node: TreeNode) = db withTransaction { implicit transaction =>

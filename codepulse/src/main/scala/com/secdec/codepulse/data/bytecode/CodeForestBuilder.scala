@@ -87,6 +87,15 @@ class CodeForestBuilder {
 		recurse(startNode, treePath.child)
 	}
 
+	def getOrAddJsp(path: List[String], size: Int): CodeTreeNode = {
+		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
+			case className :: Nil => addChildClass(parent, className)
+			case packageNode :: rest => recurse(addChildPackage(parent, packageNode), rest)
+		}
+
+		recurse(addRootPackage("JSPs"), path)
+	}
+
 	protected def addRootPackage(name: String) = roots.find { node =>
 		node.name == name && node.kind == CodeTreeNodeKind.Pkg
 	} getOrElse {

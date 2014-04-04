@@ -36,7 +36,8 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 	def doImport(zip: ZipFile, destination: TraceData) {
 		read(zip, "trace.json") { readMetadata(_, destination.metadata) }
 		read(zip, "nodes.json") { readTreeNodeData(_, destination.treeNodeData) }
-		read(zip, "method-correlations.json") { readMethodCorrelations(_, destination.treeNodeData) }
+		read(zip, "method-mappings.json") { readMethodMappings(_, destination.treeNodeData) }
+		read(zip, "jsp-mappings.json") { readJspMappings(_, destination.treeNodeData) }
 		val recMap = read(zip, "recordings.json", Map.empty[Int, Int]) { readRecordings(_, destination.recordings) }
 		read(zip, "encounters.json") { readEncounters(_, recMap, destination.encounters) }
 	}
@@ -126,7 +127,7 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 		}
 	}
 
-	private def readMethodCorrelations(in: InputStream, treeNodeData: TreeNodeDataAccess) {
+	private def readMethodMappings(in: InputStream, treeNodeData: TreeNodeDataAccess) {
 		import JsonToken._
 
 		readJson(in) { jp =>
@@ -152,8 +153,47 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 				}
 
 				buffer += ((
-					signature getOrElse { throw new TraceImportException("Missing signature for method correlation.") },
-					nodeId getOrElse { throw new TraceImportException("Missing node ID for method correlation.") }))
+					signature getOrElse { throw new TraceImportException("Missing signature for method mapping.") },
+					nodeId getOrElse { throw new TraceImportException("Missing node ID for method mapping.") }))
+
+				checkAndFlush
+			}
+
+			flushBuffer
+
+			if (jp.nextToken != null)
+				throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected EOF.")
+		}
+	}
+
+	private def readJspMappings(in: InputStream, treeNodeData: TreeNodeDataAccess) {
+		import JsonToken._
+
+		readJson(in) { jp =>
+			if (jp.nextToken != START_ARRAY)
+				throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
+
+			val buffer = collection.mutable.ListBuffer.empty[(String, Int)]
+			def flushBuffer() { treeNodeData.mapJsps(buffer); buffer.clear }
+			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
+
+			while (jp.nextValue != END_ARRAY) {
+				if (jp.getCurrentToken != START_OBJECT)
+					throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_OBJECT.")
+
+				var jsp = None: Option[String]
+				var nodeId = None: Option[Int]
+
+				while (jp.nextValue != END_OBJECT) {
+					jp.getCurrentName match {
+						case "jsp" => jsp = Some(jp.getText)
+						case "node" => nodeId = Some(jp.getIntValue)
+					}
+				}
+
+				buffer += ((
+					jsp getOrElse { throw new TraceImportException("Missing JSP path for JSP mapping.") },
+					nodeId getOrElse { throw new TraceImportException("Missing node ID for JSP mapping.") }))
 
 				checkAndFlush
 			}

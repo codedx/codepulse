@@ -93,6 +93,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 				case Some(_) =>
 					target.transientData.getAndClearRecentlyEncounteredNodes { data =>
+						println(data)
 						controller.enterData(data)
 					}
 			}
