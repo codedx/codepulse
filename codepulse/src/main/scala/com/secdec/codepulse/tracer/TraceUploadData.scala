@@ -105,7 +105,7 @@ object TraceUploadData {
 
 	def handleBinaryZip(file: File): TraceId = createAndLoadTraceData { traceData =>
 		val builder = new CodeForestBuilder
-		val methodCorrelationsBuilder = List.newBuilder[(String, Int)]
+		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 
 		//TODO: make this configurable somehow
 		val jspAdapter = JasperJspAdapter.default
