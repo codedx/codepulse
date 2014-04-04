@@ -60,16 +60,31 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 	}
 	val methodSignatureNodeMap = TableQuery[MethodSignatureNodeMap]
 
-	def create(implicit session: Session) = (treeNodeData.ddl ++ methodSignatureNodeMap.ddl).create
+	class JspNodeMap(tag: Tag) extends Table[(String, Int)](tag, "jsp_node_map") {
+		def jspClass = column[String]("jsp", O.PrimaryKey, O.NotNull)
+		def nodeId = column[Int]("node_id", O.NotNull)
+		def * = jspClass -> nodeId
+
+		def node = foreignKey("jspnm_node", nodeId, treeNodeData)(_.id, onDelete = ForeignKeyAction.Cascade)
+	}
+	val jspNodeMap = TableQuery[JspNodeMap]
+
+	def create(implicit session: Session) = (treeNodeData.ddl ++ methodSignatureNodeMap.ddl ++ jspNodeMap.ddl).create
 
 	def get(id: Int)(implicit session: Session): Option[TreeNode] = {
 		(for (n <- treeNodeData if n.id === id) yield n).firstOption
 	}
 
-	def get(signature: String)(implicit session: Session): Option[TreeNode] = getId(signature).flatMap(get(_))
+	def getForSignature(signature: String)(implicit session: Session): Option[TreeNode] = getIdForSignature(signature).flatMap(get(_))
 
-	def getId(signature: String)(implicit session: Session): Option[Int] = {
+	def getForJsp(jspClass: String)(implicit session: Session): Option[TreeNode] = getIdForJsp(jspClass).flatMap(get(_))
+
+	def getIdForSignature(signature: String)(implicit session: Session): Option[Int] = {
 		(for (n <- methodSignatureNodeMap if n.signature === signature) yield n.nodeId).firstOption
+	}
+
+	def getIdForJsp(jspClass: String)(implicit session: Session): Option[Int] = {
+		(for (n <- jspNodeMap if n.jspClass === jspClass) yield n.nodeId).firstOption
 	}
 
 	def iterateWith[T](f: Iterator[TreeNode] => T)(implicit session: Session): T = {
@@ -79,8 +94,15 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		} finally it.close
 	}
 
-	def iterateMappingsWith[T](f: Iterator[(String, Int)] => T)(implicit session: Session): T = {
+	def iterateMethodMappingsWith[T](f: Iterator[(String, Int)] => T)(implicit session: Session): T = {
 		val it = methodSignatureNodeMap.iterator
+		try {
+			f(it)
+		} finally it.close
+	}
+
+	def iterateJspMappingsWith[T](f: Iterator[(String, Int)] => T)(implicit session: Session): T = {
+		val it = jspNodeMap.iterator
 		try {
 			f(it)
 		} finally it.close
@@ -92,6 +114,14 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 
 	def storeMethodSignatures(signatures: Iterable[(String, Int)])(implicit session: Session) {
 		methodSignatureNodeMap ++= signatures
+	}
+
+	def storeJsp(jspPath: String, nodeId: Int)(implicit session: Session) {
+		jspNodeMap += jspPath -> nodeId
+	}
+
+	def storeJsps(jsps: Iterable[(String, Int)])(implicit session: Session) {
+		jspNodeMap ++= jsps
 	}
 
 	def storeNode(node: TreeNode)(implicit session: Session) {

@@ -24,8 +24,9 @@ import com.secdec.bytefrog.hq.protocol.DataMessageContent
 import com.secdec.codepulse.data.MethodSignature
 import com.secdec.codepulse.data.MethodSignatureParser
 import com.secdec.codepulse.data.trace.TraceData
+import com.secdec.codepulse.data.jsp.JspMapper
 
-class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientTraceData) extends DataProcessor {
+class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor {
 
 	val methodCor = collection.mutable.Map[Int, Int]()
 
@@ -43,7 +44,8 @@ class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientT
 
 		// make method correlations
 		case DataMessageContent.MapMethodSignature(sig, id) =>
-			for (treemapNodeId <- traceData.treeNodeData.getNodeId(sig)) methodCor.put(id, treemapNodeId)
+			val node = traceData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
+			for (treemapNodeId <- node) methodCor.put(id, treemapNodeId)
 
 		// ignore everything else
 		case _ => ()

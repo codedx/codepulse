@@ -42,14 +42,23 @@ trait TreeNodeDataAccess {
 
 	def getNode(id: Int): Option[TreeNode]
 
-	def getNodeId(signature: String): Option[Int]
-	def getNode(signature: String): Option[TreeNode]
+	def getNodeIdForSignature(signature: String): Option[Int]
+	def getNodeForSignature(signature: String): Option[TreeNode]
 
-	def foreachMapping(f: (String, Int) => Unit): Unit
-	def iterateMappings[T](f: Iterator[(String, Int)] => T): T
+	def foreachMethodMapping(f: (String, Int) => Unit): Unit
+	def iterateMethodMappings[T](f: Iterator[(String, Int)] => T): T
 
 	def mapMethodSignature(signature: String, nodeId: Int): Unit
 	def mapMethodSignatures(signatures: Iterable[(String, Int)]): Unit = signatures foreach { case (signature, nodeId) => mapMethodSignature(signature, nodeId) }
+
+	def getNodeIdForJsp(jspClass: String): Option[Int]
+	def getNodeForJsp(jspClass: String): Option[TreeNode]
+
+	def foreachJspMapping(f: (String, Int) => Unit): Unit
+	def iterateJspMappings[T](f: Iterator[(String, Int)] => T): T
+
+	def mapJsp(jspClass: String, nodeId: Int): Unit
+	def mapJsps(jsps: Iterable[(String, Int)]): Unit = jsps foreach { case (jspPath, nodeId) => mapJsp(jspPath, nodeId) }
 
 	def storeNode(node: TreeNode): Unit
 	def storeNodes(nodes: Iterable[TreeNode]) = nodes foreach storeNode

@@ -30,6 +30,7 @@ import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
+import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TraceData
 import akka.actor.PoisonPill
@@ -111,8 +112,8 @@ object AkkaTracingTarget {
 		def notifyFinishedLoading() = actor ! FinishedLoading
 	}
 
-	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData): TracingTarget = {
-		val props = Props(classOf[AkkaTracingTarget], traceId, traceData, transientTraceData)
+	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]): TracingTarget = {
+		val props = Props { new AkkaTracingTarget(traceId, traceData, transientTraceData, jspMapper) }
 		val actorRef = actorSystem.actorOf(props)
 		new TracingTargetImpl(traceId, actorRef, traceData, transientTraceData)
 	}
@@ -137,7 +138,7 @@ object AkkaTracingTarget {
   * finishing, it may or may not transition through the Ending state before
   * returning to Idle.
   */
-class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData) extends Actor {
+class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]) extends Actor {
 
 	import AkkaTracingTarget._
 
@@ -220,7 +221,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		println("New Trace Requested")
 
 		// ask for a new trace via the TraceServer
-		val traceFuture = TraceServer awaitNewTrace traceData
+		val traceFuture = TraceServer.awaitNewTrace(traceData, jspMapper)
 
 		// when a new trace comes in, send a Msg to update the state
 		for (trace <- traceFuture) self ! TraceConnected(trace)
@@ -236,7 +237,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		for (reason <- t.completion) self ! TraceEnded(reason)
 
 		// set up data management for the trace
-		val dataManager = new StreamingTraceDataManager(traceData, transientTraceData)
+		val dataManager = new StreamingTraceDataManager(traceData, transientTraceData, jspMapper)
 
 		// remember this trace
 		trace = Some(t)
