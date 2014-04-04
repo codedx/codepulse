@@ -37,7 +37,7 @@ class JasperJspMapper(basePackage: String, nodeData: TreeNodeDataAccess) extends
 		nodeData.getNodeIdForJsp(className)
 	} else None
 
-	def getInclusion(jspClass: String) = s"^$basePrefix${jspClass.replace('.', '/')}\\..*"
+	def getInclusion(jspClass: String) = s"^$basePrefix${jspClass.replace('.', '/')}"
 }
 
 object JasperJspMapper {
