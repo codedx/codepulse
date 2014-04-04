@@ -63,11 +63,16 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 					.find(_.traceData.metadata.name == target.traceData.metadata.name) // find one with the same name as this
 					.map { _ => "hasConflict" } // if found, this will be a Some
 
-				// If there was a conflict, this div has the "nameConflict" class attribute.
-				// Otherwise, the class attribute will be blank.
+				val untitledClass =
+					if (target.traceData.metadata.hasCustomName) None
+					else Some("noTraceName")
+
 				val result = <div class="nameConflict">{ runBinding(xml) }</div>
 
-				addCssClass(conflictClass, result)
+				// If the trace was untitled, the result will add the 'noTraceName' class;
+				// Otherwise, and if there was a conflict, the result will add the 'hasConflict' class;
+				// If neither of these are true, the result is unmodified.
+				addCssClass(untitledClass orElse conflictClass, result)
 			},
 			"exportlink" -> { (xml: NodeSeq) =>
 				val href = tracer.traceAPIServer.Paths.Export.toHref(target)

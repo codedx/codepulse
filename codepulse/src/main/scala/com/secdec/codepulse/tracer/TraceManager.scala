@@ -56,13 +56,22 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 
 	def tracesIterator: Iterator[TracingTarget] = traces.valuesIterator
 
+	private var nextTraceNum = 0
+	private val nextTraceNumLock = new Object {}
+	private def getNextTraceId(): TraceId = nextTraceNumLock.synchronized {
+		var id = TraceId(nextTraceNum)
+		nextTraceNum += 1
+		id
+	}
+	private def registerTraceId(id: TraceId): Unit = nextTraceNumLock.synchronized {
+		nextTraceNum = math.max(nextTraceNum, id.num + 1)
+	}
+
 	/** Creates and adds a new TracingTarget with the given `traceData`, and an
 	  * automatically-selected TraceId.
 	  */
 	def createTrace(): TraceId = {
-		val traceId =
-			if (traces.isEmpty) TraceId(0)
-			else traces.keysIterator.max + 1
+		val traceId = getNextTraceId()
 
 		val data = dataProvider getTrace traceId
 
@@ -75,7 +84,9 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	/** Creates a new TracingTarget based on the given `traceId` and `traceData`,
 	  * and returns it after adding it to this TraceManager.
 	  */
-	private def registerTrace(traceId: TraceId, traceData: TraceData, jspMapper: Option[JspMapper]) {
+	private def registerTrace(traceId: TraceId, traceData: TraceData, jspMapper: Option[JspMapper]) = {
+		registerTraceId(traceId)
+
 		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId, jspMapper)
 		traces.put(traceId, target)
 
@@ -86,9 +97,11 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 		traceListUpdates fire ()
 
 		// trigger an update when the target state updates
-		target.subscribe { stateUpdates =>
+		target.subscribeToStateChanges { stateUpdates =>
 			stateUpdates ->> { traceListUpdates fire () }
 		}
+
+		target
 	}
 
 	def removeTrace(traceId: TraceId): Option[TracingTarget] = {
@@ -112,7 +125,8 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 		} {
 			println(s"loaded trace $id")
 			//TODO: make jspmapper configurable somehow
-			registerTrace(id, data, Some(JasperJspMapper(data.treeNodeData)))
+			val target = registerTrace(id, data, Some(JasperJspMapper(data.treeNodeData)))
+			target.notifyFinishedLoading()
 		}
 
 		// Also make sure any dirty traces are saved when exiting

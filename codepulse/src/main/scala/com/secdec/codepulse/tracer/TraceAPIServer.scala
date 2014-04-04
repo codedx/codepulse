@@ -19,8 +19,6 @@
 
 package com.secdec.codepulse.tracer
 
-import java.text.SimpleDateFormat
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -28,6 +26,8 @@ import scala.concurrent.duration.DurationInt
 import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
+
+import org.joda.time.format.DateTimeFormat
 
 import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
@@ -205,13 +205,6 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 		}
 	}
 
-	private def stateToString(state: TracingTargetState): String = state match {
-		case TracingTargetState.Idle => "idle"
-		case TracingTargetState.Connecting => "connecting"
-		case TracingTargetState.Running => "running"
-		case TracingTargetState.Ending => "ending"
-	}
-
 	private implicit def futureResponseToResponse(f: Future[LiftResponse]) = RestContinuation.async { callback =>
 		f onComplete {
 			case Success(response) => callback(response)
@@ -225,8 +218,8 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 		// GET a list of traces
 		case List("trace-api", "traces") Get req =>
-			val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-			def prettyDate(d: Long) = dateFormat.format(new java.util.Date(d))
+			val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+			def prettyDate(d: Long) = dateFormat.print(d)
 			val traces = manager.tracesIterator.toList.sortBy(_.id)
 
 			val traceJsonFutures: List[Future[JObject]] = traces map { target =>
@@ -235,12 +228,13 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 				for (traceState <- target.getState) yield ("id" -> target.id.num) ~
 					("name" -> data.metadata.name) ~
+					("hasCustomName" -> data.metadata.hasCustomName) ~
 					("created" -> prettyDate(data.metadata.creationDate)) ~
 					("imported" -> data.metadata.importDate.map(prettyDate)) ~
 					("href" -> href) ~
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
-					("state" -> stateToString(traceState))
+					("state" -> traceState.name)
 			}
 
 			Future.sequence(traceJsonFutures) map { JsonResponse(_) }
@@ -264,7 +258,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 		// GET the current status of the trace
 		case Paths.Status(target) Get req =>
-			target.getState map { state => PlainTextResponse(stateToString(state)) }
+			target.getState map { state => PlainTextResponse(state.name) }
 
 		// GET a trace data export (as a .pulse file)
 		case Paths.Export(target) Get req =>

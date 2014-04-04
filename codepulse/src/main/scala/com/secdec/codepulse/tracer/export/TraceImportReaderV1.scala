@@ -54,11 +54,6 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 					case "name" => metadata.name = jp.getText
 					case "creationDate" => metadata.creationDate = jp.getLongValue
 
-					case "importDate" => metadata.importDate = jp.getCurrentToken match {
-						case VALUE_NULL => None
-						case _ => Some(jp.getLongValue)
-					}
-
 					case other => throw new TraceImportException(s"Unrecognized field $other.")
 				}
 			}

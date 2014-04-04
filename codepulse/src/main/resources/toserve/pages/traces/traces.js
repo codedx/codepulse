@@ -48,6 +48,30 @@ $(document).ready(function(){
 			return spinner
 		})()
 
+	// Set a UI state for the 'loading' and 'deleted' states.
+	;(function(){
+		var wasLoading = false
+		Trace.status.onValue(function(status){
+			console.log('watching UI, status = ', status)
+			if(status == 'loading'){
+				wasLoading = true
+				$('body').overlay('wait')
+			} else {
+				$('body').overlay('ready')
+			}
+
+			if(status == 'deleted'){
+				if(wasLoading){
+					alert('Processing upload data failed. You will be redirected to the home screen.')
+				} else {
+					alert('This trace has been deleted. You will be redirected to the home screen.')
+				}
+				window.location.href = '/'
+			}
+		})
+	})()
+
+
 	// When the `treemapColoringStateChanges` fires, use the current `legendData`
 	// to generate a new treemap coloring function, and update the treemap's colors
 	// with that.
@@ -290,6 +314,21 @@ $(document).ready(function(){
 						else i = i.parent
 					}
 
+					// take the last path node of its kind from the path.
+					// e.g. [P1, P2, C1, C2, C3, M] becomes [P2, C3, M]
+					var pathCondensed = []
+					for(i = path.length-1; i>=0; i--){
+						var newPath = path[i],
+							prevPath = path[i+1],
+							newKind = newPath.kind
+							prevKind = prevPath && prevPath.kind
+						if(newKind != prevKind){
+							pathCondensed.unshift(newPath)
+						}
+					}
+					// render the condensed path instead of the full path.
+					path = pathCondensed
+
 					function recurse(i){
 						if(i > path.length) return
 
@@ -324,12 +363,33 @@ $(document).ready(function(){
 
 	// Allow the header title to be edited.
 	// When it changes, send the change to the server to check for name conflicts
-	$('h1.editable').editable().on('edited', function(e, newName){
-		TraceAPI.renameTrace(newName, function(reply, error){
-			if(!error){
-				var hasNameConflict = (reply.warn == 'nameConflict')
-				$('.nameConflict').toggleClass('hasConflict', hasNameConflict)
+	$('h1.editable').editable().on('editable.save.cancel', function(e, newName){
+		var n = e.namespace
+		if(!n) return
+
+		var nc = $('.nameConflict')
+
+		var shouldSave = false
+		if(n == 'save') shouldSave = true
+		else if(n == 'cancel'){
+			if(nc.hasClass('noTraceName')){
+				shouldSave = true
+				newName = $(this).editable('getText') || 'Untitled'
 			}
-		})
+		}
+
+		if(shouldSave){
+			TraceAPI.renameTrace(newName, function(reply, error){
+				if(!error){
+					var hasNameConflict = (reply.warn == 'nameConflict')
+					$('.nameConflict').toggleClass('hasConflict', hasNameConflict)
+				}
+			})
+		}
+	})
+
+	// If the nameConflict container has the 'noTraceName' class, open up the name editor now
+	$('.nameConflict.noTraceName').each(function(){
+		$('h1.editable').editable('open')
 	})
 })

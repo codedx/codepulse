@@ -459,77 +459,55 @@
 			controlsContainer.find('.recording-adder-button'), 
 			controlsContainer.find('.recordingsList'))
 
-		// Load any existing user-created recordings from the server, adding them to the UI
-		TraceAPI.requestRecordings(function(recordings, error){
-			if(error){ console.error('failed to load recordings') }
-			else {
-				recordings.forEach(function(rec){ customRecordingAdder.addNewRecording(rec, false) })
-			}
+		// Load any existing user-created recordings from the server, adding them to the UI.
+		// Don't actually do it until the trace is 'ready' (i.e. the state isn't 'loading').
+		Trace.ready(function(){
+			TraceAPI.requestRecordings(function(recordings, error){
+				if(error){ console.error('failed to load recordings') }
+				else {
+					recordings.forEach(function(rec){ customRecordingAdder.addNewRecording(rec, false) })
+				}
+			})
 		})
 
 		// assign the 'trace-running' attribute to the controlsContainer, depending on the trace state
 		Trace.running.assign(controlsContainer, 'attr', 'trace-running')
 
-		/*
-		 * Load the current trace status and set the UI accordingly.
-		 * (Don't use animations; just instantly show/hide things.)
-		 */
-		TraceAPI.requestStatus(function(status, error){
-			if(error) console.error('failed to load tracer status from server')
-			else switch(status){
-			case 'idle':
-				newTraceButton.show()
-				connectionWaitingText.hide()
-				endTraceButton.hide().overlay('ready')
-				break
-			case 'connecting':
-				newTraceButton.hide()
-				connectionWaitingText.show()
-				endTraceButton.hide().overlay('ready')
-				break
-			case 'running':
-				newTraceButton.hide()
-				connectionWaitingText.hide()
-				endTraceButton.show().overlay('ready')
-				break
-			case 'ending':
-				newTraceButton.hide()
-				connectionWaitingText.hide()
-				endTraceButton.show().overlay('wait')
-				break
+		// Update the state of the newTraceArea based on the Trace's state.
+		;(function(){
+			function togglerFunc($elem){
+				return function(show, animate){
+					if(animate) $elem[show? 'slideDown': 'slideUp']()
+					else $elem[show? 'show': 'hide']()
+				}
 			}
-		})
+			var toggleNewTraceButton = togglerFunc(newTraceButton),
+				toggleConnectingText = togglerFunc(connectionWaitingText),
+				toggleEndTraceButton = togglerFunc(endTraceButton)
 
-		/*
-		 * React to `tracer-state-change` events by showing and hiding
-		 * the appropriate elements using nice animations.
-		 */
-		$(document).on('tracer-state-change', function(event, params){
-			switch(params['state']){
-			case 'connecting':
-				newTraceButton.slideUp()
-				connectionWaitingText.slideDown()
-				endTraceButton.hide()
-				break
-			case 'connected':
-				// ...nothing?
-				break
-			case 'started':
-				newTraceButton.hide()
-				connectionWaitingText.slideUp()
-				endTraceButton.slideDown()
-				break
-			case 'finished':
-				newTraceButton.slideDown()
-				connectionWaitingText.hide()
-				endTraceButton.slideUp()
-				endTraceButton.overlay('ready')
-				break
-			case 'deleted':
-				alert('This trace has been deleted. You will be redirected to the home screen')
-				window.location.href = '/'
+			function toggleFinishing(finishing){ endTraceButton.overlay(finishing ? 'wait': 'ready') }
+
+			function onStateChange(state, animate){
+				toggleNewTraceButton(state == 'idle', animate)
+				toggleConnectingText(state == 'connecting', animate)
+				toggleEndTraceButton(state == 'running' || state == 'ending', animate)
+				toggleFinishing(state == 'ending')
 			}
-		})
+
+			var gotFirstValue = false,
+				valuesThatCount = d3.set(['idle', 'connecting', 'running', 'ending'])
+
+			// When the state changes, show or hide the appropriate divs.
+			// Depending on whether this is the first 'visible' state change, the show/hide 
+			// effect will have an animation. (it animates after the initial change).
+			Trace.status.onValue(function(state){
+				var doAnimate = gotFirstValue
+
+				gotFirstValue = gotFirstValue || valuesThatCount.has(state)
+
+				onStateChange(state, doAnimate)
+			})
+		})()
 
 		/* Clicking the newTraceButton asks the server to look for
 		 * a new tracer connection. This may be ignored if the trace
@@ -542,7 +520,6 @@
 		 * that will be closed when the trace's state becomes 'finished'.
 		 */
 		endTraceButton.click(function(){ 
-			endTraceButton.overlay('wait')
 			TraceAPI.requestEnd() 
 		})
 

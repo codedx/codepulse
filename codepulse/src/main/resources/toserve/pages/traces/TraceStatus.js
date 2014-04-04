@@ -48,21 +48,17 @@
 	/*
 	 * Watch for `tracer-state-change` events to update the trace status
 	 */
-	$(document).on('tracer-state-change', function(event, params){
-		switch(params['state']){
-		case 'connecting':
-			statusBus.push('connecting')
-			break
-		case 'started':
-			statusBus.push('running')
-			break
-		case 'finished':
-			statusBus.push('idle')
-			break
-		}
-	})
+	$(document).on('tracer-state-change', function(event, state){ statusBus.push(state) })
 
-	Trace.status = statusProp.noLazy()
+	Trace.status = statusProp.noLazy().log('Trace State:')
 	Trace.running = runningProp.noLazy()
+
+	Trace.ready = function(f){
+		$(document).ready(function(){
+			Trace.status
+				.takeWhile(function(status){ return status == 'loading' })
+				.onEnd(f)
+		})
+	}
 
 })(this.Trace || (this.Trace = {}))

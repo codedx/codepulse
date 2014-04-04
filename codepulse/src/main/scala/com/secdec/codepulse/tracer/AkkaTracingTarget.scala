@@ -35,22 +35,24 @@ import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TraceData
 import akka.actor.PoisonPill
 
-sealed trait TracingTargetEvent
-object TracingTargetEvent {
-	case object Connecting extends TracingTargetEvent
-	case object Connected extends TracingTargetEvent
-	case class Started(traceId: TraceId) extends TracingTargetEvent
-	case class Finished(reason: TraceEndReason) extends TracingTargetEvent
+//sealed trait TracingTargetEvent
+//object TracingTargetEvent {
+//	case object Connecting extends TracingTargetEvent
+//	case object Connected extends TracingTargetEvent
+//	case class Started(traceId: TraceId) extends TracingTargetEvent
+//	case class Finished(reason: TraceEndReason) extends TracingTargetEvent
+//
+//	case object Deleted extends TracingTargetEvent
+//}
 
-	case object Deleted extends TracingTargetEvent
-}
-
-sealed trait TracingTargetState
+sealed abstract class TracingTargetState(val name: String)
 object TracingTargetState {
-	case object Idle extends TracingTargetState
-	case object Connecting extends TracingTargetState
-	case object Running extends TracingTargetState
-	case object Ending extends TracingTargetState
+	case object Loading extends TracingTargetState("loading")
+	case object Idle extends TracingTargetState("idle")
+	case object Connecting extends TracingTargetState("connecting")
+	case object Running extends TracingTargetState("running")
+	case object Ending extends TracingTargetState("ending")
+	case object Deleted extends TracingTargetState("deleted")
 }
 
 /** Manages the state of a single "Trace". A Trace in this context is
@@ -67,7 +69,7 @@ trait TracingTarget {
 	/** An identifier used to distinguish this TracingTarget from others. */
 	def id: TraceId
 
-	def subscribe(sub: EventStream[TracingTargetEvent] => Unit): Unit
+	def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit): Unit
 	def requestNewTraceConnection(): Unit
 	def requestTraceEnd(): Unit
 	def getState: Future[TracingTargetState]
@@ -76,6 +78,7 @@ trait TracingTarget {
 	def transientData: TransientTraceData
 
 	def requestDeletion(): Unit
+	def notifyFinishedLoading(): Unit
 }
 
 object AkkaTracingTarget {
@@ -83,10 +86,10 @@ object AkkaTracingTarget {
 	// ----
 	// Messages handled internally by the StateMachine actor
 	// ----
-
+	private case object FinishedLoading
 	private case object RequestTraceConnect
 	private case object RequestTraceEnd
-	private case class Subscribe(f: EventStream[TracingTargetEvent] => Unit)
+	private case class Subscribe(f: EventStream[TracingTargetState] => Unit)
 	private case object RequestState
 
 	private case class TraceConnected(trace: Trace)
@@ -98,7 +101,7 @@ object AkkaTracingTarget {
 	private implicit val timeout = new Timeout(5000)
 
 	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
-		def subscribe(sub: EventStream[TracingTargetEvent] => Unit) = actor ! Subscribe(sub)
+		def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit) = actor ! Subscribe(sub)
 		def requestNewTraceConnection() = actor ! RequestTraceConnect
 		def requestTraceEnd() = actor ! RequestTraceEnd
 		def getState = {
@@ -106,6 +109,7 @@ object AkkaTracingTarget {
 			reply.mapTo[TracingTargetState]
 		}
 		def requestDeletion() = actor ! RequestDeletion
+		def notifyFinishedLoading() = actor ! FinishedLoading
 	}
 
 	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]): TracingTarget = {
@@ -139,17 +143,15 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	import AkkaTracingTarget._
 
 	private var trace: Option[Trace] = None
-	private val events = new EventSource[TracingTargetEvent]
+	//	private val events = new EventSource[TracingTargetEvent]
+	private val stateChanges = new EventSource[TracingTargetState]
 
 	// import an ExecutionContext for running Futures
 	import context.dispatcher
 
-	/* Traces for this analysis run will use a precalculated method correlators to associate
-	 * binary method signatures to source node ids that are stored in Code Pulse's database.
-	 */
-	//	private val methodCorrelator = new PrecalculatedMethodCorrelator(analysis)
+	def receive = StateLoading.receive
 
-	def receive = StateIdle
+	class State(val s: TracingTargetState, val receive: Receive)
 
 	/*
 	 * Wrap any Receiver state so that the actor will accept
@@ -157,47 +159,59 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	 * when an `Update` message is sent. Also react to a RequestState
 	 * message by replying with the state `s`.
 	 */
-	private def State(s: TracingTargetState)(body: Receive): Receive = {
-		body orElse {
-			case sub: Subscribe => sub.f(events)
+	private def State(s: TracingTargetState, body: Receive): State = {
+		new State(s, body orElse {
+			case sub: Subscribe => sub.f(stateChanges)
 			case RequestState => sender ! s
 			case RequestDeletion =>
-				events.fire(TracingTargetEvent.Deleted)
+				changeState(StateDeleted)
 				self ! PoisonPill
-		}
+		})
 	}
+
+	private def changeState(newState: State) = {
+		context.become(newState.receive)
+		println(s"$traceId target state changing to ${newState.s}")
+		stateChanges fire newState.s
+	}
+
+	val StateLoading = State(TracingTargetState.Loading, {
+		case FinishedLoading => changeState(StateIdle)
+	})
 
 	/** No activity currently going on.
 	  * The state may be advanced by sending a `TraceRequested` message,
 	  * which will cause the state to transition to the "Connecting" state.
 	  */
-	val StateIdle = State(TracingTargetState.Idle) {
+	val StateIdle = State(TracingTargetState.Idle, {
 		case RequestTraceConnect => onTraceRequested()
-	}
+	})
+
+	val StateDeleted = State(TracingTargetState.Deleted, PartialFunction.empty)
 
 	/** Currently waiting for a new Tracer Agent to connect.
 	  * The state will be advanced to "Tracing"
 	  */
-	val StateConnecting = State(TracingTargetState.Connecting) {
+	val StateConnecting = State(TracingTargetState.Connecting, {
 		case TraceConnected(t) => onTraceConnected(t)
-	}
+	})
 
 	/** A trace is currently connected and running.
 	  * It may stop on its own, which would cause a TraceCompleted message.
 	  * Or the user might request the trace to end, which would cause a
 	  * TraceEndRequested message.
 	  */
-	val StateTracing = State(TracingTargetState.Running) {
+	val StateTracing = State(TracingTargetState.Running, {
 		case RequestTraceEnd => onTraceEndRequested()
 		case TraceEnded(reason) => onTraceCompleted(reason)
-	}
+	})
 
 	/** The user requested the trace to end. Once it does,
 	  * the state will change back to Idle.
 	  */
-	val StateEnding = State(TracingTargetState.Ending) {
+	val StateEnding = State(TracingTargetState.Ending, {
 		case TraceEnded(reason) => onTraceCompleted(reason)
-	}
+	})
 
 	// ----
 	// Implementation of the State changes below here
@@ -212,16 +226,12 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		// when a new trace comes in, send a Msg to update the state
 		for (trace <- traceFuture) self ! TraceConnected(trace)
 
-		events fire TracingTargetEvent.Connecting
-
 		// change the state to "Connecting"
-		context.become(StateConnecting)
+		changeState(StateConnecting)
 	}
 
 	private def onTraceConnected(t: Trace): Unit = {
 		println("New Trace Connected")
-
-		events fire TracingTargetEvent.Connected
 
 		// send a Msg to update the state when `t` completes
 		for (reason <- t.completion) self ! TraceEnded(reason)
@@ -235,11 +245,8 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		// start the trace
 		t.start(dataManager)
 
-		// send a TraceStarted update event
-		events fire TracingTargetEvent.Started(traceId)
-
-		// change the state to "Running"
-		context.become(StateTracing)
+		// change the state to "Tracing"
+		changeState(StateTracing)
 	}
 
 	private def onTraceEndRequested(): Unit = {
@@ -250,7 +257,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		for (t <- trace) t.stop()
 
 		// change the state for "Ending"
-		context.become(StateEnding)
+		changeState(StateEnding)
 	}
 
 	private def onTraceCompleted(reason: TraceEndReason): Unit = {
@@ -259,11 +266,8 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		// clear the trace
 		trace = None
 
-		// fire an event that says that/why the trace finished
-		events fire TracingTargetEvent.Finished(reason)
-
 		// change the state back to "Idle"
-		context.become(StateIdle)
+		changeState(StateIdle)
 	}
 
 }

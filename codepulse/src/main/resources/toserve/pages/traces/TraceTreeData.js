@@ -26,23 +26,28 @@
 		treeDataReady = false,
 		treeDataReadyCallbacks = []
 
-	TraceAPI.loadTreemap(function(d){
+	// Load the treemap data once the trace's status is no longer 'loading'
+	Trace.ready(function(){
+		console.log('Trace finished loading. Time to load the treemap data')
 
-		treeProjector = new TreeProjector(d)
+		TraceAPI.loadTreemap(function(d){
 
-		fullTree = treeProjector.projectFullTree(true /* generate self nodes for packages */)
+			treeProjector = new TreeProjector(d)
 
-		fullTree.forEachNode(true, function(n){
-			coverageSets[n.id] = d3.set()
-			if(n.kind == 'method') totalNumMethods++
+			fullTree = treeProjector.projectFullTree(true /* generate self nodes for packages */)
+
+			fullTree.forEachNode(true, function(n){
+				coverageSets[n.id] = d3.set()
+				if(n.kind == 'method') totalNumMethods++
+			})
+
+			treeDataReady = true
+
+			treeDataReadyCallbacks.forEach(function(callback){
+				callback()
+			})
+
 		})
-
-		treeDataReady = true
-
-		treeDataReadyCallbacks.forEach(function(callback){
-			callback()
-		})
-
 	})
 
 	Trace.__defineGetter__('totalNumMethods', function(){
