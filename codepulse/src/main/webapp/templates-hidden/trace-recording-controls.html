@@ -59,10 +59,27 @@
 		</div>
 		<div class="control-button" data-role="connection-waiting">
 			Waiting for a trace connection...
+
+			<a id="connection-help-link">
+				<i class="fa fa-question-circle"></i>
+				How do I make a trace connection?
+			</a>
 		</div>
 		<div class="control-button big" data-role="end-trace">
 			End Trace
 		</div>
+	</div>
+
+	<div id="connection-help-popup" style="display: none;">
+		<p>
+			To make a new trace connection, run your Java-based program with the following addition
+			to the Java command line:
+		</p>
+		<code class="lift:TraceWidgetry">
+			<trace:agentcommand></trace:agentcommand>
+			<!-- -javaagent:bytefrog-tracer.jar=localhost:8765 -->
+		</code>
+		<a class="dismissal">dismiss</a>
 	</div>
 
 	<h1>Treemap Legend</h1>

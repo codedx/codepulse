@@ -523,6 +523,15 @@
 			TraceAPI.requestEnd() 
 		})
 
+		// Set up the connection help link
+		var connectionHelpPopup = $('#connection-help-popup')
+		$('#connection-help-link').click(function(){
+			connectionHelpPopup.show()
+		})
+		connectionHelpPopup.find('.dismissal').click(function(){
+			connectionHelpPopup.hide()
+		})
+
 	})	
 
 }(this));

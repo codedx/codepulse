@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import com.secdec.codepulse.tracer
 import com.secdec.codepulse.tracer.TraceManager
+import java.io.File
 
 class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends DispatchSnippet {
 
@@ -77,6 +78,20 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 			"exportlink" -> { (xml: NodeSeq) =>
 				val href = tracer.traceAPIServer.Paths.Export.toHref(target)
 				<a data-downloader={ href } data-filename={ s"${data.metadata.name}.pulse" }>{ runBinding(xml) }</a>
+			},
+			"agentcommand" -> { (xml: NodeSeq) =>
+				// embedded versions will be running in "some/install/dir/backend", and
+				// the agent jar will be located at "some/install/dir/agent.jar"
+				val agentPath = new File("../agent.jar").getCanonicalPath
+
+				val hqAddress = "localhost"
+				val hqPort = com.secdec.codepulse.userSettings.tracePort
+
+				val cmd = s"-javaagent:$agentPath=$hqAddress:$hqPort"
+
+				// if `cmd` has spaces, wrap it in "quotes"
+				val cmdWrapped = if (cmd.contains(" ")) '"' + cmd + '"' else cmd
+				Text(cmdWrapped)
 			})
 
 		cometTemplate +: runBinding(template)

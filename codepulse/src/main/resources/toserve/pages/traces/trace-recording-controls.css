@@ -212,6 +212,35 @@
  	background-color: #DEDEDE;
  }
 
+ #connection-help-link {
+ 	display: block;
+ 	font-size: small;
+ }
+
+ #connection-help-popup {
+ 	position: fixed;
+ 	top: 59px;
+ 	right: 240px;
+ 	width: 450px;
+
+ 	background-color: lightgray;
+ 	border: 1px solid;
+ 	padding: 1em 1em .5em;
+ }
+
+ #connection-help-popup code {
+ 	display: block;
+ 	padding: .5em;
+ 	overflow-x: scroll;
+ }
+
+ #connection-help-popup .dismissal {
+ 	display: block;
+ 	margin-top: 5px;
+ 	text-align: right;
+ 	font-size: small;
+ 	cursor: pointer;
+ }
 
 /****************************\
 | Recording "Coverage" Badge |
