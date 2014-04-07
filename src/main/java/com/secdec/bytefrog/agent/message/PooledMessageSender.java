@@ -113,6 +113,10 @@ public class PooledMessageSender implements Runnable
 		{
 			// attempt to write each buffer to the output stream
 			buffer.writeTo(out);
+
+			// make sure to flush after writing the buffer to the output stream,
+			// otherwise data might sit around here forever
+			out.flush();
 		}
 		catch (IOException e)
 		{
