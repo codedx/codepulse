@@ -188,7 +188,10 @@ public class BufferPool
 			// partial buffers until we've failed to find a full buffer for many
 			// retries. We don't want readers to be so greedy that no buffer
 			// gets a chance to fill up.
-			else if ((greedy || tryCount > 4000) && partialSem.tryAcquire())
+			// When we're not being greedy, we wait roughly 80-100ms (or a
+			// little more, depending on timer resolution) before sending
+			// partial buffers.
+			else if ((greedy || tryCount > 100) && partialSem.tryAcquire())
 			{
 				return partialBuffers.poll();
 			}
@@ -200,11 +203,13 @@ public class BufferPool
 
 	/**
 	 * Internal helper to handle spinning/sleeping while waiting for a buffer.
+	 * Yields the current thread for 20 cycles (somewhere between 0 and 20 ms),
+	 * then sleeps after.
 	 * @param cycleCount the current count of cycles we've been waiting
 	 */
 	private void waitCycle(int cycleCount) throws InterruptedException
 	{
-		if (cycleCount < 2000) // yield and spin for a little while
+		if (cycleCount < 20) // yield and spin for a little while
 			Thread.yield();
 		else
 			// after a short while, start sleeping
