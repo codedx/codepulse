@@ -76,8 +76,7 @@
 			_selected = 0,
 			_selectedBus = new Bacon.Bus(),
 			_collapseChildren = false,
-			_childWidgets = [],
-			_collapsingBus = new Bacon.Bus()
+			_childWidgets = []
 
 		// ============================================================================
 		// UI Selected Elements
@@ -195,7 +194,7 @@
 			return self
 		}
 
-		this.collapseChildren = function(arg){
+		this.collapseChildren = function(arg, animate){
 			if(!arguments.length) return _collapseChildren
 
 			if(arg == 'toggle') _collapseChildren = !_collapseChildren
@@ -203,11 +202,11 @@
 
 			updatedCollapserState()
 
-			_collapsingBus.push(true)
-			self.uiParts.childrenContainer[_collapseChildren ? 'slideUp' : 'slideDown'](
-				/* finish animation */
-				function(){ _collapsingBus.push(false) }
-			)
+			if(animate){
+				self.uiParts.childrenContainer[_collapseChildren ? 'slideUp' : 'slideDown']()
+			} else {
+				self.uiParts.childrenContainer[_collapseChildren ? 'hide' : 'show']()
+			}
 			return self
 		}
 
@@ -231,11 +230,6 @@
 		Exposes the current `selected` state as a Rx Property
 		*/
 		this.selectedProp = _selectedBus.toProperty(_selected).skipDuplicates()
-
-		/*
-		Exposes (as an Rx Property) whether or not the expand/collapse animation is running
-		*/
-		this.collapsingProp = _collapsingBus.toProperty(false).skipDuplicates()
 
 		this.selectionClicks = new Bacon.Bus()
 

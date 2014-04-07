@@ -26,9 +26,6 @@
 		// build this into a Map[packageId -> packageWidget.selectedProp]
 		var stateTemplate = {}
 
-		// build this into a Map[packageId -> packageWidget.collapsingProp]
-		var collapsingTemplate = {}
-
 		var widgets = {}
 
 		// initialize the `stateTemplate` and `widgets` maps
@@ -39,17 +36,15 @@
 				var pw = new PackageWidget()
 				widgets[node.id] = pw
 
+				pw.collapseChildren(/* collapsed = */true, /* animate = */false)
+
 				stateTemplate[node.id] = pw.selectedProp
 				pw.selectionClicks.onValue(function(){
 					handleSelectionClick(node, pw)
 				})
 
-				collapsingTemplate[node.id] = pw.collapsingProp
-
-				// pw.selectedProp.log('selected ' + node.id)
-
 				pw.uiParts.collapser.click(function(event){
-					pw.collapseChildren('toggle')
+					pw.collapseChildren('toggle', true)
 					event.stopPropagation()
 				})
 
@@ -154,29 +149,6 @@
 		})
 
 		/**
-		 * Pushes a `1` event when the package widgets' collapse/expand
-		 * animation finishes. Used to update affix things since the
-		 * animation affects the page height.
-		 */
-		this.widgetsAnimating = Bacon
-			.combineTemplate(collapsingTemplate)
-			.map(function(o){
-				for(var k in o) if(o[k]) return true
-				return false
-			})
-			.skipDuplicates()
-			.toProperty(false)
-			.slidingWindow(2)
-			.filter(function(a){
-				// accepted as the 'animating' prop goes from true to false
-				if(a.length == 2 && a[0] === true && a[1] === false) return true
-				return false
-			})
-			.map(function(){ return 1 })
-
-		for(k in widgets) widgets[k].collapseChildren(true)
-
-		/**
 		 * Getter / Setter for "compact" mode, which causes the
 		 * widgets to take on a compact look.
 		 *
@@ -220,7 +192,7 @@
 		function recurse(node){
 			var count = 0
 
-			if(node.kind == 'method') count += 1
+			if(node.kind == 'method') ++count
 
 			;(node.children || []).forEach(function(kid){
 				count += recurse(kid)
