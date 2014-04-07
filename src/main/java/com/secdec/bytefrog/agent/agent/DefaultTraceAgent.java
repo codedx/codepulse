@@ -25,24 +25,38 @@ import java.util.concurrent.Semaphore;
 
 import com.secdec.bytefrog.agent.TraceAgent;
 import com.secdec.bytefrog.agent.TraceDataCollector;
-import com.secdec.bytefrog.agent.control.*;
+import com.secdec.bytefrog.agent.control.ConfigurationHandler;
+import com.secdec.bytefrog.agent.control.Controller;
+import com.secdec.bytefrog.agent.control.HeartbeatInformer;
+import com.secdec.bytefrog.agent.control.ModeChangeListener;
+import com.secdec.bytefrog.agent.control.StateManager;
 import com.secdec.bytefrog.agent.data.MessageDealerTraceDataCollector;
-import com.secdec.bytefrog.agent.errors.*;
-import com.secdec.bytefrog.agent.message.*;
-import com.secdec.bytefrog.agent.protocol.*;
+import com.secdec.bytefrog.agent.errors.AgentErrorListener;
+import com.secdec.bytefrog.agent.errors.ErrorHandler;
+import com.secdec.bytefrog.agent.errors.LogListener;
+import com.secdec.bytefrog.agent.message.BufferService;
+import com.secdec.bytefrog.agent.message.MessageDealer;
+import com.secdec.bytefrog.agent.message.MessageSenderManager;
+import com.secdec.bytefrog.agent.message.PooledBufferService;
+import com.secdec.bytefrog.agent.protocol.ProtocolVersion;
+import com.secdec.bytefrog.agent.protocol.ProtocolVersion1;
 import com.secdec.bytefrog.agent.util.ShutdownHook;
 import com.secdec.bytefrog.agent.util.SocketFactory;
-import com.secdec.bytefrog.common.config.*;
+import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1;
+import com.secdec.bytefrog.common.config.StaticAgentConfiguration;
 import com.secdec.bytefrog.common.connect.SocketConnection;
 import com.secdec.bytefrog.common.message.AgentOperationMode;
 import com.secdec.bytefrog.common.queue.BufferPool;
 
 /**
  * Concrete Agent implementation, manages the entire trace.
+ * 
  * @author RobertF
  */
 public class DefaultTraceAgent implements TraceAgent
 {
+	private static long ConnectSleep = 1000;
+
 	private SocketFactory socketFactory;
 	private StaticAgentConfiguration staticConfig;
 	private RuntimeAgentConfigurationV1 config;
@@ -72,63 +86,9 @@ public class DefaultTraceAgent implements TraceAgent
 			logger = new LogListener(staticConfig.getLogFilename());
 			ErrorHandler.addListener(logger);
 
-			error = "Failed to connect to HQ";
-			socketFactory = new SocketFactory(staticConfig.getHqHost(), staticConfig.getHqPort());
-
-			Socket controlSocket = socketFactory.connect();
-			SocketConnection controlConnection = new SocketConnection(controlSocket, true, true);
-
-			error = "Failed to get configuration from HQ";
-			config = protocol.getControlConnectionHandshake().performHandshake(controlConnection);
-			if (config == null)
-			{
-				controlSocket.close();
-				ErrorHandler.handleError("did not receive valid configuration during handshake");
-				return;
-			}
-
 			error = "Failed to initialize state manager";
 
 			stateManager = new StateManager();
-
-			HeartbeatInformer informer = new HeartbeatInformer()
-			{
-				@Override
-				public int getSendQueueSize()
-				{
-					if (bufferPool != null)
-						return bufferPool.numReadableBuffers();
-
-					return 0;
-				}
-
-				@Override
-				public AgentOperationMode getOperationMode()
-				{
-					return stateManager.getCurrentMode();
-				}
-			};
-
-			ConfigurationHandler configHandler = new ConfigurationHandler()
-			{
-				@Override
-				public void onConfig(RuntimeAgentConfigurationV1 newConfig)
-				{
-					// apply new configuration
-					if (stateManager.getCurrentMode() != AgentOperationMode.Initializing)
-					{
-						ErrorHandler
-								.handleError("reconfiguration is only valid while agent is initializing");
-						return;
-					}
-
-					config = newConfig;
-					controller.setHeartbeatInterval(config.getHeartbeatInterval());
-				}
-			};
-
-			controller = new Controller(controlConnection, protocol, config.getHeartbeatInterval(),
-					stateManager.getControlMessageHandler(), configHandler, informer);
 
 			ModeChangeListener modeListener = new ModeChangeListener()
 			{
@@ -171,6 +131,105 @@ public class DefaultTraceAgent implements TraceAgent
 			};
 
 			stateManager.addListener(modeListener);
+			error = null;
+		}
+		catch (Exception e)
+		{
+			ErrorHandler.handleError("error initializing trace agent", e);
+		}
+		finally
+		{
+			if (error != null)
+			{
+				throw new RuntimeException("Agent Initialization Error: " + error);
+			}
+		}
+	}
+
+	@Override
+	public boolean connect(int timeout) throws InterruptedException
+	{
+		String error = "";
+		long timeoutExpire = System.currentTimeMillis() + timeout * 1000;
+
+		try
+		{
+			error = "Failed to connect to HQ";
+			socketFactory = new SocketFactory(staticConfig.getHqHost(), staticConfig.getHqPort());
+
+			Socket controlSocket = null;
+
+			while (timeout == 0 || System.currentTimeMillis() <= timeoutExpire)
+			{
+				try
+				{
+					controlSocket = socketFactory.connect();
+				}
+				catch (IOException e)
+				{
+					// try again...
+					controlSocket = null;
+				}
+
+				Thread.sleep(ConnectSleep);
+			}
+
+			if (controlSocket == null)
+			{
+				// didn't connect within timeout period
+				error = null;
+				return false;
+			}
+
+			SocketConnection controlConnection = new SocketConnection(controlSocket, true, true);
+
+			error = "Failed to get configuration from HQ";
+			config = protocol.getControlConnectionHandshake().performHandshake(controlConnection);
+			if (config == null)
+			{
+				controlSocket.close();
+				ErrorHandler.handleError("did not receive valid configuration during handshake");
+				return false;
+			}
+
+			HeartbeatInformer informer = new HeartbeatInformer()
+			{
+				@Override
+				public int getSendQueueSize()
+				{
+					if (bufferPool != null)
+						return bufferPool.numReadableBuffers();
+
+					return 0;
+				}
+
+				@Override
+				public AgentOperationMode getOperationMode()
+				{
+					return stateManager.getCurrentMode();
+				}
+			};
+
+			ConfigurationHandler configHandler = new ConfigurationHandler()
+			{
+				@Override
+				public void onConfig(RuntimeAgentConfigurationV1 newConfig)
+				{
+					// apply new configuration
+					if (stateManager.getCurrentMode() != AgentOperationMode.Initializing)
+					{
+						ErrorHandler
+								.handleError("reconfiguration is only valid while agent is initializing");
+						return;
+					}
+
+					config = newConfig;
+					controller.setHeartbeatInterval(config.getHeartbeatInterval());
+				}
+			};
+
+			controller = new Controller(controlConnection, protocol, config.getHeartbeatInterval(),
+					stateManager.getControlMessageHandler(), configHandler, informer);
 
 			error = "Failed to start the agent controller";
 			controller.start();
@@ -179,17 +238,25 @@ public class DefaultTraceAgent implements TraceAgent
 			// Now that everything is set up properly, it is safe to add an
 			// AgentErrorListener.
 			ErrorHandler.addListener(new AgentErrorListener(this));
+
+			// successful connection
+			return true;
+		}
+		catch (InterruptedException e)
+		{
+			// rethrow
+			throw e;
 		}
 		catch (Exception e)
 		{
-			ErrorHandler.handleError("error initializing trace agent and connecting to HQ", e);
+			ErrorHandler.handleError("unhandled error connecting trace agent", e);
+			return false;
 		}
 		finally
 		{
 			if (error != null)
 			{
-				throw new RuntimeException("Agent Initialization Error: " + error);
-				// Error initializing agent, tracing cannot run.");
+				throw new RuntimeException("Agent Connection Error: " + error);
 			}
 		}
 	}

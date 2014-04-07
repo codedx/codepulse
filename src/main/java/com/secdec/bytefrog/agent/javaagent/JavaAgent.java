@@ -45,6 +45,7 @@ public class JavaAgent
 
 	/**
 	 * Return the trace agent in use for this run.
+	 * 
 	 * @return The trace agent currently in use.
 	 */
 	public static TraceAgent getTraceAgent()
@@ -66,17 +67,30 @@ public class JavaAgent
 			throw new RuntimeException("Bad agent configuration, tracing cannot run.");
 		}
 
-		// connect and get configuration
+		// setup agent
 		agent = new DefaultTraceAgent(staticConfig);
 
-		// don't finish configuration or exit premain until HQ tells us to start
 		try
 		{
+			// attempt to connect
+			boolean connected = agent.connect(staticConfig.getConnectTimeout());
+
+			if (!connected)
+			{
+				// if we didn't connect, bail out now
+				ErrorHandler
+						.handleError("failed to connect to HQ; continuing execution without tracing");
+				return;
+			}
+
+			// don't finish configuration or exit premain until HQ tells us to
+			// start
 			agent.waitForStart();
 		}
 		catch (InterruptedException e)
 		{
-			ErrorHandler.handleError("interrupted in premain waiting for start", e);
+			ErrorHandler.handleError("interrupted in premain waiting for startup", e);
+			return;
 		}
 
 		agent.prepare();

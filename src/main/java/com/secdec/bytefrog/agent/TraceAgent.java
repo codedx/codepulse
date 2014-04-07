@@ -27,10 +27,21 @@ import com.secdec.bytefrog.common.config.StaticAgentConfiguration;
 
 /**
  * Interface for Agent implementations.
+ * 
  * @author RobertF
  */
 public interface TraceAgent
 {
+	/**
+	 * Connect to HQ
+	 * 
+	 * @param timeout the amount of time to try to connect to HQ for, in
+	 *            seconds. A value of zero (0) will disable the timeout
+	 * @return true if connection was successful before the timeout, false
+	 *         otherwise
+	 */
+	boolean connect(int timeout) throws InterruptedException;
+
 	/**
 	 * Returns the active static configuration.
 	 */
@@ -73,6 +84,7 @@ public interface TraceAgent
 
 	/**
 	 * Immediately sends error message and halts tracing.
+	 * 
 	 * @param errorMessage error that caused tracing to be stopped
 	 */
 	void killTrace(String errorMessage);
@@ -84,6 +96,7 @@ public interface TraceAgent
 
 	/**
 	 * Sends shutdown message and blocks until all queued data is sent.
+	 * 
 	 * @throws InterruptedException
 	 */
 	void shutdownAndWait() throws InterruptedException;
