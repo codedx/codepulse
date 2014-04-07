@@ -19,24 +19,33 @@
 
 package com.secdec.bytefrog.common.config;
 
+import java.util.Properties;
+
 /**
  * Static configuration for Agent.
+ * 
  * @author RobertF
  */
 public class StaticAgentConfiguration
 {
+	public static int DefaultConnectTimeout = 30;
+
 	/**
 	 * Parses an options string, expected to be in the form
-	 * <code>host:port;logfile</code>.
+	 * <code>host:port;key=value;key2=value2;...</code> or
+	 * <code>host:port;logfile</code> (provided for backward compatibility).
+	 * 
+	 * Recognized configuration keys are log (for the agent log file) and
+	 * connectTimeout (to control the timeout when attempting to connect to HQ).
+	 * 
 	 * @param options
 	 * @return A new configuration instance on success. <code>null</code> on
 	 *         failure.
 	 */
 	public static StaticAgentConfiguration parseOptionString(String options)
 	{
-		String[] optionParts = options.split(";", 2);
-
-		String logFilename = optionParts.length > 1 ? optionParts[1] : null;
+		String[] optionParts = options.split(";");
+		Properties props = new Properties();
 
 		String hqEndpoint = optionParts[0];
 		String[] hqEndpointParts = hqEndpoint.split(":");
@@ -54,12 +63,41 @@ public class StaticAgentConfiguration
 			return null;
 		}
 
-		return new StaticAgentConfiguration(hqHost, hqPort, logFilename);
+		if (optionParts.length == 2 && !optionParts[1].contains("="))
+		{
+			// "legacy" mode, second value is just the filename
+			props.setProperty("log", optionParts[1]);
+		}
+		else
+		{
+			// key/value pairs
+			for (int i = 1; i < optionParts.length; i++)
+			{
+				String[] kvp = optionParts[i].split("=", 2);
+				if (kvp.length == 2)
+					props.setProperty(kvp[0], kvp[1]);
+			}
+		}
+
+		String logFilename = props.getProperty("log");
+		int connectTimeout;
+		try
+		{
+			connectTimeout = Integer.parseInt(props.getProperty("connectTimeout",
+					String.valueOf(DefaultConnectTimeout)));
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+
+		return new StaticAgentConfiguration(hqHost, hqPort, logFilename, connectTimeout);
 	}
 
 	private final int hqPort;
 	private final String hqHost;
 	private final String logFilename;
+	private final int connectTimeout;
 
 	public StaticAgentConfiguration(String hqHost, int hqPort)
 	{
@@ -68,14 +106,39 @@ public class StaticAgentConfiguration
 
 	public StaticAgentConfiguration(String hqHost, int hqPort, String logFilename)
 	{
+		this(hqHost, hqPort, logFilename, DefaultConnectTimeout);
+	}
+
+	public StaticAgentConfiguration(String hqHost, int hqPort, String logFilename,
+			int connectTimeout)
+	{
 		this.hqHost = hqHost;
 		this.hqPort = hqPort;
 		this.logFilename = logFilename;
+		this.connectTimeout = connectTimeout;
 	}
 
 	public String toOptionString()
 	{
-		return hqHost + ":" + hqPort + (logFilename != null ? ";" + logFilename : "");
+		Properties props = new Properties();
+		if (logFilename != null)
+			props.setProperty("log", logFilename);
+		props.setProperty("connectTimeout", String.valueOf(connectTimeout));
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(hqHost);
+		sb.append(':');
+		sb.append(hqPort);
+
+		for (String key : props.stringPropertyNames())
+		{
+			sb.append(';');
+			sb.append(key);
+			sb.append('=');
+			sb.append(props.getProperty(key));
+		}
+
+		return sb.toString();
 	}
 
 	@Override
@@ -100,5 +163,10 @@ public class StaticAgentConfiguration
 	public String getLogFilename()
 	{
 		return logFilename;
+	}
+
+	public int getConnectTimeout()
+	{
+		return connectTimeout;
 	}
 }
