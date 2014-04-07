@@ -137,15 +137,22 @@
 	/*
 	A node is eligible for a 'self' node if it is a
 	'package' node that has at least one 'package' child
+	and one non-package child (class or method).
 	*/
 	function isEligibleForSelfNode(node){
 		if(node.kind != 'package') return false
 		if(!node.children) return false
 
+		var hasPackageChild = false,
+			hasNonPackageChild = false
+
 		for(var i in node.children){
-			if(node.children[i].kind == 'package') return true
+			var kind = node.children[i].kind
+
+			if(kind == 'package') hasPackageChild = true
+			else hasNonPackageChild = true
 		}
-		return false
+		return hasPackageChild && hasNonPackageChild
 	}
 
 })(this);
