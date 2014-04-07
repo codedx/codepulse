@@ -108,7 +108,7 @@ object TraceUploadData {
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 
 		//TODO: make this configurable somehow
-		val jspAdapter = JasperJspAdapter.default
+		val jspAdapter = new JasperJspAdapter
 
 		ZipEntryChecker.forEachEntry(file) { (entry, contents) =>
 			if (!entry.isDirectory) {

@@ -58,7 +58,3 @@ class JasperJspAdapter extends JspAdapter {
 		}
 	}
 }
-
-object JasperJspAdapter {
-	lazy val default = new JasperJspAdapter
-}
