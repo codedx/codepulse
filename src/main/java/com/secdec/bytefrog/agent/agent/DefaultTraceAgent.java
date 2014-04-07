@@ -159,7 +159,8 @@ public class DefaultTraceAgent implements TraceAgent
 
 			Socket controlSocket = null;
 
-			while (timeout == 0 || System.currentTimeMillis() <= timeoutExpire)
+			while (controlSocket == null
+					&& (timeout == 0 || System.currentTimeMillis() <= timeoutExpire))
 			{
 				try
 				{
@@ -169,9 +170,8 @@ public class DefaultTraceAgent implements TraceAgent
 				{
 					// try again...
 					controlSocket = null;
+					Thread.sleep(ConnectSleep);
 				}
-
-				Thread.sleep(ConnectSleep);
 			}
 
 			if (controlSocket == null)
