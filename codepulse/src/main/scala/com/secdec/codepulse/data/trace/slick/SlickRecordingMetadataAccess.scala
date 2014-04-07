@@ -73,7 +73,9 @@ private[slick] class SlickRecordingMetadataAccess(dao: RecordingMetadataDao, db:
 	private def metadataFor(id: Int) = new SlickRecordingMetadata(id, dao, db)
 
 	private lazy val cache = {
-		val recordings = collection.mutable.Map.empty[Int, RecordingMetadata]
+		import collection.JavaConverters._
+		// because scala apparently has no mutable sorted map, we'll use a java TreeMap with a Scala wrapper
+		val recordings = new java.util.TreeMap[Int, RecordingMetadata].asScala
 		recordings ++= db withSession { dao.getRecordings()(_) } map { id => id -> metadataFor(id) }
 		recordings
 	}
