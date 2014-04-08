@@ -72,6 +72,17 @@ $(document).ready(function(){
 	})()
 
 
+	Trace.instrumentedPackages = {}
+	Trace.isInstrumentedNode = function isInstrumented(node){
+		if(!node) return false
+
+		if(Trace.instrumentedPackages.hasOwnProperty(node.id)){
+			return !!Trace.instrumentedPackages[node.id]
+		}
+
+		return isInstrumented(node.parent)
+	}
+
 	// When the `treemapColoringStateChanges` fires, use the current `legendData`
 	// to generate a new treemap coloring function, and update the treemap's colors
 	// with that.
@@ -105,10 +116,10 @@ $(document).ready(function(){
 			var activeRecordingIds = Trace.getActiveRecordingIds(),
 				allActivityId = Trace.allActivityRecordingId,
 				allActivityColor = colorLegend[allActivityId],
-				allActivityColorFaded = d3.interpolate('lightgray', allActivityColor)(.2)
+				allActivityColorFaded = d3.interpolate('lightgray', allActivityColor)(.2),
+				instrumentedPackages = Trace.instrumentedPackages
 
 			function countActiveCoverings(coverage){
-				// if(!coverage) return 0
 				var count = 0
 				coverage.forEach(function(id){
 					if(activeRecordingIds.has(id)){
@@ -118,8 +129,9 @@ $(document).ready(function(){
 				return count
 			}
 
-			return function(node){
+			var base = function(node){
 				if(ignoredKinds.has(node.kind)) return 'grey'
+
 
 				var coverage = Trace.coverageSets[node.id],
 					numCovered = countActiveCoverings(coverage)
@@ -139,6 +151,12 @@ $(document).ready(function(){
 				var entry = colorLegend[entryId]
 
 				return entry? entry : 'yellow'
+			}
+
+			return function(node){
+				var baseColor = base(node)
+				if(Trace.isInstrumentedNode(node)) return baseColor
+				else return d3.interpolate('darkgray', baseColor)(.2)
 			}
 		}
 
@@ -167,6 +185,11 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 
 		var controller = new PackageController(Trace.fullTree, $('#packages'), $('#totals'), $('#clear-selections-button'))
+
+		controller.instrumentedWidgets.onValue(function(map){
+			Trace.instrumentedPackages = map
+			Trace.treemapColoringStateChanges.push('Instrumented Packages Changed')
+		})
 
 		/**
 		 * An Rx Property that represents the treemap's TreeData as it
@@ -353,7 +376,21 @@ $(document).ready(function(){
 						return container
 					}
 
-					return padDiv.append(recurse(0))
+					var result = $('<div>')
+
+					// added the padded div that holds the ancestors list
+					result.append(padDiv.append(recurse(0)))
+
+					// if the node isn't "instrumented", add a div that says so
+					if(!Trace.isInstrumentedNode(node)){
+						var noTraceBadge = $('<div>')
+							.addClass('notrace-badge')
+							.text('This method is not marked for tracing')
+							.prepend('<i class="fa fa-times">')
+						result.append(noTraceBadge)
+					}
+
+					return result
 				}
 			}
 		})()
