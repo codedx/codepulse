@@ -68,13 +68,19 @@
 		var self = this,
 			_fullLabel = '',
 			_abbreviatedLabel = '',
-			_selectable = true,
 			_indentation = 0,
 			_methodCount = 0,
 			_totalCoverage = 0,
 			_displayCompact = false,
+
 			_selected = 0,
+			_selectable = true,
 			_selectedBus = new Bacon.Bus(),
+
+			_instrumentationSelected = 0,
+			_instrumentationSelectable = true,
+			_instrumentationSelectedBus = new Bacon.Bus(),
+
 			_collapseChildren = false,
 			_childWidgets = []
 
@@ -95,6 +101,7 @@
 			'indent': e.find('.indent'),
 			'contentContainer': e.find('.content'),
 			'labelText': e.find('.label-text'),
+			'instrumentationSelectedToggle': e.find('.tri-state-toggle'),
 			'countNumber': e.find('.count-number'),
 			'barFill': e.find('.bar-fill'),
 			'barLabel': e.find('.bar-label'),
@@ -156,6 +163,13 @@
 			return self
 		}
 
+		this.instrumentationSelectable = function(newSel){
+			if(!arguments.length) return _instrumentationSelectable
+
+			_instrumentationSelectable = newSel
+			return self
+		}
+
 		this.displayCompact = function(compactFlag){
 			if(!arguments.length) return _displayCompact
 
@@ -190,6 +204,19 @@
 				.toggleClass('partial-select', _selected == undefined)
 
 			_selectedBus.push(_selected)
+
+			return self
+		}
+
+		this.instrumentationSelected = function(newSelect){
+			if(!arguments.length) return _instrumentationSelected
+			_instrumentationSelected = newSelect
+
+			self.uiParts.instrumentationSelectedToggle
+				.toggleClass('full-select', _instrumentationSelected == 1)
+				.toggleClass('partial-select', _instrumentationSelected == undefined)
+
+			_instrumentationSelectedBus.push(_instrumentationSelected)
 
 			return self
 		}
@@ -233,6 +260,10 @@
 
 		this.selectionClicks = new Bacon.Bus()
 
+		this.instrumentationSelectedProp = _instrumentationSelectedBus.toProperty(_instrumentationSelected).skipDuplicates()
+
+		this.instrumentationSelectedClicks = new Bacon.Bus()
+
 		// ============================================================================
 		// Helper Methods
 		// ============================================================================
@@ -275,6 +306,11 @@
 			if(_selectable) {
 				// self.selected('toggle') 
 				self.selectionClicks.push(1)
+			}
+		})
+		this.uiParts.instrumentationSelectedToggle.click(function(){
+			if(_instrumentationSelectable){
+				self.instrumentationSelectedClicks.push(1)
 			}
 		})
 	}

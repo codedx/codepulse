@@ -34,6 +34,7 @@
  }
  
  .packages-header .header-label,
+ .packages-header .header-trace,
  .packages-header .header-method-count,
  .packages-header .header-barchart {
  
@@ -48,18 +49,26 @@
  	line-height: 40px;
  	background-color: #7E7E7E;
  }
+
+ .packages-header .header-trace {
+ 	width: 40px;
+ 	text-align: center;
+ 	font-size: small;
+ 	line-height: 40px;
+ 	background-color: #9C9C9C;
+ }
  
  .packages-header .header-method-count {
  	width: 50px;
  	text-align: center;
  	font-size: small;
- 	background-color: #9C9C9C;
+ 	background-color: #7E7E7E;
  }
  
  .packages-header .header-barchart {
  	background-color: #6D6D6D;
 
- 	width: calc(100% - 250px); 
+ 	width: calc(100% - 290px); 
  	line-height: 40px;
  	padding-left: 5px;
  }
@@ -211,9 +220,61 @@
  	content: '\f0c8'; /* fa-minus-square */
  }
 
+/*******************************\
+| Widget Tracing Toggler Styles |
+\*******************************/
+
+.widget-trace-toggle {
+	width: 40px;
+	float: left;
+	text-align: center;
+	background-color: #9C9C9C;
+}
+
+.tri-state-toggle {
+	width: 20px;
+	margin: auto;
+	cursor: pointer;
+}
+
+.tri-state-toggle:before {
+	font-family: FontAwesome;
+	-webkit-font-smoothing: antialiased;
+
+	width: 20px;
+ 	text-align: center;
+ 	font-size: 13px;
+
+ 	content: '\f096'; /* fa-square-o */
+ 	color: #FFF;
+}
+
+.tri-state-toggle.full-select:before {
+	content: '\f00c'; /* fa-check */
+}
+
+.tri-state-toggle.partial-select:before {
+	content: '\f0c8'; /* fa-minus-square */
+}
+
 /*****************************\
 | Widget Method Counts Styles |
 \*****************************/
+
+ .widget-method-count {
+ 	background-color: #7E7E7E;
+ 	width: 50px;
+ 	display: inline-block;
+ 	float: left;
+ 	height: 20px;
+ 	text-align: center;
+ 	box-sizing: border-box;
+ 	color: white;
+ }
+ 
+ .widget-method-count .count-number {
+ 	font-size: small;
+ }
 
  /* Some parts of the .widget-label will be highlighted, by showing a
   * .highlight div behind the regular content.
@@ -249,33 +310,12 @@
  	opacity: 0; /* opacity should be set and transitioned with javascript */
  }
 
-
-/*****************************\
-| Widget Method Counts Styles |
-\*****************************/
-
- .widget-method-count {
- 	background-color: #9C9C9C;
- 	width: 50px;
- 	display: inline-block;
- 	float: left;
- 	height: 20px;
- 	text-align: center;
- 	box-sizing: border-box;
- 	color: white;
- }
- 
- .widget-method-count .count-number {
- 	font-size: small;
- }
-
-
 /************************\
 | Widget Barchart Styles |
 \************************/
 
  .widget-barchart {
- 	width: calc(100% - 250px);
+ 	width: calc(100% - 290px);
  	display: inline-block;
  	height: 20px;
  }
@@ -355,6 +395,9 @@
  	border-left: none;
  }
  .package-totals .widget-label .content .label-text {
+ 	line-height: 30px;
+ }
+ .package-totals .widget-trace-toggle {
  	line-height: 30px;
  }
  .package-totals .widget-method-count {

@@ -26,6 +26,9 @@
 		// build this into a Map[packageId -> packageWidget.selectedProp]
 		var stateTemplate = {}
 
+		// build this into a Map[packageId -> packageWidget.instrumentationSelectedProp]
+		var instrumentedTemplate = {}
+
 		var widgets = {}
 
 		// initialize the `stateTemplate` and `widgets` maps
@@ -41,6 +44,11 @@
 				stateTemplate[node.id] = pw.selectedProp
 				pw.selectionClicks.onValue(function(){
 					handleSelectionClick(node, pw)
+				})
+
+				instrumentedTemplate[node.id] = pw.instrumentationSelectedProp
+				pw.instrumentationSelectedClicks.onValue(function(){
+					handleInstrumentationSelectionClick(node, pw)
 				})
 
 				pw.uiParts.collapser.click(function(event){
@@ -87,40 +95,64 @@
 			return found
 		}
 
-		function handleSelectionClick(node, widget){
-			// selected may be one of [1, 0, undefined].
-			// transition [1 -> 0], [0 -> 1], [undefined -> 1]
-			var newSel = +!widget.selected()
+		// checkSelected = function(widget){ return <is widget selected> }
+		// setSelected = function(widget, sel){ <set widget.selected to sel> }
+		// Returns a function(node, widget):
+		//   node is the starting point in the data tree
+		//   widget is the corresponding widget for the node
+		//
+		//   The function applies partial selection logic as if the widget
+		//   had been clicked.
+		function bubblePartialSelection(checkSelected, setSelected){
+			return function(node, widget){
+				// selected may be one of [1, 0, undefined].
+				// transition [1 -> 0], [0 -> 1], [undefined -> 1]
+				var newSel = +!checkSelected(widget)
 
-			// apply the new selection to this node and each of its children
-			;(function bubbleDown(w){
-				w.selected(newSel)
-				w.children.forEach(bubbleDown)
-			})(widget)
+				// apply the new selection to this node and each of its children
+				;(function bubbleDown(w){
+					setSelected(w, newSel)
+					w.children.forEach(bubbleDown)
+				})(widget)
 
-			// climb the tree, re-checking the full/partial selection state of node's ancestors
-			;(function bubbleUp(n){
-				if(!n || n.kind == 'root') return
-				var w = widgets[n.id]
-				if(!w) return
+				// climb the tree, re-checking the full/partial selection state of node's ancestors
+				;(function bubbleUp(n){
+					if(!n || n.kind == 'root') return
+					var w = widgets[n.id]
+					if(!w) return
 
-				var isFullSelected = true,
-					isPartialSelected = false
+					var isFullSelected = true,
+						isPartialSelected = false
 
-				w.children.forEach(function(c){
-					var s = c.selected()
-					if(!s) isFullSelected = false
-					if(s == 1 || s == undefined) isPartialSelected = true
-				})
+					w.children.forEach(function(c){
+						var s = checkSelected(c)
+						if(!s) isFullSelected = false
+						if(s == 1 || s == undefined) isPartialSelected = true
+					})
 
-				var s = isFullSelected ? 1 : isPartialSelected ? undefined : 0
-				w.selected(s)
+					var s = isFullSelected ? 1 : isPartialSelected ? undefined : 0
+					setSelected(w, s)
 
-				bubbleUp(n.parent)
+					bubbleUp(n.parent)
 
-			})(node.parent)
-			var p = node.parent, pw = p && widgets[p.id]
+				})(node.parent)
+				var p = node.parent, pw = p && widgets[p.id]
+			}
 		}
+
+		// a function(node,widget) that toggles the tri-state 'selected' property,
+		// starting from the given node+widget
+		var handleSelectionClick = bubblePartialSelection(
+			/*get*/ function(w){ return w.selected() },
+			/*set*/ function(w,s){ return w.selected(s) }
+			)
+
+		// a function(node, widget) that toggles the tri-state 'instrumentationSelected'
+		// property, starting from the given node+widget
+		var handleInstrumentationSelectionClick = bubblePartialSelection(
+			/*get*/ function(w){ return w.instrumentationSelected() },
+			/*set*/ function(w,s){ return w.instrumentationSelected(s) }
+			)
 
 		// set the `methodCount` property for all widgets
 		applyMethodCounts(treeData, widgets)
@@ -130,6 +162,12 @@
 		 * Map[package.id -> isSelected]
 		 */
 		this.selectedWidgets = Bacon.combineTemplate(stateTemplate).debounce(10)
+
+		/**
+		 * Exposes the 'instrumented' state of each of the widgets, as
+		 * a Map[package.id -> isInstrumented]
+		 */
+		this.instrumentedWidgets = Bacon.combineTemplate(instrumentedTemplate).debounce(10)
 
 		// Decide whether or not to show the "clear all selections" button
 		// depending on whether or not there are selected widgets
