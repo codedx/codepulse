@@ -39,7 +39,6 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 
 	def renderTraceWidgetry(template: NodeSeq): NodeSeq = {
 
-		val (cometName, cometTemplate) = CometTracerUI.create(target)
 		val dateFormat = new SimpleDateFormat("EEE, MMM d, yyyy 'at' HH:mm:ss z")
 		val data = target.traceData
 
@@ -92,9 +91,13 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 				// if `cmd` has spaces, wrap it in "quotes"
 				val cmdWrapped = if (cmd.contains(" ")) '"' + cmd + '"' else cmd
 				Text(cmdWrapped)
+			},
+			"stateupdates" -> { (xml: NodeSeq) =>
+				val (cometName, cometTemplate) = CometTracerUI.create(target)
+				cometTemplate
 			})
 
-		cometTemplate +: runBinding(template)
+		runBinding(template)
 	}
 
 	def renderName(ignored: NodeSeq): NodeSeq = {
