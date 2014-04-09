@@ -34,7 +34,7 @@
 
 			treeProjector = new TreeProjector(d)
 
-			fullTree = treeProjector.projectFullTree(false /* generate self nodes for packages */)
+			fullTree = treeProjector.projectFullTree(true /* generate self nodes for packages */)
 
 			fullTree.forEachNode(true, function(n){
 				coverageSets[n.id] = d3.set()
