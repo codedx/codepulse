@@ -109,7 +109,7 @@ $(document).ready(function(){
 			if(latest) return latest
 			else colorLegend = {}
 		}
-		var ignoredKinds = d3.set(['package', 'root'])
+		var ignoredKinds = d3.set(['group', 'package', 'root'])
 
 		var coloringFunc = function(allNodes){
 
