@@ -124,10 +124,20 @@
 				}
 			}
 
-			;(node.children || []).forEach(function(kid){
-				var nextParent = (node.kind == 'group' || node.kind == 'package')? node : packageParentNode
-				setupTreeHierarchy(nextParent, kid)
-			})
+			;(node.children || [])
+				.sort(function(a,b){
+					// alphabetic sort by node.name
+					var an = a.name.toUpperCase(),
+						bn = b.name.toUpperCase()
+
+					if(an < bn) return -1
+					if(an > bn) return 1
+					return 0
+				})
+				.forEach(function(kid){
+					var nextParent = (node.kind == 'group' || node.kind == 'package')? node : packageParentNode
+					setupTreeHierarchy(nextParent, kid)
+				})
 
 		})(undefined, treeData.root)
 
