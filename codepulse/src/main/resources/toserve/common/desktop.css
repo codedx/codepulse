@@ -11,9 +11,11 @@
 #footer {
 	position: fixed;
 	bottom: 0px;
-	height: 25px;	
+	height: 25px;
+	line-height: 25px;
 	left: 0;
 	right: 0;
+	padding: 0 1px;
 
 	z-index: 3;
 }
@@ -33,4 +35,16 @@
 #footer .half {
 	padding: 2px 5px;
 	width: 50%;
+}
+
+#refresh-link {
+	cursor: pointer;
+	color: #333;
+	background-color: #777;
+	padding: 3px;
+	text-decoration: none;
+}
+
+#refresh-link:hover {
+	background-color: #999;
 }
