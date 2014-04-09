@@ -100,12 +100,23 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 		recurse(addRootGroup(JSPGroupName), path)
 	}
 
-	protected def addRootGroup(name: String) = roots.find { node =>
-		node.name == name && node.kind == CodeTreeNodeKind.Grp
-	} getOrElse {
-		val node = nodeFactory.createGroupNode(name)
-		roots.add(node)
-		node
+	protected def addRootGroup(name: String) = {
+		val path = (name split '/').toList
+
+		val startRoot = roots.find { node =>
+			node.name == path.head && node.kind == CodeTreeNodeKind.Grp
+		} getOrElse {
+			val node = nodeFactory.createGroupNode(path.head)
+			roots.add(node)
+			node
+		}
+
+		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
+			case Nil => parent
+			case node :: rest => recurse(addFolder(parent, node), rest)
+		}
+
+		recurse(startRoot, path.tail)
 	}
 
 	protected def addFolder(parent: CodeTreeNode, name: String) = {

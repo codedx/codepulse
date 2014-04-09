@@ -112,7 +112,7 @@ object TraceUploadData {
 		val jspAdapter = new JasperJspAdapter
 
 		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-			val groupName = if (filename == file.getName) RootGroupName else new File(filename).getName
+			val groupName = if (filename == file.getName) RootGroupName else s"JARs/$filename"
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
