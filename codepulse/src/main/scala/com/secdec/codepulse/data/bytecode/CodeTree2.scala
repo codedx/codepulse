@@ -78,8 +78,9 @@ trait CodeTreeNode {
 		childrenCondensed foreach { _.parent = None }
 
 		childrenCondensed match {
-			case child :: Nil if child.kind == this.kind =>
+			case child :: Nil if child.kind == this.kind && parent.isDefined =>
 				// just return that child, and this node is effectively removed
+				// (only do this when there is a parent. if no parent, don't collapse this node away)
 				child
 			case list =>
 				// Note: children is a Set, so if the list suddenly has duplicates, some nodes will be lost.
