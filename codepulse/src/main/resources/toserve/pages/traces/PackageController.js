@@ -31,13 +31,50 @@
 
 		var widgets = {}
 
+		function eligibleForWidget(node){
+			if(!node) return false
+
+			return node.kind == 'package' ||
+				node.kind == 'group' ||
+				node.kind == 'root'
+		}
+
+		// Get the partial selection state for the trace instrumentation flag, for nodes that
+		// would exist in the package list. Note that <self> nodes will take their original
+		// node's `id` and `traced` properties, and the original's `traced` will be set to
+		// undefined. This function sets a `partialTraceSelection` value on nodes recursively,
+		// with `1 = fully selected`, `0 = unselected`, and `undefined = partially selected`.
+		(function calculatePartialTraceSelections(node){
+			var isFullSelected = true,
+				isPartialSelected = false
+
+			if(node.traced == 0) isFullSelected = false
+
+			node.children.forEach(function(kid){
+				if(eligibleForWidget(kid)){
+					var kidSelection = calculatePartialTraceSelections(kid)
+					if(!kidSelection) isFullSelected = false
+					if(kidSelection || kidSelection == undefined) isPartialSelected = true
+				}
+			})
+
+			var selectionValue = isFullSelected ? 1 : isPartialSelected ? undefined : 0
+			node.partialTraceSelection = selectionValue
+			return selectionValue
+		})(treeData.root)
+
+		// special case: the root is never selected
+		treeData.root.partialTraceSelection = 0
+
 		// initialize the `stateTemplate` and `widgets` maps
 		// based on the package nodes in `treeData`
 		;(function setupTreeHierarchy(packageParentNode, node){
-			if(node.kind == 'package' || node.kind == 'group' || node.kind == 'root'){
+			if(eligibleForWidget(node)){
 
 				var pw = new PackageWidget()
 				widgets[node.id] = pw
+
+				pw.instrumentationSelected(node.partialTraceSelection)
 
 				pw.collapseChildren(/* collapsed = */true, /* animate = */false)
 
@@ -60,6 +97,7 @@
 					pw.uiParts.main.appendTo($totalsContainer)
 					pw.abbreviatedLabel('Overall Coverage')
 					pw.selectable(false)
+					pw.instrumentationSelectable(false)
 				}
 
 				if(node.kind == 'group' || node.kind == 'package'){

@@ -98,9 +98,11 @@
 				kind: 'package',
 				parent: node,
 				children: [],
+				traced: node.traced,
 				isSelfNode: true
 			}
 			node.id += '_original'
+			if(node.hasOwnProperty('traced')) node.traced = undefined
 			selfNode.parentId = node.id
 
 			// update the tree.nodes mapping based on the id changes

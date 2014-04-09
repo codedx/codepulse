@@ -191,6 +191,24 @@ $(document).ready(function(){
 			Trace.treemapColoringStateChanges.push('Instrumented Packages Changed')
 		})
 
+		controller.instrumentedWidgets.slidingWindow(2,2).onValue(function(ab){
+			var before = ab[0], after = ab[1]
+			function check(key){
+				var oldV = before[key],
+					newV = after[key]
+				return oldV != newV
+			}
+			var changes = {}
+			function checkKeys(obj){
+				for(var key in obj){
+					if(check(key)) changes[key] = after[key]
+				}
+			}
+			checkKeys(before)
+			checkKeys(after)
+			TraceAPI.updateTreeInstrumentation(changes)
+		})
+
 		/**
 		 * An Rx Property that represents the treemap's TreeData as it
 		 * changes due to the PackageWidgets' selection state. 

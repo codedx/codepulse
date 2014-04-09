@@ -260,7 +260,7 @@
 
 		this.selectionClicks = new Bacon.Bus()
 
-		this.instrumentationSelectedProp = _instrumentationSelectedBus.toProperty(_instrumentationSelected).skipDuplicates()
+		this.instrumentationSelectedProp = _instrumentationSelectedBus.toProperty(_instrumentationSelected).noLazy().skipDuplicates()
 
 		this.instrumentationSelectedClicks = new Bacon.Bus()
 

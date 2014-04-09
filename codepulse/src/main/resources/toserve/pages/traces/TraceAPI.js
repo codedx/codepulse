@@ -49,7 +49,7 @@
 	 * was successful, `data` will be defined and `error` will be null; otherwise, `data` will be
 	 * null and `error` will be defined.
 	 */
-	function ajaxCommand(path, type, params, callback){
+	function ajaxCommand(path, type, params, callback, opts){
 		type = type || 'GET'
 
 		// allow for calling `ajaxCommand(path, type, callback)` i.e. no params
@@ -59,12 +59,14 @@
 		}
 		callback = callback || function(){}
 
-		$.ajax(commandPath(path), {
+		var ajaxOpts = $.extend(opts || {}, {
 			data: params,
 			type: type,
 			error: function(xhr, status){ callback(null, status) },
 			success: function(data){ callback(data, null) }
 		})
+
+		$.ajax(commandPath(path), ajaxOpts)
 	}
 
 	/**
@@ -129,17 +131,21 @@
 	}
 
 	/* Shortcut for calling `ajax` with a type of 'POST' */
-	function postCommand(path, params, callback){
-		ajaxCommand(path, 'POST', params, callback)
+	function postCommand(path, params, callback, opts){
+		ajaxCommand(path, 'POST', params, callback, opts)
+	}
+
+	function putCommand(path, params, callback, opts){
+		ajaxCommand(path, 'PUT', params, callback, opts)
 	}
 
 	/* Shortcut for calling `ajax` with a type of 'GET' */
-	function getCommand(path, params, callback){
-		ajaxCommand(path, 'GET', params, callback)
+	function getCommand(path, params, callback, opts){
+		ajaxCommand(path, 'GET', params, callback, opts)
 	}
 
-	function deleteCommand(path, params, callback){
-		ajaxCommand(path, 'DELETE', params, callback)
+	function deleteCommand(path, params, callback, opts){
+		ajaxCommand(path, 'DELETE', params, callback, opts)
 	}
 
 	function requestStart(){ postCommand('/start') }
@@ -162,6 +168,10 @@
 		},
 		'updateRecordingColor': function(id, color, callback){ 
 			postCommand('/recording/' + id, {'color': color}, callback) 
+		},
+
+		'updateTreeInstrumentation': function(changesMap, callback){
+			putCommand('/tree-instrumentation', JSON.stringify(changesMap), callback, {contentType: 'application/json'})
 		},
 
 		'streamTraceCoverageCounts': function(loadParams, interval){ 
