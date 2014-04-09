@@ -293,7 +293,7 @@ $(document).ready(function(){
 		'calculateContent': (function(){
 
 			return function(node){
-				if(node.kind == 'package'){
+				if(node.kind == 'package' || node.kind == 'group'){
 					return $('<div>')
 				} else {
 
@@ -333,7 +333,7 @@ $(document).ready(function(){
 					var path = [], i = node
 					while(i){
 						path.unshift(i)
-						if(i.kind == 'package') i = null
+						if(i.kind == 'package' || i.kind == 'group') i = null
 						else i = i.parent
 					}
 

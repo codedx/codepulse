@@ -74,7 +74,7 @@
 					} else {
 						var abbrevName
 
-						if (packageParentNode && packageParentNode.kind == 'group')
+						if (node.kind != 'group' && packageParentNode && packageParentNode.kind == 'group')
 							abbrevName = node.name
 						else {
 							var parentName = packageParentNode ? packageParentNode.name : '',

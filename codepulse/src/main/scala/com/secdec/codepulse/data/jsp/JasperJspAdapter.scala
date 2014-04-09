@@ -53,7 +53,7 @@ class JasperJspAdapter extends JspAdapter {
 		jspClasses.result.toList map { clazz =>
 			val jspClassName = JasperUtils.makeJavaClass(clazz)
 			val displayName = clazz.split('/').filter(!_.isEmpty).toList
-			val node = codeForestBuilder.getOrAddJsp(displayName, 10)
+			val node = codeForestBuilder.getOrAddJsp(displayName, 100)
 			jspClassName -> node.id
 		}
 	}

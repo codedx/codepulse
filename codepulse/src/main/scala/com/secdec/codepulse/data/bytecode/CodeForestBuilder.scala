@@ -80,7 +80,7 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 
 	def getOrAddMethod(group: String, sig: MethodSignature, size: Int): CodeTreeNode = {
 		val treePath = CodePath.parse(sig)
-		val startNode = addGroup(group)
+		val startNode = addRootGroup(group)
 
 		def recurse(parent: CodeTreeNode, path: CodePath): CodeTreeNode = path match {
 			case CodePath.Package(name, childPath) => recurse(addChildPackage(parent, name), childPath)
@@ -94,18 +94,29 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 	def getOrAddJsp(path: List[String], size: Int): CodeTreeNode = {
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
 			case className :: Nil => addChildMethod(parent, className, size)
-			case packageNode :: rest => recurse(addChildPackage(parent, packageNode), rest)
+			case packageNode :: rest => recurse(addFolder(parent, packageNode), rest)
 		}
 
-		recurse(addGroup(JSPGroupName), path)
+		recurse(addRootGroup(JSPGroupName), path)
 	}
 
-	protected def addGroup(name: String) = roots.find { node =>
+	protected def addRootGroup(name: String) = roots.find { node =>
 		node.name == name && node.kind == CodeTreeNodeKind.Grp
 	} getOrElse {
 		val node = nodeFactory.createGroupNode(name)
 		roots.add(node)
 		node
+	}
+
+	protected def addFolder(parent: CodeTreeNode, name: String) = {
+		val grpName = parent.name + " / " + name
+		parent.findChild { node =>
+			node.name == grpName && node.kind == CodeTreeNodeKind.Grp
+		} getOrElse {
+			val node = nodeFactory.createGroupNode(grpName)
+			parent addChild node
+			node
+		}
 	}
 
 	protected def addChildPackage(parent: CodeTreeNode, name: String) = {
