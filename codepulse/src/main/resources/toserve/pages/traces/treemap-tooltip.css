@@ -2,6 +2,7 @@
 	background: rgba(0,0,0,0.7);
 	border: none;
 	pointer-events: none;
+	min-width: 235px;
 	max-width: initial;
 
 	font-size: 12px;
