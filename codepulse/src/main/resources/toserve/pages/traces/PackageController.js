@@ -72,11 +72,14 @@
 					if(node.isSelfNode){
 						pw.fullLabel(node.name).abbreviatedLabel(node.name)
 					} else {
-						var parentName = packageParentNode ? packageParentNode.name : '',
-							abbrevName = node.name.substr(parentName.length)
+						var abbrevName
 
 						if (packageParentNode && packageParentNode.kind == 'group')
-							abbrevName = abbrevName.substr(1)
+							abbrevName = node.name
+						else {
+							var parentName = packageParentNode ? packageParentNode.name : '',
+								abbrevName = node.name.substr(parentName.length)
+						}
 
 						pw.fullLabel(node.name).abbreviatedLabel(abbrevName)
 					}

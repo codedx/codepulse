@@ -109,7 +109,10 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 	}
 
 	protected def addChildPackage(parent: CodeTreeNode, name: String) = {
-		val pkgName = parent.name + '.' + name
+		val pkgName = parent.kind match {
+			case CodeTreeNodeKind.Grp => name
+			case _ => parent.name + '.' + name
+		}
 		parent.findChild { node =>
 			node.name == pkgName && node.kind == CodeTreeNodeKind.Pkg
 		} getOrElse {
