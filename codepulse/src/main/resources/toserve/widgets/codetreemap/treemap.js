@@ -343,7 +343,7 @@
 			.value(innerNodeSizing(widgetState))
 			.sticky(false)
 			.padding(function(d){
-				if(d.kind == 'package' || d.kind == 'root') return [12, 1, 1, 1]
+				if(d.kind == 'package' || d.kind == 'group' || d.kind == 'root') return [12, 1, 1, 1]
 				else return 0
 			})
 
@@ -655,7 +655,7 @@
 			// ignores root and package nodes
 			function setHighlight(node){
 				if(!node) return
-				if(node.kind == 'package' || node.kind == 'root') return
+				if(node.kind == 'package' || node.kind == 'group' || node.kind == 'root') return
 
 				var hd = node.highlightData
 				if(hd) hd.isNew = true
@@ -682,7 +682,7 @@
 		var kids = node.children || []
 		kids.forEach(computeLineCounts)
 		
-		if(node.kind == 'package' || node.kind == 'root'){
+		if(node.kind == 'package' || node.kind == 'group' || node.kind == 'root'){
 			node.widgetLineCount = d3.sum(kids, select('widgetLineCount'))
 		} else {
 			node.widgetLineCount = node.lineCount || 1
@@ -733,10 +733,10 @@
 	 * an array of progressively-shorter strings that can
 	 * be used to represent the name.
 	 */
-	function packageNameClippings(name){
+	function nameClippings(name, sep){
 		var clips = [name]
-		var parts = name.split('.')
-		for(var i=0; i<parts.length; i++) clips.push( parts.slice(i).join('.') )
+		var parts = name.split(sep)
+		for(var i=0; i<parts.length; i++) clips.push( parts.slice(i).join(sep) )
 		clips.push("*")
 		return clips
 	}
@@ -788,9 +788,9 @@
 			.attr('class', 'treemap-labels')
 			.attr('transform', translate(widgetState.margin.left, widgetState.margin.top))
 		
-		var packageNodes = treemapNodes.filter(function(d){ return d.kind == 'package' })
+		var labeledNodes = treemapNodes.filter(function(d){ return d.kind == 'package' || d.kind == 'group' })
 
-		var labelSvg = labelsLayer.selectAll('text.treemap-label').data(packageNodes, select('id'))
+		var labelSvg = labelsLayer.selectAll('text.treemap-label').data(labeledNodes, select('id'))
 		labelSvg.exit().remove()
 		labelSvg.enter().append('svg:text')
 			.attr('class', 'treemap-label')
@@ -801,9 +801,12 @@
 			.attr('y', function(d){ return d.y + 10 })
 			.text(function(d){
 				if(d.dy < 10) return ''
-				var names = packageNameClippings(d.name).sort(function(a,b){
-					return measure(b) - measure(a)
-				})
+				var nameSep
+				if (d.kind == 'package') nameSep = '.'
+				else nameSep = ' / '
+				var names = nameClippings(d.name, nameSep).sort(function(a,b){
+						return measure(b) - measure(a)
+					})
 				for(var i=0; i<names.length; i++){
 					var n = names[i]
 					if(measure(n) < d.dx - 4) return n

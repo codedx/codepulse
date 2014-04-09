@@ -31,6 +31,8 @@ object TraceSettingsCreator {
 			(for {
 				treeNode <- it
 				if treeNode.kind == CodeTreeNodeKind.Pkg
+				traced = treeNode.traced getOrElse ???
+				if traced
 			} yield {
 				val slashedName = treeNode.label.replace('.', '/')
 				"^" + slashedName + "/[^/]+$"

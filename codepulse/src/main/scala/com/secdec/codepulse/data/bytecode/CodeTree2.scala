@@ -78,8 +78,9 @@ trait CodeTreeNode {
 		childrenCondensed foreach { _.parent = None }
 
 		childrenCondensed match {
-			case child :: Nil if child.kind == this.kind =>
+			case child :: Nil if child.kind == this.kind && parent.isDefined =>
 				// just return that child, and this node is effectively removed
+				// (only do this when there is a parent. if no parent, don't collapse this node away)
 				child
 			case list =>
 				// Note: children is a Set, so if the list suddenly has duplicates, some nodes will be lost.
@@ -99,20 +100,26 @@ object CodeTreeNode {
 	}
 
 	def weightCriteria(node: CodeTreeNode) = node.kind match {
-		case CodeTreeNodeKind.Pkg => 0
-		case CodeTreeNodeKind.Cls => 1
-		case CodeTreeNodeKind.Mth => 2
+		case CodeTreeNodeKind.Grp => 0
+		case CodeTreeNodeKind.Pkg => 1
+		case CodeTreeNodeKind.Cls => 2
+		case CodeTreeNodeKind.Mth => 3
 	}
 
 }
 
 trait CodeTreeNodeFactory {
+	def createGroupNode(name: String): CodeTreeNode
 	def createPackageNode(name: String): CodeTreeNode
 	def createClassNode(name: String): CodeTreeNode
 	def createMethodNode(name: String, size: Int): CodeTreeNode
 }
 
 object CodeTreeNodeFactory {
+	private case class GroupNode(id: Int, name: String) extends CodeTreeNode {
+		def kind = CodeTreeNodeKind.Grp
+		def size = None
+	}
 	private case class PackageNode(id: Int, name: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Pkg
 		def size = None
@@ -131,6 +138,7 @@ object CodeTreeNodeFactory {
 	class DefaultImpl extends CodeTreeNodeFactory {
 		val ids = Iterator from 0
 
+		def createGroupNode(name: String): CodeTreeNode = GroupNode(ids.next, name)
 		def createPackageNode(name: String): CodeTreeNode = PackageNode(ids.next, name)
 		def createClassNode(name: String): CodeTreeNode = ClassNode(ids.next, name)
 		def createMethodNode(name: String, size: Int): CodeTreeNode = MethodNode(ids.next, name, size)
@@ -138,11 +146,13 @@ object CodeTreeNodeFactory {
 }
 sealed abstract class CodeTreeNodeKind(val label: String)
 object CodeTreeNodeKind {
+	case object Grp extends CodeTreeNodeKind("group")
 	case object Pkg extends CodeTreeNodeKind("package")
 	case object Cls extends CodeTreeNodeKind("class")
 	case object Mth extends CodeTreeNodeKind("method")
 
 	def unapply(label: String) = label match {
+		case Grp.label => Some(Grp)
 		case Pkg.label => Some(Pkg)
 		case Cls.label => Some(Cls)
 		case Mth.label => Some(Mth)

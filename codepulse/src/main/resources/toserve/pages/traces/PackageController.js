@@ -26,21 +26,66 @@
 		// build this into a Map[packageId -> packageWidget.selectedProp]
 		var stateTemplate = {}
 
+		// build this into a Map[packageId -> packageWidget.instrumentationSelectedProp]
+		var instrumentedTemplate = {}
+
 		var widgets = {}
+
+		function eligibleForWidget(node){
+			if(!node) return false
+
+			return node.kind == 'package' ||
+				node.kind == 'group' ||
+				node.kind == 'root'
+		}
+
+		// Get the partial selection state for the trace instrumentation flag, for nodes that
+		// would exist in the package list. Note that <self> nodes will take their original
+		// node's `id` and `traced` properties, and the original's `traced` will be set to
+		// undefined. This function sets a `partialTraceSelection` value on nodes recursively,
+		// with `1 = fully selected`, `0 = unselected`, and `undefined = partially selected`.
+		(function calculatePartialTraceSelections(node){
+			var isFullSelected = true,
+				isPartialSelected = false
+
+			if(node.traced == 0) isFullSelected = false
+
+			node.children.forEach(function(kid){
+				if(eligibleForWidget(kid)){
+					var kidSelection = calculatePartialTraceSelections(kid)
+					if(!kidSelection) isFullSelected = false
+					if(kidSelection || kidSelection == undefined) isPartialSelected = true
+				}
+			})
+
+			var selectionValue = isFullSelected ? 1 : isPartialSelected ? undefined : 0
+			node.partialTraceSelection = selectionValue
+			return selectionValue
+		})(treeData.root)
+
+		// special case: the root is never selected
+		treeData.root.partialTraceSelection = 0
 
 		// initialize the `stateTemplate` and `widgets` maps
 		// based on the package nodes in `treeData`
 		;(function setupTreeHierarchy(packageParentNode, node){
-			if(node.kind == 'package' || node.kind == 'root'){
+			if(eligibleForWidget(node)){
 
 				var pw = new PackageWidget()
 				widgets[node.id] = pw
+
+				pw.instrumentationSelected(node.partialTraceSelection)
 
 				pw.collapseChildren(/* collapsed = */true, /* animate = */false)
 
 				stateTemplate[node.id] = pw.selectedProp
 				pw.selectionClicks.onValue(function(){
 					handleSelectionClick(node, pw)
+				})
+
+				instrumentedTemplate[node.id] = pw.instrumentationSelectedProp
+				pw.instrumentationSelectedClicks.onValue(function(){
+					handleInstrumentationSelectionClick(node, pw)
 				})
 
 				pw.uiParts.collapser.click(function(event){
@@ -52,9 +97,10 @@
 					pw.uiParts.main.appendTo($totalsContainer)
 					pw.abbreviatedLabel('Overall Coverage')
 					pw.selectable(false)
+					pw.instrumentationSelectable(false)
 				}
 
-				if(node.kind == 'package'){
+				if(node.kind == 'group' || node.kind == 'package'){
 					if(packageParentNode){
 						widgets[packageParentNode.id].children.add(pw)
 					} else {
@@ -64,8 +110,14 @@
 					if(node.isSelfNode){
 						pw.fullLabel(node.name).abbreviatedLabel(node.name)
 					} else {
-						var parentName = packageParentNode ? packageParentNode.name : '',
-							abbrevName = node.name.substr(parentName.length)
+						var abbrevName
+
+						if (node.kind != 'group' && packageParentNode && packageParentNode.kind == 'group')
+							abbrevName = node.name
+						else {
+							var parentName = packageParentNode ? packageParentNode.name : '',
+								abbrevName = node.name.substr(parentName.length)
+						}
 
 						pw.fullLabel(node.name).abbreviatedLabel(abbrevName)
 					}
@@ -73,7 +125,7 @@
 			}
 
 			;(node.children || []).forEach(function(kid){
-				var nextParent = (node.kind == 'package')? node : packageParentNode
+				var nextParent = (node.kind == 'group' || node.kind == 'package')? node : packageParentNode
 				setupTreeHierarchy(nextParent, kid)
 			})
 
@@ -87,40 +139,75 @@
 			return found
 		}
 
-		function handleSelectionClick(node, widget){
-			// selected may be one of [1, 0, undefined].
-			// transition [1 -> 0], [0 -> 1], [undefined -> 1]
-			var newSel = +!widget.selected()
+		// Disable all of the widgets while the trace is running
+		Trace.running.onValue(function(isRunning){
+			for(var id in widgets){
+				var pw = widgets[id],
+					node = treeData.getNode(id)
+				if(node.kind != 'root'){
+					pw.instrumentationSelectable(!isRunning)
+				}
+			}
+		})
 
-			// apply the new selection to this node and each of its children
-			;(function bubbleDown(w){
-				w.selected(newSel)
-				w.children.forEach(bubbleDown)
-			})(widget)
+		// checkSelected = function(widget){ return <is widget selected> }
+		// setSelected = function(widget, sel){ <set widget.selected to sel> }
+		// Returns a function(node, widget):
+		//   node is the starting point in the data tree
+		//   widget is the corresponding widget for the node
+		//
+		//   The function applies partial selection logic as if the widget
+		//   had been clicked.
+		function bubblePartialSelection(checkSelected, setSelected){
+			return function(node, widget){
+				// selected may be one of [1, 0, undefined].
+				// transition [1 -> 0], [0 -> 1], [undefined -> 1]
+				var newSel = +!checkSelected(widget)
 
-			// climb the tree, re-checking the full/partial selection state of node's ancestors
-			;(function bubbleUp(n){
-				if(!n || n.kind == 'root') return
-				var w = widgets[n.id]
-				if(!w) return
+				// apply the new selection to this node and each of its children
+				;(function bubbleDown(w){
+					setSelected(w, newSel)
+					w.children.forEach(bubbleDown)
+				})(widget)
 
-				var isFullSelected = true,
-					isPartialSelected = false
+				// climb the tree, re-checking the full/partial selection state of node's ancestors
+				;(function bubbleUp(n){
+					if(!n || n.kind == 'root') return
+					var w = widgets[n.id]
+					if(!w) return
 
-				w.children.forEach(function(c){
-					var s = c.selected()
-					if(!s) isFullSelected = false
-					if(s == 1 || s == undefined) isPartialSelected = true
-				})
+					var isFullSelected = true,
+						isPartialSelected = false
 
-				var s = isFullSelected ? 1 : isPartialSelected ? undefined : 0
-				w.selected(s)
+					w.children.forEach(function(c){
+						var s = checkSelected(c)
+						if(!s) isFullSelected = false
+						if(s == 1 || s == undefined) isPartialSelected = true
+					})
 
-				bubbleUp(n.parent)
+					var s = isFullSelected ? 1 : isPartialSelected ? undefined : 0
+					setSelected(w, s)
 
-			})(node.parent)
-			var p = node.parent, pw = p && widgets[p.id]
+					bubbleUp(n.parent)
+
+				})(node.parent)
+				var p = node.parent, pw = p && widgets[p.id]
+			}
 		}
+
+		// a function(node,widget) that toggles the tri-state 'selected' property,
+		// starting from the given node+widget
+		var handleSelectionClick = bubblePartialSelection(
+			/*get*/ function(w){ return w.selected() },
+			/*set*/ function(w,s){ return w.selected(s) }
+			)
+
+		// a function(node, widget) that toggles the tri-state 'instrumentationSelected'
+		// property, starting from the given node+widget
+		var handleInstrumentationSelectionClick = bubblePartialSelection(
+			/*get*/ function(w){ return w.instrumentationSelected() },
+			/*set*/ function(w,s){ return w.instrumentationSelected(s) }
+			)
 
 		// set the `methodCount` property for all widgets
 		applyMethodCounts(treeData, widgets)
@@ -130,6 +217,12 @@
 		 * Map[package.id -> isSelected]
 		 */
 		this.selectedWidgets = Bacon.combineTemplate(stateTemplate).debounce(10)
+
+		/**
+		 * Exposes the 'instrumented' state of each of the widgets, as
+		 * a Map[package.id -> isInstrumented]
+		 */
+		this.instrumentedWidgets = Bacon.combineTemplate(instrumentedTemplate).debounce(10)
 
 		// Decide whether or not to show the "clear all selections" button
 		// depending on whether or not there are selected widgets

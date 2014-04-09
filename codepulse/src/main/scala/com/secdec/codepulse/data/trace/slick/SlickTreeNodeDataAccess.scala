@@ -100,4 +100,8 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 	override def storeNodes(nodes: Iterable[TreeNode]) = db withTransaction { implicit transaction =>
 		dao storeNodes nodes
 	}
+
+	def updateTraced(id: Int, traced: Option[Boolean]) = db withTransaction { implicit transaction =>
+		dao.updateTraced(id, traced)
+	}
 }

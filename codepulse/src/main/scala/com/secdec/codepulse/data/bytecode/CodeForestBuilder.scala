@@ -28,14 +28,11 @@ import com.secdec.codepulse.data.MethodSignatureParser
 import com.secdec.codepulse.data.trace.TreeNode
 
 object CodeForestBuilder {
-
-	def main(arts: Array[String]): Unit = {
-		val rawSig = "com/avi/codepulse/Cool$Beans.stuff;9;([Ljava/lang/String;)V"
-		println(CodePath.parse(rawSig))
-	}
+	val JSPGroupName = "JSPs"
 }
 
-class CodeForestBuilder {
+class CodeForestBuilder(defaultTracedGroups: List[String]) {
+	import CodeForestBuilder._
 
 	private val roots = SortedSet.empty[CodeTreeNode]
 	private var nodeFactory = CodeTreeNodeFactory.mkDefaultFactory
@@ -48,13 +45,18 @@ class CodeForestBuilder {
 
 	def result = {
 		val lb = List.newBuilder[TreeNode]
+		val tracedGroups = defaultTracedGroups.toSet
 		for (root <- roots) root.visitTree { node =>
 			val id = node.id
 			val name = node.name
 			val parentId = node.parentId
 			val kind = node.kind
 			val size = node.size
-			lb += TreeNode(id, parentId, name, kind, size)
+			val traced = kind match {
+				case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
+				case _ => None
+			}
+			lb += TreeNode(id, parentId, name, kind, size, traced)
 		}
 		lb.result()
 	}
@@ -72,13 +74,13 @@ class CodeForestBuilder {
 		this
 	}
 
-	def getOrAddMethod(rawSig: String, size: Int): Option[CodeTreeNode] = {
-		MethodSignatureParser.parseSignature(rawSig) map { getOrAddMethod(_, size) }
+	def getOrAddMethod(group: String, rawSig: String, size: Int): Option[CodeTreeNode] = {
+		MethodSignatureParser.parseSignature(rawSig) map { getOrAddMethod(group, _, size) }
 	}
 
-	def getOrAddMethod(sig: MethodSignature, size: Int): CodeTreeNode = {
+	def getOrAddMethod(group: String, sig: MethodSignature, size: Int): CodeTreeNode = {
 		val treePath = CodePath.parse(sig)
-		val startNode = addRootPackage(treePath.name)
+		val startNode = addRootGroup(group)
 
 		def recurse(parent: CodeTreeNode, path: CodePath): CodeTreeNode = path match {
 			case CodePath.Package(name, childPath) => recurse(addChildPackage(parent, name), childPath)
@@ -86,28 +88,53 @@ class CodeForestBuilder {
 			case CodePath.Method(name) => addChildMethod(parent, name, size)
 		}
 
-		recurse(startNode, treePath.child)
+		recurse(startNode, treePath)
 	}
 
 	def getOrAddJsp(path: List[String], size: Int): CodeTreeNode = {
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
 			case className :: Nil => addChildMethod(parent, className, size)
-			case packageNode :: rest => recurse(addChildPackage(parent, packageNode), rest)
+			case packageNode :: rest => recurse(addFolder(parent, packageNode), rest)
 		}
 
-		recurse(addRootPackage("JSPs"), path)
+		recurse(addRootGroup(JSPGroupName), path)
 	}
 
-	protected def addRootPackage(name: String) = roots.find { node =>
-		node.name == name && node.kind == CodeTreeNodeKind.Pkg
-	} getOrElse {
-		val node = nodeFactory.createPackageNode(name)
-		roots.add(node)
-		node
+	protected def addRootGroup(name: String) = {
+		val path = (name split '/').toList
+
+		val startRoot = roots.find { node =>
+			node.name == path.head && node.kind == CodeTreeNodeKind.Grp
+		} getOrElse {
+			val node = nodeFactory.createGroupNode(path.head)
+			roots.add(node)
+			node
+		}
+
+		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
+			case Nil => parent
+			case node :: rest => recurse(addFolder(parent, node), rest)
+		}
+
+		recurse(startRoot, path.tail)
+	}
+
+	protected def addFolder(parent: CodeTreeNode, name: String) = {
+		val grpName = parent.name + " / " + name
+		parent.findChild { node =>
+			node.name == grpName && node.kind == CodeTreeNodeKind.Grp
+		} getOrElse {
+			val node = nodeFactory.createGroupNode(grpName)
+			parent addChild node
+			node
+		}
 	}
 
 	protected def addChildPackage(parent: CodeTreeNode, name: String) = {
-		val pkgName = parent.name + '.' + name
+		val pkgName = parent.kind match {
+			case CodeTreeNodeKind.Grp => name
+			case _ => parent.name + '.' + name
+		}
 		parent.findChild { node =>
 			node.name == pkgName && node.kind == CodeTreeNodeKind.Pkg
 		} getOrElse {

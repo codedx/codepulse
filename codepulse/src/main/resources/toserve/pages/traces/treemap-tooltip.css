@@ -2,7 +2,11 @@
 	background: rgba(0,0,0,0.7);
 	border: none;
 	pointer-events: none;
+	min-width: 235px;
 	max-width: initial;
+
+	font-size: 12px;
+	line-height: 14px;
 }
 
 .qtip.treemap-tooltip .qtip-titlebar {
@@ -15,6 +19,7 @@
 .qtip.treemap-tooltip .qtip-content {
 	color: white;
 	padding: 0;
+	overflow: visible;
 }
 
 .qtip.treemap-tooltip .content-padded {
@@ -47,4 +52,15 @@
 	margin-right: 5px;
 	padding: 0 4px;
 	border-radius: 5px;
+}
+
+.qtip.treemap-tooltip .notrace-badge {
+	position: absolute;
+	top: calc(100% + 2px);
+	width: 100%;
+	padding: 2px 4px;
+	box-sizing: border-box;
+
+	background-color: rgba(0,0,0,0.7);
+	color: #DBAF00;
 }

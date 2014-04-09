@@ -172,6 +172,8 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 		/** /trace-api/<target.id>/treemap */
 		val Treemap = simpleTargetPath("treemap")
 
+		val TreeInstrumentation = simpleTargetPath("tree-instrumentation")
+
 		/** /trace-api/<target.id>/recordings */
 		val Recordings = simpleTargetPath("recordings")
 
@@ -287,6 +289,24 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 		// GET the trace's treemap data as json
 		case Paths.Treemap(target) Get req =>
 			TreemapDataStreamer.streamTreemapData(target.traceData)
+
+		case Paths.TreeInstrumentation(target) Put req =>
+			def getBool(j: JValue) = j match {
+				case JInt(num) => Some(num > 0)
+				case JBool(b) => Some(b)
+				case _ => None
+			}
+
+			req.json.toOption match {
+				case Some(json: JObject) => {
+					for {
+						JField(AsInt(key), rawValue) <- json.obj
+						boolValue <- getBool(rawValue)
+					} target.traceData.treeNodeData.updateTraced(key, boolValue)
+				}
+				case _ => BadResponse()
+			}
+			OkResponse()
 
 		// GET a JSON listing of all of the custom recordings for a trace.
 		case Paths.Recordings(target) Get req =>

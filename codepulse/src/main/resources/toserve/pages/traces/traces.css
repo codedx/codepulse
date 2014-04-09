@@ -44,12 +44,13 @@ body > .overlay:before {
  
  	/* width = full screen minus:
  	   - 200px (the width of the .widget-label)
+ 	   -  40px (the width of the .widget-trace-toggle)
  	   -  50px (the width of the .widget-method-count)
  	   -  60px (the width of the percentage marker compact)
  	   - 241px (the width of the side bar)
  	   = 551px
  	*/
- 	width: calc(100% - 551px);
+ 	width: calc(100% - 591px);
  
  	transition: left .3s ease;
  	background-color: #9C9C9C;
@@ -63,11 +64,12 @@ body > .overlay:before {
  .middle-column-alt.in-view {
  	/* left = 
  		+ 200px (width of .widget-label)
+ 		+  40px (width of .widget-trace-toggle)
  		+  50px (width of .widget-method-count)
  		+  60px (width of percentage marker compact)
  		= 310px
  	*/
- 	left: 310px;
+ 	left: 350px;
  	border-left: none;
  }
 

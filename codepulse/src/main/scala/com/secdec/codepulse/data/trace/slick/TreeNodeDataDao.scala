@@ -33,6 +33,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 
 	class TreeNodeData(tag: Tag) extends Table[TreeNode](tag, "tree_node_data") {
 		private val CodeTreeNodeKindMapping = Map[CodeTreeNodeKind, Char](
+			CodeTreeNodeKind.Grp -> 'g',
 			CodeTreeNodeKind.Pkg -> 'p',
 			CodeTreeNodeKind.Cls -> 'c',
 			CodeTreeNodeKind.Mth -> 'm')
@@ -47,7 +48,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		def label = column[String]("label", O.NotNull)
 		def kind = column[CodeTreeNodeKind]("kind", O.NotNull)
 		def size = column[Option[Int]]("size", O.Nullable)
-		def * = (id, parentId, label, kind, size) <> (TreeNode.tupled, TreeNode.unapply)
+		def traced = column[Option[Boolean]]("traced", O.Nullable)
+		def * = (id, parentId, label, kind, size, traced) <> (TreeNode.tupled, TreeNode.unapply)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
 
@@ -130,5 +132,10 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 
 	def storeNodes(nodes: Iterable[TreeNode])(implicit session: Session) {
 		treeNodeData ++= nodes
+	}
+
+	def updateTraced(id: Int, traced: Option[Boolean])(implicit session: Session) {
+		val q = for (n <- treeNodeData if n.id === id) yield n.traced
+		q.update(traced)
 	}
 }

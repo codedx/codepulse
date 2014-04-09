@@ -86,18 +86,18 @@
 			// add `id` to the node in case the filter wants to use it
 			node.id = id
 
-			if(node.kind == 'package' && packageFilter(node)){
+			if((node.kind == 'group' || node.kind == 'package') && packageFilter(node)){
 				markFiltered(id)
 				partialAcceptAncestors(node)
 			}
 		}
 
-		function nearestPackageId(nodeId){
+		function nearestPackageOrGroupId(nodeId){
 			var node = rawNodes[nodeId]
 			if(!node) return undefined
 
-			if(node.kind == 'package') return nodeId
-			return nearestPackageId(node.parentId)
+			if(node.kind == 'package' || node.kind == 'group') return nodeId
+			return nearestPackageOrGroupId(node.parentId)
 		}
 
 		// Second Pass through rawNodes - make a copy of rawNodes with only accepted nodes
@@ -110,8 +110,8 @@
 			// - Other nodes are accepted if their nearest package
 			//   ancestor was 'fully' accepted (marked with a 2)
 			if(
-				(node.kind == 'package' && acceptedNodes[id]) ||
-				(acceptedNodes[nearestPackageId(id)] == 2)
+				((node.kind == 'group' || node.kind == 'package') && acceptedNodes[id]) ||
+				(acceptedNodes[nearestPackageOrGroupId(id)] == 2)
 			){
 				nodesCopy[id] = $.extend(true, {}, rawNodes[id])
 			}
