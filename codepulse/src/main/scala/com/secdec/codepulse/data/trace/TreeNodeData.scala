@@ -29,8 +29,9 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
   * @param kind The `CodeTreeNodeKind` of this node
   * @param size A number indicating the size of the node (e.g. lines of code). If unspecified,
   * the size of a node is assumed to be the sum of its childrens' sizes.
+  * @param traced whether or not this treenode is being traced; this value may be unspecified (None)
   */
-case class TreeNode(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int])
+case class TreeNode(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], traced: Option[Boolean])
 
 /** Access trait for tree node data.
   *
@@ -62,4 +63,10 @@ trait TreeNodeDataAccess {
 
 	def storeNode(node: TreeNode): Unit
 	def storeNodes(nodes: Iterable[TreeNode]) = nodes foreach storeNode
+
+	def updateTraced(id: Int, traced: Option[Boolean]): Unit
+	def updateTraced(id: Int, traced: Boolean): Unit = updateTraced(id, Some(traced))
+	def updateTraced(node: TreeNode, traced: Option[Boolean]): Unit = updateTraced(node.id, traced)
+	def updateTraced(node: TreeNode, traced: Boolean): Unit = updateTraced(node.id, Some(traced))
+	def updateTraced(values: Iterable[(Int, Boolean)]): Unit = values foreach { case (id, traced) => updateTraced(id, Some(traced)) }
 }

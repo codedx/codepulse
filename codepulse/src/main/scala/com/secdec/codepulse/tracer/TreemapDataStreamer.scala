@@ -42,6 +42,7 @@ object TreemapDataStreamer {
 		jg.writeStringField("name", node.label)
 		jg.writeStringField("kind", node.kind.label)
 		for (size <- node.size) jg.writeNumberField("lineCount", size)
+		for (traced <- node.traced) jg.writeBooleanField("traced", traced)
 
 		jg.writeEndObject
 	}

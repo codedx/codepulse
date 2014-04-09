@@ -107,6 +107,7 @@ object TraceExporter extends JsonHelpers {
 				jg.writeStringField("label", node.label)
 				jg.writeStringField("kind", node.kind.label)
 				for (size <- node.size) jg.writeNumberField("size", size)
+				for (traced <- node.traced) jg.writeBooleanField("traced", traced)
 
 				jg.writeEndObject
 			}

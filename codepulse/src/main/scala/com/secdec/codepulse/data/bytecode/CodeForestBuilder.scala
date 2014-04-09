@@ -28,14 +28,11 @@ import com.secdec.codepulse.data.MethodSignatureParser
 import com.secdec.codepulse.data.trace.TreeNode
 
 object CodeForestBuilder {
-
-	def main(arts: Array[String]): Unit = {
-		val rawSig = "com/avi/codepulse/Cool$Beans.stuff;9;([Ljava/lang/String;)V"
-		println(CodePath.parse(rawSig))
-	}
+	val JSPGroupName = "JSPs"
 }
 
-class CodeForestBuilder {
+class CodeForestBuilder(defaultTracedGroups: List[String]) {
+	import CodeForestBuilder._
 
 	private val roots = SortedSet.empty[CodeTreeNode]
 	private var nodeFactory = CodeTreeNodeFactory.mkDefaultFactory
@@ -48,13 +45,18 @@ class CodeForestBuilder {
 
 	def result = {
 		val lb = List.newBuilder[TreeNode]
+		val tracedGroups = defaultTracedGroups.toSet
 		for (root <- roots) root.visitTree { node =>
 			val id = node.id
 			val name = node.name
 			val parentId = node.parentId
 			val kind = node.kind
 			val size = node.size
-			lb += TreeNode(id, parentId, name, kind, size)
+			val traced = kind match {
+				case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
+				case _ => None
+			}
+			lb += TreeNode(id, parentId, name, kind, size, traced)
 		}
 		lb.result()
 	}
@@ -95,7 +97,7 @@ class CodeForestBuilder {
 			case packageNode :: rest => recurse(addChildPackage(parent, packageNode), rest)
 		}
 
-		recurse(addGroup("JSPs"), path)
+		recurse(addGroup(JSPGroupName), path)
 	}
 
 	protected def addGroup(name: String) = roots.find { node =>

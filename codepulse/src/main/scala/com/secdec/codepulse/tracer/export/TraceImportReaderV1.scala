@@ -83,6 +83,7 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 				var label = None: Option[String]
 				var kind = None: Option[CodeTreeNodeKind]
 				var size = None: Option[Int]
+				var traced = None: Option[Boolean]
 
 				while (jp.nextValue != END_OBJECT) {
 					jp.getCurrentName match {
@@ -102,6 +103,12 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 								case VALUE_NULL => None
 								case _ => Some(jp.getIntValue)
 							}
+
+						case "traced" =>
+							traced = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getBooleanValue)
+							}
 					}
 				}
 
@@ -110,7 +117,8 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 					parentId,
 					label getOrElse { throw new TraceImportException("Missing label for tree node.") },
 					kind.getOrElse { throw new TraceImportException("Missing or invalid kind for tree node.") },
-					size)
+					size,
+					traced)
 
 				checkAndFlush
 			}

@@ -104,14 +104,15 @@ object TraceUploadData {
 	}
 
 	def handleBinaryZip(file: File): TraceId = createAndLoadTraceData { traceData =>
-		val builder = new CodeForestBuilder
+		val RootGroupName = "Classes"
+		val builder = new CodeForestBuilder(defaultTracedGroups = RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil)
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
 
 		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-			val groupName = if (filename == file.getName) "\"classes\"" else new File(filename).getName
+			val groupName = if (filename == file.getName) RootGroupName else new File(filename).getName
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
