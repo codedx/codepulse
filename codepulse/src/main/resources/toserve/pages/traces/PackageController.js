@@ -139,6 +139,17 @@
 			return found
 		}
 
+		// Disable all of the widgets while the trace is running
+		Trace.running.onValue(function(isRunning){
+			for(var id in widgets){
+				var pw = widgets[id],
+					node = treeData.getNode(id)
+				if(node.kind != 'root'){
+					pw.instrumentationSelectable(!isRunning)
+				}
+			}
+		})
+
 		// checkSelected = function(widget){ return <is widget selected> }
 		// setSelected = function(widget, sel){ <set widget.selected to sel> }
 		// Returns a function(node, widget):

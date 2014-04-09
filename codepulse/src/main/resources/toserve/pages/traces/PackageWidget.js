@@ -167,6 +167,10 @@
 			if(!arguments.length) return _instrumentationSelectable
 
 			_instrumentationSelectable = newSel
+
+			self.uiParts.instrumentationSelectedToggle
+				.toggleClass('disabled', !_instrumentationSelectable)
+
 			return self
 		}
 

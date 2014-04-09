@@ -237,6 +237,10 @@
 	cursor: pointer;
 }
 
+.tri-state-toggle.disabled {
+	cursor: initial;
+}
+
 .tri-state-toggle:before {
 	font-family: FontAwesome;
 	-webkit-font-smoothing: antialiased;
