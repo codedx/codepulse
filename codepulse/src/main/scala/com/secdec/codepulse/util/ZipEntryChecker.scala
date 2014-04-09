@@ -62,7 +62,7 @@ trait ZipEntryChecker {
 		case _ => false
 	}
 
-	def forEachEntry(file: File)(callback: (ZipEntry, InputStream) => Unit): Unit = {
+	def forEachEntry(file: File)(callback: (String, ZipEntry, InputStream) => Unit): Unit = {
 		Try { new ZipFile(file) } match {
 			// non-zip files don't work in this checker
 			case Failure(_) =>
@@ -81,14 +81,14 @@ trait ZipEntryChecker {
 								Stream.continually(zipStream.getNextEntry)
 									.takeWhile(_ != null)
 									.filterNot(ZipCleaner.shouldFilter)
-									.foreach { innerEntry => callback(innerEntry, zipStream) }
+									.foreach { innerEntry => callback(entry.getName, innerEntry, zipStream) }
 
 							} finally {
 								zipStream.close()
 							}
 						} else {
 							try {
-								callback(entry, stream)
+								callback(file.getName, entry, stream)
 							} finally {
 								stream.close
 							}

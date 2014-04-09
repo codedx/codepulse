@@ -33,6 +33,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 
 	class TreeNodeData(tag: Tag) extends Table[TreeNode](tag, "tree_node_data") {
 		private val CodeTreeNodeKindMapping = Map[CodeTreeNodeKind, Char](
+			CodeTreeNodeKind.Grp -> 'g',
 			CodeTreeNodeKind.Pkg -> 'p',
 			CodeTreeNodeKind.Cls -> 'c',
 			CodeTreeNodeKind.Mth -> 'm')

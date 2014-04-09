@@ -34,7 +34,7 @@
 		// initialize the `stateTemplate` and `widgets` maps
 		// based on the package nodes in `treeData`
 		;(function setupTreeHierarchy(packageParentNode, node){
-			if(node.kind == 'package' || node.kind == 'root'){
+			if(node.kind == 'package' || node.kind == 'group' || node.kind == 'root'){
 
 				var pw = new PackageWidget()
 				widgets[node.id] = pw
@@ -62,7 +62,7 @@
 					pw.selectable(false)
 				}
 
-				if(node.kind == 'package'){
+				if(node.kind == 'group' || node.kind == 'package'){
 					if(packageParentNode){
 						widgets[packageParentNode.id].children.add(pw)
 					} else {
@@ -75,13 +75,16 @@
 						var parentName = packageParentNode ? packageParentNode.name : '',
 							abbrevName = node.name.substr(parentName.length)
 
+						if (packageParentNode && packageParentNode.kind == 'group')
+							abbrevName = abbrevName.substr(1)
+
 						pw.fullLabel(node.name).abbreviatedLabel(abbrevName)
 					}
 				}
 			}
 
 			;(node.children || []).forEach(function(kid){
-				var nextParent = (node.kind == 'package')? node : packageParentNode
+				var nextParent = (node.kind == 'group' || node.kind == 'package')? node : packageParentNode
 				setupTreeHierarchy(nextParent, kid)
 			})
 

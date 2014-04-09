@@ -72,13 +72,13 @@ class CodeForestBuilder {
 		this
 	}
 
-	def getOrAddMethod(rawSig: String, size: Int): Option[CodeTreeNode] = {
-		MethodSignatureParser.parseSignature(rawSig) map { getOrAddMethod(_, size) }
+	def getOrAddMethod(group: String, rawSig: String, size: Int): Option[CodeTreeNode] = {
+		MethodSignatureParser.parseSignature(rawSig) map { getOrAddMethod(group, _, size) }
 	}
 
-	def getOrAddMethod(sig: MethodSignature, size: Int): CodeTreeNode = {
+	def getOrAddMethod(group: String, sig: MethodSignature, size: Int): CodeTreeNode = {
 		val treePath = CodePath.parse(sig)
-		val startNode = addRootPackage(treePath.name)
+		val startNode = addGroup(group)
 
 		def recurse(parent: CodeTreeNode, path: CodePath): CodeTreeNode = path match {
 			case CodePath.Package(name, childPath) => recurse(addChildPackage(parent, name), childPath)
@@ -86,7 +86,7 @@ class CodeForestBuilder {
 			case CodePath.Method(name) => addChildMethod(parent, name, size)
 		}
 
-		recurse(startNode, treePath.child)
+		recurse(startNode, treePath)
 	}
 
 	def getOrAddJsp(path: List[String], size: Int): CodeTreeNode = {
@@ -95,13 +95,13 @@ class CodeForestBuilder {
 			case packageNode :: rest => recurse(addChildPackage(parent, packageNode), rest)
 		}
 
-		recurse(addRootPackage("JSPs"), path)
+		recurse(addGroup("JSPs"), path)
 	}
 
-	protected def addRootPackage(name: String) = roots.find { node =>
-		node.name == name && node.kind == CodeTreeNodeKind.Pkg
+	protected def addGroup(name: String) = roots.find { node =>
+		node.name == name && node.kind == CodeTreeNodeKind.Grp
 	} getOrElse {
-		val node = nodeFactory.createPackageNode(name)
+		val node = nodeFactory.createGroupNode(name)
 		roots.add(node)
 		node
 	}

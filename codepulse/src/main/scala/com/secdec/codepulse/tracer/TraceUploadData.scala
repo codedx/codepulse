@@ -110,14 +110,15 @@ object TraceUploadData {
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
 
-		ZipEntryChecker.forEachEntry(file) { (entry, contents) =>
+		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
+			val groupName = if (filename == file.getName) "\"classes\"" else new File(filename).getName
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
 						for {
 							(name, size) <- methods
-							treeNode <- builder.getOrAddMethod(name, size)
+							treeNode <- builder.getOrAddMethod(groupName, name, size)
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
 					case "jsp" =>
