@@ -70,7 +70,7 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 			if (jp.nextToken != START_ARRAY)
 				throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
-			val buffer = collection.mutable.ListBuffer.empty[TreeNode]
+			val buffer = collection.mutable.ListBuffer.empty[TreeNodeData]
 			def flushBuffer() { treeNodeData.storeNodes(buffer); buffer.clear }
 			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
 
@@ -112,7 +112,7 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 					}
 				}
 
-				buffer += TreeNode(
+				buffer += TreeNodeData(
 					id getOrElse { throw new TraceImportException("Missing ID for tree node.") },
 					parentId,
 					label getOrElse { throw new TraceImportException("Missing label for tree node.") },

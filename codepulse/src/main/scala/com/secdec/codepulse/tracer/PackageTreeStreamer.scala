@@ -27,34 +27,39 @@ import com.fasterxml.jackson.core.{ JsonFactory, JsonGenerator }
 import net.liftweb.http.OutputStreamResponse
 import net.liftweb.json.Printer
 
-/** Generates treemap JSON data in a streaming fashion.
+/** Streams package tree data using jackson.
   *
   * @author robertf
   */
-object TreemapDataStreamer {
+object PackageTreeStreamer {
 	private val Json = new JsonFactory
 
-	private def writeJson(jg: JsonGenerator)(node: TreeNodeData) {
-		jg writeFieldName node.id.toString
+	private def writeJson(jg: JsonGenerator)(node: PackageTreeNode) {
 		jg.writeStartObject
 
-		for (parentId <- node.parentId) jg.writeNumberField("parentId", parentId)
-		jg.writeStringField("name", node.label)
+		for (id <- node.id) jg.writeNumberField("id", id)
 		jg.writeStringField("kind", node.kind.label)
-		for (size <- node.size) jg.writeNumberField("lineCount", size)
+		jg.writeStringField("label", node.label)
+		jg.writeNumberField("methodCount", node.methodCount)
 		for (traced <- node.traced) jg.writeBooleanField("traced", traced)
+
+		if (!node.children.isEmpty) {
+			jg writeArrayFieldStart "children"
+			node.children.foreach(writeJson(jg))
+			jg.writeEndArray
+		}
 
 		jg.writeEndObject
 	}
 
-	def streamTreemapData(traceData: TraceData): OutputStreamResponse = {
+	def streamPackageTree(packageData: List[PackageTreeNode]): OutputStreamResponse = {
 		def writeData(out: OutputStream) {
 			val jg = Json createGenerator out
 
 			try {
-				jg.writeStartObject
-				traceData.treeNodeData.foreach(writeJson(jg))
-				jg.writeEndObject
+				jg.writeStartArray
+				packageData.foreach(writeJson(jg))
+				jg.writeEndArray
 			} finally jg.close
 		}
 

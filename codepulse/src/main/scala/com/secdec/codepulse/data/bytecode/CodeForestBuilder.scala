@@ -25,7 +25,7 @@ import scala.collection.mutable.SortedSet
 import CodeForestBuilder._
 import java.lang.reflect.Modifier
 import com.secdec.codepulse.data.MethodSignatureParser
-import com.secdec.codepulse.data.trace.TreeNode
+import com.secdec.codepulse.data.trace.TreeNodeData
 
 object CodeForestBuilder {
 	val JSPGroupName = "JSPs"
@@ -44,7 +44,7 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 	}
 
 	def result = {
-		val lb = List.newBuilder[TreeNode]
+		val lb = List.newBuilder[TreeNodeData]
 		val tracedGroups = defaultTracedGroups.toSet
 		for (root <- roots) root.visitTree { node =>
 			val id = node.id
@@ -56,7 +56,7 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 				case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
 				case _ => None
 			}
-			lb += TreeNode(id, parentId, name, kind, size, traced)
+			lb += TreeNodeData(id, parentId, name, kind, size, traced)
 		}
 		lb.result()
 	}

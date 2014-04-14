@@ -20,28 +20,28 @@
 package com.secdec.codepulse.data.trace.slick
 
 import scala.slick.jdbc.JdbcBackend.Database
-import com.secdec.codepulse.data.trace.{ TreeNode, TreeNodeDataAccess }
+import com.secdec.codepulse.data.trace.{ TreeNodeData, TreeNodeDataAccess }
 
 /** Slick-based TreeNodeDataAccess implementation.
   *
   * @author robertf
   */
 private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database) extends TreeNodeDataAccess {
-	def foreach(f: TreeNode => Unit) {
+	def foreach(f: TreeNodeData => Unit) {
 		iterate { _.foreach(f) }
 	}
 
-	def iterate[T](f: Iterator[TreeNode] => T): T = {
+	def iterate[T](f: Iterator[TreeNodeData] => T): T = {
 		db withSession { implicit session =>
 			dao.iterateWith(f)
 		}
 	}
 
-	def getNode(id: Int): Option[TreeNode] = db withSession { implicit session =>
+	def getNode(id: Int): Option[TreeNodeData] = db withSession { implicit session =>
 		dao get id
 	}
 
-	def getNodeForSignature(sig: String): Option[TreeNode] = db withSession { implicit session =>
+	def getNodeForSignature(sig: String): Option[TreeNodeData] = db withSession { implicit session =>
 		dao getForSignature sig
 	}
 
@@ -67,7 +67,7 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao storeMethodSignatures signatures
 	}
 
-	def getNodeForJsp(jspPath: String): Option[TreeNode] = db withSession { implicit session =>
+	def getNodeForJsp(jspPath: String): Option[TreeNodeData] = db withSession { implicit session =>
 		dao getForJsp jspPath
 	}
 
@@ -93,11 +93,11 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao storeJsps jsps
 	}
 
-	def storeNode(node: TreeNode) = db withTransaction { implicit transaction =>
+	def storeNode(node: TreeNodeData) = db withTransaction { implicit transaction =>
 		dao storeNode node
 	}
 
-	override def storeNodes(nodes: Iterable[TreeNode]) = db withTransaction { implicit transaction =>
+	override def storeNodes(nodes: Iterable[TreeNodeData]) = db withTransaction { implicit transaction =>
 		dao storeNodes nodes
 	}
 

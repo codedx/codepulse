@@ -31,20 +31,20 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
   * the size of a node is assumed to be the sum of its childrens' sizes.
   * @param traced whether or not this treenode is being traced; this value may be unspecified (None)
   */
-case class TreeNode(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], traced: Option[Boolean])
+case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], traced: Option[Boolean])
 
 /** Access trait for tree node data.
   *
   * @author robertf
   */
 trait TreeNodeDataAccess {
-	def foreach(f: TreeNode => Unit): Unit
-	def iterate[T](f: Iterator[TreeNode] => T): T
+	def foreach(f: TreeNodeData => Unit): Unit
+	def iterate[T](f: Iterator[TreeNodeData] => T): T
 
-	def getNode(id: Int): Option[TreeNode]
+	def getNode(id: Int): Option[TreeNodeData]
 
 	def getNodeIdForSignature(signature: String): Option[Int]
-	def getNodeForSignature(signature: String): Option[TreeNode]
+	def getNodeForSignature(signature: String): Option[TreeNodeData]
 
 	def foreachMethodMapping(f: (String, Int) => Unit): Unit
 	def iterateMethodMappings[T](f: Iterator[(String, Int)] => T): T
@@ -53,7 +53,7 @@ trait TreeNodeDataAccess {
 	def mapMethodSignatures(signatures: Iterable[(String, Int)]): Unit = signatures foreach { case (signature, nodeId) => mapMethodSignature(signature, nodeId) }
 
 	def getNodeIdForJsp(jspClass: String): Option[Int]
-	def getNodeForJsp(jspClass: String): Option[TreeNode]
+	def getNodeForJsp(jspClass: String): Option[TreeNodeData]
 
 	def foreachJspMapping(f: (String, Int) => Unit): Unit
 	def iterateJspMappings[T](f: Iterator[(String, Int)] => T): T
@@ -61,12 +61,12 @@ trait TreeNodeDataAccess {
 	def mapJsp(jspClass: String, nodeId: Int): Unit
 	def mapJsps(jsps: Iterable[(String, Int)]): Unit = jsps foreach { case (jspPath, nodeId) => mapJsp(jspPath, nodeId) }
 
-	def storeNode(node: TreeNode): Unit
-	def storeNodes(nodes: Iterable[TreeNode]) = nodes foreach storeNode
+	def storeNode(node: TreeNodeData): Unit
+	def storeNodes(nodes: Iterable[TreeNodeData]) = nodes foreach storeNode
 
 	def updateTraced(id: Int, traced: Option[Boolean]): Unit
 	def updateTraced(id: Int, traced: Boolean): Unit = updateTraced(id, Some(traced))
-	def updateTraced(node: TreeNode, traced: Option[Boolean]): Unit = updateTraced(node.id, traced)
-	def updateTraced(node: TreeNode, traced: Boolean): Unit = updateTraced(node.id, Some(traced))
+	def updateTraced(node: TreeNodeData, traced: Option[Boolean]): Unit = updateTraced(node.id, traced)
+	def updateTraced(node: TreeNodeData, traced: Boolean): Unit = updateTraced(node.id, Some(traced))
 	def updateTraced(values: Iterable[(Int, Boolean)]): Unit = values foreach { case (id, traced) => updateTraced(id, Some(traced)) }
 }

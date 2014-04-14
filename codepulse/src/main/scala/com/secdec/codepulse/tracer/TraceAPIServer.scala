@@ -169,6 +169,9 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 		/** /trace-api/<target.id>/rename */
 		val Rename = simpleTargetPath("rename")
 
+		/** /trace-api/<target.id>/packageTree */
+		val PackageTree = simpleTargetPath("packageTree")
+
 		/** /trace-api/<target.id>/treemap */
 		val Treemap = simpleTargetPath("treemap")
 
@@ -285,6 +288,10 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 						JsonResponse(Map("warn" -> "nameConflict"))
 					} else OkResponse()
 			}
+
+		// GET the trace's package tree as json
+		case Paths.PackageTree(target) Get req =>
+			PackageTreeStreamer.streamPackageTree(target.treeBuilder.packageTree)
 
 		// GET the trace's treemap data as json
 		case Paths.Treemap(target) Get req =>

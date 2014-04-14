@@ -22,7 +22,7 @@ package com.secdec.codepulse.data.trace.slick
 import scala.slick.driver.JdbcProfile
 import scala.slick.model.ForeignKeyAction
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.trace._
+import com.secdec.codepulse.data.trace.{ TreeNodeData => TreeNode, _ }
 
 /** The Slick DAO for tree node data.
   *
