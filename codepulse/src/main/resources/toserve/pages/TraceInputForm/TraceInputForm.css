@@ -1,0 +1,166 @@
+/*******************\
+| High Level Layout |
+\*******************/
+
+trace-input-form .form-field {
+	margin-bottom: 1em;
+}
+
+#trace-input-form .input-area {
+	width: 61.8%;
+	float: left;
+}
+
+#trace-input-form .feedback-area {
+	width: 38.2%;
+	float: left;
+	padding-left: 1em;
+	box-sizing: border-box;
+}
+
+.align-right {
+	text-align: right;
+}
+
+
+#trace-input-form .input-label {
+	font-size: large;
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+
+#trace-input-form input[type=text] {
+	margin-bottom: 0;
+}
+
+#trace-input-form .input-help {
+	padding-left: 22px;
+	position: relative;
+	margin-top: 5px;
+	color: gray;
+	font-size: 90%;
+}
+
+#trace-input-form .input-help i:first-child {
+	position: absolute;
+	left: 0;
+}
+
+/***************\
+| Feedback Area |
+\***************/
+
+#trace-input-form .feedback-area .feedback {
+	color: steelblue;
+}
+#trace-input-form .feedback-area .feedback:before {
+	font-family: FontAwesome;
+	margin-right: 3px;
+	content: "\f075"; /* fa-comment */
+}
+
+#trace-input-form .feedback-area .feedback.error {
+	color: crimson;
+}
+#trace-input-form .feedback-area .feedback.error:before {
+	content: "\f06a"; /* fa-exclamation-circle */
+}
+
+#trace-input-form .feedback-area .feedback.warning {
+	color: goldenrod;
+}
+#trace-input-form .feedback-area .feedback.warning:before {
+	content: "\f071"; /* fa-exclamation-triangle */
+}
+
+/*********************\
+| File Input Elements |
+\*********************/
+
+.file-input-button {
+	position: relative;
+	overflow: hidden;
+	background-color: lightgray;
+	font-size: 14px;
+	text-align: center;
+}
+
+.file-input-button input[type=file] {
+	position: absolute;
+	opacity: 0;
+	right: 0;
+	top: 0;
+	font-size: 200px;
+	direction: ltr;
+	cursor: pointer;
+	height: 100%;
+}
+
+.file-input-area .file-input-button {
+	float: left;
+	width: 100px;
+	box-sizing: border-box;
+	height: 72px;
+}
+
+.file-input-area .file-input-button .prompt {
+	margin-top: 12px;
+}
+
+.file-input-area .file-or-msg {
+	width: 50px;
+	text-align: center;
+	font-weight: bold;
+	float: left;
+	line-height: 72px;
+}
+
+.file-input-area .file-dropzone {
+	float: left;
+	width: calc(100% - 150px);
+	color: gray;
+	box-sizing: border-box;
+	padding: .5em;
+	text-align: center;
+	height: 72px;
+}
+
+.file-input-area .file-dropzone.in {
+	background-color: lightgray;
+}
+
+.file-input-area .file-dropzone.hover {
+	background-color: lightgreen;
+}
+
+.file-input-area .file-dropzone .dropzone-msg {
+	border: 2px dashed;
+	padding: 1em;
+	border-radius: .5em;
+}
+
+.file-input-area .file-dropzone .dropzone-msg:before {
+	content: 'Drag a file here';
+}
+.file-input-area .file-dropzone.in .dropzone-msg:before {
+	content: 'Drop it here!';
+}
+
+/*********************\
+| File Input Feedback |
+\*********************/
+
+#trace-input-form .file-input-result {
+	margin-top: 5px;
+	font-size: small;
+	color: gray;
+}
+
+#trace-input-form .file-input-result span {
+	font-weight: bold;
+	color: darkgreen;
+}
+
+.filetype {
+	font-family: monospace;
+}

@@ -119,6 +119,8 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val codeTreemap = register("codetreemap", overlay, qtip2, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
 	val colorpickerTooltip = register("colorpickerTooltip", colorpicker, qtip2, JS("pages/traces/colorpicker-tooltip.js"), CSS("pages/traces/colorpicker-tooltip.css"))
 
+	val traceInputForm = register("TraceInputForm", CSS("pages/TraceInputForm/TraceInputForm.css"), JS("pages/TraceInputForm/TraceInputForm.js"))
+
 	val tracesPage = register("tracesPage",
 		JS("pages/traces/common.js"),
 		traceAPI,
