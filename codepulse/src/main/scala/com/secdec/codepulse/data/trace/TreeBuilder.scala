@@ -65,21 +65,21 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 		}
 
 		def transform(node: TreeNode): PackageTreeNode = {
-			// we don't want methods
-			lazy val filteredChildren = node.children.filterNot { _.data.kind == CodeTreeNodeKind.Mth }
+			// we only want groups and packages
+			def filterChildren(children: List[TreeNode]) = children.filter { n => n.data.kind == CodeTreeNodeKind.Grp || n.data.kind == CodeTreeNodeKind.Pkg }
 
 			if (isEligibleForSelfNode(node)) {
 				// split the node children depending on where they belong
-				val (selfChildren, children) = filteredChildren.partition {
+				val (selfChildren, children) = node.children.partition {
 					case TreeNode(data, _) if data.kind == CodeTreeNodeKind.Cls || data.kind == CodeTreeNodeKind.Mth => true
 					case _ => false
 				}
 
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, node.data.traced, selfChildren.map(transform))
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.traced, selfNode :: children.map(transform))
+				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, node.data.traced, Nil)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.traced, selfNode :: filterChildren(children).map(transform))
 			} else {
-				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), node.data.traced, filteredChildren.map(transform))
+				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), node.data.traced, filterChildren(node.children).map(transform))
 			}
 		}
 
