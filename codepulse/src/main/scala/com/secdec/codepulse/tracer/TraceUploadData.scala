@@ -34,6 +34,8 @@ import com.secdec.codepulse.data.trace.TraceData
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import net.liftweb.common.Full
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.trace.TreeNodeData
 
 object TraceUploadData {
 
@@ -105,7 +107,8 @@ object TraceUploadData {
 
 	def handleBinaryZip(file: File): TraceId = createAndLoadTraceData { traceData =>
 		val RootGroupName = "Classes"
-		val builder = new CodeForestBuilder(defaultTracedGroups = RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil)
+		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
+		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 
 		//TODO: make this configurable somehow
@@ -139,10 +142,22 @@ object TraceUploadData {
 		if (treemapNodes.isEmpty) {
 			throw new NoSuchElementException("No method data found in analyzed upload file.")
 		} else {
+			val treeNodeData = traceData.treeNodeData
+			import treeNodeData.ExtendedTreeNodeData
 
-			traceData.treeNodeData.storeNodes(treemapNodes)
-			traceData.treeNodeData.mapJsps(jspCorrelations)
-			traceData.treeNodeData.mapMethodSignatures(methodCorrelations)
+			val nodeMap = treemapNodes.map(n => n.id -> n).toMap
+			def getRoot(n: TreeNodeData): TreeNodeData = n.parentId match {
+				case Some(parent) => getRoot(nodeMap(parent))
+				case None => n
+			}
+
+			treeNodeData.storeNodes(treemapNodes)
+			for (n <- treemapNodes) n.traced = n.kind match {
+				case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains getRoot(n).label)
+				case _ => None
+			}
+			treeNodeData.mapJsps(jspCorrelations)
+			treeNodeData.mapMethodSignatures(methodCorrelations)
 
 			// The `creationDate` for trace data detected in this manner
 			// should use its default value ('now'), as this is when the data

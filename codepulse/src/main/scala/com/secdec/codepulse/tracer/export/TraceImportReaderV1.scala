@@ -64,14 +64,20 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 	}
 
 	private def readTreeNodeData(in: InputStream, treeNodeData: TreeNodeDataAccess) {
+		import treeNodeData.ExtendedTreeNodeData
 		import JsonToken._
 
 		readJson(in) { jp =>
 			if (jp.nextToken != START_ARRAY)
 				throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
-			val buffer = collection.mutable.ListBuffer.empty[TreeNodeData]
-			def flushBuffer() { treeNodeData.storeNodes(buffer); buffer.clear }
+			case class BufferRecord(data: TreeNodeData, traced: Option[Boolean])
+			val buffer = collection.mutable.ListBuffer.empty[BufferRecord]
+			def flushBuffer() {
+				treeNodeData.storeNodes(buffer.map(_.data))
+				for (BufferRecord(d, traced) <- buffer) d.traced = traced
+				buffer.clear
+			}
 			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
 
 			while (jp.nextValue != END_ARRAY) {
@@ -112,12 +118,12 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 					}
 				}
 
-				buffer += TreeNodeData(
+				buffer += BufferRecord(TreeNodeData(
 					id getOrElse { throw new TraceImportException("Missing ID for tree node.") },
 					parentId,
 					label getOrElse { throw new TraceImportException("Missing label for tree node.") },
 					kind.getOrElse { throw new TraceImportException("Missing or invalid kind for tree node.") },
-					size,
+					size),
 					traced)
 
 				checkAndFlush

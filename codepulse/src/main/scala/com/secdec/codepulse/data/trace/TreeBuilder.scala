@@ -23,9 +23,15 @@ import com.fasterxml.jackson.core.{ JsonFactory, JsonGenerator }
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 
-case class TreeNode(data: TreeNodeData, children: List[TreeNode])
+case class TreeNode(data: TreeNodeData, children: List[TreeNode])(treeNodeData: TreeNodeDataAccess) {
+	import treeNodeData.ExtendedTreeNodeData
 
-case class PackageTreeNode(id: Option[Int], kind: CodeTreeNodeKind, label: String, methodCount: Int, traced: Option[Boolean], children: List[PackageTreeNode])
+	def traced = data.traced
+}
+
+case class PackageTreeNode(id: Option[Int], kind: CodeTreeNodeKind, label: String, methodCount: Int, children: List[PackageTreeNode])(tracedLookup: () => Option[Boolean]) {
+	def traced = tracedLookup()
+}
 
 /** Builds/projects treemap and package tree data as JSON for client.
   * TODO: manage lifetime of cached data internally
@@ -53,7 +59,8 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 
 		def buildNode(id: Int): TreeNode = {
 			val children = childrenFor(id).result.map(buildNode)
-			TreeNode(nodeMap(id), children)
+			val node = nodeMap(id)
+			TreeNode(node, children)(treeNodeData)
 		}
 
 		(roots.result.map(buildNode), nodeMap)
@@ -62,6 +69,7 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 	/** Full package tree, with self nodes */
 	lazy val packageTree = {
 		// build up a package tree with the relevant data
+		import treeNodeData.ExtendedTreeNodeData
 
 		/** A node is eligible for a self node if it is a package node that has at least one
 		  * package child and one non-package child (class/method).
@@ -97,10 +105,10 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 				}
 
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, node.data.traced, Nil)
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.traced, selfNode :: filterChildren(children).map(transform))
+				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, Nil)(() => node.data.traced)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), selfNode :: filterChildren(children).map(transform))(() => node.data.traced)
 			} else {
-				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), node.data.traced, filterChildren(node.children).map(transform))
+				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), filterChildren(node.children).map(transform))(() => node.data.traced)
 			}
 		}
 
@@ -142,7 +150,7 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 				}
 
 				if (isSelected || !filteredChildren.isEmpty)
-					Some(TreeNode(node.data, filteredChildren))
+					Some(TreeNode(node.data, filteredChildren)(treeNodeData))
 				else
 					None
 			} else None

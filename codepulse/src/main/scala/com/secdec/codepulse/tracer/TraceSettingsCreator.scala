@@ -27,7 +27,10 @@ import com.secdec.codepulse.data.trace.TraceData
 object TraceSettingsCreator {
 
 	def generateTraceSettings(traceData: TraceData, jspMapper: Option[JspMapper]): TraceSettings = {
-		val inclusions = traceData.treeNodeData.iterate { it =>
+		val treeNodeData = traceData.treeNodeData
+		import treeNodeData.ExtendedTreeNodeData
+
+		val inclusions = treeNodeData.iterate { it =>
 			(for {
 				treeNode <- it
 				if treeNode.kind == CodeTreeNodeKind.Pkg
@@ -38,7 +41,7 @@ object TraceSettingsCreator {
 				"^" + slashedName + "/[^/]+$"
 			}).toList
 		} ++ jspMapper.map { mapper =>
-			traceData.treeNodeData.iterateJspMappings { it =>
+			treeNodeData.iterateJspMappings { it =>
 				(for ((jspClass, _) <- it) yield mapper getInclusion jspClass).toList
 			}
 		}.getOrElse(Nil)
