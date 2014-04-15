@@ -14,6 +14,7 @@ case class PackageTreeNode(id: Option[Int], kind: CodeTreeNodeKind, label: Strin
   * @author robertf
   */
 class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
+	/** Full set of tree roots and nodes */
 	lazy val (roots, nodes) = {
 		val roots = List.newBuilder[Int]
 		val nodes = Map.newBuilder[Int, TreeNodeData]
@@ -39,6 +40,7 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 		(roots.result.map(buildNode), nodeMap)
 	}
 
+	/** Full package tree, with self nodes */
 	lazy val packageTree = {
 		// build up a package tree with the relevant data
 
@@ -84,5 +86,49 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 		}
 
 		roots.map(transform)
+	}
+
+	/** Projects a tree containing the selected packages and their immediate children */
+	def projectTree(selectedNodes: Set[Int]) = {
+		val incidentalNodes = collection.mutable.HashSet.empty[Int]
+
+		// recursively mark all parents of `selectedNodes` as incidental nodes (partially accepted)
+		def markIncidentalPath(node: Int) {
+			incidentalNodes += node
+
+			for {
+				node <- nodes get node
+				parent <- node.parentId
+			} markIncidentalPath(parent)
+		}
+
+		selectedNodes.foreach(markIncidentalPath)
+
+		// build the projected tree
+		def filterNode(node: TreeNode): Option[TreeNode] = {
+			def isSubstantialChild(node: TreeNode) = node.data.kind != CodeTreeNodeKind.Grp && node.data.kind != CodeTreeNodeKind.Pkg
+
+			// only include this node if it is incidental
+			if (incidentalNodes contains node.data.id) {
+				val isSelected = selectedNodes contains node.data.id
+
+				// filter children; don't include substantial data if only incidental
+				// the only exception to this is if that child was requested specifically
+				val filteredChildren = node.children.flatMap {
+					case child if isSubstantialChild(child) =>
+						if (isSelected) Some(child)
+						else filterNode(child)
+
+					case child => filterNode(child)
+				}
+
+				if (isSelected || !filteredChildren.isEmpty)
+					Some(TreeNode(node.data, filteredChildren))
+				else
+					None
+			} else None
+		}
+
+		roots.flatMap(filterNode)
 	}
 }

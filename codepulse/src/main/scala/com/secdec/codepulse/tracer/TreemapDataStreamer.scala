@@ -34,27 +34,33 @@ import net.liftweb.json.Printer
 object TreemapDataStreamer {
 	private val Json = new JsonFactory
 
-	private def writeJson(jg: JsonGenerator)(node: TreeNodeData) {
-		jg writeFieldName node.id.toString
+	private def writeJson(jg: JsonGenerator)(node: TreeNode) {
 		jg.writeStartObject
 
-		for (parentId <- node.parentId) jg.writeNumberField("parentId", parentId)
-		jg.writeStringField("name", node.label)
-		jg.writeStringField("kind", node.kind.label)
-		for (size <- node.size) jg.writeNumberField("lineCount", size)
-		for (traced <- node.traced) jg.writeBooleanField("traced", traced)
+		jg.writeNumberField("id", node.data.id)
+		for (parentId <- node.data.parentId) jg.writeNumberField("parentId", parentId)
+		jg.writeStringField("name", node.data.label)
+		jg.writeStringField("kind", node.data.kind.label)
+		for (size <- node.data.size) jg.writeNumberField("lineCount", size)
+		for (traced <- node.data.traced) jg.writeBooleanField("traced", traced)
+
+		if (!node.children.isEmpty) {
+			jg writeArrayFieldStart "children"
+			node.children.foreach(writeJson(jg))
+			jg.writeEndArray
+		}
 
 		jg.writeEndObject
 	}
 
-	def streamTreemapData(traceData: TraceData): OutputStreamResponse = {
+	def streamTreemapData(tree: List[TreeNode]): OutputStreamResponse = {
 		def writeData(out: OutputStream) {
 			val jg = Json createGenerator out
 
 			try {
-				jg.writeStartObject
-				traceData.treeNodeData.foreach(writeJson(jg))
-				jg.writeEndObject
+				jg.writeStartArray
+				tree.foreach(writeJson(jg))
+				jg.writeEndArray
 			} finally jg.close
 		}
 

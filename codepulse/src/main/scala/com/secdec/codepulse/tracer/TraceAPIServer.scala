@@ -26,13 +26,11 @@ import scala.concurrent.duration.DurationInt
 import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
-
 import org.joda.time.format.DateTimeFormat
-
 import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
-
 import akka.actor.Cancellable
+import net.liftweb.common.Full
 import net.liftweb.common.Loggable
 import net.liftweb.http._
 import net.liftweb.http.rest._
@@ -293,9 +291,16 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 		case Paths.PackageTree(target) Get req =>
 			PackageTreeStreamer.streamPackageTree(target.treeBuilder.packageTree)
 
-		// GET the trace's treemap data as json
-		case Paths.Treemap(target) Get req =>
-			TreemapDataStreamer.streamTreemapData(target.traceData)
+		// stream a projected treemap based on the POSTed selected packages
+		case Paths.Treemap(target) Post req =>
+			req.param("nodes") match {
+				case Full(packages) =>
+					val ids = packages.split(',').flatMap(AsInt.unapply).toSet
+					val tree = target.treeBuilder.projectTree(ids)
+					TreemapDataStreamer.streamTreemapData(tree)
+
+				case _ => BadResponse()
+			}
 
 		case Paths.TreeInstrumentation(target) Put req =>
 			def getBool(j: JValue) = j match {
