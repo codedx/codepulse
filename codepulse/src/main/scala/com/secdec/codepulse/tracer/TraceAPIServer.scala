@@ -297,7 +297,7 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 				case Full(packages) =>
 					val ids = packages.split(',').flatMap(AsInt.unapply).toSet
 					val tree = target.treeBuilder.projectTree(ids)
-					TreemapDataStreamer.streamTreemapData(tree)
+					TreemapDataStreamer.streamTreemapData(target.traceData.treeNodeData, tree)
 
 				case _ => BadResponse()
 			}

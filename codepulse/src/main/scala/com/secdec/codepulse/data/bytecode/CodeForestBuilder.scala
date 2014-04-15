@@ -31,7 +31,7 @@ object CodeForestBuilder {
 	val JSPGroupName = "JSPs"
 }
 
-class CodeForestBuilder(defaultTracedGroups: List[String]) {
+class CodeForestBuilder {
 	import CodeForestBuilder._
 
 	private val roots = SortedSet.empty[CodeTreeNode]
@@ -45,18 +45,13 @@ class CodeForestBuilder(defaultTracedGroups: List[String]) {
 
 	def result = {
 		val lb = List.newBuilder[TreeNodeData]
-		val tracedGroups = defaultTracedGroups.toSet
 		for (root <- roots) root.visitTree { node =>
 			val id = node.id
 			val name = node.name
 			val parentId = node.parentId
 			val kind = node.kind
 			val size = node.size
-			val traced = kind match {
-				case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
-				case _ => None
-			}
-			lb += TreeNodeData(id, parentId, name, kind, size, traced)
+			lb += TreeNodeData(id, parentId, name, kind, size)
 		}
 		lb.result()
 	}

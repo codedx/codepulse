@@ -29,9 +29,8 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
   * @param kind The `CodeTreeNodeKind` of this node
   * @param size A number indicating the size of the node (e.g. lines of code). If unspecified,
   * the size of a node is assumed to be the sum of its childrens' sizes.
-  * @param traced whether or not this treenode is being traced; this value may be unspecified (None)
   */
-case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], traced: Option[Boolean])
+case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int])
 
 /** Access trait for tree node data.
   *
@@ -64,9 +63,19 @@ trait TreeNodeDataAccess {
 	def storeNode(node: TreeNodeData): Unit
 	def storeNodes(nodes: Iterable[TreeNodeData]) = nodes foreach storeNode
 
+	def isTraced(id: Int): Option[Boolean]
+	def isTraced(node: TreeNodeData): Option[Boolean] = isTraced(node.id)
+
 	def updateTraced(id: Int, traced: Option[Boolean]): Unit
 	def updateTraced(id: Int, traced: Boolean): Unit = updateTraced(id, Some(traced))
 	def updateTraced(node: TreeNodeData, traced: Option[Boolean]): Unit = updateTraced(node.id, traced)
 	def updateTraced(node: TreeNodeData, traced: Boolean): Unit = updateTraced(node.id, Some(traced))
 	def updateTraced(values: Iterable[(Int, Boolean)]): Unit = values foreach { case (id, traced) => updateTraced(id, Some(traced)) }
+
+	implicit class ExtendedTreeNodeData(n: TreeNodeData) {
+		/** whether or not this treenode is being traced; this value may be unspecified (None) */
+		def traced = isTraced(n)
+		def traced_=(newVal: Boolean) = updateTraced(n, newVal)
+		def traced_=(newVal: Option[Boolean]) = updateTraced(n, newVal)
+	}
 }

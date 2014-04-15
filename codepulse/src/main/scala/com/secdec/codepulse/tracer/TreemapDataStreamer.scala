@@ -34,7 +34,9 @@ import net.liftweb.json.Printer
 object TreemapDataStreamer {
 	private val Json = new JsonFactory
 
-	private def writeJson(jg: JsonGenerator)(node: TreeNode) {
+	private def writeJson(treeNodeData: TreeNodeDataAccess, jg: JsonGenerator)(node: TreeNode) {
+		import treeNodeData.ExtendedTreeNodeData
+
 		jg.writeStartObject
 
 		jg.writeNumberField("id", node.data.id)
@@ -46,20 +48,20 @@ object TreemapDataStreamer {
 
 		if (!node.children.isEmpty) {
 			jg writeArrayFieldStart "children"
-			node.children.foreach(writeJson(jg))
+			node.children.foreach(writeJson(treeNodeData, jg))
 			jg.writeEndArray
 		}
 
 		jg.writeEndObject
 	}
 
-	def streamTreemapData(tree: List[TreeNode]): OutputStreamResponse = {
+	def streamTreemapData(treeNodeData: TreeNodeDataAccess, tree: List[TreeNode]): OutputStreamResponse = {
 		def writeData(out: OutputStream) {
 			val jg = Json createGenerator out
 
 			try {
 				jg.writeStartArray
-				tree.foreach(writeJson(jg))
+				tree.foreach(writeJson(treeNodeData, jg))
 				jg.writeEndArray
 			} finally jg.close
 		}

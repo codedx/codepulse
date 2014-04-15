@@ -96,6 +96,8 @@ object TraceExporter extends JsonHelpers {
 	}
 
 	private def writeTreeNodeData(out: OutputStream, treeNodeData: TreeNodeDataAccess) {
+		import treeNodeData.ExtendedTreeNodeData
+
 		streamJson(out) { jg =>
 			jg.writeStartArray
 

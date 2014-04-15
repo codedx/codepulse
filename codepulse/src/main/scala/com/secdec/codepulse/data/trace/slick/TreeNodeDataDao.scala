@@ -48,10 +48,18 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		def label = column[String]("label", O.NotNull)
 		def kind = column[CodeTreeNodeKind]("kind", O.NotNull)
 		def size = column[Option[Int]]("size", O.Nullable)
-		def traced = column[Option[Boolean]]("traced", O.Nullable)
-		def * = (id, parentId, label, kind, size, traced) <> (TreeNode.tupled, TreeNode.unapply)
+		def * = (id, parentId, label, kind, size) <> (TreeNode.tupled, TreeNode.unapply)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
+
+	class TracedNodes(tag: Tag) extends Table[(Int, Boolean)](tag, "traced_nodes") {
+		def nodeId = column[Int]("node_id", O.PrimaryKey, O.NotNull)
+		def traced = column[Boolean]("traced", O.NotNull)
+		def * = (nodeId, traced)
+
+		def node = foreignKey("tn_node", nodeId, treeNodeData)(_.id, onDelete = ForeignKeyAction.Cascade)
+	}
+	val tracedNodes = TableQuery[TracedNodes]
 
 	class MethodSignatureNodeMap(tag: Tag) extends Table[(String, Int)](tag, "method_signature_node_map") {
 		def signature = column[String]("sig", O.PrimaryKey, O.NotNull)
@@ -71,7 +79,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 	}
 	val jspNodeMap = TableQuery[JspNodeMap]
 
-	def create(implicit session: Session) = (treeNodeData.ddl ++ methodSignatureNodeMap.ddl ++ jspNodeMap.ddl).create
+	def create(implicit session: Session) = (treeNodeData.ddl ++ tracedNodes.ddl ++ methodSignatureNodeMap.ddl ++ jspNodeMap.ddl).create
 
 	def get(id: Int)(implicit session: Session): Option[TreeNode] = {
 		(for (n <- treeNodeData if n.id === id) yield n).firstOption
@@ -134,8 +142,20 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 		treeNodeData ++= nodes
 	}
 
+	def getTraced()(implicit session: Session) = tracedNodes.list
+
 	def updateTraced(id: Int, traced: Option[Boolean])(implicit session: Session) {
-		val q = for (n <- treeNodeData if n.id === id) yield n.traced
-		q.update(traced)
+		traced match {
+			case Some(traced) =>
+				val q = for (row <- tracedNodes if row.nodeId === id) yield row.traced
+				q.update(traced) match {
+					case 0 => tracedNodes += id -> traced
+					case _ =>
+				}
+
+			case None =>
+				val q = for (row <- tracedNodes if row.nodeId === id) yield row
+				q.delete
+		}
 	}
 }

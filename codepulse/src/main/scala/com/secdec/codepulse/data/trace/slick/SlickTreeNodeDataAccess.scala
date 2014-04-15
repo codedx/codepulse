@@ -101,7 +101,18 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao storeNodes nodes
 	}
 
-	def updateTraced(id: Int, traced: Option[Boolean]) = db withTransaction { implicit transaction =>
-		dao.updateTraced(id, traced)
+	private lazy val tracedCache = collection.mutable.Map(db withSession { implicit session => dao.getTraced }: _*)
+
+	def isTraced(id: Int): Option[Boolean] = tracedCache.get(id)
+
+	def updateTraced(id: Int, traced: Option[Boolean]) = {
+		db withTransaction { implicit transaction =>
+			dao.updateTraced(id, traced)
+		}
+
+		traced match {
+			case Some(traced) => tracedCache += id -> traced
+			case None => tracedCache -= id
+		}
 	}
 }
