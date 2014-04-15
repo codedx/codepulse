@@ -32,6 +32,16 @@
 	padding-bottom: 25px;
 }
 
+.header-push {
+	height: 60px;
+	min-height: 60px;
+}
+
+.footer-push {
+	height: 25px;
+	min-height: 25px;
+}
+
 #footer .half {
 	padding: 2px 5px;
 	width: 50%;

@@ -1,9 +1,10 @@
 $(document).ready(function(){
 
-	// to be used in setup
-	var uploadUrl = '/trace-api/file-upload'
+	// wire up the new analysis form to submit to the trace creation url, with a mandatory name
+	setupUploadForm($('#new-analysis-form'), '/trace-api/trace/create', false)
 
-	setupUploadForm($('#new-analysis-form'), uploadUrl, false)
+	// wire up the new import form to submit to the trace import url, with an optional name
+	setupUploadForm($('#new-import-form'), '/trace-api/trace/import', true)
 
 	function setupUploadForm($form, uploadUrl, nameOptional){
 		/*

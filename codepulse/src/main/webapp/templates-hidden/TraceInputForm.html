@@ -4,8 +4,13 @@
 		<link class="lift:Includes.TraceInputForm"></link>
 	</lift:head>
 
+	<ul class="form-tabs-list">
+		<li class="form-tab active"><a data-toggle="tab" href="#new-analysis-form">New Trace</a></li>
+		<li class="form-tab"><a data-toggle="tab" href="#new-import-form">Import Trace</a></li>
+	</ul>
+
 	<!-- NEW ANALYSIS UPLOAD -->
-	<div id="new-analysis-form">
+	<div id="new-analysis-form" class="active">
 		<!-- NAME -->
 		<div class="form-field clearfix">
 			<div class="input-label">Trace Name</div>
@@ -85,6 +90,63 @@
 	</div>
 	<!-- END OF ANALYSIS FORM -->
 
-	<!-- TODO: NEW IMPORT UPLOAD -->
+	<!-- TRACE IMPORT FORM -->
+	<div id="new-import-form">
+
+		<!-- FILE -->
+		<div class="form-field clearfix">
+			<div class="input-label">File</div>
+
+			<div class="input-area">
+
+				<div class="file-input-area clearfix">
+
+					<div class="file-input-button btn btn-flat btn-secondary">
+						<input type="file" name="file-input"></input>
+						<div class="prompt">
+							<i class="fa fa-folder-open-o"></i>
+							Browse for a file
+						</div>
+					</div>
+
+					<div class="file-or-msg">OR</div>
+
+					<div class="file-dropzone">
+						<div class="dropzone-msg">
+							<!-- see TraceInputForm.css for content -->
+						</div>
+					</div>
+				</div>
+
+				<div class="file-input-result">
+					The trace will be imported from
+					<span name="file-input-choice-label">
+						the file you choose or drag
+					</span>
+				</div>
+
+				<div class="input-help">
+					<i class="fa fa-comment"></i>
+					This is the file that will be imported. Trace files are exported as
+					<span class="filetype">.pulse</span> files.
+				</div>
+			</div>
+			<div class="feedback-area" name="file-feedback">
+				<!-- file feedback, e.g.
+					<div class="feedback">That file is lame, try a different one!</div>
+				-->
+			</div>
+		</div>
+
+		<!-- OK/CANCEL -->
+		<div class="form-field clearfix align-right">
+			<div class="input-area">
+				<div class="btn btn-flat btn-secondary" name="cancel-button">Cancel</div>
+				<div class="btn btn-flat btn-primary" name="submit-button">OK</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- END TRACE IMPORT FORM -->
 
 </div>

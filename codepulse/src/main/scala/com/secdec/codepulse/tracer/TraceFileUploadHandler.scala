@@ -34,6 +34,8 @@ import net.liftweb.common.Failure
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
 import net.liftweb.http.JsonResponse
 import net.liftweb.json.JsonDSL._
+import net.liftweb.common.Box
+import com.secdec.codepulse.data.trace.TraceId
 
 class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 
@@ -44,45 +46,54 @@ class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 
 	object UploadPath {
 		def unapply(path: List[String]) = path match {
-			case "trace-api" :: "file-upload" :: tail => Some(tail)
+			case "trace-api" :: "trace" :: method :: Nil => Some(method)
 			case _ => None
 		}
 	}
 
 	serve {
-		case UploadPath(Nil) Post req => serveFileUpload(req)
+		case UploadPath("create") Post req =>
+			for {
+				inputFile <- getReqFile(req) ?~! "Creating a new trace requires a file"
+				if TraceUploadData.checkForBinaryZip(inputFile)
+				name <- req.param("name") ?~ "You must specify a name"
+			} yield {
+				val traceId = TraceUploadData.handleBinaryZip(inputFile)
+
+				// set the new trace's name
+				traceManager.getTrace(traceId) foreach {
+					_.traceData.metadata.name = name
+				}
+
+				hrefResponse(traceId)
+			}
+
+		case UploadPath("import") Post req =>
+			for {
+				inputFile <- getReqFile(req) ?~! "Importing a trace requires a file"
+				if TraceUploadData.checkForTraceExport(inputFile)
+			} yield {
+				val traceId = TraceUploadData.handleTraceExport(inputFile)
+
+				hrefResponse(traceId)
+			}
 	}
 
-	def serveFileUpload(req: Req): LiftResponse = req.uploadedFiles match {
+	def getReqFile(req: Req): Box[File] = req.uploadedFiles match {
 		case List(upfile: OnDiskFileParamHolder) =>
-			serveFileUpload(upfile.localFile)
+			Full(upfile.localFile)
 
-		case Nil => req.param("path").toOption match {
-			case None => BadResponse()
-			case Some(path) =>
-				val file = new File(path)
-				println(s"Not actually uploading: analyzing file $file")
-				serveFileUpload(file)
+		case Nil => req.param("path") flatMap { path =>
+			val file = new File(path)
+			if (file.canRead) Some(file) else None
 		}
+
+		case _ => Empty
 	}
 
-	def serveFileUpload(upfile: File): LiftResponse = {
-		println(s"Uploaded file ${upfile.getName}")
-
-		val uploadedTraceId = TraceUploadData.handleUpload(upfile)
-		println(s"Upload resulted in trace: $uploadedTraceId")
-
-		uploadedTraceId match {
-			case Full(traceId) =>
-				val target = traceManager.getTrace(traceId)
-				val href = TraceDetailsPage.traceHref(traceId)
-				JsonResponse("href" -> href)
-			case Empty =>
-				NotFoundResponse()
-			case Failure(msg, _, _) =>
-				NotFoundResponse(msg)
-		}
-
+	def hrefResponse(traceId: TraceId) = {
+		val href = TraceDetailsPage.traceHref(traceId)
+		JsonResponse("href" -> href)
 	}
 
 }

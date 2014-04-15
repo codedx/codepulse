@@ -46,6 +46,53 @@ trace-input-form .form-field {
 	left: 0;
 }
 
+#new-analysis-form:not(.active),
+#new-import-form:not(.active) { 
+	display: none; 
+}
+
+/***********\
+| Form Tabs |
+\***********/
+
+#trace-input-form ul.form-tabs-list {
+	list-style: none;
+	margin: 0 0 20px 0;
+	border-bottom: 1px solid lightgray;
+}
+
+#trace-input-form .form-tab {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 5px 10px;
+	background-color: lightgray;
+	cursor: pointer;
+	position: relative;
+}
+
+#trace-input-form .form-tab a {
+	/* overriding bootstrap styles*/
+	text-decoration: none;
+	color: #323232;
+}
+
+#trace-input-form .form-tab.active {
+	background-color: steelblue;
+}
+
+#trace-input-form .form-tab.active a {
+	color: white;
+}
+
+#trace-input-form .form-tab.active:after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: calc(50% - 4px);
+	border: 8px solid transparent;
+	border-top-color: steelblue;
+}
+
 /***************\
 | Feedback Area |
 \***************/
