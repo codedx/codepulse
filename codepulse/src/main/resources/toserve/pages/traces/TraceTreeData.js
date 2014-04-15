@@ -20,8 +20,6 @@
 ;(function(Trace){
 
 	var totalNumMethods = 0,
-		// treeProjector = undefined,
-		// fullTree = undefined,
 		packageTree = undefined,
 		coverageSets = {},
 		treeDataReady = false,
