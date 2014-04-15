@@ -30,23 +30,7 @@ $(document).ready(function(){
 	var treemapContainer = $('#treemap-container'),
 
 		// initialize a treemap widget
-		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
-		
-		// REST endpoint that generates code coverage data for nodes in the treemap
-		treemapDataUrl = document.location.href + '/coverage-treemap.json',
-
-		/*
-		 * Create a large spinner (provided by spin.js) that appears in place
-		 * of the treemap, before the treemap has loaded. Activate it before
-		 * requesting the treemap data from the server.
-		 */
-		treemapSpinner = (function(){
-			var spinner = new Spinner({lines: 17, length: 33, width: 10, radius: 24}),
-				target = document.getElementById('treemap-container')
-
-			spinner.spin(target)
-			return spinner
-		})()
+		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count')
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
@@ -133,7 +117,7 @@ $(document).ready(function(){
 				if(ignoredKinds.has(node.kind)) return 'grey'
 
 
-				var coverage = Trace.coverageSets[node.id],
+				var coverage = Trace.getCoverageSet(node.id),
 					numCovered = countActiveCoverings(coverage)
 
 				if(numCovered == 0) {
@@ -183,14 +167,20 @@ $(document).ready(function(){
 	 * and apply the data to the treemap widget.
 	 */
 	Trace.onTreeDataReady(function(){
+		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(Trace.fullTree, $('#packages'), $('#totals'), $('#clear-selections-button'))
+		var controller = new PackageController(packageTree, $('#packages'), $('#totals'), $('#clear-selections-button'))
 
+		// When the selection of "instrumented" packages changes, trigger a coloring update
+		// on the treemap, since nodes get special treatment if they are uninstrumented.
 		controller.instrumentedWidgets.onValue(function(map){
 			Trace.instrumentedPackages = map
 			Trace.treemapColoringStateChanges.push('Instrumented Packages Changed')
 		})
 
+		// When the selection of "instrumented" packages changes, compare the new state
+		// to the previous state; for each package whose state changed, tell the backend
+		// about the change.
 		controller.instrumentedWidgets.slidingWindow(2,2).onValue(function(ab){
 			var before = ab[0], after = ab[1]
 			function check(key){
@@ -209,26 +199,27 @@ $(document).ready(function(){
 			TraceAPI.updateTreeInstrumentation(changes)
 		})
 
-		/**
-		 * An Rx Property that represents the treemap's TreeData as it
-		 * changes due to the PackageWidgets' selection state. 
-		 *
-		 * When nothing is selected, it uses the full tree; otherwise it 
-		 * creates a filtered projection based on the selected packages.
-		 */
-		var treemapData = controller.selectedWidgets.map(function(sel){
-			var hasSelection = (function(){
-				for(var k in sel) if(sel[k]) return true
-				return false
-			})()
-
-			treemapContainer.toggleClass('no-selection', !hasSelection)
-
-			if(hasSelection) {
-				return Trace.treeProjector.projectPackageFilterTree(function(n){ return sel[n.id] })
-			} else {
-				return Trace.treeProjector.projectEmptyTree()
+		// Watch the package selection state, exposing it as an array
+		// containing the IDs of selected packages.
+		var selectedNodeIds = controller.selectedWidgets.map(function(sel){
+			var selectedIds = []
+			for(var id in sel){
+				if(sel[id]) selectedIds.push(id)
 			}
+			return selectedIds
+		})
+
+		// If there are no selected packages, the treemap container gets a
+		// 'no-selection' class.
+		selectedNodeIds.onValue(function(arr){
+			treemapContainer.toggleClass('no-selection', !arr.length)
+		})
+
+		// As the package selection changes, ask the backend for a new tree
+		// based on the selected packages. This tree will be used to populate
+		// the treemap viz.
+		var treemapData = selectedNodeIds.flatMapLatest(function(selectedIds){
+			return Bacon.fromCallback(TraceAPI.projectTreeMap, selectedIds)
 		})
 
 		// Match the 'compactMode' with the 'showTreemap' state.
@@ -244,8 +235,6 @@ $(document).ready(function(){
 		Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings){
 			controller.applyMethodCoverage(coverage, activeRecordings)
 		})
-
-		treemapSpinner.stop()
 		
 		// Set the coloring function and give the treemap data
 		treemapWidget
@@ -262,18 +251,11 @@ $(document).ready(function(){
 		Trace.traceCoverageUpdateRequests.push('initial load')
 
 		function setTreemapCoverage(recordData){
-			var coverageSets = Trace.coverageSets
-			function recurse(node){
-				var s = coverageSets[node.id] = d3.set(),
-					rd = recordData[node.id],
-					kids = node.children
-				if(rd && rd.length) rd.forEach(function(c){ s.add(c) })
-				kids && kids.forEach(function(kid){
-					recurse(kid)
-					coverageSets[kid.id].forEach(function(c){ s.add(c) })
-				})
+
+			for(var nodeId in recordData){
+				Trace.setNodeCoverage(nodeId, recordData[nodeId])
 			}
-			recurse(Trace.fullTree.root)
+
 			treemapWidget.nodeColoring(treemapColoring())
 		}
 
@@ -320,7 +302,7 @@ $(document).ready(function(){
 
 					// Check if the node was encountered by any recordings;
 					// if so, create an indication of which ones
-					var recordings = Trace.coverageSets[node.id].values()
+					var recordings = Trace.getCoverageSet(node.id).values()
 						.map(function(recId){ return Trace.getRecording(recId) })
 						.filter(function(d){ return d })
 

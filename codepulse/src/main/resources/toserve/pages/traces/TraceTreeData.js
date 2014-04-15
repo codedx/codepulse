@@ -20,8 +20,9 @@
 ;(function(Trace){
 
 	var totalNumMethods = 0,
-		treeProjector = undefined,
-		fullTree = undefined,
+		// treeProjector = undefined,
+		// fullTree = undefined,
+		packageTree = undefined,
 		coverageSets = {},
 		treeDataReady = false,
 		treeDataReadyCallbacks = []
@@ -30,41 +31,43 @@
 	Trace.ready(function(){
 		console.log('Trace finished loading. Time to load the treemap data')
 
-		TraceAPI.loadTreemap(function(d){
-
-			treeProjector = new TreeProjector(d)
-
-			fullTree = treeProjector.projectFullTree(true /* generate self nodes for packages */)
-
-			fullTree.forEachNode(true, function(n){
-				coverageSets[n.id] = d3.set()
-				if(n.kind == 'method') totalNumMethods++
-			})
+		TraceAPI.loadPackageTree(function(pt){
+			packageTree = pt
 
 			treeDataReady = true
+
+			packageTree.root.children.forEach(function(topNode){
+				console.log('counting methods from ', topNode)
+				totalNumMethods += topNode.methodCount
+			})
 
 			treeDataReadyCallbacks.forEach(function(callback){
 				callback()
 			})
-
+			treeDataReadyCallbacks = []
 		})
+
 	})
 
 	Trace.__defineGetter__('totalNumMethods', function(){
 		return totalNumMethods
 	})
 
-	Trace.__defineGetter__('treeProjector', function(){
-		return treeProjector
+	Trace.__defineGetter__('packageTree', function(){
+		return packageTree
 	})
 
-	Trace.__defineGetter__('fullTree', function(){
-		return fullTree
-	})
+	Trace.getCoverageSet = function(nodeId){
+		return coverageSets[nodeId] || (coverageSets[nodeId] = d3.set())
+	}
 
-	Trace.__defineGetter__('coverageSets', function(){
-		return coverageSets
-	})
+	Trace.setNodeCoverage = function(nodeId, coverageArray){
+		return coverageSets[nodeId] = d3.set(coverageArray)
+	}
+
+	Trace.clearCoverageSet = function(nodeId){
+		return coverageSets[nodeId] = d3.set()
+	}
 
 	Trace.__defineGetter__('treeDataReady', function(){
 		return treeDataReady

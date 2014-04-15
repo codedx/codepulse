@@ -25,7 +25,14 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 
 case class TreeNode(data: TreeNodeData, children: List[TreeNode])
 
-case class PackageTreeNode(id: Option[Int], kind: CodeTreeNodeKind, label: String, methodCount: Int, traced: Option[Boolean], children: List[PackageTreeNode])
+case class PackageTreeNode(
+	id: Option[Int],
+	kind: CodeTreeNodeKind,
+	label: String,
+	methodCount: Int,
+	otherDescendantIds: List[Int],
+	traced: Option[Boolean],
+	children: List[PackageTreeNode])
 
 /** Builds/projects treemap and package tree data as JSON for client.
   * TODO: manage lifetime of cached data internally
@@ -85,9 +92,25 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 			}).sum
 		}
 
+		def getOtherDescendants(node: TreeNode): List[Int] = {
+			val builder = List.newBuilder[Int]
+			def recurse(from: TreeNode): Unit = from.data.kind match {
+				case CodeTreeNodeKind.Mth | CodeTreeNodeKind.Cls =>
+					// add the node's id and all of its descendants
+					builder += from.data.id
+					from.children foreach recurse
+				case _ =>
+				// do not act on package|group nodes
+			}
+			node.children foreach recurse
+			builder.result
+		}
+
 		def transform(node: TreeNode): PackageTreeNode = {
 			// we only want groups and packages
 			def filterChildren(children: List[TreeNode]) = children.filter { n => n.data.kind == CodeTreeNodeKind.Grp || n.data.kind == CodeTreeNodeKind.Pkg }
+
+			val otherDescendants = getOtherDescendants(node)
 
 			if (isEligibleForSelfNode(node)) {
 				// split the node children depending on where they belong
@@ -97,10 +120,10 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 				}
 
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, node.data.traced, Nil)
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.traced, selfNode :: filterChildren(children).map(transform))
+				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, otherDescendants, node.data.traced, Nil)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), Nil, node.data.traced, selfNode :: filterChildren(children).map(transform))
 			} else {
-				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), node.data.traced, filterChildren(node.children).map(transform))
+				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), otherDescendants, node.data.traced, filterChildren(node.children).map(transform))
 			}
 		}
 

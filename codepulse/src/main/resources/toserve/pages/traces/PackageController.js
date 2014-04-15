@@ -31,31 +31,27 @@
 
 		var widgets = {}
 
-		function eligibleForWidget(node){
-			if(!node) return false
-
-			return node.kind == 'package' ||
-				node.kind == 'group' ||
-				node.kind == 'root'
-		}
+		// build this into a Map[node.id -> packageNode]
+		// Note: the package tree doesn't include all nodes; instead, it includes
+		// an 'otherDescendantIds' array, to represent all of the 'direct' descendants
+		// of each package|group.
+		var nodePackageParents = {}
 
 		// Get the partial selection state for the trace instrumentation flag, for nodes that
 		// would exist in the package list. Note that <self> nodes will take their original
 		// node's `id` and `traced` properties, and the original's `traced` will be set to
 		// undefined. This function sets a `partialTraceSelection` value on nodes recursively,
 		// with `1 = fully selected`, `0 = unselected`, and `undefined = partially selected`.
-		(function calculatePartialTraceSelections(node){
+		;(function calculatePartialTraceSelections(node){
 			var isFullSelected = true,
 				isPartialSelected = false
 
 			if(node.traced == 0) isFullSelected = false
 
 			node.children.forEach(function(kid){
-				if(eligibleForWidget(kid)){
-					var kidSelection = calculatePartialTraceSelections(kid)
-					if(!kidSelection) isFullSelected = false
-					if(kidSelection || kidSelection == undefined) isPartialSelected = true
-				}
+				var kidSelection = calculatePartialTraceSelections(kid)
+				if(!kidSelection) isFullSelected = false
+				if(kidSelection || kidSelection == undefined) isPartialSelected = true
 			})
 
 			var selectionValue = isFullSelected ? 1 : isPartialSelected ? undefined : 0
@@ -66,69 +62,89 @@
 		// special case: the root is never selected
 		treeData.root.partialTraceSelection = 0
 
+		// walk the tree in order to calculate the `nodePackageParents` map.
+		;(function calculateNodePackageParents(node, parent){
+			if(parent) nodePackageParents[node.id] = parent
+
+			node.children.forEach(function(child){
+				calculateNodePackageParents(child, node)
+			})
+
+			if(node.otherDescendantIds) node.otherDescendantIds.forEach(function(childId){
+				nodePackageParents[childId] = node
+			})
+
+		})(treeData.root, undefined)
+
 		// initialize the `stateTemplate` and `widgets` maps
 		// based on the package nodes in `treeData`
 		;(function setupTreeHierarchy(packageParentNode, node){
-			if(eligibleForWidget(node)){
 
-				var pw = new PackageWidget()
-				widgets[node.id] = pw
+			var pw = new PackageWidget()
+			widgets[node.id] = pw
 
-				pw.instrumentationSelected(node.partialTraceSelection)
+			pw.instrumentationSelected(node.partialTraceSelection)
 
-				pw.collapseChildren(/* collapsed = */true, /* animate = */false)
+			pw.collapseChildren(/* collapsed = */true, /* animate = */false)
 
-				stateTemplate[node.id] = pw.selectedProp
-				pw.selectionClicks.onValue(function(){
-					handleSelectionClick(node, pw)
+			stateTemplate[node.id] = pw.selectedProp
+			pw.selectionClicks.onValue(function(){
+				handleSelectionClick(node, pw)
+			})
+
+			instrumentedTemplate[node.id] = pw.instrumentationSelectedProp
+			pw.instrumentationSelectedClicks.onValue(function(){
+				handleInstrumentationSelectionClick(node, pw)
+			})
+
+			pw.uiParts.collapser.click(function(event){
+				pw.collapseChildren('toggle', true)
+				event.stopPropagation()
+			})
+
+
+			if(node.kind == 'root'){
+				pw.uiParts.main.appendTo($totalsContainer)
+				pw.abbreviatedLabel('Overall Coverage')
+				pw.selectable(false)
+				pw.instrumentationSelectable(false)
+
+				var totalMethodCount = 0
+				node.children.forEach(function(child){
+					totalMethodCount += child.methodCount
 				})
+				pw.methodCount(totalMethodCount)
+			} else {
 
-				instrumentedTemplate[node.id] = pw.instrumentationSelectedProp
-				pw.instrumentationSelectedClicks.onValue(function(){
-					handleInstrumentationSelectionClick(node, pw)
-				})
+				pw.methodCount(node.methodCount)
 
-				pw.uiParts.collapser.click(function(event){
-					pw.collapseChildren('toggle', true)
-					event.stopPropagation()
-				})
-
-				if(node.kind == 'root'){
-					pw.uiParts.main.appendTo($totalsContainer)
-					pw.abbreviatedLabel('Overall Coverage')
-					pw.selectable(false)
-					pw.instrumentationSelectable(false)
+				if(packageParentNode){
+					widgets[packageParentNode.id].children.add(pw)
+				} else {
+					pw.uiParts.main.appendTo($container)
 				}
 
-				if(node.kind == 'group' || node.kind == 'package'){
-					if(packageParentNode){
-						widgets[packageParentNode.id].children.add(pw)
-					} else {
-						pw.uiParts.main.appendTo($container)
+				if(node.isSelfNode){
+					pw.fullLabel(node.label).abbreviatedLabel(node.label)
+				} else {
+					var abbrevName
+
+					if (node.kind != 'group' && packageParentNode && packageParentNode.kind == 'group')
+						abbrevName = node.label
+					else {
+						var parentName = packageParentNode ? packageParentNode.label : '',
+							abbrevName = node.label.substr(parentName.length)
 					}
 
-					if(node.isSelfNode){
-						pw.fullLabel(node.name).abbreviatedLabel(node.name)
-					} else {
-						var abbrevName
-
-						if (node.kind != 'group' && packageParentNode && packageParentNode.kind == 'group')
-							abbrevName = node.name
-						else {
-							var parentName = packageParentNode ? packageParentNode.name : '',
-								abbrevName = node.name.substr(parentName.length)
-						}
-
-						pw.fullLabel(node.name).abbreviatedLabel(abbrevName)
-					}
+					pw.fullLabel(node.label).abbreviatedLabel(abbrevName)
 				}
 			}
 
-			;(node.children || [])
+			node.children
 				.sort(function(a,b){
-					// alphabetic sort by node.name
-					var an = a.name.toUpperCase(),
-						bn = b.name.toUpperCase()
+					// alphabetic sort by node.label
+					var an = a.label.toUpperCase(),
+						bn = b.label.toUpperCase()
 
 					if(an < bn) return -1
 					if(an > bn) return 1
@@ -141,19 +157,12 @@
 
 		})(undefined, treeData.root)
 
-		function hasPackageChild(node){
-			var found = false
-			;(node.children || []).forEach(function(child){
-				if(child.kind == 'package') found = true
-			})
-			return found
-		}
-
 		// Disable all of the widgets while the trace is running
 		Trace.running.onValue(function(isRunning){
 			for(var id in widgets){
 				var pw = widgets[id],
 					node = treeData.getNode(id)
+
 				if(node.kind != 'root'){
 					pw.instrumentationSelectable(!isRunning)
 				}
@@ -219,9 +228,6 @@
 			/*set*/ function(w,s){ return w.instrumentationSelected(s) }
 			)
 
-		// set the `methodCount` property for all widgets
-		applyMethodCounts(treeData, widgets)
-
 		/**
 		 * Exposes the selection state of each of the widgets, as a
 		 * Map[package.id -> isSelected]
@@ -270,53 +276,12 @@
 		}
 
 		this.highlightPackages = function(methodIds){
-			highlightPackages(treeData, widgets, methodIds)
+			highlightPackages(treeData, widgets, methodIds, nodePackageParents)
 		}
 
 		this.applyMethodCoverage = function(coverageRecords, activeRecordings){
-			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings)
+			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings, nodePackageParents)
 		}
-	}
-
-	// Returns an array of package-kind Tree Nodes.
-	function findPackages(treeData){
-		var a = []
-		a.push(treeData.root)
-		treeData.forEachNode(function(node){
-			if(node.kind == 'package'){
-				a.push(node)
-			}
-		})
-		return a
-	}
-
-	// Compute and set the `methodCount` property for all of the widgets
-	function applyMethodCounts(treeData, widgets){
-		function recurse(node){
-			var count = 0
-
-			if(node.kind == 'method') ++count
-
-			;(node.children || []).forEach(function(kid){
-				count += recurse(kid)
-			})
-
-			if(widgets[node.id]) widgets[node.id].methodCount(count)
-
-			return count
-
-			/* Alternate Strategy:
-			 * Only count methods that fall directly beneath each package;
-			 * This means that 'com.foo' would not include methods defined in
-			 * 'com.foo.bar'. To do this, uncomment the following, and comment
-			 * out the above return statement.
-			 */
-			/*
-			 if(node.kind == 'package') return 0
-			 else return count
-			 */
-		}
-		recurse(treeData.root)
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets
@@ -324,7 +289,7 @@
 	// @param treeData - the tree structure being managed
 	// @param widgets - a Map[packageNode.id -> PackageWidget]
 	// @param methodIds - an Array[method.id]
-	function highlightPackages(treeData, widgets, methodIds){
+	function highlightPackages(treeData, widgets, methodIds, nodePackageParents){
 		var toHighlight = {}
 
 
@@ -343,7 +308,9 @@
 		}
 
 		methodIds.forEach(function(id){
-			bubbleUp(treeData.getNode(id))
+			var bubbleFrom = treeData.getNode(id) || nodePackageParents[id]
+			// bubbleUp(treeData.getNode(id))
+			bubbleUp(bubbleFrom)
 		})
 
 		for(var id in toHighlight){
@@ -365,14 +332,14 @@
 	 * @param activeRecordings - A set of recording IDs. Coverage only
 	 *   counts if the recording that covered a method was selected.
 	*/
-	function applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings){
+	function applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings, nodePackageParents){
 
 		// If anything is selected, use that selection to determine coverage.
 		// If nothing is selected, all coverage data counts (i.e. 'all activity' is what's covered)
 		var noSelectedRecordings = activeRecordings.empty()
 
-		function isCoveredBySelectedRecording(node){
-			var records = coverageRecords[node.id]
+		function isCoveredBySelectedRecording(nodeId){
+			var records = coverageRecords[nodeId]
 			if(!records) return false
 
 			if(noSelectedRecordings){
@@ -393,7 +360,11 @@
 			// if(coverageRecords[node.id] && coverageRecords[node.id].length){
 			// 	coverage += 1
 			// }
-			coverage += isCoveredBySelectedRecording(node)
+			coverage += isCoveredBySelectedRecording(node.id)
+
+			if(node.otherDescendantIds) node.otherDescendantIds.forEach(function(id){
+				coverage += isCoveredBySelectedRecording(id)
+			})
 
 			// also include the sum of the childrens' coverages (recursive)
 			;(node.children || []).forEach(function(kid){

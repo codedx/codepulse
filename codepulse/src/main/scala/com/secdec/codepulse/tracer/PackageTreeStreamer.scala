@@ -43,6 +43,12 @@ object PackageTreeStreamer {
 		jg.writeNumberField("methodCount", node.methodCount)
 		for (traced <- node.traced) jg.writeBooleanField("traced", traced)
 
+		if (!node.otherDescendantIds.isEmpty) {
+			jg writeArrayFieldStart "otherDescendantIds"
+			node.otherDescendantIds foreach { jg.writeNumber(_) }
+			jg.writeEndArray
+		}
+
 		if (!node.children.isEmpty) {
 			jg writeArrayFieldStart "children"
 			node.children.foreach(writeJson(jg))

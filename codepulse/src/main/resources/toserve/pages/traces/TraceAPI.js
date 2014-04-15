@@ -151,6 +151,8 @@
 	function requestStart(){ postCommand('/start') }
 	function requestEnd(){ postCommand('/end') }
 
+
+
 	exports.TraceAPI = {
 		'requestStart': function(){ postCommand('/start') },
 		'requestEnd': function(){ postCommand('/end') },
@@ -190,8 +192,17 @@
 			return repeatingGetCommand({ url: commandPath('/accumulation'), getData: null, interval: interval })
 		},
 
-		'loadTreemap': function(callback){
-			d3.json(commandPath('/treemap.json'), callback)
+		'loadPackageTree': function(callback){
+			d3.json(commandPath('/packageTree'), function(trees){
+				callback(new TreeData(trees))
+			})
+		},
+
+		'projectTreeMap': function(nodesArray, callback){
+			var nodesString = nodesArray.join(',')
+			postCommand('/treemap', {nodes: nodesString}, function(trees){
+				callback(new TreeData(trees))
+			})
 		},
 
 		'renameTrace': function(newName, callback){
