@@ -45,8 +45,8 @@ object BuildDef extends Build with VersionSystem {
 
 	val baseProjectSettings = net.virtualvoid.sbt.graph.Plugin.graphSettings ++ baseCompilerSettings ++ Seq(
 		organization := "com.avi",
-		version := "0.8.2",
-		releaseDate := "4/8/2014"
+		version := "0.9.0",
+		releaseDate := "4/15/2014"
 	)
 	
 	val webappProjectSettings = WebPlugin.webSettings ++ Seq (
