@@ -19,6 +19,11 @@
 
 $(document).ready(function(){
 
+	switch(window.location.hash){
+		case '#import':
+			$('a[href=#new-import-form]').tab('show')
+	}
+
 	// wire up the new analysis form to submit to the trace creation url, with a mandatory name
 	setupUploadForm($('#new-analysis-form'), '/trace-api/trace/create', false)
 
