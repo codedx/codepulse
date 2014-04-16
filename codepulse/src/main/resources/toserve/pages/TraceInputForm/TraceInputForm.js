@@ -42,8 +42,8 @@ $(document).ready(function(){
 		/*
 		 * Set the current state of the form (`name` and `fileData`) to null, initially.
 		 */
-		var currentName = null,
-			currentFileData = null
+		var traceFile = new Bacon.Model(null)
+		var traceName = new Bacon.Model('')
 
 		/*
 		 * Set the `currentFeedback` to an empty object. As errors and warnings w.r.t.
@@ -57,9 +57,12 @@ $(document).ready(function(){
 		cancelButton.click(clearForm)
 
 		/*
-		 * Submit the form when the submit button is clicked.
+		 * Typing in the nameInput field will update the `traceName`.
 		 */
-		submitButton.click(submitForm)
+		nameInput.asEventStream('input').onValue(function(){
+			var value = nameInput.val().trim()
+			traceName.set(value)
+		})
 
 		/*
 		 * Set up the fileInput using the jQuery file upload plugin.
@@ -72,20 +75,12 @@ $(document).ready(function(){
 			add: function(e, data){
 				// use this `data` as the current file data.
 				// this will be used once the form is submitted.
-				currentFileData = data
-
-				// get the file's name and put it in the fileChoiceLabel
-				var filename = data.files[0].name
-				fileChoiceLabel.text(filename)
-
-				if(!currentName){
-					currentName = filename
-					nameInput.val(currentName).trigger('input')
-				}
+				traceFile.set(data)
 			},
 			formData: function(){
-				if(!currentName) return []
-				else return [{name: 'name', value: currentName}]
+				var name = traceName.get()
+				if(!name) return []
+				else return [{name: 'name', value: name}]
 			},
 			done: function(e, data){
 				onSubmitDone(data.result)
@@ -95,17 +90,36 @@ $(document).ready(function(){
 			}
 		})
 
+		var traceFileName = traceFile.property.map(function(data){
+			if(data && data.files && data.files.length){
+				return data.files[0].name
+			} else {
+				return null
+			}
+		})
+
+		traceFileName.onValue(function(filename){
+			fileChoiceLabel.text(filename || fileChoiceOriginalText)
+		})
+
+		traceFileName.onValue(function(filename){
+			if(filename && !traceName.get() && !nameOptional){
+				traceName.set(filename)
+				nameInput.val(filename)
+			}
+		})
+
 		/*
 		 * Alternate code path to sending the data to the server, used
 		 * when Code Pulse is being run as an embedded node-webkit app.
-		 * It sends the `path` anc `currentName` to the server, assuming
+		 * It sends the `path` and `traceName` to the server, assuming
 		 * that the server is on the same machine, so it has read access
 		 * to the file at that path.
 		 */
 		function doNativeUpload(path){
 			console.log('using native upload behavior on ', path)
 			$.ajax(uploadUrl, {
-				data: {'path': path, name: currentName},
+				data: {'path': path, name: traceName.get()},
 				type: 'POST',
 				error: function(xhr, status){ onSubmitError(xhr.responseText) },
 				success: function(data){ onSubmitDone(data) }
@@ -190,21 +204,15 @@ $(document).ready(function(){
 		 */
 		var nameInputValues = nameInput.asEventStream('input')
 			.map(function(){ return nameInput.val().trim() })
-		
-		/*
-		 * Assign the latest change from the nameInput to the currentName
-		 */
-		nameInputValues
-			.onValue(function(name){
-				currentName = name
-			})
+			.toProperty()
+			.noLazy()
 
 		/*
 		 * As the name changes, ask the server if the latest name
 		 * would conflict with the name of an existing trace. Set
 		 * the 'name-conflict' feedback warning accordingly.
 		 */
-		nameInputValues
+		traceName.changes
 			.debounce(300)
 			.flatMapLatest(function(name){
 				return Bacon.fromNodeCallback(function(callback){
@@ -224,7 +232,7 @@ $(document).ready(function(){
 		 * error if the name becomes blank after the user had already
 		 * typed something (e.g. they deleted what they typed).
 		 */
-		if(!nameOptional) nameInputValues
+		if(!nameOptional) traceName.changes
 			.skipWhile(function(name){ return !name.length })
 			.map(function(name){ return !name.length })
 			.onValue(function(isEmpty){
@@ -236,38 +244,58 @@ $(document).ready(function(){
 			})
 
 		/*
-		 * Return whether or not the form can be submitted.
-		 * There must be a file chosen, and there must be a name
-		 * filled in unless the name is optional.
+		 * Combine the various form inputs as an object
+		 * in a baconjs Property.
 		 */
-		function canSubmitForm(){
-			var hasValidName = nameOptional || (currentName && currentName.trim())
-			console.log(hasValidName, currentFileData)
-			return hasValidName && currentFileData
+		var submissionCriteria = Bacon.combineTemplate({
+			name: traceName.property,
+			fileData: traceFile.property
+		})
+
+		/*
+		 * Check a submissionCriteria object to see if it
+		 * should be allowed for submission.
+		 */
+		function checkSubmissionCriteria(criteria){
+			var hasValidName = nameOptional || criteria.name
+			return hasValidName && criteria.fileData
 		}
 
 		/*
-		 * Begin the upload process, using either 'native' or regular
-		 * browser behavior depending on whether CodePulse is being run
-		 * as an embedded node-webkit app or in a regular browser.
+		 * Represent the current form state as whether or not it can
+		 * be submitted.
 		 */
-		function submitForm(){
-			if(!canSubmitForm()){
-				alert("You can't do that yet")
-				return
-			}
+		var canSubmitForm = submissionCriteria.map(checkSubmissionCriteria)
 
-			var file = currentFileData.files[0],
-				filepath = file.path
+		/*
+		 * Set the 'disabled' class on the submit button depending on the
+		 * state of the `canSubmitForm` property.
+		 */
+		canSubmitForm.not().assign(submitButton, 'toggleClass', 'disabled')
 
-			if(CodePulse.isEmbedded && filepath){
-				// native upload behavior
-				doNativeUpload(filepath)
-			} else {
-				// browser upload behavior
-				currentFileData.submit()
-			}
-		}
+		/*
+		 * When the submit button is clicked, if the form is allowed to be
+		 * submitted, do the submission. Depending on whether CodePulse is
+		 * being run in a browser or as an embedded node-webkit app, the
+		 * actual submission mechanism will be different.
+		 */
+		submissionCriteria
+			.sampledBy(submitButton.asEventStream('click'))
+			.filter(canSubmitForm)
+			.onValue(function(criteria){
+				console.log('allow submission with ', criteria)
+
+				var file = criteria.fileData.files[0],
+					filepath = file.path
+
+				if(CodePulse.isEmbedded && filepath){
+					// native upload behavior
+					doNativeUpload(filepath)
+				} else {
+					// browser upload behavior
+					criteria.fileData.submit()
+				}
+			})
 
 		/*
 		 * Ask the server if there will be a name conflict with the given `name`.
@@ -298,8 +326,6 @@ $(document).ready(function(){
 		function setFeedback(category, message, type){
 			var feedbackObj = message ? {message: message, type: type} : null
 			currentFeedback[category] = feedbackObj
-
-			console.log(currentFeedback)
 
 			var nameFeedbacks = [
 				currentFeedback['name-conflict'],
@@ -336,12 +362,11 @@ $(document).ready(function(){
 		 * and resetting the input and feedback UI elements.
 		 */
 		function clearForm(){
-			currentName = null
-			currentFileData = null
+			traceName.set('')
+			traceFile.set(null)
 			currentFeedback = {}
 
 			nameInput.val('')
-			fileChoiceLabel.text(fileChoiceOriginalText)
 			updateFeedbackUI(nameFeedbackArea, [])
 			updateFeedbackUI(fileFeedbackArea, [])
 		}

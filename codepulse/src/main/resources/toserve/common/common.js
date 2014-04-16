@@ -25,3 +25,18 @@ Bacon.Observable.prototype.noLazy = function(){
 	this.onValue(function(){})
 	return this
 }
+
+Bacon.Model = function(initial){
+	var value = initial
+	var changes = new Bacon.Bus()
+	var prop = changes.toProperty(value).noLazy()
+
+	this.get = function(){ return value }
+	this.set = function(v){
+		value = v
+		changes.push(value)
+	}
+
+	this.__defineGetter__('changes', function(){ return changes })
+	this.__defineGetter__('property', function(){ return prop })
+}
