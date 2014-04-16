@@ -43,20 +43,25 @@ package object tracer {
 	val traceManager = new BootVar[TraceManager]
 	val traceDataProvider = new BootVar[TraceDataProvider]
 	val transientTraceDataProvider = new BootVar[TransientTraceDataProvider]
+	val treeBuilderManager = new BootVar[TreeBuilderManager]
 	val traceFileUploadServer = new BootVar[TraceFileUploadHandler]
 	val traceAPIServer = new BootVar[TraceAPIServer]
 
 	def boot() {
 		val as = TraceManager.defaultActorSystem
 
-		traceDataProvider set new SlickH2TraceDataProvider(TraceDataProvider.DefaultStorageDir, as)
+		val dataProvider = new SlickH2TraceDataProvider(TraceDataProvider.DefaultStorageDir, as)
+		traceDataProvider set dataProvider
 		transientTraceDataProvider set new TransientTraceDataProvider
+
+		val tbm = new TreeBuilderManager(dataProvider)
+		treeBuilderManager set tbm
 
 		val tm = new TraceManager(as)
 
 		traceActorSystem set as
 		traceManager set tm
 		traceFileUploadServer set new TraceFileUploadHandler(tm).initializeServer
-		traceAPIServer set new TraceAPIServer(tm).initializeServer
+		traceAPIServer set new TraceAPIServer(tm, tbm).initializeServer
 	}
 }

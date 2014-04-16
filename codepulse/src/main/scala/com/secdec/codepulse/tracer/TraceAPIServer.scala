@@ -39,7 +39,7 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.util.Helpers.AsBoolean
 import net.liftweb.util.Helpers.AsInt
 
-class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
+class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
 	import ActivityRequest._
 
@@ -289,14 +289,14 @@ class TraceAPIServer(manager: TraceManager) extends RestHelper with Loggable {
 
 		// GET the trace's package tree as json
 		case Paths.PackageTree(target) Get req =>
-			PackageTreeStreamer.streamPackageTree(target.treeBuilder.packageTree)
+			PackageTreeStreamer.streamPackageTree(treeBuilderManager.get(target.id).packageTree)
 
 		// stream a projected treemap based on the POSTed selected packages
 		case Paths.Treemap(target) Post req =>
 			req.param("nodes") match {
 				case Full(packages) =>
 					val ids = packages.split(',').flatMap(AsInt.unapply).toSet
-					val tree = target.treeBuilder.projectTree(ids)
+					val tree = treeBuilderManager.get(target.id).projectTree(ids)
 					TreemapDataStreamer.streamTreemapData(target.traceData.treeNodeData, tree)
 
 				case _ => BadResponse()

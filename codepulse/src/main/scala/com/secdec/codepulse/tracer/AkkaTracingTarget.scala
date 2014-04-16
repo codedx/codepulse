@@ -33,7 +33,6 @@ import reactive.EventStream
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TraceData
-import com.secdec.codepulse.data.trace.TreeBuilder
 import akka.actor.PoisonPill
 
 //sealed trait TracingTargetEvent
@@ -77,7 +76,6 @@ trait TracingTarget {
 
 	def traceData: TraceData
 	def transientData: TransientTraceData
-	def treeBuilder: TreeBuilder
 
 	def requestDeletion(): Unit
 	def notifyFinishedLoading(): Unit
@@ -102,7 +100,7 @@ object AkkaTracingTarget {
 	// implicit Timeout used for the Akka ask (?) method in getState
 	private implicit val timeout = new Timeout(5000)
 
-	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData, val transientData: TransientTraceData, val treeBuilder: TreeBuilder) extends TracingTarget with AskSupport {
+	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
 		def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit) = actor ! Subscribe(sub)
 		def requestNewTraceConnection() = actor ! RequestTraceConnect
 		def requestTraceEnd() = actor ! RequestTraceEnd
@@ -114,10 +112,10 @@ object AkkaTracingTarget {
 		def notifyFinishedLoading() = actor ! FinishedLoading
 	}
 
-	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, treeBuilder: TreeBuilder, jspMapper: Option[JspMapper]): TracingTarget = {
+	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]): TracingTarget = {
 		val props = Props { new AkkaTracingTarget(traceId, traceData, transientTraceData, jspMapper) }
 		val actorRef = actorSystem.actorOf(props)
-		new TracingTargetImpl(traceId, actorRef, traceData, transientTraceData, treeBuilder)
+		new TracingTargetImpl(traceId, actorRef, traceData, transientTraceData)
 	}
 
 }

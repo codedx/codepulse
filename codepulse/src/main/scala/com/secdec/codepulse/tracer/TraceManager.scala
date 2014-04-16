@@ -35,7 +35,6 @@ import com.secdec.codepulse.data.jsp.JasperJspMapper
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TraceDataProvider
 import com.secdec.codepulse.data.trace.TraceData
-import com.secdec.codepulse.data.trace.TreeBuilder
 
 object TraceManager {
 	lazy val defaultActorSystem = {
@@ -88,9 +87,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	private def registerTrace(traceId: TraceId, traceData: TraceData, jspMapper: Option[JspMapper]) = {
 		registerTraceId(traceId)
 
-		val treeBuilder = new TreeBuilder(traceData.treeNodeData)
-
-		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId, treeBuilder, jspMapper)
+		val target = AkkaTracingTarget(actorSystem, traceId, traceData, transientDataProvider get traceId, jspMapper)
 		traces.put(traceId, target)
 
 		// cause a traceListUpdate when this trace's name changes
