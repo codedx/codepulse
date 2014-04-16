@@ -36,8 +36,10 @@ $(document).ready(function(){
 		 */
 		var fileInput = $form.find('[name=file-input]'),
 			nameInput = $form.find('[name=name-input]'),
+			fileInputArea = $form.find('.file-input-area'),
 			fileChoiceLabel = $form.find('[name=file-input-choice-label]'),
 			fileChoiceOriginalText = fileChoiceLabel.text(),
+			fileClearButton = $form.find('.file-input-clear'),
 			fileDropzone = $form.find('.file-dropzone'),
 			cancelButton = $form.find('[name=cancel-button]'),
 			submitButton = $form.find('[name=submit-button]'),
@@ -105,7 +107,11 @@ $(document).ready(function(){
 
 		traceFileName.onValue(function(filename){
 			fileChoiceLabel.text(filename || fileChoiceOriginalText)
+			fileClearButton[filename ? 'show' : 'hide']()
+			fileInputArea[filename ? 'slideUp' : 'slideDown']('fast')
 		})
+
+		fileClearButton.click(function(){ traceFile.set(null) })
 
 		traceFileName.onValue(function(filename){
 			if(filename && !traceName.get() && !nameOptional){

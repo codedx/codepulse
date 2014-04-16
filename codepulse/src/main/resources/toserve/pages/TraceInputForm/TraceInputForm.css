@@ -58,7 +58,7 @@ trace-input-form .form-field {
 #trace-input-form ul.form-tabs-list {
 	list-style: none;
 	margin: 0 0 20px 0;
-	border-bottom: 1px solid lightgray;
+	border-bottom: 2px solid steelblue;
 }
 
 #trace-input-form .form-tab {
@@ -82,15 +82,6 @@ trace-input-form .form-field {
 
 #trace-input-form .form-tab.active a {
 	color: white;
-}
-
-#trace-input-form .form-tab.active:after {
-	content: '';
-	position: absolute;
-	top: 100%;
-	left: calc(50% - 4px);
-	border: 8px solid transparent;
-	border-top-color: steelblue;
 }
 
 /***************\
@@ -203,9 +194,8 @@ trace-input-form .form-field {
 	color: gray;
 }
 
-#trace-input-form .file-input-result span {
+#trace-input-form .file-input-result .file-input-name {
 	font-weight: bold;
-	color: darkgreen;
 }
 
 .filetype {
