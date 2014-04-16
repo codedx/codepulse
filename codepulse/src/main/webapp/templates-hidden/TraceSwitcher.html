@@ -5,42 +5,15 @@
 		<link class="lift:Includes.TraceSwitcher"></link>
 	</lift:head>
 
-	<div class="slideOutForm collapsed">
-		
-		<div class="formfield">
-			<span class="formlabel">Bytecode File</span>
-			<span class="btn btn-flat btn-secondary" name="filebutton">
-				<input type="file" />
-				<span name="filename">No file chosen</span>
-			</span>
-		</div>
-
-		<div class="uploadProgressBar">
-			<div class="fill" style="width: 0%"></div>
-		</div>
-
-		<div class="feedback">
-			<div class="message-box">
-				<div class="message">
-					Drag and drop or use the above button to pick the bytecode file that will be used for this trace. A zip/jar/war file is the expected format.
-				</div>
-			</div>
-		</div>
-
-		<div class="dropzone">
-			<div class="dropzone-msg">
-				<!-- see the css :after pseudo element for content -->
-			</div>
-		</div>
-	</div>
-
 	<div class="slideDownSidebar collapsed">
 		<div class="full-container">
 
 			<lift:embed what="TraceList"></lift:embed>
 
-			<div class="addTraceButton">+ New trace</div>
-
+			<div class="traceInputLinks">
+				<a href="/" class="traceInputLink">+ New trace</a>
+				<a href="/#import" class="traceInputLink">+ Import trace</a>
+			</div>
 		</div>
 	</div>
 

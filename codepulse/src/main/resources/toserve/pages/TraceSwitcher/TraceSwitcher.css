@@ -23,124 +23,35 @@
 	bottom: calc(100% - 60px);
 }
 
-.traceSwitcher .slideOutForm {
-	position: fixed;
-	bottom: 25px;
-	right: 285px;
-	width: 35%;
-	padding: 5px;
-
-	transition: right .3s ease;
-
-	background-color: #BBB;
-	box-shadow: 0 0 5px black;
-}
-
-.traceSwitcher .slideOutForm.collapsed {
-	/* slide off screen to the right, enough that the full width is hidden */
-	right: calc(-35% - 5px);
-}
-
 .traceSwitcher .full-container {
 	width: 100%;
 	height: 100%;
 	position: relative;
 }
 
-.traceSwitcher .addTraceButton {
+.traceSwitcher .traceInputLinks {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
+}
+
+.traceSwitcher .traceInputLink {
+	display: block;
 	padding: 5px;
 	box-sizing: border-box;
 
 	background-color: silver;
 	color: black;
-	cursor: pointer;
+	text-decoration: none;
 }
 
-.traceSwitcher .addTraceButton:hover {
+.traceSwitcher .traceInputLink:hover {
 	background-color: gray;
 }
 
 .traceSwitcher .traceList {
-	max-height: calc(100% - 30px);
+	max-height: calc(100% - 60px);
 	overflow-y: auto;
-}
-
-.traceSwitcher .feedback {
-	min-height: 150px;
-	max-height: 150px;
-	margin: 5px;
-	border-radius: 10px;
-	padding: 10px;
-	box-sizing: border-box;
-	background-color: #DDD;
-	overflow-y: scroll;
-	overflow-x: hidden;
-}
-
-.traceSwitcher .feedback .message-box {
-	border-bottom: 1px solid silver;
-	margin-bottom: 3px;
-	overflow: hidden;
-}
-
-.traceSwitcher .feedback .message-box.error { color: #BD0000; }
-.traceSwitcher .feedback .message-box.success { color: dodgerblue; }
-
-.traceSwitcher .feedback .message-box .message {
-	font-size: .8em;
-	position: relative;
-	transition: left .3s ease;
-	left: 0;
-}
-
-.traceSwitcher .feedback .message-box .message.out {
-	left: 100%;
-}
-
-.traceSwitcher .uploadProgressBar {
-	height: 3px;
-	border-bottom: 1px solid;
-	margin-top: 5px;
-}
-
-.traceSwitcher .uploadProgressBar .fill {
-	height: 100%;
-	background-color: dodgerblue;
-	box-shadow: 0 0 3px dodgerblue;
-	transition: width .3s ease;
-}
-
-.traceSwitcher .formlabel {
-	font-size: 14px;
-}
-
-.traceSwitcher .formfield {
-	margin-bottom: 3px;
-}
-
-.traceSwitcher [name=filebutton] {
-	position: relative;
-	overflow: hidden;
-}
-
-.traceSwitcher input[type=file] {
-	position: absolute;
-	opacity: 0;
-	right: 0;
-	top: 0;
-	font-size: 200px;
-	direction: ltr;
-	cursor: pointer;
-}
-
-.traceSwitcher input[type=text] {
-	/* mostly overriding unwanted styles coming from bootstrap */
-	margin: 0;
-	border-radius: 0;
-	height: 24px;
 }
 
 [data-toggle=TraceSwitcher].active {
@@ -227,45 +138,3 @@
  	animation: stripe-animation 2s linear infinite;
  	-webkit-animation: stripe-animation 2s linear infinite;
  }
-
-/*********************\
-| File Drag/Drop Zone |
-\*********************/
-
-.traceSwitcher .dropzone {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: lightgray;
-
-	display: none;
-}
-
-.traceSwitcher .dropzone.in {
-	display: block;
-}
-
-.traceSwitcher .dropzone.hover {
-	background-color: lightgreen;
-}
-
-.traceSwitcher .dropzone-msg {
-	font-size: xx-large;
-	color: gray;
-	text-align: center;
-	height: calc(100% - 1em);
-	margin: .5em;
-	padding-top: 70px; /* to vertically center the text */
-	border: 3px dashed;
-	border-radius: .5em;
-}
-
-.traceSwitcher .dropzone.in .dropzone-msg:after {
-	content: 'Drag here to import!';
-}
-
-.traceSwitcher .dropzone.hover .dropzone-msg:after {
-	content: 'Drop it here!';
-}
