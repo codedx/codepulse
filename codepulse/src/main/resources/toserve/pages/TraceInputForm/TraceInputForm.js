@@ -52,6 +52,8 @@ $(document).ready(function(){
 		var traceFile = new Bacon.Model(null)
 		var traceName = new Bacon.Model('')
 
+		var isUploading = new Bacon.Model(false)
+
 		/*
 		 * Set the `currentFeedback` to an empty object. As errors and warnings w.r.t.
 		 * the form start appearing, they will be stored in this object, for display.
@@ -142,6 +144,7 @@ $(document).ready(function(){
 		 * encounters an error when trying to contact the server.
 		 */
 		function onSubmitError(err){
+			isUploading.set(false)
 			alert('Error: ' + (err || '(unknown error)'))
 		}
 
@@ -152,6 +155,7 @@ $(document).ready(function(){
 		 * automatically be redirected to that location.
 		 */
 		function onSubmitDone(result){
+			isUploading.set(true)
 			window.location.href = result.href
 		}
 
@@ -293,12 +297,14 @@ $(document).ready(function(){
 		submissionCriteria
 			.sampledBy(submitButton.asEventStream('click'))
 			.filter(canSubmitForm)
+			.filter(isUploading.property.not())
 			.onValue(function(criteria){
 				console.log('allow submission with ', criteria)
 
 				var file = criteria.fileData.files[0],
 					filepath = file.path
 
+				isUploading.set(true)
 				if(CodePulse.isEmbedded && filepath){
 					// native upload behavior
 					doNativeUpload(filepath)
@@ -307,6 +313,10 @@ $(document).ready(function(){
 					criteria.fileData.submit()
 				}
 			})
+
+		isUploading.property.onValue(function(b){
+			submitButton.overlay(b ? 'wait' : 'ready')
+		})
 
 		/*
 		 * Ask the server if there will be a name conflict with the given `name`.
