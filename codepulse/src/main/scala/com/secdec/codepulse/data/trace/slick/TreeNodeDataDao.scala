@@ -28,7 +28,7 @@ import com.secdec.codepulse.data.trace.{ TreeNodeData => TreeNode, _ }
   *
   * @author robertf
   */
-private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
+private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpers {
 	import driver.simple._
 
 	class TreeNodeData(tag: Tag) extends Table[TreeNode](tag, "tree_node_data") {
@@ -123,7 +123,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 	}
 
 	def storeMethodSignatures(signatures: Iterable[(String, Int)])(implicit session: Session) {
-		methodSignatureNodeMap ++= signatures
+		fastImport { methodSignatureNodeMap ++= signatures }
 	}
 
 	def storeJsp(jspPath: String, nodeId: Int)(implicit session: Session) {
@@ -131,7 +131,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 	}
 
 	def storeJsps(jsps: Iterable[(String, Int)])(implicit session: Session) {
-		jspNodeMap ++= jsps
+		fastImport { jspNodeMap ++= jsps }
 	}
 
 	def storeNode(node: TreeNode)(implicit session: Session) {
@@ -139,15 +139,17 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 	}
 
 	def storeNodes(nodes: Iterable[TreeNode])(implicit session: Session) {
-		treeNodeData ++= nodes
+		fastImport { treeNodeData ++= nodes }
 	}
 
 	def getTraced()(implicit session: Session) = tracedNodes.list
 
 	def storeTracedValues(values: Iterable[(Int, Option[Boolean])])(implicit session: Session) {
-		tracedNodes ++= values flatMap {
-			case (id, Some(traced)) => Some(id -> traced)
-			case _ => None
+		fastImport {
+			tracedNodes ++= values flatMap {
+				case (id, Some(traced)) => Some(id -> traced)
+				case _ => None
+			}
 		}
 	}
 

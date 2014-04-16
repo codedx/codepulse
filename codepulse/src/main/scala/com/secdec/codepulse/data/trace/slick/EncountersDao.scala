@@ -27,7 +27,7 @@ import com.secdec.codepulse.data.trace._
   *
   * @author robertf
   */
-private[slick] class EncountersDao(val driver: JdbcProfile, val recordingMetadata: RecordingMetadataDao, val treeNodeData: TreeNodeDataDao) {
+private[slick] class EncountersDao(val driver: JdbcProfile, val recordingMetadata: RecordingMetadataDao, val treeNodeData: TreeNodeDataDao) extends SlickHelpers {
 	import driver.simple._
 
 	class Encounters(tag: Tag) extends Table[(Option[Int], Int)](tag, "node_encounters") {
@@ -50,6 +50,6 @@ private[slick] class EncountersDao(val driver: JdbcProfile, val recordingMetadat
 	}
 
 	def store(entries: Iterable[(Option[Int], Int)])(implicit session: Session) {
-		encounters ++= entries
+		fastImport { encounters ++= entries }
 	}
 }
