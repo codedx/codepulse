@@ -144,6 +144,13 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) {
 
 	def getTraced()(implicit session: Session) = tracedNodes.list
 
+	def storeTracedValues(values: Iterable[(Int, Option[Boolean])])(implicit session: Session) {
+		tracedNodes ++= values flatMap {
+			case (id, Some(traced)) => Some(id -> traced)
+			case _ => None
+		}
+	}
+
 	def updateTraced(id: Int, traced: Option[Boolean])(implicit session: Session) {
 		traced match {
 			case Some(traced) =>

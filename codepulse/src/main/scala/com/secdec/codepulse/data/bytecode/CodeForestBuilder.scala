@@ -44,16 +44,16 @@ class CodeForestBuilder {
 	}
 
 	def result = {
-		val lb = List.newBuilder[TreeNodeData]
-		for (root <- roots) root.visitTree { node =>
-			val id = node.id
-			val name = node.name
-			val parentId = node.parentId
-			val kind = node.kind
-			val size = node.size
-			lb += TreeNodeData(id, parentId, name, kind, size)
+		roots.toStream flatMap { root =>
+			root.streamTree map { node =>
+				val id = node.id
+				val name = node.name
+				val parentId = node.parentId
+				val kind = node.kind
+				val size = node.size
+				root -> TreeNodeData(id, parentId, name, kind, size)
+			}
 		}
-		lb.result()
 	}
 
 	/** Applies the `condensePathNodes` transformation to each root node

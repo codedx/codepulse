@@ -93,6 +93,11 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao storeJsps jsps
 	}
 
+	def bulkImport(data: Iterable[BulkImportElement]) = db withTransaction { implicit transaction =>
+		dao storeNodes data.map(_.data)
+		dao storeTracedValues data.map { element => element.data.id -> element.traced }
+	}
+
 	def storeNode(node: TreeNodeData) = db withTransaction { implicit transaction =>
 		dao storeNode node
 	}

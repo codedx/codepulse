@@ -60,6 +60,9 @@ trait TreeNodeDataAccess {
 	def mapJsp(jspClass: String, nodeId: Int): Unit
 	def mapJsps(jsps: Iterable[(String, Int)]): Unit = jsps foreach { case (jspPath, nodeId) => mapJsp(jspPath, nodeId) }
 
+	case class BulkImportElement(data: TreeNodeData, traced: Option[Boolean])
+	def bulkImport(data: Iterable[BulkImportElement]): Unit
+
 	def storeNode(node: TreeNodeData): Unit
 	def storeNodes(nodes: Iterable[TreeNodeData]) = nodes foreach storeNode
 

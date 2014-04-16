@@ -71,14 +71,7 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 			if (jp.nextToken != START_ARRAY)
 				throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
-			case class BufferRecord(data: TreeNodeData, traced: Option[Boolean])
-			val buffer = collection.mutable.ListBuffer.empty[BufferRecord]
-			def flushBuffer() {
-				treeNodeData.storeNodes(buffer.map(_.data))
-				for (BufferRecord(d, traced) <- buffer) d.traced = traced
-				buffer.clear
-			}
-			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
+			val importer = TreeNodeImporter(treeNodeData)
 
 			while (jp.nextValue != END_ARRAY) {
 				if (jp.getCurrentToken != START_OBJECT)
@@ -118,18 +111,16 @@ object TraceImportReaderV1 extends TraceImportReader with TraceImportHelpers wit
 					}
 				}
 
-				buffer += BufferRecord(TreeNodeData(
+				importer += (TreeNodeData(
 					id getOrElse { throw new TraceImportException("Missing ID for tree node.") },
 					parentId,
 					label getOrElse { throw new TraceImportException("Missing label for tree node.") },
 					kind.getOrElse { throw new TraceImportException("Missing or invalid kind for tree node.") },
 					size),
 					traced)
-
-				checkAndFlush
 			}
 
-			flushBuffer
+			importer.flush
 
 			if (jp.nextToken != null)
 				throw new TraceImportException(s"Unexpected token ${jp.getCurrentToken}; expected EOF.")

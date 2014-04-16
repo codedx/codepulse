@@ -20,22 +20,26 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+import org.apache.commons.io.FilenameUtils
+
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.tracer.export.TraceImporter
-import com.secdec.codepulse.util.RichFile.RichFile
-import com.secdec.codepulse.util.ZipEntryChecker
-import net.liftweb.common.Box
-import net.liftweb.common.Failure
-import org.apache.commons.io.FilenameUtils
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.jsp.JasperJspAdapter
 import com.secdec.codepulse.data.trace.TraceData
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import net.liftweb.common.Full
-import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
+import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.data.trace.TreeNodeData
+import com.secdec.codepulse.data.trace.TreeNodeImporter
+import com.secdec.codepulse.tracer.export.TraceImporter
+import com.secdec.codepulse.util.ZipEntryChecker
+
+import net.liftweb.common.Box
+import net.liftweb.common.Failure
+import net.liftweb.common.Full
 
 object TraceUploadData {
 
@@ -142,22 +146,20 @@ object TraceUploadData {
 		if (treemapNodes.isEmpty) {
 			throw new NoSuchElementException("No method data found in analyzed upload file.")
 		} else {
-			val treeNodeData = traceData.treeNodeData
-			import treeNodeData.ExtendedTreeNodeData
+			val importer = TreeNodeImporter(traceData.treeNodeData)
 
-			val nodeMap = treemapNodes.map(n => n.id -> n).toMap
-			def getRoot(n: TreeNodeData): TreeNodeData = n.parentId match {
-				case Some(parent) => getRoot(nodeMap(parent))
-				case None => n
+			importer ++= treemapNodes map {
+				case (root, node) =>
+					node -> (node.kind match {
+						case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
+						case _ => None
+					})
 			}
 
-			treeNodeData.storeNodes(treemapNodes)
-			for (n <- treemapNodes) n.traced = n.kind match {
-				case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains getRoot(n).label)
-				case _ => None
-			}
-			treeNodeData.mapJsps(jspCorrelations)
-			treeNodeData.mapMethodSignatures(methodCorrelations)
+			importer.flush
+
+			traceData.treeNodeData.mapJsps(jspCorrelations)
+			traceData.treeNodeData.mapMethodSignatures(methodCorrelations)
 
 			// The `creationDate` for trace data detected in this manner
 			// should use its default value ('now'), as this is when the data
