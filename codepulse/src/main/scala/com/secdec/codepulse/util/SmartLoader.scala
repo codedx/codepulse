@@ -20,13 +20,12 @@
 package com.secdec.codepulse.util
 
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
 import scala.io.Codec
-import scala.io.Codec.string2codec
 import scala.io.Source
 
+import org.apache.commons.io.IOUtils
 import org.mozilla.universalchardet.UniversalDetector
 
 /** Loader that detects the proper character set when loading the contents of a
@@ -64,22 +63,7 @@ class SmartLoader {
 	  * memory.
 	  */
 	def loadStream(stream: InputStream): String = {
-		val bytes = {
-			val bos = new ByteArrayOutputStream
-			val buffer = new Array[Byte](BufferSize)
-
-			val chunks = Iterator.continually {
-				stream.read(buffer, 0, buffer.length) -> buffer
-			} takeWhile { _._1 > 0 }
-
-			for ((len, buffer) <- chunks) {
-				bos.write(buffer, 0, len)
-			}
-
-			bos.flush
-			bos.toByteArray
-		}
-
+		val bytes = IOUtils.toByteArray(stream)
 		val charset = Option(detectCharset(new ByteArrayInputStream(bytes))).map[Codec](identity)
 		Source.fromInputStream(new ByteArrayInputStream(bytes))(charset getOrElse Codec.UTF8).mkString
 	}
