@@ -148,7 +148,7 @@ object TraceUploadData {
 		} else {
 			val importer = TreeNodeImporter(traceData.treeNodeData)
 
-			importer ++= treemapNodes map {
+			importer ++= treemapNodes.toIterable map {
 				case (root, node) =>
 					node -> (node.kind match {
 						case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)

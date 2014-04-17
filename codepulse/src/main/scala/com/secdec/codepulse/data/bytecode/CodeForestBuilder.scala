@@ -44,8 +44,8 @@ class CodeForestBuilder {
 	}
 
 	def result = {
-		roots.toStream flatMap { root =>
-			root.streamTree map { node =>
+		roots.toIterator flatMap { root =>
+			root.iterateTree map { node =>
 				val id = node.id
 				val name = node.name
 				val parentId = node.parentId

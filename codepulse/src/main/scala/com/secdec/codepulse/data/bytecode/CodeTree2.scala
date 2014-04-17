@@ -54,9 +54,9 @@ trait CodeTreeNode {
 		for (child <- children) child.visitTree(callback)
 	}
 
-	/* Stream this node and all of its descendants */
-	def streamTree(): Stream[CodeTreeNode] = {
-		this +: (children.toStream.flatMap(_.streamTree))
+	/* Iterate this node and all of its descendants */
+	def iterateTree(): Iterator[CodeTreeNode] = {
+		Iterator.single(this) ++ (children.toIterator.flatMap(_.iterateTree))
 	}
 
 	def findChild(predicate: CodeTreeNode => Boolean): Option[CodeTreeNode] = {
