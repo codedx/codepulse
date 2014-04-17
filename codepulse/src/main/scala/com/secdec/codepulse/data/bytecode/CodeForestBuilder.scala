@@ -44,15 +44,16 @@ class CodeForestBuilder {
 	}
 
 	def result = {
-		roots.toIterator flatMap { root =>
-			root.iterateTree map { node =>
-				val id = node.id
-				val name = node.name
-				val parentId = node.parentId
-				val kind = node.kind
-				val size = node.size
-				root -> TreeNodeData(id, parentId, name, kind, size)
-			}
+		for {
+			root <- roots.toIterator
+			node <- root.iterateTree
+		} yield {
+			val id = node.id
+			val name = node.name
+			val parentId = node.parentId
+			val kind = node.kind
+			val size = node.size
+			root -> TreeNodeData(id, parentId, name, kind, size)
 		}
 	}
 
