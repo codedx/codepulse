@@ -25,11 +25,13 @@ import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.trace.TraceId
 import com.secdec.codepulse.tracer.export.TraceImporter
 import com.secdec.codepulse.util.RichFile.RichFile
+import com.secdec.codepulse.util.SmartLoader
 import com.secdec.codepulse.util.ZipEntryChecker
 import net.liftweb.common.Box
 import net.liftweb.common.Failure
 import org.apache.commons.io.FilenameUtils
 import com.secdec.codepulse.data.jsp.JasperJspAdapter
+import com.secdec.codepulse.data.jsp.JspAnalyzer
 import com.secdec.codepulse.data.trace.TraceData
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -111,6 +113,8 @@ object TraceUploadData {
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
 
+		val loader = new SmartLoader
+
 		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
 			val groupName = if (filename == file.getName) RootGroupName else s"JARs/$filename"
 			if (!entry.isDirectory) {
@@ -123,7 +127,9 @@ object TraceUploadData {
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
 					case "jsp" =>
-						jspAdapter addJsp entry.getName
+						val jspContents = loader loadStream contents
+						val jspSize = JspAnalyzer analyze jspContents
+						jspAdapter.addJsp(entry.getName, jspSize)
 
 					case _ => // nothing
 				}
