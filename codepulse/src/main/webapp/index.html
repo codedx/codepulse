@@ -4,10 +4,15 @@
 	<h1>Traces</h1>
 	</div>
 
+	<div style="width: calc(100% - 285px); padding: 1em; box-sizing: border-box;">
+		<lift:embed what="TraceInputForm"></lift:embed>
+	</div>
+
 	<lift:embed what="TraceSwitcher"></lift:embed>
 
 	<script>
 		$(".slideDownSidebar").removeClass("collapsed");
+		$('.traceInputLinks').remove();
 	</script>
 
 </lift:surround>

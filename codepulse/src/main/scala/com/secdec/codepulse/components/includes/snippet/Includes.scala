@@ -48,7 +48,7 @@ trait IncludesRegistry {
 
 	/** A Javascript Dependency, rendered as a `<script>` tag */
 	case class JS(src: String) extends Dependency {
-		lazy val asXml = <script class="lift:with-resource-id lift:head" type="text/javascript" src={ "/" + LiftRules.resourceServerPath + "/" + src } lift:eagereval="true"/>
+		lazy val asXml = <script class="lift:with-resource-id lift:head" type="text/javascript" src={ "/" + LiftRules.resourceServerPath + "/" + src }/>
 	}
 
 	/** A CSS Dependency, rendered as a stylesheet `<link>` */
@@ -107,7 +107,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	/*
 	 * Hand-crafted-with-love dependencies:
 	 */
-
+	val commonJs = register("commonJs", JS("common/common.js"))
 	val overlay = register("overlay", spinner, JS("widgets/overlay/overlay.js"), CSS("widgets/overlay/overlay.css"))
 	val commonStyle = register("commonStyle", CSS("common/common.css"))
 	val desktopStyle = register("desktopStyle", CSS("common/desktop.css"))
@@ -119,8 +119,9 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val codeTreemap = register("codetreemap", overlay, qtip2, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
 	val colorpickerTooltip = register("colorpickerTooltip", colorpicker, qtip2, JS("pages/traces/colorpicker-tooltip.js"), CSS("pages/traces/colorpicker-tooltip.css"))
 
+	val traceInputForm = register("TraceInputForm", CSS("pages/TraceInputForm/TraceInputForm.css"), JS("pages/TraceInputForm/TraceInputForm.js"))
+
 	val tracesPage = register("tracesPage",
-		JS("pages/traces/common.js"),
 		traceAPI,
 		JS("pages/traces/TraceDataUpdates.js"),
 		JS("pages/traces/TraceStatus.js"),

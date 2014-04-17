@@ -343,7 +343,7 @@
 			.value(innerNodeSizing(widgetState))
 			.sticky(false)
 			.padding(function(d){
-				if(d.kind == 'package' || d.kind == 'group' || d.kind == 'root') return [12, 1, 1, 1]
+				if(d.kind == 'package' || d.kind == 'group') return [12, 1, 1, 1]
 				else return 0
 			})
 
@@ -520,9 +520,6 @@
 					setNodeHover(widgetState, undefined)
 					widgetState.hoverManager.exitNode(d)
 				})
-				.on('click', function(d){ 
-					widgetState.self.focusId(d.id)
-				})
 
 			var rectProjectionIds = {}
 
@@ -599,7 +596,7 @@
 		var hoverData = widgetState.hoverData = [],
 			node = widgetState.treeData.getNode(nodeId)
 
-		while(node){
+		while(node && node.kind != 'root'){
 			hoverData.push({'id': node.id})
 			node = node.parent
 		}

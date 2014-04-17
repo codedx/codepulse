@@ -242,6 +242,18 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 
 			Future.sequence(traceJsonFutures) map { JsonResponse(_) }
 
+		// GET a naming conflict with a given name
+		case List("trace-api", "check-name-conflict") Get req =>
+			req.param("name").toOption match {
+				case None => BadResponse()
+				case Some(name) =>
+					val hasConflict = manager.tracesIterator
+						.find(_.traceData.metadata.name == name)
+						.isDefined
+					val responseText = String.valueOf(hasConflict)
+					PlainTextResponse(responseText)
+			}
+
 		// DELETE a trace
 		case TargetPath(target, Nil) Delete req =>
 			manager.removeTrace(target.id) match {

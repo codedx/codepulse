@@ -46,6 +46,7 @@ object Dependencies {
 		"com.fasterxml.jackson.core" % "jackson-core" % "2.3.2",
 		"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.2"
 	)
+	lazy val juniversalchardet = "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"

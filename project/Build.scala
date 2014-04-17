@@ -35,7 +35,7 @@ object BuildDef extends Build with VersionSystem {
 
 	lazy val liftDependencies = Seq(lift_webkit, servletApi, logback, slf4j)
 	lazy val testDependencies = Seq(junit, specs, scalatest)
-	lazy val libDependencies = Seq(akka, reactive, jna, commons.io, concLinkedHashMap) ++ asm ++ jackson
+	lazy val libDependencies = Seq(akka, reactive, jna, commons.io, concLinkedHashMap, juniversalchardet) ++ asm ++ jackson
 	lazy val dbDependencies = Seq(slick, h2)
 	
 	val baseCompilerSettings = Seq(
@@ -45,8 +45,8 @@ object BuildDef extends Build with VersionSystem {
 
 	val baseProjectSettings = net.virtualvoid.sbt.graph.Plugin.graphSettings ++ baseCompilerSettings ++ Seq(
 		organization := "com.avi",
-		version := "0.8.2",
-		releaseDate := "4/8/2014"
+		version := "0.9.0",
+		releaseDate := "4/15/2014"
 	)
 	
 	val webappProjectSettings = WebPlugin.webSettings ++ Seq (

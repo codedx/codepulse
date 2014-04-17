@@ -394,3 +394,34 @@ a.to-login:hover { border-bottom-style: solid; }
 
 /* unsupported browser alert */
 .unsupported-browser { margin-bottom: 0; }
+
+/************\
+| Button Bar |
+\************/
+
+.button-bar {
+	font-size: 0;
+	display: inline;
+}
+
+.button-bar .item {
+	font-size: small;
+	display: inline-block;
+
+	padding: 4px 12px;
+	color: #000;
+	border: 1px solid #AAA;
+}
+
+.button-bar .item:not(:first-child){
+	border-left: none;
+}
+
+.button-bar .item.button {
+	cursor: pointer;
+	background-color: #AAA;
+}
+
+.button-bar .item.button:hover {
+	background-color: #CCC;
+}

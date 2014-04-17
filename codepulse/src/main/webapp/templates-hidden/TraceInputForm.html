@@ -1,0 +1,163 @@
+<div id="trace-input-form">
+
+	<lift:head>
+		<script class="lift:Includes.overlay"></script>
+		<link class="lift:Includes.TraceInputForm"></link>
+	</lift:head>
+
+	<ul class="form-tabs-list">
+		<li class="form-tab active"><a data-toggle="tab" href="#new-analysis-form">New Trace</a></li>
+		<li class="form-tab"><a data-toggle="tab" href="#new-import-form">Import Trace</a></li>
+	</ul>
+
+	<!-- NEW ANALYSIS UPLOAD -->
+	<div id="new-analysis-form" class="active">
+		<!-- NAME -->
+		<div class="form-field clearfix">
+			<div class="input-label">Trace Name</div>
+
+			<div class="input-area">
+				<input type="text" name="name-input" placeholder="type it here"></input>
+				<div class="input-help">
+					<i class="fa fa-comment"></i>
+					This is the name of the Trace you are about to create. You can name it anything you like,
+					and you can rename it later if you want to. Try to avoid naming multiple Traces the same
+					thing.
+				</div>
+			</div>
+			<div class="feedback-area" name="name-feedback">
+				<!-- name feedback e.g.
+					<div class="feedback error">No blank names</div>
+					<div class="feedback warning">Name conflict oh noes!</div>
+				-->
+			</div>
+		</div>
+
+		<!-- FILE -->
+		<div class="form-field clearfix">
+			<div class="input-label">File</div>
+			
+			<div class="input-area">
+
+				<div class="file-input-area clearfix">
+
+					<div class="file-input-button btn btn-flat btn-secondary">
+						<input type="file" name="file-input"></input>
+						<div class="prompt">
+							<i class="fa fa-folder-open-o"></i>
+							Browse for a file							
+						</div>
+					</div>
+
+					<div class="file-or-msg">OR</div>
+
+					<div class="file-dropzone">
+						<div class="dropzone-msg">
+							<!-- see TraceInputForm.css for content -->
+						</div>
+					</div>
+				</div>
+
+				<div class="file-input-result">
+					The new analysis will be created from
+					<div class="button-bar">
+						<div class="file-input-name item" name="file-input-choice-label">
+							the file you choose or drag
+						</div>
+						<div class="file-input-clear button item" title="Don't use this file">
+							<i class="fa fa-times-circle"></i>
+						</div>
+					</div>
+				</div>
+
+				<div class="input-help">
+					<i class="fa fa-comment"></i>
+					This is the file that will be analyzed for tracing. It will generall be a
+					<span class="filetype">.jar</span> or <span class="filetype">.war</span> file, but
+					could be a <span class="filetype">.zip</span> file, as long as it contains
+					<span class="filetype">.class</span> files inside of it.
+				</div>
+			</div>
+			<div class="feedback-area" name="file-feedback">
+				<!-- file feedback, e.g.
+					<div class="feedback">That file is lame, try a different one!</div>
+				-->
+			</div>
+		</div>
+
+		<!-- OK/CANCEL -->
+		<div class="form-field clearfix align-right">
+			<div class="input-area">
+				<div class="btn btn-flat btn-secondary" name="cancel-button">Cancel</div>
+				<div class="btn btn-flat btn-primary" name="submit-button">OK</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- END OF ANALYSIS FORM -->
+
+	<!-- TRACE IMPORT FORM -->
+	<div id="new-import-form">
+
+		<!-- FILE -->
+		<div class="form-field clearfix">
+			<div class="input-label">File</div>
+
+			<div class="input-area">
+
+				<div class="file-input-area clearfix">
+
+					<div class="file-input-button btn btn-flat btn-secondary">
+						<input type="file" name="file-input"></input>
+						<div class="prompt">
+							<i class="fa fa-folder-open-o"></i>
+							Browse for a file
+						</div>
+					</div>
+
+					<div class="file-or-msg">OR</div>
+
+					<div class="file-dropzone">
+						<div class="dropzone-msg">
+							<!-- see TraceInputForm.css for content -->
+						</div>
+					</div>
+				</div>
+
+				<div class="file-input-result">
+					The trace will be imported from
+					<div class="button-bar">
+						<div class="file-input-name item" name="file-input-choice-label">
+							the file you choose or drag
+						</div>
+						<div class="file-input-clear button item" title="Don't use this file">
+							<i class="fa fa-times-circle"></i>
+						</div>
+					</div>
+				</div>
+
+				<div class="input-help">
+					<i class="fa fa-comment"></i>
+					This is the file that will be imported. Trace files are exported as
+					<span class="filetype">.pulse</span> files.
+				</div>
+			</div>
+			<div class="feedback-area" name="file-feedback">
+				<!-- file feedback, e.g.
+					<div class="feedback">That file is lame, try a different one!</div>
+				-->
+			</div>
+		</div>
+
+		<!-- OK/CANCEL -->
+		<div class="form-field clearfix align-right">
+			<div class="input-area">
+				<div class="btn btn-flat btn-secondary" name="cancel-button">Cancel</div>
+				<div class="btn btn-flat btn-primary" name="submit-button">OK</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- END TRACE IMPORT FORM -->
+
+</div>

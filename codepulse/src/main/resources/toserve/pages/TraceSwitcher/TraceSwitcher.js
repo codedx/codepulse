@@ -33,31 +33,14 @@ template html.
 ;(function(exports){
 
 	// predefinition of jQuery vars that will be assigned when the document is ready
-	var slideOutForm, slideDownSidebar, formOpener
-
-	var feedbackZone
+	var slideDownSidebar
 
 	// the main exported variable, defined later
 	var TraceSwitcher
 
 	$(document).ready(function(){
 		// get references to the moving parts
-		slideOutForm = $('.traceSwitcher .slideOutForm')
 		slideDownSidebar = $('.traceSwitcher .slideDownSidebar')
-		formOpener = slideDownSidebar.find('.addTraceButton')
-		feedbackZone = $('.traceSwitcher .feedback')
-
-		feedbackZone.click(function(){
-			sendFeedback("you clicked the feedback zone")
-		})
-
-		// wire up a file upload process to the fileChooser
-		setupFileUpload()
-
-		setupDropZone()
-
-		// clicking the "Add a new trace target" button opens and closes the form
-		formOpener.click(function(){ showForm('toggle') })
 
 		// auto-setup a master button control to toggle the TraceSwitcher view
 		$('[data-toggle=TraceSwitcher]').each(function(){
@@ -77,22 +60,6 @@ template html.
 		return !shouldBeCollapsed
 	}
 
-	// showForm('toggle'|true|false) to show/hide the slideOutForm
-	function showForm(arg){
-		if(!slideOutForm) return
-
-		var isCollapsed = slideOutForm.hasClass('collapsed'),
-			shouldBeCollapsed = (arg == 'toggle') ? !isCollapsed : !arg
-
-		slideOutForm.toggleClass('collapsed', shouldBeCollapsed)
-
-		formOpener.text(shouldBeCollapsed ? '+ New Trace' : 'Cancel')
-
-		return !shouldBeCollapsed
-	}
-
-
-
 	function wireUpController($button){
 		var switcherOpen = false
 		$button.click(function(){
@@ -102,141 +69,9 @@ template html.
 		})
 	}
 
-	function sendFeedback(message, style){
-		var msgDiv = $("<div class='message out'>").text(message).hide(),
-			msgBox = $("<div class='message-box'>")
-
-		style && msgBox.addClass(style)
-
-		msgBox.append(msgDiv).prependTo(feedbackZone)
-
-		msgDiv.slideDown(function(){
-			msgDiv.removeClass('out')
-		})
-	}
-
-	function setupFileUpload(){ 
-		var fileChooser = slideOutForm.find('input[type=file]'),
-			progressFill = slideOutForm.find('.uploadProgressBar .fill'),
-			filenameSpan = slideOutForm.find('[name=filename]'),
-			uploadUrl = '/trace-api/file-upload'
-
-		fileChooser.fileupload({
-			url: uploadUrl,
-			dropZone: slideOutForm,
-			add: function(e, data){
-
-				var file = data.files[0],
-					filename = file.name,
-					filepath = file.path
-
-				filenameSpan.text(filename)
-
-				// Reset the progress bar
-				updateProgress(0)
-
-				if(CodePulse.isEmbedded && filepath) doNativeUpload(filepath)
-				else {
-					console.log('using browser upload behavior on ', filename)
-					data.submit()
-				}
-			},
-			done: function(e, data){
-				onUploadDone(data.result)
-			},
-			error: function(e, data){
-				onUploadError(e.responseText)
-			},
-			progress: function(e, data){
-				updateProgress(+data.loaded / +data.total)
-			}
-		})
-
-		function onUploadError(err){
-			sendFeedback('Error: ' + (err || '(unknown error)'), 'error')
-			updateProgress(0)
-		}
-
-		function onUploadDone(result){
-			updateProgress(1)
-
-			var there = result.href,
-				here = window.location.pathname,
-				href = window.location.href.replace(new RegExp(here + '$'), there)
-			console.log('there: ' + there, 'here: ' + here, 'href: ' + href)
-			window.location.href = href
-		}
-
-		function doNativeUpload(path){
-			console.log('using native upload behavior on ', path)
-			updateProgress(0.9)
-			$.ajax(uploadUrl, {
-				data: {'path': path},
-				type: 'POST',
-				error: function(xhr, status){ onUploadError(xhr.responseText) },
-				success: function(data){ onUploadDone(data) }
-			})
-		}
-
-		function updateProgress(ratio){
-			if(!isNaN(ratio) && isFinite(ratio)){
-				var fillWidth = parseInt(ratio * 100) + '%'
-				progressFill.css('width', fillWidth)
-			}
-		}
-
-	}
-
-	function setupDropZone(){
-		var $zone = slideOutForm.find('.dropzone'),
-			timeout = undefined
-
-		$(document).bind('dragover', function(e){
-			if(!timeout) $zone.addClass('in')
-			else clearTimeout(timeout)
-
-			// figure out if we're dragging over the dropzone
-			var found = false, node = e.target
-			do {
-				if(node === $zone[0]){
-					found = true
-					break
-				}
-				node = node.parentNode
-			} while(node != null)
-
-			// set the 'hover' class depending on `found`
-			$zone.toggleClass('hover', found)
-
-			timeout = setTimeout(function(){
-				timeout = null
-				$zone.removeClass('in hover')
-			}, 300)
-		})
-	}
-
-	/* Drag and Drop is useless if they don't have files */
-	function isFileDrag(event) {
-		if(event.originalEvent) return isFileDrag(event.originalEvent)
-		
-		var dt = event.dataTransfer
-		
-		// can't use forEach or $.inArray because IE10 uses a DomStringList
-		var foundFiles = false, idx
-		for(idx = 0; idx < dt.types.length; idx++){
-			var s = dt.types[idx]
-			if(s == 'Files') foundFiles = true
-		}
-		
-		return dt && foundFiles 
-	}
-
 	TraceSwitcher = exports['TraceSwitcher'] = {
 		'open': function(){ showSidebar(true) },
-		'close': function(){
-			showForm(false)
-			showSidebar(false)
-		}
+		'close': function(){ showSidebar(false) }
 	}
 
 })(this);

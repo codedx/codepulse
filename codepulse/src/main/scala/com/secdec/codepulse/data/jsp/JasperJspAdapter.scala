@@ -29,32 +29,33 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNode
   * @author robertf
   */
 class JasperJspAdapter extends JspAdapter {
-	private val jsps = List.newBuilder[String]
+	private val jsps = List.newBuilder[(String, Int)]
 	private val webinfs = List.newBuilder[String]
 
-	def addJsp(path: String) = jsps += path
+	def addJsp(path: String, size: Int) = jsps += path -> size
 	def addWebinf(path: String) = webinfs += path
 
 	def build(codeForestBuilder: CodeForestBuilder): List[(String, Int)] = {
 		val jsps = this.jsps.result
 		val webinfs = this.webinfs.result
 
-		val jspClasses = Set.newBuilder[String]
+		val jspClasses = Set.newBuilder[(String, Int)]
 
 		for (webinf <- webinfs) {
 			val parent = Option(new File(webinf).getParent) getOrElse ""
 			val parentLen = parent.length
 			jspClasses ++= jsps
-				.filter(_.startsWith(parent))
-				.map(_.substring(parentLen))
+				.filter(_._1.startsWith(parent))
+				.map { case (clazz, size) => clazz.substring(parentLen) -> size }
 		}
 
 		// build up
-		jspClasses.result.toList map { clazz =>
-			val jspClassName = JasperUtils.makeJavaClass(clazz)
-			val displayName = clazz.split('/').filter(!_.isEmpty).toList
-			val node = codeForestBuilder.getOrAddJsp(displayName, 100)
-			jspClassName -> node.id
+		jspClasses.result.toList map {
+			case (clazz, size) =>
+				val jspClassName = JasperUtils.makeJavaClass(clazz)
+				val displayName = clazz.split('/').filter(!_.isEmpty).toList
+				val node = codeForestBuilder.getOrAddJsp(displayName, size)
+				jspClassName -> node.id
 		}
 	}
 }
