@@ -28,6 +28,7 @@ function logTime(label, func) {
 $(document).ready(function(){
 	
 	var treemapContainer = $('#treemap-container'),
+		packagesContainer = $('#packages'),
 
 		// initialize a treemap widget
 		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count')
@@ -161,6 +162,10 @@ $(document).ready(function(){
 		$('#treemap').toggleClass('in-view', show)
 	})
 
+	// Start a spinner to indicate that the package list is loading. 
+	// It will be stopped after the PackageController is created.
+	packagesContainer.overlay('wait')
+
 	/*
 	 * Request the treemap data from the server. Note that coverage lists
 	 * are only specified for the most specific element; for the sake of 
@@ -174,7 +179,9 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, $('#packages'), $('#totals'), $('#clear-selections-button'))
+		var controller = new PackageController(packageTree, packagesContainer, $('#totals'), $('#clear-selections-button'))
+
+		packagesContainer.overlay('ready')
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
@@ -248,7 +255,14 @@ $(document).ready(function(){
 			.nodeColoring(treemapColoring())
 
 		treemapData.onValue(function(tree){
-			treemapWidget.data(tree).update()
+			treemapContainer.overlay('wait')
+			// put the following in a callback so the overlay has a chance to trigger
+			// (the treemap data update can be expensive, and since it modifies the DOM,
+			// the overlay may never actually show up because the DOM is being blocked.)
+			setTimeout(function(){
+				treemapWidget.data(tree).update()
+				treemapContainer.overlay('ready')
+			}, 1)
 		})
 
 		Trace.coverageRecords.onValue(setTreemapCoverage)

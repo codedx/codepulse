@@ -24,8 +24,13 @@ body > .overlay:before {
 
  .main-column {
  	width: calc(100% - 250px);
- 	/*float: left;*/
- 	padding-top: 45px;
+ 	margin-top: 45px;
+ 	min-height: 200px;
+ }
+
+ .main-column > .overlay {
+ 	background-color: transparent;
+ 	z-index: 1;
  }
  
  .side-column {
@@ -130,6 +135,10 @@ body > .overlay:before {
  	margin-top: 5px;
  }
  
+ .traces-scope {
+ 	min-height: 200px;
+ }
+
  .traces-scope:before, .traces-scope:after {
  	display: table;
  	line-height: 0;

@@ -9,10 +9,11 @@ $(document).ready(function(){
 
 function Overlay(container, _opts){
 	
-	var opts = _opts || { radius: 4, length: 7, width: 4, lines: 10 }
+	var opts = _opts || { radius: 4, length: 7, width: 4, lines: 10, spinnerOnly: false }
 	
 	var spinner = new Spinner(opts)
 	var $overlay = $("<div class='overlay'>")
+	var spinnerOnly = opts['spinnerOnly']
 	var overlay = $overlay[0]
 	
 	$(container).addClass("overlay-container")
@@ -23,7 +24,7 @@ function Overlay(container, _opts){
 		if(!activated){
 			$(container).addClass("overlay-waiting")
 			activated = true
-			$overlay.appendTo(container)
+			if(!spinnerOnly) $overlay.appendTo(container)
 			spinner.spin(overlay)
 		}
 	}
@@ -33,7 +34,7 @@ function Overlay(container, _opts){
 			$(container).removeClass("overlay-waiting")
 			activated = false
 			spinner.stop()
-			$overlay.detach()
+			if(!spinnerOnly) $overlay.detach()
 		}
 	}
 	
