@@ -55,16 +55,21 @@ $(document).ready(function(){
 		})
 	})()
 
+	// Initial value for instrumentedPackages. This will be replaced
+	// once the PackageController is initialized.
+	Trace.instrumentedPackages = d3.set()
 
-	Trace.instrumentedPackages = {}
+	// Check if a node is marked as instrumented. Walks up the tree,
+	// since if a node's parent is marked for instrumentation, that
+	// implies the node itself should be instrumented.
 	Trace.isInstrumentedNode = function isInstrumented(node){
 		if(!node) return false
 
-		if(Trace.instrumentedPackages.hasOwnProperty(node.id)){
-			return !!Trace.instrumentedPackages[node.id]
+		if(Trace.instrumentedPackages.has(node.id)){
+			return true
+		} else {
+			return isInstrumented(node.parent)
 		}
-
-		return isInstrumented(node.parent)
 	}
 
 	// When the `treemapColoringStateChanges` fires, use the current `legendData`
@@ -173,40 +178,42 @@ $(document).ready(function(){
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
-		controller.instrumentedWidgets.onValue(function(map){
-			Trace.instrumentedPackages = map
+		controller.instrumentedWidgets.onValue(function(set){
+			Trace.instrumentedPackages = set
 			Trace.treemapColoringStateChanges.push('Instrumented Packages Changed')
 		})
 
 		// When the selection of "instrumented" packages changes, compare the new state
 		// to the previous state; for each package whose state changed, tell the backend
 		// about the change.
-		controller.instrumentedWidgets.slidingWindow(2,2).onValue(function(ab){
-			var before = ab[0], after = ab[1]
-			function check(key){
-				var oldV = before[key],
-					newV = after[key]
-				return oldV != newV
-			}
-			var changes = {}
-			function checkKeys(obj){
-				for(var key in obj){
-					if(check(key)) changes[key] = after[key]
-				}
-			}
-			checkKeys(before)
-			checkKeys(after)
-			TraceAPI.updateTreeInstrumentation(changes)
-		})
+		controller.instrumentedWidgets
+			// since `instrumentedWidgets` simply modifies and re-fires the same set instance,
+			// we need to keep a snapshot copy of its values in order to see any actual changes.
+			.map(function(set){ return d3.set(set.values()) })
+			// Watch the most recent 2 values for changes
+			.slidingWindow(2,2).onValue(function(ab){
+				var before = ab[0], 
+					after = ab[1],
+					changes = {}
+				
+				// any ids in `before` but not `after` have been removed
+				before.forEach(function(id){
+					if(!after.has(id)) changes[id] = false
+				})
+
+				// any ids in `after` but not `before` have been added
+				after.forEach(function(id){
+					if(!before.has(id)) changes[id] = true
+				})
+
+				// send the change set to the backend
+				TraceAPI.updateTreeInstrumentation(changes)
+			})
 
 		// Watch the package selection state, exposing it as an array
 		// containing the IDs of selected packages.
-		var selectedNodeIds = controller.selectedWidgets.map(function(sel){
-			var selectedIds = []
-			for(var id in sel){
-				if(sel[id]) selectedIds.push(id)
-			}
-			return selectedIds
+		var selectedNodeIds = controller.selectedWidgets.map(function(set){
+			return set.values()
 		})
 
 		// If there are no selected packages, the treemap container gets a

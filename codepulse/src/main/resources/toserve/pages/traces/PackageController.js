@@ -21,13 +21,64 @@
 
 	exports.PackageController = PackageController
 
+	/*
+	 * Utility class used by the PackageController.
+	 *
+	 * A SetProp instance maintains a `d3.set` of ids. By adding a
+	 * `widget` (e.g. a PackageWidget instance) with a given `id`,
+	 * it will use the `getCurrent` and `getChanges` to make sure
+	 * the "state" of that widget is kept track of in thet set.
+	 *
+	 * This is used as an alternative to `Bacon.combineTemplate`,
+	 * which seems to perform poorly when there are thousands of
+	 * items in the template.
+	 *
+	 * The intended use case for this class is to create a property
+	 * representing the set of all "selected" packages, and another
+	 * property representing the set of all "instrumented" packages.
+	 *
+	 * @param getCurrent - a function(widget) that returns the current 
+	 *   "state" of the widget, as a boolean
+	 * @param getChanges - a function(widget) that returns a 
+	 *   Bacon.Observable that pushes boolean events that represent
+	 *   the widget's "state" as it changes.
+	 */
+	function SetProp(getCurrent, getChanges){
+
+		var set = d3.set()
+		var bus = new Bacon.Bus()
+
+		this.prop = bus.toProperty(set)
+
+		this.add = function(id, widget){
+			var current = getCurrent(widget)
+			if(current) set.add(id)
+
+			getChanges(widget).onValue(function(bool){
+				if(bool & !set.has(id)) {
+					set.add(id)
+					bus.push(set)
+				} else if(!bool && set.has(id)){
+					set.remove(id)
+					bus.push(set)
+				}
+			})
+		}
+	}
+
 	function PackageController(treeData, $container, $totalsContainer, $clearSelectionButton){
 
 		// build this into a Map[packageId -> packageWidget.selectedProp]
-		var stateTemplate = {}
+		var selectedWidgetsSP = new SetProp(
+			/*getCurrent*/ function(pw){ return pw.selected() },
+			/*getChanges*/ function(pw){ return pw.selectedProp.changes() }
+			)
 
 		// build this into a Map[packageId -> packageWidget.instrumentationSelectedProp]
-		var instrumentedTemplate = {}
+		var instrumentedWidgetsSP = new SetProp(
+			/*getCurrent*/ function(pw){ return pw.instrumentationSelected() },
+			/*getChanges*/ function(pw){ return pw.instrumentationSelectedProp.changes() }
+			)
 
 		var widgets = {}
 
@@ -76,69 +127,26 @@
 
 		})(treeData.root, undefined)
 
+		var widgetCount = 0
+
 		// initialize the `stateTemplate` and `widgets` maps
 		// based on the package nodes in `treeData`
 		;(function setupTreeHierarchy(packageParentNode, node){
 
 			var pw = new PackageWidget()
 			widgets[node.id] = pw
+			pw.associatedNode = node
+			// pw.parentNode = packageParentNode
+			widgetCount++
 
 			pw.instrumentationSelected(node.partialTraceSelection)
 
 			pw.collapseChildren(/* collapsed = */true, /* animate = */false)
 
-			stateTemplate[node.id] = pw.selectedProp
-			pw.selectionClicks.onValue(function(){
-				handleSelectionClick(node, pw)
-			})
-
-			instrumentedTemplate[node.id] = pw.instrumentationSelectedProp
-			pw.instrumentationSelectedClicks.onValue(function(){
-				handleInstrumentationSelectionClick(node, pw)
-			})
-
 			pw.uiParts.collapser.click(function(event){
 				pw.collapseChildren('toggle', true)
 				event.stopPropagation()
 			})
-
-
-			if(node.kind == 'root'){
-				pw.uiParts.main.appendTo($totalsContainer)
-				pw.abbreviatedLabel('Overall Coverage')
-				pw.selectable(false)
-				pw.instrumentationSelectable(false)
-
-				var totalMethodCount = 0
-				node.children.forEach(function(child){
-					totalMethodCount += child.methodCount
-				})
-				pw.methodCount(totalMethodCount)
-			} else {
-
-				pw.methodCount(node.methodCount)
-
-				if(packageParentNode){
-					widgets[packageParentNode.id].children.add(pw)
-				} else {
-					pw.uiParts.main.appendTo($container)
-				}
-
-				if(node.isSelfNode){
-					pw.fullLabel(node.label).abbreviatedLabel(node.label)
-				} else {
-					var abbrevName
-
-					if (node.kind != 'group' && packageParentNode && packageParentNode.kind == 'group')
-						abbrevName = node.label
-					else {
-						var parentName = packageParentNode ? packageParentNode.label : '',
-							abbrevName = node.label.substr(parentName.length)
-					}
-
-					pw.fullLabel(node.label).abbreviatedLabel(abbrevName)
-				}
-			}
 
 			node.children
 				.sort(function(a,b){
@@ -155,18 +163,78 @@
 					setupTreeHierarchy(nextParent, kid)
 				})
 
+			// Figure out the full+abbreviated labels for the widget
+			if(node.kind == 'root'){
+				pw.abbreviatedLabel('Overall Coverage')
+			} else if(node.isSelfNode){
+				pw.fullLabel(node.label).abbreviatedLabel(node.label)
+			} else {
+				var abbrevName
+
+				if (node.kind != 'group' && packageParentNode && packageParentNode.kind == 'group')
+					abbrevName = node.label
+				else {
+					var parentName = packageParentNode ? packageParentNode.label : '',
+						abbrevName = node.label.substr(parentName.length)
+				}
+
+				pw.fullLabel(node.label).abbreviatedLabel(abbrevName)
+			}
+
+			if(node.kind == 'root'){
+				pw.uiParts.main.appendTo($totalsContainer)
+				// pw.abbreviatedLabel('Overall Coverage')
+				pw.selectable(false)
+				pw.instrumentationSelectable(false)
+
+				var totalMethodCount = 0
+				node.children.forEach(function(child){
+					totalMethodCount += child.methodCount
+				})
+				pw.methodCount(totalMethodCount)
+			} else {
+
+				pw.methodCount(node.methodCount)
+
+				
+
+				if(packageParentNode){
+					widgets[packageParentNode.id].children.add(pw)
+				} else {
+					pw.uiParts.main.appendTo($container)
+				}
+
+			}
+
 		})(undefined, treeData.root)
+
+		console.log('created', widgetCount, 'PackageWidgets')
+
+		function forEachWidget(f){
+			for(var id in widgets){
+				var w = widgets[id], n = w.associatedNode
+				f(w,n,id)
+			}
+		}
+
+		forEachWidget(function(pw, node, id){
+			selectedWidgetsSP.add(id, pw)
+			instrumentedWidgetsSP.add(id, pw)
+			pw.selectionClicks.onValue(function(){
+				handleSelectionClick(node, pw)
+			})
+			pw.instrumentationSelectedClicks.onValue(function(){
+				handleInstrumentationSelectionClick(node, pw)
+			})
+		})
 
 		// Disable all of the widgets while the trace is running
 		Trace.running.onValue(function(isRunning){
-			for(var id in widgets){
-				var pw = widgets[id],
-					node = treeData.getNode(id)
-
+			forEachWidget(function(pw, node){
 				if(node.kind != 'root'){
 					pw.instrumentationSelectable(!isRunning)
 				}
-			}
+			})
 		})
 
 		// checkSelected = function(widget){ return <is widget selected> }
@@ -230,23 +298,22 @@
 
 		/**
 		 * Exposes the selection state of each of the widgets, as a
-		 * Map[package.id -> isSelected]
+		 * Set containing the IDs of selected widgets.
 		 */
-		this.selectedWidgets = Bacon.combineTemplate(stateTemplate).debounce(10)
+		this.selectedWidgets = selectedWidgetsSP.prop.debounce(10).noLazy()
 
 		/**
 		 * Exposes the 'instrumented' state of each of the widgets, as
-		 * a Map[package.id -> isInstrumented]
+		 * a Set containing the IDs of widgets that are marked as instrumented.
 		 */
-		this.instrumentedWidgets = Bacon.combineTemplate(instrumentedTemplate).debounce(10)
+		this.instrumentedWidgets = instrumentedWidgetsSP.prop.debounce(10).noLazy()
 
 		// Decide whether or not to show the "clear all selections" button
 		// depending on whether or not there are selected widgets
 		this.selectedWidgets
-			.map(function(selectionMap){
-				for(var k in selectionMap) if(selectionMap[k]) return true
+			.map(function(selectedIds){
+				return !selectedIds.size()
 			})
-			.not()
 			.assign($clearSelectionButton, 'toggleClass', 'hidden')
 
 		// Set all (selectable) widgets to not be selected when the clear selection button is clicked
@@ -282,6 +349,7 @@
 		this.applyMethodCoverage = function(coverageRecords, activeRecordings){
 			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings, nodePackageParents)
 		}
+
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets

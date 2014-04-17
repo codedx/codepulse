@@ -58,6 +58,46 @@
 	 */
 	var packageLabelDefaultWidth = 180
 
+	/*
+	 * Creates a function($e, obj) that takes a jQuery element `$e`,
+	 * locates the common UI parts within $e (assuming it is a clone
+	 * of the PackageWidget's template html), and assigns them to
+	 * fields in the `obj`.
+	 */
+	var assignUiParts = (function(){
+		var widgetPartsToFind = [
+			'childrenContainer',
+			'labelContainer',
+			'countContainer',
+			'barContainer',
+			'collapser',
+			'collapserIcon',
+			'indent',
+			'contentContainer',
+			'labelText',
+			'instrumentationSelectedToggle',
+			'countNumber',
+			'barFill',
+			'barLabel'
+		]
+
+		/*
+		 * Each UI part is located in the template HTML with
+		 * the id "WidgetPart-partName", where `partName`
+		 * corresponds to the string in `widgetPartsToFind`.
+		 */
+		var infos = widgetPartsToFind.map(function(name){
+			var selector = '#WidgetPart-' + name
+			return {name:name, selector:selector}
+		})
+		return function($e, obj){
+			infos.forEach(function(info){
+				var $f = $e.find(info.selector)
+				obj[info.name] = $f
+			})
+		}
+	})()
+
 	function PackageWidget(){
 
 		// ============================================================================
@@ -87,27 +127,15 @@
 		// ============================================================================
 		// UI Selected Elements
 		// ============================================================================
+
 		this.uiParts = {
 			'main': e,
 
-			'childrenContainer': e.find('.widget-children'),
-
-			'labelContainer': e.find('.widget-label'),
-			'countContainer': e.find('.widget-method-count'),
-			'barContainer': e.find('.widget-barchart'),
-			'collapser': e.find('.widget-collapser'),
-			'collapserIcon': e.find('.collapser-icon'),
-
-			'indent': e.find('.indent'),
-			'contentContainer': e.find('.content'),
-			'labelText': e.find('.label-text'),
-			'instrumentationSelectedToggle': e.find('.tri-state-toggle'),
-			'countNumber': e.find('.count-number'),
-			'barFill': e.find('.bar-fill'),
-			'barLabel': e.find('.bar-label'),
-
 			'highlightsD3': d3.select(e[0]).selectAll('.highlight')
 		}
+
+		// find the remaining UI parts via the helper function `assignUiParts`
+		assignUiParts(e, this.uiParts)
 
 		// ============================================================================
 		// Public Functions
@@ -260,7 +288,7 @@
 		/*
 		Exposes the current `selected` state as a Rx Property
 		*/
-		this.selectedProp = _selectedBus.toProperty(_selected).skipDuplicates()
+		this.selectedProp = _selectedBus.toProperty(_selected).skipDuplicates().noLazy()
 
 		this.selectionClicks = new Bacon.Bus()
 
