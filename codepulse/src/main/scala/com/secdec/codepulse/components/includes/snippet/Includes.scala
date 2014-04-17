@@ -125,7 +125,6 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("pages/traces/TraceDataUpdates.js"),
 		JS("pages/traces/TraceStatus.js"),
 		JS("pages/traces/TreeData.js"),
-		JS("pages/traces/TreeProjector.js"),
 		JS("pages/traces/TraceTreeData.js"),
 		colorpickerTooltip,
 		CSS("pages/traces/PackageWidget.css"),
