@@ -1,0 +1,47 @@
+<div id="NotificationsContainer">
+
+	<lift:head>
+		<link class="lift:Includes.notifications" />
+	</lift:head>
+
+	<div class="notifications-visible">
+		<!-- Insert notifications here via javascript. Use reverse order 
+		(e.g. prepend instead of append) due to the layout. -->
+	</div>
+
+	<div style="display:none;" id="NotificationsTemplates">
+		<div class="notification">
+			<div class="notification-body">
+				Something happened! What are you going to do about it?
+			</div>	
+		</div>
+	</div>
+
+	<!-- Testing Buttons just for while I work on this -->
+	<div style="position:fixed; bottom:30px; left:0;">
+		<div class="btn" id="testAddNote">test notification</div>
+		<div class="btn" id="testRemoveNote" style="display:none;">remove a random notification</div>
+	</div>
+	<script> $(document).ready(function(){
+		// just for testing. delete this later
+		var notes = []
+		function addNewNote(){ 
+			notes.push(addNotification())
+			showHideRemover()
+		}
+		function removeRandomNote(){
+			var i = Math.floor(Math.random() * notes.length),
+				n = notes[i]
+			notes.splice(i,1)
+			n.remove()
+			showHideRemover()
+		}
+		function showHideRemover(){
+			$('#testRemoveNote')[notes.length ? 'show' : 'hide']()
+		}
+		$('#testRemoveNote').click(removeRandomNote)
+		$('#testAddNote').click(addNewNote)
+	})</script>
+	<!-- End of Testing Buttons -->
+
+</div>
