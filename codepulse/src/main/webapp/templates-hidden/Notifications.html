@@ -12,35 +12,80 @@
 	<div style="display:none;" id="NotificationsTemplates">
 		<div class="notification">
 			<div class="notification-body">
-				Something happened! What are you going to do about it?
+				<div class="notification-content">
+					<!-- Notification message added here -->
+				</div>
+				<div class="notification-dismissal" title="dismiss">
+					<i class="fa fa-times"></i>
+				</div>
 			</div>	
 		</div>
+
+		<div class="deletion-message">
+			<span class="trace-name">[trace name]</span>
+			has been deleted.
+			<a class="deletion-undo">Undo</a>
+		</div>
+
+		<div class="undeletion-message">
+			<span class="trace-name">[trace name]</span>
+			has been un-deleted.
+		</div>
+	</div>
+
+	<div style="display:none;" id="NotificationsQueued">
+		<!-- notification elements rendered here will be used
+		to prepopulate notifications during the page load, i.e.
+		to show notifications that were left over from a
+		previous page or because of a refresh. -->
+
+		<!-- <notification
+			type="deletion"
+			traceName="Some cool trace"
+			undoHref = "/trace-api/traces/2/undelete"
+			dismissable="dismissable"
+			usesTransition="usesTransition"
+			/> -->
+
+		<!-- <notification
+			type="undeletion"
+			traceName="Another cool trace"
+			dismissable="dismissable"
+			usesTransition="usesTransition"
+			autoDismissDelay="3000"
+			/> -->
 	</div>
 
 	<!-- Testing Buttons just for while I work on this -->
 	<div style="position:fixed; bottom:30px; left:0;">
 		<div class="btn" id="testAddNote">test notification</div>
-		<div class="btn" id="testRemoveNote" style="display:none;">remove a random notification</div>
 	</div>
 	<script> $(document).ready(function(){
 		// just for testing. delete this later
-		var notes = []
-		function addNewNote(){ 
-			notes.push(addNotification())
-			showHideRemover()
+		var id = 0, map = d3.map(), traceName = 'CoolTrace123'
+		function addNote(){
+			var i = id++
+			new Notification()
+				.setDismissable(true)
+				// .setAutoDismissDelay(NaN)
+				.addCallback('enter', function(n){ map.set(i,n) })
+				.addCallback('exit', function(n){ map.remove(i) })
+				.addCallback('undo', function(n){ console.log(n, 'undo clicked') })
+				.addCallback('undone', addUndeletedNote)
+				.setDeletionMessage(traceName, '/traces/2')
+				.setUsesTransition(true)
+				.enter()
 		}
-		function removeRandomNote(){
-			var i = Math.floor(Math.random() * notes.length),
-				n = notes[i]
-			notes.splice(i,1)
-			n.remove()
-			showHideRemover()
+		function addUndeletedNote(){
+			var i = id++
+			new Notification()
+				.setDismissable(true)
+				.setAutoDismissDelay(3000)
+				.setUndeletionMessage(traceName)
+				.setUsesTransition(true)
+				.enter()
 		}
-		function showHideRemover(){
-			$('#testRemoveNote')[notes.length ? 'show' : 'hide']()
-		}
-		$('#testRemoveNote').click(removeRandomNote)
-		$('#testAddNote').click(addNewNote)
+		$('#testAddNote').click(addNote)
 	})</script>
 	<!-- End of Testing Buttons -->
 

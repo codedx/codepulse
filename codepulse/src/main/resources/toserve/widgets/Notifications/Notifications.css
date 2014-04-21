@@ -54,3 +54,28 @@
 	margin-top: 0;
 	opacity: 1;
 }
+
+.notification .notification-content {
+	display: inline-block;
+}
+
+.notification .notification-dismissal {
+	display: inline-block;
+	margin-left: 10px;
+	cursor: pointer;
+	opacity: 0.8;
+}
+.notification .notification-dismissal:hover {
+	opacity: 1;
+}
+
+.notification .deletion-undo {
+	cursor: pointer;
+	background: beige;
+	color: darkgreen;
+	padding: 3px;
+}
+
+.notification .trace-name {
+	font-weight: bold;
+}
