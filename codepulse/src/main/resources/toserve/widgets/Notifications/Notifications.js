@@ -44,10 +44,22 @@
 				usesTransition = false,
 				dismissTimeout = undefined,
 				callbacks = {},
-				dismissOpts = {manual: true}
+				dismissOpts = {manual: true},
+				dismissHref = undefined
 
 			// clicking the dismissal button should clear the notification
-			$dismissal.click(exit)
+			$dismissal.click(function(){
+				onDismiss()
+				exit()
+			})
+
+			function onDismiss(){
+				if(dismissHref) $.ajax(dismissHref, {
+					type: 'POST',
+					error: function(){ console.log('dismiss failed on the server side') },
+					success: function(){ console.log('dismissed server side notification') }
+				})
+			}
 
 			/*
 			 * Set `dismissable` to enable or disable the dissmissal button.
@@ -57,6 +69,11 @@
 				dismissOpts['manual'] = dismissable
 				$dismissal.css('display', dismissable ? 'initial' : 'none')
 
+				return _this
+			}
+
+			function setDismissHref(href){
+				dismissHref = href
 				return _this
 			}
 
@@ -126,6 +143,7 @@
 						undoClicked = true
 					}
 					sendCallback('undo')
+					onDismiss()
 
 					// Send a POST request to the given undoHref
 					$.ajax(undoHref, {
@@ -219,6 +237,7 @@
 			_this.addCallback = addCallback
 			_this.setDismissable = setDismissable
 			_this.setAutoDismissDelay = setAutoDismissDelay
+			_this.setDismissHref = setDismissHref
 			_this.enter = enter
 			_this.exit = exit
 		}
@@ -284,6 +303,10 @@
 
 			// Set whether or not the notification can be manually dismissed
 			note.setDismissable(dismissable)
+
+			// Set the dismissal href
+			var dismissHref = params.get('dismissHref')
+			if(dismissHref) note.setDismissHref(dismissHref)
 
 			// Set an optional auto-dismiss delay
 			if(!isNaN(autoDismissDelay)){

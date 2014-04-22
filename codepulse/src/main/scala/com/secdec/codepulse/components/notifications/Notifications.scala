@@ -26,9 +26,7 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Null
 import scala.xml.TopScope
 import scala.xml.UnprefixedAttribute
-
 import com.secdec.codepulse.util.comet.PublicCometInit
-
 import net.liftweb.http.CometActor
 import net.liftweb.http.js.JE.JsFunc
 import net.liftweb.http.js.JE.JsVar
@@ -40,15 +38,20 @@ import net.liftweb.http.js.jquery.JqJE.Jq
 import net.liftweb.json.JsonAST.JField
 import net.liftweb.json.JsonAST.JObject
 import net.liftweb.json.JsonAST.JString
+import net.liftweb.http.DispatchSnippet
 
 /** Entry point for sending notifications from the server to the front end
   * for use with the Notification.js script. The main public method to use
   * is `enqueueNotification`, which sends a new message and optionally saves
   * it for a limited time so that it can be seen on a newly-loaded page.
   */
-object Notifications extends CometActor with PublicCometInit {
+object Notifications extends CometActor with PublicCometInit with DispatchSnippet {
 
-	private case class Notification(message: NotificationMessage,
+	case class NotificationId(num: Int) extends AnyVal
+	private val notificationIdGenerator = Iterator.from(0).map { NotificationId(_) }
+
+	private case class Notification(id: NotificationId,
+		message: NotificationMessage,
 		dismissable: Boolean,
 		usesTransition: Boolean,
 		autoDismissTime: Option[Long])
@@ -76,7 +79,8 @@ object Notifications extends CometActor with PublicCometInit {
 			System.currentTimeMillis + delayMs
 		}
 
-		val note = Notification(message, settings.dismissable, settings.usesTransition, autoDismissTime)
+		val noteId = notificationIdGenerator.next
+		val note = Notification(noteId, message, settings.dismissable, settings.usesTransition, autoDismissTime)
 
 		// add the new note to the queue if the `persist` argument was true
 		if (persist) modifyQueue { q => q :+ note }
@@ -85,16 +89,33 @@ object Notifications extends CometActor with PublicCometInit {
 		sendNotification(note)
 	}
 
-	// CometActor.render
-	def render = renderQueue
+	def dismissNotification(noteId: NotificationId): Unit = {
+		modifyQueue { q =>
+			println(s"Dismiss notification $noteId")
+			q.filterNot { _.id == noteId }
+		}
+	}
 
-	protected def renderQueue: NodeSeq = {
+	// CometActor.render
+	// This is only called once per 'tab' by the lift framework, so the actual
+	// rendering needs to go in the dispatch snippet.
+	def render = Nil
+
+	// DispatchSnippet.dispatch
+	def dispatch = {
+		case "persistentNotifications" => { (ignored: NodeSeq) =>
+			Notifications.renderQueue
+		}
+	}
+
+	def renderQueue: NodeSeq = {
 		val q = pruneQueue()
+		println("Rendering Queue")
 		val elems = q map { renderNotificationHtml }
 		elems
 	}
 
-	protected def sendNotification(note: Notification) = {
+	private def sendNotification(note: Notification) = {
 		val json = renderNotificationJson(note)
 		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "new-notification", json)
 		partialUpdate { cmd }
@@ -119,7 +140,7 @@ object Notifications extends CometActor with PublicCometInit {
 	  * an HTML element for page-load rendering, and a JSON object for on-the-fly
 	  * notifications.
 	  */
-	protected def getNotificationAttributes(note: Notification): List[(String, String)] = {
+	private def getNotificationAttributes(note: Notification): List[(String, String)] = {
 		val attribs = List.newBuilder[(String, String)]
 
 		// attributes for the message itself
@@ -138,6 +159,7 @@ object Notifications extends CometActor with PublicCometInit {
 		for (dismissTime <- note.autoDismissTime) {
 			val now = System.currentTimeMillis
 			val delay = dismissTime - now
+			println(s"Getting autoDismissDelay. now=$now, dismissTime=$dismissTime, delay=$delay")
 			if (delay > 0) {
 				attribs += "autoDismissDelay" -> delay.toString
 			}
@@ -151,6 +173,11 @@ object Notifications extends CometActor with PublicCometInit {
 		// the 'dismissable' attribute
 		if (note.dismissable) {
 			attribs += "dismissable" -> "dismissable"
+
+			// add 'dismissHref' for manual dismissal
+			import com.secdec.codepulse.tracer.traceAPIServer
+			val dismissHref = traceAPIServer().Paths.DismissNotification.toHref(note.id)
+			attribs += "dismissHref" -> dismissHref
 		}
 
 		attribs.result
@@ -159,7 +186,7 @@ object Notifications extends CometActor with PublicCometInit {
 	/** Build an HTML representation of the given `note`, using attributes
 	  * from `getNotificationAttributes`.
 	  */
-	protected def renderNotificationHtml(note: Notification): Elem = {
+	private def renderNotificationHtml(note: Notification): Elem = {
 
 		val attribs = getNotificationAttributes(note)
 
@@ -175,7 +202,7 @@ object Notifications extends CometActor with PublicCometInit {
 	/** Build a JSON representation of the given `note`, using attributes
 	  * from `getNotificationAttributes`.
 	  */
-	protected def renderNotificationJson(note: Notification): JObject = {
+	private def renderNotificationJson(note: Notification): JObject = {
 		val fields = getNotificationAttributes(note) map {
 			case (key, value) => JField(key, JString(value))
 		}

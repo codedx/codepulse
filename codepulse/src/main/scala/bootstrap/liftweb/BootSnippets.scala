@@ -41,6 +41,7 @@ private[liftweb] object BootSnippets {
 			case SnippetRequest("Includes", _) => Includes
 			case SnippetRequest("VersionSnippet", _) => new VersionSnippet
 			case SnippetRequest("TraceWidgetry", Full(target: TracingTarget)) => new TraceWidgetry(traceManager, target)
+			case SnippetRequest("Notifications", _) => Notifications
 		}
 
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {

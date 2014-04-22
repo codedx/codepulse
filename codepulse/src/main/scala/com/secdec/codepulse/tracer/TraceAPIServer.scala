@@ -38,6 +38,8 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.util.Helpers.AsBoolean
 import net.liftweb.util.Helpers.AsInt
+import com.secdec.codepulse.components.notifications.Notifications
+import com.secdec.codepulse.components.notifications.Notifications.NotificationId
 
 class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -144,8 +146,22 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 		}
 	}
 
+	protected object NotificationPath extends PathMatcher[(NotificationId, List[String])] {
+		def unapply(path: List[String]): Option[(NotificationId, List[String])] = path match {
+			case "trace-api" :: "notifications" :: AsInt(id) :: tail => Some(NotificationId(id) -> tail)
+			case _ => None
+		}
+		def apply(ts: (NotificationId, List[String])) = {
+			"trace-api" :: "notifications" :: ts._1.num.toString :: ts._2
+		}
+	}
+
 	protected def simpleTargetPath(tail: String): PathMatcher[TracingTarget] = TargetPath.map[TracingTarget](
 		{ case (target, List(`tail`)) => target },
+		(_, List(tail)))
+
+	protected def simpleNotificationPath(tail: String): PathMatcher[NotificationId] = NotificationPath.map[NotificationId](
+		{ case (id, List(`tail`)) => id },
 		(_, List(tail)))
 
 	/** Object that contains PathExtractor instances that can be used to parse or generate
@@ -192,6 +208,9 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 
 		/** /trace-api/<target.id>/undo-delete */
 		val UndoDelete = simpleTargetPath("undo-delete")
+
+		/** /trace-api/notifications/<note.id>/dismiss */
+		val DismissNotification = simpleNotificationPath("dismiss")
 
 		/** /trace-api/<target.id>/recording/<recording.id> */
 		val Recording = TargetPath.map[(TracingTarget, RecordingMetadata)](
@@ -256,6 +275,11 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 					val responseText = String.valueOf(hasConflict)
 					PlainTextResponse(responseText)
 			}
+
+		// POST to dismiss a notification
+		case Paths.DismissNotification(noteId) Post req =>
+			Notifications.dismissNotification(noteId)
+			OkResponse()
 
 		// DELETE a trace (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>

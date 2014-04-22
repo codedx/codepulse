@@ -72,6 +72,9 @@
 			.attr('data-downloader', data.exportHref)
 			.attr('data-filename', data.name + '.pulse')
 			.traceDownloader('create')
+
+		// if deletion is pending, hide it
+		if(data.state == 'delete-pending') $item.slideUp(0)
 	}
 
 	// Update the name and dates for the data/item
@@ -83,6 +86,10 @@
 			$importedDiv = $item.find('.date-imported'),
 			$imported = $importedDiv.find('span[name=date]'),
 			isTraceRunning = checkRunningState(data)
+
+		// show or hide the item with a vertical slide animation
+		// depending on whether the trace is scheduled for deletion
+		$item[(data.state == 'delete-pending') ? 'slideUp' : 'slideDown']()
 
 		$link
 			.attr('href', data.href)

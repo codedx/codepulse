@@ -41,21 +41,29 @@
 
 		<lift:comet type="Notifications"></lift:comet>
 
-		<!-- <notification
-			type="deletion"
-			traceName="Some cool trace"
-			undoHref = "/trace-api/traces/2/undo-delete"
-			dismissable="dismissable"
-			usesTransition="usesTransition"
-			/> -->
+		<div class="lift:Notifications.persistentNotifications">
+			<!--
+			Notifications that are meant to be seen at the instant the page
+			loads will be rendered here. For example:
 
-		<!-- <notification
-			type="undeletion"
-			traceName="Another cool trace"
-			dismissable="dismissable"
-			usesTransition="usesTransition"
-			autoDismissDelay="3000"
-			/> -->
+			<notification
+				type="deletion"
+				traceName="Some cool trace"
+				undoHref = "/trace-api/traces/2/undo-delete"
+				dismissable="dismissable"
+				usesTransition="usesTransition"
+				/>
+
+			<notification
+				type="undeletion"
+				traceName="Another cool trace"
+				dismissable="dismissable"
+				usesTransition="usesTransition"
+				autoDismissDelay="3000"
+				/>
+			-->
+		</div>
+
 	</div>
 
 	<!-- Testing Buttons just for while I work on this -->
