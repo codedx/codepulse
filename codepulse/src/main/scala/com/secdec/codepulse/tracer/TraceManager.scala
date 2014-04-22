@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.tracer
 
-import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.{ Map => MutableMap }
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -122,14 +122,13 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 		target
 	}
 
-	def removeTrace(traceId: TraceId): Option[TracingTarget] = {
+	def removeUnloadedTrace(traceId: TraceId): Option[TracingTarget] = {
+		dataProvider.removeTrace(traceId)
 		for (trace <- traces remove traceId) yield {
-			dataProvider.removeTrace(traceId)
-			traceListUpdates fire ()
-			trace.setDeletePending()
-			trace.finalizeDeletion()
+			trace.notifyLoadingFailed()
 			trace
 		}
+
 	}
 
 	def scheduleTraceDeletion(trace: TracingTarget) = {
@@ -182,20 +181,20 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	  */
 	def flushTraces = traces.values.foreach(_.traceData.flush)
 
-	/* Initialization */ {
-		// Load trace data files that are stored by the save manager.
-		for {
-			id <- dataProvider.traceList
-			data = dataProvider.getTrace(id)
-		} {
-			println(s"loaded trace $id")
-			//TODO: make jspmapper configurable somehow
-			val target = registerTrace(id, data, Some(JasperJspMapper(data.treeNodeData)))
-			target.notifyFinishedLoading()
-		}
+	/* Initialization */
 
-		// Also make sure any dirty traces are saved when exiting
-		AppCleanup.add { () => flushTraces }
+	// Load trace data files that are stored by the save manager.
+	for {
+		id <- dataProvider.traceList
+		data = dataProvider.getTrace(id)
+	} {
+		println(s"loaded trace $id")
+		//TODO: make jspmapper configurable somehow
+		val target = registerTrace(id, data, Some(JasperJspMapper(data.treeNodeData)))
+		target.notifyLoadingFinished()
 	}
+
+	// Also make sure any dirty traces are saved when exiting
+	AppCleanup.add { () => flushTraces }
 
 }

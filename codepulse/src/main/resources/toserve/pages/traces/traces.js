@@ -35,22 +35,21 @@ $(document).ready(function(){
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
-		var wasLoading = false
 		Trace.status.onValue(function(status){
 			console.log('watching UI, status = ', status)
 			if(status == 'loading'){
-				wasLoading = true
 				$('body').overlay('wait')
 			} else {
 				$('body').overlay('ready')
 			}
 
-			if(status == 'deleted'){
-				if(wasLoading){
-					alert('Processing upload data failed. You will be redirected to the home screen.')
-				} else {
-					alert('This trace has been deleted. You will be redirected to the home screen.')
-				}
+			if(status == 'loading-failed'){
+				alert('Processing upload data failed. You will be redirected to the home screen.')
+				window.location.href = '/'
+			}
+
+			if(status == 'delete-pending'){
+				// just redirect. There will be a notification waiting on the home page
 				window.location.href = '/'
 			}
 		})

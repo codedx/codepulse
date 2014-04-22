@@ -39,6 +39,7 @@ import reactive.EventStream
 sealed abstract class TracingTargetState(val name: String)
 object TracingTargetState {
 	case object Loading extends TracingTargetState("loading")
+	case object LoadingFailed extends TracingTargetState("loading-failed")
 	case object Idle extends TracingTargetState("idle")
 	case object Connecting extends TracingTargetState("connecting")
 	case object Running extends TracingTargetState("running")
@@ -73,7 +74,8 @@ trait TracingTarget {
 	def cancelPendingDeletion()(implicit exc: ExecutionContext): Future[Unit]
 	def finalizeDeletion()(implicit exc: ExecutionContext): Future[Unit]
 
-	def notifyFinishedLoading()(implicit exc: ExecutionContext): Future[Unit]
+	def notifyLoadingFinished()(implicit exc: ExecutionContext): Future[Unit]
+	def notifyLoadingFailed()(implicit exc: ExecutionContext): Future[Unit]
 }
 
 object AkkaTracingTarget {
@@ -83,7 +85,8 @@ object AkkaTracingTarget {
 	// ----
 	// Messages handled internally by the StateMachine actor
 	// ----
-	private case object FinishedLoading extends TargetRequest
+	private case object LoadingFinished extends TargetRequest
+	private case object LoadingFailed extends TargetRequest
 	private case object RequestTraceConnect extends TargetRequest
 	private case object RequestTraceEnd extends TargetRequest
 	private case class Subscribe(f: EventStream[TracingTargetState] => Unit) extends TargetRequest
@@ -129,14 +132,15 @@ object AkkaTracingTarget {
 
 		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
 		def finalizeDeletion()(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion)
-		def notifyFinishedLoading()(implicit exc: ExecutionContext) = getAckFuture(FinishedLoading)
+		def notifyLoadingFinished()(implicit exc: ExecutionContext) = getAckFuture(LoadingFinished)
+		def notifyLoadingFailed()(implicit exc: ExecutionContext) = getAckFuture(LoadingFailed)
 
 		/** Create a message 'ask' future that expects an `Ack` message in return.
 		  * If an AntiAck is sent with a message, the future fails with an exception
 		  * containing that message. If any other message is sent, the future fails
 		  * with no exception message.
 		  */
-		private def getAckFuture(msg: Any)(implicit exc: ExecutionContext) = {
+		private def getAckFuture(msg: TargetRequest)(implicit exc: ExecutionContext) = {
 			implicit val timeout = new Timeout(5.seconds)
 			val future = actor ? msg
 			future flatMap {
@@ -155,10 +159,12 @@ object AkkaTracingTarget {
 
 }
 
-/** An Akka Actor that can be in one of 7 states while managing a Trace.
+/** An Akka Actor that can be in one of 8 states while managing a Trace.
   *
   * - **Loading** - The server is still analyzing the uploaded file. The trace
   * is not ready for any real interaction.
+  * - **LoadingFailed** - Terminal state, where the Loading phase failed and whatever
+  * data was generated should soon be deleted.
   * - **Idle** - The trace is inactive. May transition to *Connecting* or *DeletePending*
   * depending on user interaction.
   * - **Connecting** - Waiting for a Tracer Agent to connect. Transitions to *Tracing*
@@ -224,10 +230,17 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	}
 
 	val StateLoading = State(TracingTargetState.Loading, {
-		case FinishedLoading =>
+		case LoadingFinished =>
 			changeState(StateIdle)
 			sender ! Ack
+
+		case LoadingFailed =>
+			changeState(StateLoadingFailed)
+			self ! PoisonPill
+			sender ! Ack
 	})
+
+	val StateLoadingFailed = State(TracingTargetState.LoadingFailed, PartialFunction.empty)
 
 	/** No activity currently going on.
 	  * The state may be advanced by sending a `TraceRequested` message,
