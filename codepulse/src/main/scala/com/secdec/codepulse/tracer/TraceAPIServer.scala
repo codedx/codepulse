@@ -190,6 +190,9 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 		/** /trace-api/<target.id>/accumulation */
 		val Accumulation = simpleTargetPath("accumulation")
 
+		/** /trace-api/<target.id>/undo-delete */
+		val UndoDelete = simpleTargetPath("undo-delete")
+
 		/** /trace-api/<target.id>/recording/<recording.id> */
 		val Recording = TargetPath.map[(TracingTarget, RecordingMetadata)](
 			{
@@ -254,12 +257,17 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 					PlainTextResponse(responseText)
 			}
 
-		// DELETE a trace
+		// DELETE a trace (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>
-			manager.removeTrace(target.id) match {
-				case Some(removed) => OkResponse()
-				case None => NotFoundResponse()
-			}
+			manager.scheduleTraceDeletion(target)
+			OkResponse()
+
+		// UNDO a trace deletion (only works within a short time after requesting the delete)
+		case Paths.UndoDelete(target) Post req =>
+			manager
+				.cancelTraceDeletion(target)
+				.map { _ => OkResponse() }
+				.recover { case e => new NotFoundResponse(e.getMessage) }
 
 		// POST a new tracer agent connection
 		case Paths.Start(target) Post req =>

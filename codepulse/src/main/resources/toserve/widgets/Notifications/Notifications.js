@@ -127,14 +127,17 @@
 					}
 					sendCallback('undo')
 
-					// artificial delay to emulate an HTTP request
-					setTimeout(function(){
-						console.log('finished mock request to', undoHref)
-						undoClicked = false
-						sendCallback('undone')
-						// hide this notification when the undo is done
-						exit()
-					}, 300)
+					// Send a POST request to the given undoHref
+					$.ajax(undoHref, {
+						type: 'POST',
+						success: function(){ console.log('undo worked') },
+						error: function(){ console.log('undo did not work') },
+						complete: function(){
+							undoClicked = false
+							sendCallback('undone')
+							exit()
+						}
+					})
 				})
 
 				$noteContent.append($msg)

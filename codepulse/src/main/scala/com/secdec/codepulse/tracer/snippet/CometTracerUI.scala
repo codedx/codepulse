@@ -19,24 +19,20 @@
 
 package com.secdec.codepulse.tracer.snippet
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.xml.NodeSeq
 
-import com.secdec.codepulse.util.comet.CometWidget
-import com.secdec.codepulse.util.comet.CometWidgetCompanion
 import com.secdec.codepulse.tracer.TracingTarget
 import com.secdec.codepulse.tracer.TracingTargetState
-import com.secdec.bytefrog.hq.trace.TraceEndReason
+import com.secdec.codepulse.util.comet.CometWidget
+import com.secdec.codepulse.util.comet.CometWidgetCompanion
 
 import net.liftweb.common.Loggable
 import net.liftweb.http.js.JE.JsFunc
 import net.liftweb.http.js.JE.JsVar
 import net.liftweb.http.js.JsCmds.jsExpToJsCmd
-import net.liftweb.http.js.JsExp.jValueToJsExp
 import net.liftweb.http.js.JsExp.strToJsExp
 import net.liftweb.http.js.jquery.JqJE.Jq
-import net.liftweb.json.JsonAST.JValue
-import net.liftweb.json.JsonDSL.map2jvalue
-import net.liftweb.json.JsonDSL.string2jvalue
 import reactive.Observing
 
 object CometTracerUI extends CometWidgetCompanion[TracingTarget, CometTracerUI] {
