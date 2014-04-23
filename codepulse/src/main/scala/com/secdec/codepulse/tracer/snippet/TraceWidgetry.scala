@@ -79,18 +79,7 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 				<a data-downloader={ href } data-filename={ s"${data.metadata.name}.pulse" }>{ runBinding(xml) }</a>
 			},
 			"agentcommand" -> { (xml: NodeSeq) =>
-				// embedded versions will be running in "some/install/dir/backend", and
-				// the agent jar will be located at "some/install/dir/agent.jar"
-				val agentPath = new File("../agent.jar").getCanonicalPath
-
-				val hqAddress = "localhost"
-				val hqPort = com.secdec.codepulse.userSettings.tracePort
-
-				val cmd = s"-javaagent:$agentPath=$hqAddress:$hqPort"
-
-				// if `cmd` has spaces, wrap it in "quotes"
-				val cmdWrapped = if (cmd.contains(" ")) '"' + cmd + '"' else cmd
-				Text(cmdWrapped)
+				Text(TraceWidgetry.traceAgentCommand)
 			},
 			"stateupdates" -> { (xml: NodeSeq) =>
 				val (cometName, cometTemplate) = CometTracerUI.create(target)
@@ -102,5 +91,21 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 
 	def renderName(ignored: NodeSeq): NodeSeq = {
 		Text(target.traceData.metadata.name)
+	}
+}
+
+object TraceWidgetry {
+	def traceAgentCommand = {
+		// embedded versions will be running in "some/install/dir/backend", and
+		// the agent jar will be located at "some/install/dir/agent.jar"
+		val agentPath = new File("../agent.jar").getCanonicalPath
+
+		val hqAddress = "localhost"
+		val hqPort = com.secdec.codepulse.userSettings.tracePort
+
+		val cmd = s"-javaagent:$agentPath=$hqAddress:$hqPort"
+
+		// if `cmd` has spaces, wrap it in "quotes"
+		if (cmd.contains(" ")) '"' + cmd + '"' else cmd
 	}
 }

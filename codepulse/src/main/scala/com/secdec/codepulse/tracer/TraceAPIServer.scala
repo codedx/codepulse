@@ -27,8 +27,10 @@ import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
 import org.joda.time.format.DateTimeFormat
+import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
+import com.secdec.codepulse.tracer.snippet.TraceWidgetry
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -253,6 +255,25 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 					val responseText = String.valueOf(hasConflict)
 					PlainTextResponse(responseText)
 			}
+
+		// GET the current agent port number
+		case List("trace-api", "agent-port") Get req =>
+			PlainTextResponse(userSettings.tracePort.toString)
+
+		// PUT a new agent port number
+		case List("trace-api", "agent-port") Put req =>
+			req.param("port") match {
+				case Full(AsInt(port)) if port > 1024 && port < 65536 =>
+					userSettings.tracePort = port
+					TraceServer.setPort(port)
+					OkResponse()
+
+				case _ => BadResponse()
+			}
+
+		// GET the agent string
+		case List("trace-api", "agent-string") Get req =>
+			PlainTextResponse(TraceWidgetry.traceAgentCommand)
 
 		// DELETE a trace
 		case TargetPath(target, Nil) Delete req =>

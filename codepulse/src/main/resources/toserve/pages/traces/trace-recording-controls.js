@@ -513,7 +513,7 @@
 		 * a new tracer connection. This may be ignored if the trace
 		 * is not in the 'idle' state.
 		 */
-		newTraceButton.click(function(){ TraceAPI.requestStart() })
+		newTraceButton.click(function(){ TraceAPI.requestStart(exports.updateTraceAgentCommand) })
 
 		/* Clicking the endTraceButton asks the server to stop the
 		 * current trace (if there is one). Open a waiting overlay
@@ -532,6 +532,22 @@
 			connectionHelpPopup.hide()
 		})
 
-	})	
+	})
+	
+	exports.updateTraceAgentCommand = function() {
+		var $agentString = $('#trace-agent-command')
+
+		$agentString.overlay('wait')
+		$.ajax('/trace-api/agent-string', {
+			type: 'GET',
+			success: function(str) {
+				$agentString.text(str)
+				$agentString.overlay('ready')
+			},
+			error: function(xhr, status) {
+				console.error('failed to get updated agent string', xhr.responseText)
+			}
+		})
+	}
 
 }(this));

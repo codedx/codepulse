@@ -450,4 +450,61 @@ $(document).ready(function(){
 	$('.nameConflict.noTraceName').each(function(){
 		$('h1.editable').editable('open')
 	})
+
+	// setup the agent port number control
+	;(function() {
+		var $agentPort = $('#agent-port'), $agentLine = $agentPort.parent()
+
+		function setPortSaving() {
+			$agentPort.removeClass('invalid')
+			$agentPort.removeClass('saved')
+		}
+		function setPortSaved() {
+			$agentPort.removeClass('invalid')
+			$agentPort.addClass('saved')
+		}
+		function setPortInvalid() {
+			$agentPort.removeClass('saved')
+			$agentPort.addClass('invalid')
+		}
+
+		$agentLine.overlay('wait')
+
+		$.ajax('/trace-api/agent-port', {
+			type: 'GET',
+			success: function(data) {
+				$agentPort.val(data)
+				setPortSaved()
+				$agentLine.overlay('ready')
+			},
+			error: function(xhr, status) {
+				setPortInvalid()
+				console.error('failed to get agent port', xhr.responseText)
+			}
+		})
+
+		$agentPort.click(function(e) { e.stopPropagation() })
+		$agentPort.on('input', function() {
+			var val = $agentPort.val().trim()
+			if (/^\d+$/.test(val)) {
+				setPortSaving()
+
+				$.ajax('/trace-api/agent-port', {
+					data: { 'port': val },
+					type: 'PUT',
+					success: function() {
+						$agentPort.val(val)
+						setPortSaved()
+						updateTraceAgentCommand()
+					},
+					error: function(xhr, status) {
+						setPortInvalid()
+						console.error('failed to set agent port', xhr.responseText)
+					}
+				})
+			} else {
+				setPortInvalid()
+			}
+		})
+	})()
 })
