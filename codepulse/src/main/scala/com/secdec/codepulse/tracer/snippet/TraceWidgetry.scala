@@ -19,16 +19,20 @@
 
 package com.secdec.codepulse.tracer.snippet
 
-import scala.xml.NodeSeq
-import net.liftweb.http.DispatchSnippet
-import com.secdec.codepulse.tracer.TracingTarget
-import scala.xml.Text
-import net.liftweb.util.BindHelpers._
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
-import com.secdec.codepulse.tracer
+
+import scala.xml.NodeSeq
+import scala.xml.Text
+
+import com.secdec.codepulse.tracer.traceAPIServer
 import com.secdec.codepulse.tracer.TraceManager
-import java.io.File
+import com.secdec.codepulse.tracer.TracingTarget
+import com.secdec.codepulse.tracer.TracingTargetState
+
+import net.liftweb.http.DispatchSnippet
+import net.liftweb.util.BindHelpers._
 
 class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends DispatchSnippet {
 
@@ -58,8 +62,15 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 			"nameconflict" -> { (xml: NodeSeq) =>
 				//detect a name conflict
 				val thisId = target.id
+
 				val conflictClass = manager.tracesIterator
 					.filterNot(_.id == thisId) // only check other traces
+					.filter { // ignore traces that are deleted or are being deleted
+						_.getStateSync match {
+							case Some(TracingTargetState.DeletePending | TracingTargetState.Deleted) => false
+							case _ => true
+						}
+					}
 					.find(_.traceData.metadata.name == target.traceData.metadata.name) // find one with the same name as this
 					.map { _ => "hasConflict" } // if found, this will be a Some
 
@@ -75,7 +86,7 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 				addCssClass(untitledClass orElse conflictClass, result)
 			},
 			"exportlink" -> { (xml: NodeSeq) =>
-				val href = tracer.traceAPIServer.Paths.Export.toHref(target)
+				val href = traceAPIServer.Paths.Export.toHref(target)
 				<a data-downloader={ href } data-filename={ s"${data.metadata.name}.pulse" }>{ runBinding(xml) }</a>
 			},
 			"agentcommand" -> { (xml: NodeSeq) =>

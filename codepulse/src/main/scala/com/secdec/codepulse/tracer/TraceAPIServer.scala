@@ -270,6 +270,13 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 				case None => BadResponse()
 				case Some(name) =>
 					val hasConflict = manager.tracesIterator
+						.filter {
+							// don't count deleted or deleting traces for the name conflict
+							_.getStateSync match {
+								case Some(TracingTargetState.Deleted | TracingTargetState.DeletePending) => false
+								case _ => true
+							}
+						}
 						.find(_.traceData.metadata.name == name)
 						.isDefined
 					val responseText = String.valueOf(hasConflict)

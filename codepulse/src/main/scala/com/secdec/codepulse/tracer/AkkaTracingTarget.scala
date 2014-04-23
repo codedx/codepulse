@@ -19,10 +19,14 @@
 
 package com.secdec.codepulse.tracer
 
-import scala.annotation.implicitNotFound
+import java.util.concurrent.TimeoutException
+
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
+import scala.util.Failure
+import scala.util.Success
 
 import com.secdec.bytefrog.hq.trace.Trace
 import com.secdec.bytefrog.hq.trace.TraceEndReason
@@ -76,6 +80,26 @@ trait TracingTarget {
 
 	def notifyLoadingFinished()(implicit exc: ExecutionContext): Future[Unit]
 	def notifyLoadingFailed()(implicit exc: ExecutionContext): Future[Unit]
+
+	/** Get the state of this trace. Since the operation is normally asynchronous,
+	  * this method will block for up to 1 second to wait for the result of the
+	  * future. If the state is returned normally, this method returns a `Some`
+	  * containing the state. If the future times out or finished with an error,
+	  * this method returns `None`.
+	  */
+	def getStateSync: Option[TracingTargetState] = {
+		val atMost = 1.second
+		val stateFuture = getState
+		try {
+			Await.ready(stateFuture, atMost)
+		} catch {
+			case e: TimeoutException => // don't care
+		}
+		stateFuture.value flatMap {
+			case Success(state) => Some(state)
+			case Failure(_) => None
+		}
+	}
 }
 
 object AkkaTracingTarget {
