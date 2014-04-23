@@ -40,6 +40,7 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.util.Helpers.AsBoolean
 import net.liftweb.util.Helpers.AsInt
+import java.net.BindException
 
 class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -263,12 +264,26 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 		// PUT a new agent port number
 		case List("trace-api", "agent-port") Put req =>
 			req.param("port") match {
-				case Full(AsInt(port)) if port > 1024 && port < 65536 =>
-					userSettings.tracePort = port
-					TraceServer.setPort(port)
-					OkResponse()
+				case Full(AsInt(port)) =>
+					if (port <= 0 || port > 65535) {
+						PlainTextResponse("Invalid port number.", 500)
+					} else if (userSettings.tracePort != port) {
+						try {
+							TraceServer.setPort(port)
+							userSettings.tracePort = port
+							OkResponse()
+						} catch {
+							case e: BindException if e.getMessage startsWith "Address already in use" =>
+								PlainTextResponse(s"Port $port already in use.", 500)
+							case e: BindException if e.getMessage startsWith "Permission denied" =>
+								PlainTextResponse(s"Permission denied to use port $port.", 500)
+							case _: Exception =>
+								PlainTextResponse("Unknown error.", 500)
+						}
+					} else
+						OkResponse()
 
-				case _ => BadResponse()
+				case _ => PlainTextResponse("Unknown error.", 500)
 			}
 
 		// GET the agent string

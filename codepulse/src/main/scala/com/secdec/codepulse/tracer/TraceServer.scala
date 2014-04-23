@@ -42,6 +42,7 @@ object TraceServer {
 		ss
 	}
 
+	def port = socketServer.port
 	def setPort(newPort: Int) = socketServer.setPort(newPort)
 
 	def awaitNewTrace(traceData: TraceData, jspMapper: Option[JspMapper]) = {

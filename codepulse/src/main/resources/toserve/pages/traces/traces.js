@@ -453,19 +453,31 @@ $(document).ready(function(){
 
 	// setup the agent port number control
 	;(function() {
-		var $agentPort = $('#agent-port'), $agentLine = $agentPort.parent()
+		var $agentPort = $('#agent-port'), $agentLine = $agentPort.parent(), $agentError = $('#agent-port-error')
+		
+		function errorOut() {
+			$agentError.slideUp(100, function() { blockErrorOut = false })
+		}
+		function errorIn(error) {
+			if (error) {
+				$agentError.text(error)
+				$agentError.slideDown(100, function() { blockErrorIn = false })
+			} else {
+				errorOut()
+			}
+		}
 
 		function setPortSaving() {
 			$agentPort.removeClass('invalid')
-			$agentPort.removeClass('saved')
+			errorOut()
 		}
 		function setPortSaved() {
 			$agentPort.removeClass('invalid')
-			$agentPort.addClass('saved')
+			errorOut()
 		}
-		function setPortInvalid() {
-			$agentPort.removeClass('saved')
+		function setPortInvalid(error) {
 			$agentPort.addClass('invalid')
+			errorIn(error)
 		}
 
 		$agentLine.overlay('wait')
@@ -498,8 +510,7 @@ $(document).ready(function(){
 						updateTraceAgentCommand()
 					},
 					error: function(xhr, status) {
-						setPortInvalid()
-						console.error('failed to set agent port', xhr.responseText)
+						setPortInvalid(xhr.responseText)
 					}
 				})
 			} else {
