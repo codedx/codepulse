@@ -69,37 +69,4 @@
 
 	</div>
 
-	<!-- Testing Buttons just for while I work on this -->
-	<div style="position:fixed; bottom:30px; left:0;">
-		<div class="btn" id="testAddNote">test notification</div>
-	</div>
-	<script> $(document).ready(function(){
-		// just for testing. delete this later
-		var id = 0, map = d3.map(), traceName = 'CoolTrace123'
-		function addNote(){
-			var i = id++
-			new Notification()
-				.setDismissable(true)
-				// .setAutoDismissDelay(NaN)
-				.addCallback('enter', function(n){ map.set(i,n) })
-				.addCallback('exit', function(n){ map.remove(i) })
-				.addCallback('undo', function(n){ console.log(n, 'undo clicked') })
-				.addCallback('undone', addUndeletedNote)
-				.setDeletionMessage(traceName, '/traces/2')
-				.setUsesTransition(true)
-				.enter()
-		}
-		function addUndeletedNote(){
-			var i = id++
-			new Notification()
-				.setDismissable(true)
-				.setAutoDismissDelay(3000)
-				.setUndeletionMessage(traceName)
-				.setUsesTransition(true)
-				.enter()
-		}
-		$('#testAddNote').click(addNote)
-	})</script>
-	<!-- End of Testing Buttons -->
-
 </div>
