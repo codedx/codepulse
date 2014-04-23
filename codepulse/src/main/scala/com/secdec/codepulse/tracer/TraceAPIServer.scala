@@ -27,8 +27,10 @@ import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
 import org.joda.time.format.DateTimeFormat
+import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.trace._
 import com.secdec.codepulse.pages.traces.TraceDetailsPage
+import com.secdec.codepulse.tracer.snippet.TraceWidgetry
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -40,6 +42,7 @@ import net.liftweb.util.Helpers.AsBoolean
 import net.liftweb.util.Helpers.AsInt
 import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.notifications.Notifications.NotificationId
+import java.net.BindException
 
 class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -287,6 +290,39 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 		case Paths.DismissNotification(noteId) Post req =>
 			Notifications.dismissNotification(noteId)
 			OkResponse()
+
+		// GET the current agent port number
+		case List("trace-api", "agent-port") Get req =>
+			PlainTextResponse(userSettings.tracePort.toString)
+
+		// PUT a new agent port number
+		case List("trace-api", "agent-port") Put req =>
+			req.param("port") match {
+				case Full(AsInt(port)) =>
+					if (port <= 0 || port > 65535) {
+						PlainTextResponse("Invalid port number.", 500)
+					} else if (userSettings.tracePort != port) {
+						try {
+							TraceServer.setPort(port)
+							userSettings.tracePort = port
+							OkResponse()
+						} catch {
+							case e: BindException if e.getMessage startsWith "Address already in use" =>
+								PlainTextResponse(s"Port $port already in use.", 500)
+							case e: BindException if e.getMessage startsWith "Permission denied" =>
+								PlainTextResponse(s"Permission denied to use port $port.", 500)
+							case _: Exception =>
+								PlainTextResponse("Unknown error.", 500)
+						}
+					} else
+						OkResponse()
+
+				case _ => PlainTextResponse("Unknown error.", 500)
+			}
+
+		// GET the agent string
+		case List("trace-api", "agent-string") Get req =>
+			PlainTextResponse(TraceWidgetry.traceAgentCommand)
 
 		// DELETE a trace (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>

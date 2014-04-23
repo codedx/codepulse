@@ -50,8 +50,25 @@
 			</div>
 		</div>
 
-		<div class="trace-switcher-button btn btn-flat" data-toggle="TraceSwitcher">
-			Traces
+		<div class="trace-buttons">
+			<div class="btn-group options">
+				<div class="btn btn-flat" data-toggle="dropdown">
+					Options
+					<span class="caret"></span>
+				</div>
+
+				<ul class="dropdown-menu pull-right">
+					<li>
+						<span class="option-label">Agent Port Number:</span>
+						<input id="agent-port" class="control" type="text" />
+						<div id="agent-port-error" class="alert alert-danger hide"></div>
+					</li>
+				</ul>
+			</div>
+
+			<div class="btn btn-flat" data-toggle="TraceSwitcher">
+				Traces
+			</div>
 		</div>
 	</div>
 

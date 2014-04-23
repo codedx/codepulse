@@ -148,14 +148,14 @@
 		ajaxCommand(path, 'DELETE', params, callback, opts)
 	}
 
-	function requestStart(){ postCommand('/start') }
-	function requestEnd(){ postCommand('/end') }
+	function requestStart(callback){ postCommand('/start', undefined, callback) }
+	function requestEnd(callback){ postCommand('/end', undefined, callback) }
 
 
 
 	exports.TraceAPI = {
-		'requestStart': function(){ postCommand('/start') },
-		'requestEnd': function(){ postCommand('/end') },
+		'requestStart': requestStart,
+		'requestEnd': requestEnd,
 		'requestStatus': function(callback){ getCommand('/status', callback) },
 		'requestRecordings': function(callback){ getCommand('/recordings', callback) },
 		'requestNewRecording': function(callback){ postCommand('/recording', callback) },

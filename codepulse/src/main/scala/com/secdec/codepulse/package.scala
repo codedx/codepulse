@@ -30,6 +30,7 @@ import com.typesafe.config.ConfigFactory
 import java.io.File
 import com.typesafe.config.ConfigRenderOptions
 import java.io.FileWriter
+import com.typesafe.config.ConfigValueFactory
 
 /** @author dylanh
   *
@@ -65,28 +66,29 @@ package object codepulse {
 
 		logFiles.mkdirs
 	}
-	
+
 	object userSettings {
-		private val configFile = paths.appData  / "codepulse.conf"
-		private val config = 
+		private val configFile = paths.appData / "codepulse.conf"
+		private var config =
 			ConfigFactory
 				.parseFile(configFile)
 				.withFallback(ConfigFactory.load())
 				.withOnlyPath("cp")
-		
-		val tracePort = config.getInt("cp.trace_port")
-		
+
+		def tracePort = config.getInt("cp.trace_port")
+		def tracePort_=(newPort: Integer) = {
+			config = config.withValue("cp.trace_port", ConfigValueFactory.fromAnyRef(newPort, "specified value"))
+			saveToAppData
+			newPort
+		}
+
 		if (!configFile.exists())
 			saveToAppData
-		
+
 		def saveToAppData() {
-			val renderOptions =
-				ConfigRenderOptions.concise()
-					.setJson(true)
-					.setFormatted(true)
-					.setComments(true)
-			val output = config.root().render(renderOptions)
-			
+			val renderOptions = ConfigRenderOptions.defaults.setJson(false).setOriginComments(false)
+			val output = config.root.render(renderOptions)
+
 			val writer = new FileWriter(configFile)
 			writer.write(output)
 			writer.close()
