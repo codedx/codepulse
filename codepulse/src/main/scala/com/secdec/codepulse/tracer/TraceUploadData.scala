@@ -99,11 +99,11 @@ object TraceUploadData {
 			case util.Failure(exception) =>
 				println(s"Error importing file: $exception")
 				exception.printStackTrace()
-				traceManager.removeTrace(traceId)
+				traceManager.removeUnloadedTrace(traceId)
 
 			case util.Success(_) =>
 				for (target <- traceManager getTrace traceId) {
-					target.notifyFinishedLoading()
+					target.notifyLoadingFinished()
 				}
 		}
 

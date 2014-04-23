@@ -19,39 +19,36 @@
 
 package com.secdec.codepulse.tracer
 
+import java.util.concurrent.TimeoutException
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.util.Failure
+import scala.util.Success
+
 import com.secdec.bytefrog.hq.trace.Trace
 import com.secdec.bytefrog.hq.trace.TraceEndReason
-import akka.actor.Actor
-import akka.actor.ActorRef
-import akka.actor.ActorSystem
-import akka.actor.Props
+import com.secdec.codepulse.data.jsp.JspMapper
+import com.secdec.codepulse.data.trace.TraceData
+import com.secdec.codepulse.data.trace.TraceId
+
+import akka.actor._
 import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
-import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.data.trace.TraceData
-import akka.actor.PoisonPill
-
-//sealed trait TracingTargetEvent
-//object TracingTargetEvent {
-//	case object Connecting extends TracingTargetEvent
-//	case object Connected extends TracingTargetEvent
-//	case class Started(traceId: TraceId) extends TracingTargetEvent
-//	case class Finished(reason: TraceEndReason) extends TracingTargetEvent
-//
-//	case object Deleted extends TracingTargetEvent
-//}
 
 sealed abstract class TracingTargetState(val name: String)
 object TracingTargetState {
 	case object Loading extends TracingTargetState("loading")
+	case object LoadingFailed extends TracingTargetState("loading-failed")
 	case object Idle extends TracingTargetState("idle")
 	case object Connecting extends TracingTargetState("connecting")
 	case object Running extends TracingTargetState("running")
 	case object Ending extends TracingTargetState("ending")
+	case object DeletePending extends TracingTargetState("delete-pending")
 	case object Deleted extends TracingTargetState("deleted")
 }
 
@@ -69,47 +66,113 @@ trait TracingTarget {
 	/** An identifier used to distinguish this TracingTarget from others. */
 	def id: TraceId
 
-	def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit): Unit
-	def requestNewTraceConnection(): Unit
-	def requestTraceEnd(): Unit
+	def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit)(implicit exc: ExecutionContext): Future[Unit]
+	def requestNewTraceConnection()(implicit exc: ExecutionContext): Future[Unit]
+	def requestTraceEnd()(implicit exc: ExecutionContext): Future[Unit]
 	def getState: Future[TracingTargetState]
 
 	def traceData: TraceData
 	def transientData: TransientTraceData
 
-	def requestDeletion(): Unit
-	def notifyFinishedLoading(): Unit
+	def setDeletePending()(implicit exc: ExecutionContext): Future[Unit]
+	def cancelPendingDeletion()(implicit exc: ExecutionContext): Future[Unit]
+	def finalizeDeletion()(implicit exc: ExecutionContext): Future[Unit]
+
+	def notifyLoadingFinished()(implicit exc: ExecutionContext): Future[Unit]
+	def notifyLoadingFailed()(implicit exc: ExecutionContext): Future[Unit]
+
+	/** Get the state of this trace. Since the operation is normally asynchronous,
+	  * this method will block for up to 1 second to wait for the result of the
+	  * future. If the state is returned normally, this method returns a `Some`
+	  * containing the state. If the future times out or finished with an error,
+	  * this method returns `None`.
+	  */
+	def getStateSync: Option[TracingTargetState] = {
+		val atMost = 1.second
+		val stateFuture = getState
+		try {
+			Await.ready(stateFuture, atMost)
+		} catch {
+			case e: TimeoutException => // don't care
+		}
+		stateFuture.value flatMap {
+			case Success(state) => Some(state)
+			case Failure(_) => None
+		}
+	}
 }
 
 object AkkaTracingTarget {
 
+	private sealed trait TargetRequest
+
 	// ----
 	// Messages handled internally by the StateMachine actor
 	// ----
-	private case object FinishedLoading
-	private case object RequestTraceConnect
-	private case object RequestTraceEnd
-	private case class Subscribe(f: EventStream[TracingTargetState] => Unit)
-	private case object RequestState
+	private case object LoadingFinished extends TargetRequest
+	private case object LoadingFailed extends TargetRequest
+	private case object RequestTraceConnect extends TargetRequest
+	private case object RequestTraceEnd extends TargetRequest
+	private case class Subscribe(f: EventStream[TracingTargetState] => Unit) extends TargetRequest
+	private case object RequestState extends TargetRequest
 
 	private case class TraceConnected(trace: Trace)
 	private case class TraceEnded(reason: TraceEndReason)
 
-	private case object RequestDeletion
+	private case object SetDeletePending extends TargetRequest
+	private case object CancelPendingDeletion extends TargetRequest
+	private case object FinalizeDeletion extends TargetRequest
 
-	// implicit Timeout used for the Akka ask (?) method in getState
-	private implicit val timeout = new Timeout(5000)
+	private case object Ack
+	private case class AntiAck(msg: Option[String] = None)
+	private def AntiAck(msg: String): AntiAck = AntiAck(Some(msg))
 
 	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
-		def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit) = actor ! Subscribe(sub)
-		def requestNewTraceConnection() = actor ! RequestTraceConnect
-		def requestTraceEnd() = actor ! RequestTraceEnd
+		def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit)(implicit exc: ExecutionContext) = getAckFuture(Subscribe(sub))
+		def requestNewTraceConnection()(implicit exc: ExecutionContext) = getAckFuture(RequestTraceConnect)
+		def requestTraceEnd()(implicit exc: ExecutionContext) = getAckFuture(RequestTraceEnd)
+
 		def getState = {
+			implicit val timeout = new Timeout(5.seconds)
 			val reply = actor ? RequestState
 			reply.mapTo[TracingTargetState]
 		}
-		def requestDeletion() = actor ! RequestDeletion
-		def notifyFinishedLoading() = actor ! FinishedLoading
+
+		def setDeletePending()(implicit exc: ExecutionContext): Future[Unit] = {
+			val timeout = new Timeout(30.seconds)
+			val replyFuture = actor.ask(SetDeletePending)(timeout)
+
+			// the actor will reply with either CancelPendingDeletion or FinalizeDeletion,
+			// the same as whichever message was sent while it was in the DeletePending state.
+			replyFuture flatMap {
+				case CancelPendingDeletion =>
+					Future.failed { new Exception("Deletion was canceled") }
+				case FinalizeDeletion =>
+					Future successful ()
+				case _ =>
+					Future.failed { new Exception("Unexpected reply from TracingTarget actor") }
+			}
+		}
+
+		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
+		def finalizeDeletion()(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion)
+		def notifyLoadingFinished()(implicit exc: ExecutionContext) = getAckFuture(LoadingFinished)
+		def notifyLoadingFailed()(implicit exc: ExecutionContext) = getAckFuture(LoadingFailed)
+
+		/** Create a message 'ask' future that expects an `Ack` message in return.
+		  * If an AntiAck is sent with a message, the future fails with an exception
+		  * containing that message. If any other message is sent, the future fails
+		  * with no exception message.
+		  */
+		private def getAckFuture(msg: TargetRequest)(implicit exc: ExecutionContext) = {
+			implicit val timeout = new Timeout(5.seconds)
+			val future = actor ? msg
+			future flatMap {
+				case Ack => Future successful ()
+				case AntiAck(Some(msg)) => Future.failed { new IllegalStateException(msg) }
+				case _ => Future.failed { new IllegalStateException }
+			}
+		}
 	}
 
 	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]): TracingTarget = {
@@ -120,30 +183,31 @@ object AkkaTracingTarget {
 
 }
 
-/** An Akka Actor that can be in one of 4 states while managing a Trace.
+/** An Akka Actor that can be in one of 8 states while managing a Trace.
   *
-  * Idle - nothing is going on
-  * Connecting - waiting for a Tracer Agent to connect
-  * Tracing - running a connected trace
-  * Ending - waiting for the trace to finish after a stop command
-  *
-  * As the trace progresses and as user input is made, the state
-  * will transition in the following ways:
-  * {{{
-  * Idle -> Connecting -> Tracing -> Ending -> Idle
-  * _                             \____>_____/
-  * }}}
-  *
-  * Note that in the tracing state, depending on the manner of the trace
-  * finishing, it may or may not transition through the Ending state before
-  * returning to Idle.
+  * - **Loading** - The server is still analyzing the uploaded file. The trace
+  * is not ready for any real interaction.
+  * - **LoadingFailed** - Terminal state, where the Loading phase failed and whatever
+  * data was generated should soon be deleted.
+  * - **Idle** - The trace is inactive. May transition to *Connecting* or *DeletePending*
+  * depending on user interaction.
+  * - **Connecting** - Waiting for a Tracer Agent to connect. Transitions to *Tracing*
+  * once the connection is established.
+  * - **Tracing** - A Tracer Agent is connected and running. May transition to *Ending*
+  * with user input, or directly back to *Idle* if the agent ends the trace on its own.
+  * - **Ending** - Waiting for the trace to finish after a stop command. Transitions back
+  * to *Idle* once the trace has disconnected.
+  * - **DeletePending** - A user has attempted to delete this trace. During this
+  * time window, the deletion may be canceled (transition to *Idle*) or finalized
+  * (transition to *Deleted*).
+  * - **Deleted** - The pending deletion was finalized. This actor will soon
+  * be terminated and its associated data deleted.
   */
 class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]) extends Actor {
 
 	import AkkaTracingTarget._
 
 	private var trace: Option[Trace] = None
-	//	private val events = new EventSource[TracingTargetEvent]
 	private val stateChanges = new EventSource[TracingTargetState]
 
 	// import an ExecutionContext for running Futures
@@ -161,11 +225,25 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	 */
 	private def State(s: TracingTargetState, body: Receive): State = {
 		new State(s, body orElse {
-			case sub: Subscribe => sub.f(stateChanges)
-			case RequestState => sender ! s
-			case RequestDeletion =>
-				changeState(StateDeleted)
-				self ! PoisonPill
+
+			// set up the subscription, then reply with Ack
+			case sub: Subscribe =>
+				sub.f(stateChanges)
+				sender ! Ack
+
+			// reply to the sender with the current state
+			case RequestState =>
+				sender ! s
+
+			// SetDeletePending is only accepted by the Idle state. Since
+			// the implementation expects a reply, we reply immediately
+			// with an error
+			case SetDeletePending =>
+				sender ! AntiAck("Cannot delete a Trace if it is not idle")
+
+			// Any other "Request" that goes unhandled by the `body` is an error
+			case msg: TargetRequest =>
+				sender ! AntiAck(s"Unexpected $msg while in state $s")
 		})
 	}
 
@@ -176,18 +254,50 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	}
 
 	val StateLoading = State(TracingTargetState.Loading, {
-		case FinishedLoading => changeState(StateIdle)
+		case LoadingFinished =>
+			changeState(StateIdle)
+			sender ! Ack
+
+		case LoadingFailed =>
+			changeState(StateLoadingFailed)
+			self ! PoisonPill
+			sender ! Ack
 	})
+
+	val StateLoadingFailed = State(TracingTargetState.LoadingFailed, PartialFunction.empty)
 
 	/** No activity currently going on.
 	  * The state may be advanced by sending a `TraceRequested` message,
 	  * which will cause the state to transition to the "Connecting" state.
 	  */
-	val StateIdle = State(TracingTargetState.Idle, {
+	val StateIdle: State = State(TracingTargetState.Idle, {
 		case RequestTraceConnect => onTraceRequested()
+
+		case SetDeletePending => changeState { StateDeletePending(sender) }
 	})
 
+	/** Deletion has been finalized, and the actor will soon be terminated (at this
+	  * point a PoisonPill message should be in the mailbox).
+	  */
 	val StateDeleted = State(TracingTargetState.Deleted, PartialFunction.empty)
+
+	/** A deletion has been requested by the `requester`. It can either be canceled
+	  * or finalized; in either case, the requester will be notified with the same message.
+	  * If the deletion is canceled, the state goes back to Idle. If it is finalized,
+	  * the state changes to Deleted and the actor will be terminated via PoisonPill.
+	  */
+	def StateDeletePending(requester: ActorRef) = State(TracingTargetState.DeletePending, {
+		case CancelPendingDeletion =>
+			requester ! CancelPendingDeletion
+			changeState(StateIdle)
+			sender ! Ack
+
+		case FinalizeDeletion =>
+			requester ! FinalizeDeletion
+			changeState(StateDeleted)
+			self ! PoisonPill
+			sender ! Ack
+	})
 
 	/** Currently waiting for a new Tracer Agent to connect.
 	  * The state will be advanced to "Tracing"

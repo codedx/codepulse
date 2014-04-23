@@ -20,13 +20,14 @@
 package bootstrap.liftweb
 
 import com.secdec.codepulse.components.includes.snippet.Includes
+import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.version.snippet.VersionSnippet
-import com.secdec.codepulse.util.comet.PublicCometInit
 import com.secdec.codepulse.tracer.TraceManager
 import com.secdec.codepulse.tracer.TracingTarget
-import com.secdec.codepulse.tracer.snippet.TraceListUpdates
 import com.secdec.codepulse.tracer.snippet.CometTracerUI
+import com.secdec.codepulse.tracer.snippet.TraceListUpdates
 import com.secdec.codepulse.tracer.snippet.TraceWidgetry
+import com.secdec.codepulse.util.comet.PublicCometInit
 
 import net.liftweb.common.Full
 import net.liftweb.http.CometCreationInfo
@@ -40,11 +41,13 @@ private[liftweb] object BootSnippets {
 			case SnippetRequest("Includes", _) => Includes
 			case SnippetRequest("VersionSnippet", _) => new VersionSnippet
 			case SnippetRequest("TraceWidgetry", Full(target: TracingTarget)) => new TraceWidgetry(traceManager, target)
+			case SnippetRequest("Notifications", _) => Notifications
 		}
 
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {
 			case CometTracerUI.className => new CometTracerUI
 			case "TraceListUpdates" => new TraceListUpdates(traceManager)
+			case "Notifications" => Notifications
 		}
 
 		LiftRules.cometCreation append {

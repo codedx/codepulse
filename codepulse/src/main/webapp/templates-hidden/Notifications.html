@@ -1,0 +1,72 @@
+<div id="NotificationsContainer">
+
+	<lift:head>
+		<link class="lift:Includes.notifications" />
+	</lift:head>
+
+	<div class="notifications-visible">
+		<!-- Insert notifications here via javascript. Use reverse order 
+		(e.g. prepend instead of append) due to the layout. -->
+	</div>
+
+	<div style="display:none;" id="NotificationsTemplates">
+		<div class="notification">
+			<div class="notification-body">
+				<div class="dismiss-countdown">
+					<!-- svg pie chart widget added if the note is auto-dismissed -->
+				</div>
+				<div class="notification-content">
+					<!-- Notification message added here -->
+				</div>
+				<div class="notification-dismissal" title="dismiss">
+					<i class="fa fa-times"></i>
+				</div>
+			</div>	
+		</div>
+
+		<div class="deletion-message">
+			<span class="trace-name">[trace name]</span>
+			has been deleted.
+			<a class="deletion-undo">Undo</a>
+		</div>
+
+		<div class="undeletion-message">
+			<span class="trace-name">[trace name]</span>
+			has been un-deleted.
+		</div>
+	</div>
+
+	<div style="display:none;" id="NotificationsQueued">
+		<!-- notification elements rendered here will be used
+		to prepopulate notifications during the page load, i.e.
+		to show notifications that were left over from a
+		previous page or because of a refresh. -->
+
+		<lift:comet type="Notifications"></lift:comet>
+
+		<div class="lift:Notifications.persistentNotifications">
+			<!--
+			Notifications that are meant to be seen at the instant the page
+			loads will be rendered here. For example:
+
+			<notification
+				type="deletion"
+				traceName="Some cool trace"
+				undoHref = "/trace-api/traces/2/undo-delete"
+				dismissable="dismissable"
+				usesTransition="usesTransition"
+				/>
+
+			<notification
+				type="undeletion"
+				traceName="Another cool trace"
+				dismissable="dismissable"
+				usesTransition="usesTransition"
+				autoDismissDelay="3000"
+				/>
+			-->
+		</div>
+
+	</div>
+
+</div>
