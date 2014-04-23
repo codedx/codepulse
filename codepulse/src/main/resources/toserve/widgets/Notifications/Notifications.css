@@ -79,3 +79,13 @@
 .notification .trace-name {
 	font-weight: bold;
 }
+
+.notification .dismiss-countdown {
+	display: inline-block;
+}
+.notification .dismiss-countdown svg {
+	vertical-align: text-bottom;
+}
+.notification .dismiss-countdown svg path {
+	fill: white;
+}

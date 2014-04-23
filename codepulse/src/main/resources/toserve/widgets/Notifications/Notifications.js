@@ -45,7 +45,9 @@
 				dismissTimeout = undefined,
 				callbacks = {},
 				dismissOpts = {manual: true},
-				dismissHref = undefined
+				dismissHref = undefined,
+				autoDismissWidget = undefined,
+				autoDismissContainer = $note.find('.dismiss-countdown')[0]
 
 			// clicking the dismissal button should clear the notification
 			$dismissal.click(function(){
@@ -81,8 +83,17 @@
 			 * Set an auto-dismiss delay
 			 */
 			function setAutoDismissDelay(delay){
-				if(isNaN(delay)) delete dismissOpts['timeout']
-				else dismissOpts['timeout'] = delay
+				if(isNaN(delay)){
+					delete dismissOpts['timeout']
+					autoDismissWidget && autoDismissWidget.hide()
+				} else {
+					dismissOpts['timeout'] = delay
+					if(!autoDismissWidget){
+						autoDismissWidget = new PieClock(autoDismissContainer, 20)
+					} else {
+						autoDismissWidget.show()
+					}
+				}
 
 				return _this
 			}
@@ -194,6 +205,7 @@
 				var timeoutTime = dismissOpts['timeout']
 				if(!isNaN(timeoutTime)){
 					dismissTimeout = setTimeout(exit, timeoutTime)
+					autoDismissWidget && autoDismissWidget.animateCountdown(timeoutTime)
 				}
 
 				sendCallback('enter')
