@@ -45,6 +45,7 @@ object Distributor extends BuildExtra {
 		
 		val distCommon = SettingKey[File]("dist-common")
 		val distDeps = SettingKey[File]("dist-deps")
+		val distJettyConf = SettingKey[File]("dist-jetty-conf")
 
 		val warContents = TaskKey[Seq[(File, String)]]("webapp-war-contents")
 
@@ -98,13 +99,27 @@ object Distributor extends BuildExtra {
 			})
 		}
 
-		def jetty(platform: String): FileMappingTask = (distDeps in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { ( depsDir, rootZipFolder, webappFolder) => 
+		def jetty(platform: String): FileMappingTask = (distDeps in Distribution, distJettyConf in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { ( depsDir, confDir, rootZipFolder, webappFolder) => 
 			val jetty = depsDir / "common" / "jetty"
 
 			if (!jetty.exists)
 				sys.error("Missing jetty. Please download and place in " + jetty + ".")
 
-			appResource(platform, rootZipFolder, jetty.*** x rebase(jetty, webappFolder))
+			val jettyExclusions = List(
+				"demo-base/", "etc/", "start.d/", "start.ini"
+			).map(webappFolder + _)
+
+			val jettyFiles = jetty.*** x rebase(jetty, webappFolder) map {
+				// replace \ in paths with /, for easier matching below
+				case (src, dest) => (src, dest.replace('\\', '/'))
+			} filter {
+				case (_, path) if jettyExclusions exists { path startsWith _ } => println("Excluding " + path); false
+				case _ => true
+			}
+
+			val jettyConf = confDir.*** x rebase(confDir, webappFolder)
+
+			appResource(platform, rootZipFolder, jettyFiles ++ jettyConf)
 		}
 
 		def embeddedAppFiles(platform: String): FileMappingTask = (distCommon in Distribution, rootZipFolder in Distribution) map { (appFolder, rootZipFolder) =>
@@ -363,6 +378,7 @@ object Distributor extends BuildExtra {
 			
 			distCommon in Distribution := file("distrib/common"),
 			distDeps in Distribution := file("distrib/dependencies"),
+			distJettyConf in Distribution := file("distrib/jetty-conf"),
 			
 			webappClasses in Distribution <<= webappClassesTask,
 			webappClassesJar in Distribution <<= buildJarTask
