@@ -3,7 +3,7 @@ html {
 }
 
 body {
-	background-color: #333333;
+	background-color: #eee;
 	min-height: 100vh;
 	margin: 0;
 
@@ -14,7 +14,7 @@ body {
 }
 
 a {
-	color: #ef7600;
+	color: steelblue;
 	text-decoration: none;
 }
 
@@ -64,6 +64,6 @@ footer {
 	margin: 0;
 	margin-top: 5px;
 
-	color: white;
+	color: gray;
 	overflow-y: scroll;
 }
