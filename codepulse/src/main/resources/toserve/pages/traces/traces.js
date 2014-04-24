@@ -65,10 +65,20 @@ $(document).ready(function(){
 	Trace.isInstrumentedNode = function isInstrumented(node){
 		if(!node) return false
 
-		if(Trace.instrumentedPackages.has(node.id)){
-			return true
+		var flag = Trace.instrumentedPackages.has(node.id),
+			isPackage = node.kind == 'package'
+
+		// If the search reaches a package node, return without traversing
+		// further up the tree. E.g. <self> nodes's classes and methods are
+		// instrumented only if that node is instrumented. Subpackages and
+		// their children are only instrumented if the subpackage itself is
+		// instrumented.
+		if(isPackage){
+			return flag
 		} else {
-			return isInstrumented(node.parent)
+			// non-package nodes should check with their parent if the flag
+			// isn't explicitly set.
+			return flag || isInstrumented(node.parent)
 		}
 	}
 
