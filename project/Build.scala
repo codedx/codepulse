@@ -40,7 +40,7 @@ object BuildDef extends Build with VersionSystem {
 	
 	val baseCompilerSettings = Seq(
 		scalacOptions := List("-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
-		scalaVersion := "2.10.1"
+		scalaVersion := "2.10.4"
 	)
 
 	val baseProjectSettings = net.virtualvoid.sbt.graph.Plugin.graphSettings ++ baseCompilerSettings ++ Seq(
