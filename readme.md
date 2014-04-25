@@ -2,6 +2,8 @@
 
 Code Pulse is a code coverage tool that works on running programs in real time. It uses the [bytefrog](https://github.com/secdec/bytefrog) tracing framework to monitor your Java applications, and displays its findings on a web-based UI.
 
+<sub>[![Build Status](https://travis-ci.org/secdec/codepulse.svg?branch=master)](https://travis-ci.org/secdec/codepulse)</sub> (master branch)
+
 ##Layout
 
 **codepulse/** Contains the web app source.
