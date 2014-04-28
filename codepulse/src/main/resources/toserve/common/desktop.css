@@ -12,6 +12,22 @@
 	line-height: 60px;
 }
 
+.fixed-footer {
+	position: fixed;
+	height: 25px;
+	line-height: 25px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 0 1px;
+
+	z-index: 3;
+
+	background: #323232;
+	color: #eee;
+	font-size: 0.8em;
+}
+
 .fixed-header h1 {
 	font-weight: normal;
 }
@@ -19,8 +35,13 @@
 .fixed-sidebar {
 	position: fixed;
 	top: 60px; /* below #fixed-subheader */
-	bottom: 0;
+	bottom: 25px; /* above #fixed-footer */
 	/* horizontal positioning up to the instance to decide */
+}
+
+.footer-push {
+	height: 25px;
+	min-height: 25px;
 }
 
 #content-wrapper {
@@ -41,13 +62,15 @@
 
 	cursor: pointer;
 	color: #9C9C9C;
+	opacity: 0.8;
 	background-color: transparent;
 	padding: 0
 	text-decoration: none;
+
 }
 
 #refresh-link:hover {
-	color: #333;
+	opacity: 1;
 }
 
 #refresh-link-tooltip {
