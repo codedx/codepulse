@@ -181,22 +181,9 @@
 				pw.fullLabel(node.label).abbreviatedLabel(abbrevName)
 			}
 
-			if(node.kind == 'root'){
-				pw.uiParts.main.appendTo($totalsContainer)
-				// pw.abbreviatedLabel('Overall Coverage')
-				pw.selectable(false)
-				pw.instrumentationSelectable(false)
-
-				var totalMethodCount = 0
-				node.children.forEach(function(child){
-					totalMethodCount += child.methodCount
-				})
-				pw.methodCount(totalMethodCount)
-			} else {
+			if(node.kind != 'root'){
 
 				pw.methodCount(node.methodCount)
-
-				
 
 				if(packageParentNode){
 					widgets[packageParentNode.id].children.add(pw)

@@ -76,7 +76,7 @@
  	float: left;
  	display: table;
  	min-height: 30px;
- 	width: calc(100% - 90px);
+ 	width: calc(100% - 60px);
  	
  	font-size: small;
  	box-sizing: border-box;
@@ -289,35 +289,6 @@
 	word-wrap: break-word;
 	white-space: normal;
 }
-
-/****************************\
-| Recording "Coverage" Badge |
-\****************************/
-
- .recording .menu-badge {
- 	float: left;
- 
- 	font-size: xx-small;
- 	text-align: center;
- 	box-sizing: border-box;
- 	width: 30px;
- 	max-width: 30px;
- 	text-overflow: clip;
- 	display: inline-block;
- 
- 	margin-top: 6px;
- 	line-height: 14px;
- 	border-radius: 9px;
- 	padding: 2px 0px;
- 
- 	color: #FFF;
- 	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
- 	background-color: #999;
- }
- 
- [trace-running=true] .recording.in-progress .menu-badge {
- 	background-color: red;
- }
 
 /*********************\
 | Color Swatch Styles |
