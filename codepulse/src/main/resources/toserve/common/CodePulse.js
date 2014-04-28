@@ -28,4 +28,27 @@
 	// True if the client is node-webkit; False if the client is a browser
 	CodePulse.isEmbedded = (CodePulse.nativeUserAgent == CodePulse.currentUserAgent)
 
+	// Handle external links via the "external-href" attribute
+	$(document).ready(function(){
+
+		$('[external-href]').each(function(){
+			var $this = $(this),
+				href = $this.attr('external-href')
+			$this
+				.removeAttr('external-href')
+				.attr('href', href)
+
+			if(CodePulse.isEmbedded){
+				// open with native browser
+				$this.click(function(e){
+					e.preventDefault()
+					require('nw.gui').Shell.openExternal(href)
+				})
+			} else {
+				// open in a new tab
+				$this.attr('target', '_blank')
+			}
+		})
+	})
+
 })(this.CodePulse || (this.CodePulse = {}));
