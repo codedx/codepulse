@@ -32,6 +32,14 @@
 					classes: 'qtip-dark'
 				}
 			})
+
+			if (CodePulse.isEmbedded) {
+				$('#bug-report-link').click(function(e) {
+					e.preventDefault()
+					var href = $(this).attr('href')
+					require('nw.gui').Shell.openExternal(href)
+				})
+			}
 		})
 		</script>
 	</head>
@@ -48,7 +56,7 @@
 		<div class="fixed-footer">
 			<span class="subtle lift:VersionSnippet">Code Pulse v<v:number /></span>
 			<a id="refresh-link" onclick="window.location.reload();"><i class="fa fa-refresh"></i></a>
-			<div id="refresh-link-tooltip">If you encounter a bug, please <a href="https://github.com/secdec/codepulse/issues/new" target="_blank">let us know</a>!</div>
+			<div id="refresh-link-tooltip">If you encounter a bug, please <a id="bug-report-link" href="https://github.com/secdec/codepulse/issues" target="_blank">let us know</a>!</div>
 		</div>
 
 	</body>
