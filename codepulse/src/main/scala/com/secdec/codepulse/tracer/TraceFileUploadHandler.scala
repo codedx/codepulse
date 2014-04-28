@@ -36,6 +36,7 @@ import net.liftweb.http.JsonResponse
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.Box
 import com.secdec.codepulse.data.trace.TraceId
+import net.liftweb.http.PlainTextResponse
 
 class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 
@@ -52,10 +53,12 @@ class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 	}
 
 	serve {
-		case UploadPath("create") Post req =>
+		case UploadPath("create") Post req => fallbackResponse {
 			for {
 				inputFile <- getReqFile(req) ?~! "Creating a new trace requires a file"
-				if TraceUploadData.checkForBinaryZip(inputFile)
+				_ <- TraceUploadData.checkForBinaryZip(inputFile) ?~ {
+					s"The file you picked doesn't have any compiled Java files."
+				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
 				val traceId = TraceUploadData.handleBinaryZip(inputFile)
@@ -67,16 +70,20 @@ class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 
 				hrefResponse(traceId)
 			}
+		}
 
-		case UploadPath("import") Post req =>
+		case UploadPath("import") Post req => fallbackResponse {
 			for {
 				inputFile <- getReqFile(req) ?~! "Importing a trace requires a file"
-				if TraceUploadData.checkForTraceExport(inputFile)
+				_ <- TraceUploadData.checkForTraceExport(inputFile) ?~ {
+					s"The file you picked isn't an exported project file."
+				}
 			} yield {
 				val traceId = TraceUploadData.handleTraceExport(inputFile)
 
 				hrefResponse(traceId)
 			}
+		}
 	}
 
 	def getReqFile(req: Req): Box[File] = req.uploadedFiles match {
@@ -91,9 +98,20 @@ class TraceFileUploadHandler(traceManager: TraceManager) extends RestHelper {
 		case _ => Empty
 	}
 
+	implicit class BooleanBoxQuestion(bool: Boolean) {
+		def ?~(msg: String) =
+			if (bool) Full()
+			else Failure(msg)
+	}
+
 	def hrefResponse(traceId: TraceId) = {
 		val href = TraceDetailsPage.traceHref(traceId)
 		JsonResponse("href" -> href)
 	}
 
+	def fallbackResponse(box: Box[LiftResponse]) = box match {
+		case Full(resp) => resp
+		case Empty => NotFoundResponse("an unknown error occurred")
+		case Failure(msg, _, _) => NotFoundResponse(msg)
+	}
 }
