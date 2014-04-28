@@ -89,7 +89,7 @@
 				} else {
 					dismissOpts['timeout'] = delay
 					if(!autoDismissWidget){
-						autoDismissWidget = new PieClock(autoDismissContainer, 20)
+						autoDismissWidget = new PieClock(autoDismissContainer, 16)
 					} else {
 						autoDismissWidget.show()
 					}

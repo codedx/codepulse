@@ -110,7 +110,6 @@ object Notifications extends CometActor with PublicCometInit with DispatchSnippe
 
 	def renderQueue: NodeSeq = {
 		val q = pruneQueue()
-		println("Rendering Queue")
 		val elems = q map { renderNotificationHtml }
 		elems
 	}

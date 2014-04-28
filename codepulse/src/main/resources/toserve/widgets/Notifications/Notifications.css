@@ -17,36 +17,36 @@
 /* The container area for an individual notification */
 .notification {
 	/*text-align: center;*/
-	margin-bottom: 10px;
+	margin-bottom: 4px;
 	display: flex;
 	position: relative;
 }
 
+.notification:first-child {
+	margin-bottom: 7px;
+}
 .notification:last-child {
-	padding-top: 7px;
+	padding-top: 4px;
 }
 
 /* Notification content container */
 .notification-body {
 	display: inline-block;
-	background-color: #00B600; /* arbitrary green, for now */
-	color: white;
+	background-color: beige;
+	color: #464646;
 
-	/* make it fluffy */
-	padding: 8px 20px;
-	border-radius: 5px;
+	padding: 4px 8px;
+	font-size: 0.9em;
 
 	/* set side margins to 'auto' to center within its container */
 	margin-left: auto;
 	margin-right: auto;
-
-	border: 1px solid;
 }
 
 /* Transitions for notifications */
 .notification.slide {
 	transition: margin-top .3s ease, opacity .3s ease;
-	margin-top: -40px;
+	margin-top: -30px;
 	opacity: 0;
 }
 
@@ -61,7 +61,7 @@
 
 .notification .notification-dismissal {
 	display: inline-block;
-	margin-left: 10px;
+	margin-left: 4px;
 	cursor: pointer;
 	opacity: 0.8;
 }
@@ -71,9 +71,14 @@
 
 .notification .deletion-undo {
 	cursor: pointer;
-	background: beige;
-	color: darkgreen;
-	padding: 3px;
+	background: #cacaa5;
+	color: #000;
+	padding: 5px 3px 6px;
+	text-decoration: none;
+}
+
+.notification .deletion-undo:hover {
+	background: #e2e2bb;
 }
 
 .notification .trace-name {
@@ -86,6 +91,7 @@
 .notification .dismiss-countdown svg {
 	vertical-align: text-bottom;
 }
-.notification .dismiss-countdown svg path {
-	fill: white;
+.notification .dismiss-countdown svg path,
+.notification .dismiss-countdown svg circle {
+	fill: #464646;
 }
