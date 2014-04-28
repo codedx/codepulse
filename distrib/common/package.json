@@ -9,6 +9,8 @@
 		"icon": "app/icon.png",
 		"toolbar": false,
 		"width": 1024,
-		"height": 768
+		"height": 768,
+		"min_width": 960,
+		"min_height": 600
 	}
 }
