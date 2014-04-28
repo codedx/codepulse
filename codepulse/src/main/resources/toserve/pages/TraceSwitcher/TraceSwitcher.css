@@ -75,6 +75,12 @@
 | Trace List Items |
 \******************/
 
+ .traceList .emptyListPlaceholder {
+ 	color: gray;
+ 	text-align: center;
+ 	margin-top: 22px;
+ }
+
  .traceSwitcher .traceListItem {
 	display: block;
 	box-sizing: border-box;

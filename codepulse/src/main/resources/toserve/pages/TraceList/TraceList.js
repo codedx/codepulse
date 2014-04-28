@@ -20,6 +20,8 @@
  $(document).ready(function(){
 
 	var $listContainer = $('.traceList'),
+		$emptyPlaceholder = $('.emptyListPlaceholder'),
+		$placeholderParent = $emptyPlaceholder.parent(),
 		listContainer = d3.select($listContainer[0]),
 		$template = $listContainer.find('[template]'),
 		$listItemTemplate = $template.find('.traceListItem'),
@@ -48,6 +50,16 @@
 
 		// update any other information on all items
 		itemsSelection.each(updateItem)
+
+		// check if there are *any* non-deleted items
+		var nonDeletedItems = items.filter(function(item){
+			return item.state != 'delete-pending'
+		})
+
+		//bump the empty placeholder to the end of the list
+		$emptyPlaceholder.detach().appendTo($placeholderParent)
+		// show the placeholder when there are no items
+		$emptyPlaceholder[nonDeletedItems.length? 'hide': 'show']()
 	}
 
 	function checkRunningState(data){
