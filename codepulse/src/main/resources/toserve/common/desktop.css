@@ -55,16 +55,11 @@
 }
 
 #refresh-link {
-	position: fixed;
-	z-index: 3;
-	bottom: 0;
-	right: 3px;
-
 	cursor: pointer;
 	color: #9C9C9C;
 	opacity: 0.8;
 	background-color: transparent;
-	padding: 0
+	padding: 3px;
 	text-decoration: none;
 
 }
