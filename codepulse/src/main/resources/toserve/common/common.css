@@ -6,7 +6,6 @@ html, body {height: 100%; }
 	height: 100%;
 	margin: 0 auto -80px;
 }
-#footer, #push { height: 80px; }
 
 body, td, textarea, input { font-family: tahoma, georgia, sans-serif; font-size: 1em; }
 
@@ -318,15 +317,6 @@ ul.flat-list li {
   margin-top: -20px;
   margin-left: -225px;
 }
-
-/* FOOTER */
-#footer {
-	background: #323232;
-	color: #eee;
-	font-size: 0.8em;
-}
-
-#footer p { padding: 0px 0px 0px 5px; margin: 0px; }
 
 a.to-login { font-size: 0.8em; color: #777; border-bottom: 1px dashed #777; text-decoration: none; }
 a.to-login:hover { border-bottom-style: solid; }

@@ -14,7 +14,25 @@
 		<script class="lift:Includes.CodePulseCommon"></script>
 		<script class="lift:Includes.Downloader"></script>
 		<script class="lift:Includes.d3"></script>
-
+		<script type="text/javascript">
+		$(function() {
+			$('#refresh-link').qtip({
+				content: $('#refresh-link-tooltip'),
+				hide: {
+					fixed: true,
+					delay: 300
+				},
+				position: {
+					my: 'bottom right',
+					at: 'top center',
+					target: $('#refresh-link')
+				},
+				style: {
+					classes: 'qtip-dark'
+				}
+			})
+		})
+		</script>
 	</head>
 	<body>
 
@@ -24,16 +42,8 @@
 			<div id="content">The main content will be bound here</div>
 		<!-- </div> -->
 
-		<!-- same height as the footer, to make sure content doesn't go behind it -->
-		<div class="footer-push"></div>
-
-		<div id="footer">
-			<span class="subtle">
-				<a id="refresh-link" onclick="window.location.reload();"><i class="fa fa-refresh"></i> refresh</a>
-				(If you encounter a bug, let us know! Refreshing will hopefully allow you to keep working.)
-			</span>
-			<span class="subtle lift:VersionSnippet" style="margin-right: 10px; float: right">Code Pulse v<v:number /></span>
-		</div>
+		<a id="refresh-link" onclick="window.location.reload();"><i class="fa fa-refresh"></i></a>
+		<div id="refresh-link-tooltip">If you encounter a bug, please <a href="https://github.com/secdec/codepulse/issues/new" target="_blank">let us know</a>!</div>
 	</body>
 
 </html>

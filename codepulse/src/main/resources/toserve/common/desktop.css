@@ -8,22 +8,10 @@
 	z-index: 3;
 }
 
-#footer {
-	position: fixed;
-	bottom: 0px;
-	height: 25px;
-	line-height: 25px;
-	left: 0;
-	right: 0;
-	padding: 0 1px;
-
-	z-index: 3;
-}
-
 .fixed-sidebar {
 	position: fixed;
 	top: 60px; /* below #fixed-subheader */
-	bottom: 25px; /* above #fixed-footer */
+	bottom: 0;
 	/* horizontal positioning up to the instance to decide */
 }
 
@@ -37,24 +25,27 @@
 	min-height: 60px;
 }
 
-.footer-push {
-	height: 25px;
-	min-height: 25px;
-}
-
-#footer .half {
-	padding: 2px 5px;
-	width: 50%;
-}
-
 #refresh-link {
+	position: fixed;
+	z-index: 3;
+	bottom: 0;
+	right: 3px;
+
 	cursor: pointer;
-	color: #333;
-	background-color: #777;
-	padding: 3px;
+	color: #9C9C9C;
+	background-color: transparent;
+	padding: 0
 	text-decoration: none;
 }
 
 #refresh-link:hover {
-	background-color: #999;
+	color: #333;
+}
+
+#refresh-link-tooltip {
+	display: none;
+}
+
+#refresh-link-tooltip a {
+	color: rgb(219, 175, 0);
 }
