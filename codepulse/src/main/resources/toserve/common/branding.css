@@ -1,0 +1,33 @@
+.branding {
+	display: inline-block;
+	float: right;
+	margin-right: 2px;
+	vertical-align: top;
+}
+
+.branding .company {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.branding .company img {
+	height: 34px;
+}
+
+.branding .product {
+	vertical-align: bottom;
+	margin-bottom: 7px;
+	display: inline-block;
+	text-align: right;
+}
+.branding .product .name {
+	font-size: 1.4em;
+	font-weight: bold;
+	line-height: 20px;
+}
+.branding .product .version {
+	line-height: 20px;
+	font-size: .75em;
+	margin-top: -3px;
+	color: lightgray;
+}

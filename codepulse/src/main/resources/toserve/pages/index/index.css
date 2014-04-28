@@ -6,6 +6,7 @@
 .fixed-header h1 {
 	line-height: 60px;
 	padding-left: 2px;
+	display: inline-block;
 }
 
 .traceSwitcher .traceList {

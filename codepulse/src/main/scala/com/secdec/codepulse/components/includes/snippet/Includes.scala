@@ -120,6 +120,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val colorpickerTooltip = register("colorpickerTooltip", colorpicker, qtip2, JS("pages/traces/colorpicker-tooltip.js"), CSS("pages/traces/colorpicker-tooltip.css"))
 	val notifications = register("notifications", CSS("widgets/Notifications/Notifications.css"), JS("widgets/Notifications/Notifications.js"), JS("widgets/Notifications/PieClock.js"))
 	val traceInputForm = register("TraceInputForm", CSS("pages/TraceInputForm/TraceInputForm.css"), JS("pages/TraceInputForm/TraceInputForm.js"))
+	val brandingStyle = register("brandingStyle", CSS("common/branding.css"))
 
 	val indexPage = register("indexPage", CSS("pages/index/index.css"))
 
