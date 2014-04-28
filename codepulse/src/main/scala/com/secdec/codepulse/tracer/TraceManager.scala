@@ -135,7 +135,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 		val (deletionKey, deletionFuture) = trace.setDeletePending()
 
 		// in 10 seconds, actually delete the trace
-		actorSystem.scheduler.scheduleOnce(15.seconds) {
+		val finalizer = actorSystem.scheduler.scheduleOnce(15.seconds) {
 
 			// Request the finalization of the trace target's deletion.
 			// Doing so returns a Future that will succeed if the target
@@ -156,6 +156,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 			case Failure(e) =>
 				// the deletion was probably canceled
 				println(s"Deletion failed or maybe canceled. Message says '${e.getMessage}'")
+				finalizer.cancel()
 		}
 
 		deletionFuture
