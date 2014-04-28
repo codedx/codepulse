@@ -24,6 +24,9 @@
 	font-size: 1.4em;
 	font-weight: bold;
 	line-height: 20px;
+	color: white;
+	text-decoration: none;
+	display: block;
 }
 .branding .product .version {
 	line-height: 20px;
