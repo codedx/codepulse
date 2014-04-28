@@ -88,14 +88,18 @@ body > .overlay:before {
 | Subheader Styles (breadcrumbs + options menu) |
 \***********************************************/
 
- .project-header {
+/* .project-header {
  	height: 60px;
  	line-height: 60px;
  	display: inline-block;
+ }*/
+
+ .header-section {
+ 	display: inline-block;
  }
 
- .project-header .header-section {
- 	display: inline-block;
+ .header-section a {
+ 	color: #B4B0E7;
  }
 
  .breadcrumb-carat {
@@ -135,7 +139,6 @@ body > .overlay:before {
  	color: #323232;
  	min-width: 100px;
  }
-
  
  ul.traces-list {
  	list-style: none;
