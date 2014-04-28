@@ -45,11 +45,12 @@ import net.liftweb.common.Full
 object TraceUploadData {
 
 	def handleTraceExport(file: File): TraceId = createAndLoadTraceData { traceData =>
-		TraceImporter.importFrom(file, traceData)
 
 		// Note: the `creationDate` should have been filled in by the importer.
 		//The `importDate` is now.
 		traceData.metadata.importDate = Some(System.currentTimeMillis)
+
+		TraceImporter.importFrom(file, traceData)
 	}
 
 	/** A naive check on a File that checks if it is a .zip file

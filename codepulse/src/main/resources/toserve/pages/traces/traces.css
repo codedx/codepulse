@@ -108,13 +108,18 @@ body > .overlay:before {
  }
 
  .header-detail {
- 	display: inline-block;
+ 	display: block;
  	margin-left: 15px;
+ 	line-height: 16px;
  }
 
  .header-detail .detail-name {
  	font-size: 0.7em;
  	color: lightgray;
+ }
+
+ .header-detail .date {
+ 	font-size: .75em;
  }
  
  .settings {

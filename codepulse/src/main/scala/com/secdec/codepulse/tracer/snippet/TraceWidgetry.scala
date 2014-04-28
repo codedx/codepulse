@@ -20,19 +20,23 @@
 package com.secdec.codepulse.tracer.snippet
 
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.Locale
 
 import scala.xml.NodeSeq
 import scala.xml.Text
 
-import com.secdec.codepulse.tracer.traceAPIServer
+import org.joda.time.format.DateTimeFormat
+
 import com.secdec.codepulse.tracer.TraceManager
 import com.secdec.codepulse.tracer.TracingTarget
 import com.secdec.codepulse.tracer.TracingTargetState
+import com.secdec.codepulse.tracer.traceAPIServer
 
+import net.liftweb.common.Box.option2Box
 import net.liftweb.http.DispatchSnippet
-import net.liftweb.util.BindHelpers._
+import net.liftweb.util.BindHelpers.addCssClass
+import net.liftweb.util.BindHelpers.bind
+import net.liftweb.util.BindHelpers.strToSuperArrowAssoc
 
 class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends DispatchSnippet {
 
@@ -43,12 +47,13 @@ class TraceWidgetry(manager: TraceManager, target: TracingTarget) extends Dispat
 
 	def renderTraceWidgetry(template: NodeSeq): NodeSeq = {
 
-		val dateFormat = new SimpleDateFormat("EEE, MMM d, yyyy 'at' HH:mm:ss z")
+		val localDateFormatPattern = DateTimeFormat.patternForStyle("SS", Locale.getDefault)
+		val dateFormat = DateTimeFormat.forPattern(localDateFormatPattern)
 		val data = target.traceData
 
-		val creationDate = dateFormat.format(new Date(data.metadata.creationDate))
+		val creationDate = dateFormat.print(data.metadata.creationDate)
 		val importDate = data.metadata.importDate map { d =>
-			dateFormat.format(new Date(d))
+			dateFormat.print(d)
 		}
 
 		def runBinding(xml: NodeSeq): NodeSeq = bind("trace", xml,

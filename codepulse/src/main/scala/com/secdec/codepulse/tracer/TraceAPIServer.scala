@@ -43,6 +43,7 @@ import net.liftweb.util.Helpers.AsInt
 import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.notifications.Notifications.NotificationId
 import java.net.BindException
+import java.util.Locale
 
 class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -246,7 +247,8 @@ class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManag
 
 		// GET a list of traces
 		case List("trace-api", "traces") Get req =>
-			val dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+			val localDateFormatPattern = DateTimeFormat.patternForStyle("SS", Locale.getDefault)
+			val dateFormat = DateTimeFormat.forPattern(localDateFormatPattern)
 			def prettyDate(d: Long) = dateFormat.print(d)
 			val traces = manager.tracesIterator.toList.sortBy(_.id)
 
