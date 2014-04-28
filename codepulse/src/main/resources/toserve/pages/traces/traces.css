@@ -187,7 +187,7 @@ body > .overlay:before {
 	display: initial;
 	position: absolute;
 	bottom: -4px;
-	left: 0;
+	left: 5px;
 	white-space: nowrap;
 	line-height: 14px;
 	font-size: 12px;
