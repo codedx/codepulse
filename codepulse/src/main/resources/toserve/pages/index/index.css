@@ -1,0 +1,16 @@
+.project-form-container {
+	margin-left: 285px;
+	padding: 1em;
+}
+
+.fixed-header h1 {
+	line-height: 60px;
+	padding-left: 2px;
+}
+
+.traceSwitcher .traceList {
+	max-height: 100% !important;
+}
+.traceSwitcher .traceInputLinks {
+	display: none;
+}

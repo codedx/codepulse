@@ -1,18 +1,22 @@
 <lift:surround with="desktop" at="content">
 
-	<div style="background-color: #333; position: absolute; top:0px; right:0px; width: 286px; height: 60px; color: white; box-shadow: 0 0 5px black; padding-top:10px; padding-left: 5px; box-sizing: border-box;">
-	<h1>Projects</h1>
+	<lift:head>
+		<link class="lift:Includes.indexPage"/>
+	</lift:head>
+
+	<div class="fixed-header">
+		<h1>Projects</h1>
 	</div>
 
-	<div style="width: calc(100% - 285px); padding: 1em; box-sizing: border-box;">
+	<div class="header-push"></div>
+
+	<div class="project-form-container">
 		<lift:embed what="TraceInputForm"></lift:embed>
 	</div>
 
 	<lift:embed what="TraceSwitcher"></lift:embed>
-
 	<script>
 		$(".slideDownSidebar").removeClass("collapsed");
-		$('.traceInputLinks').remove();
-	</script>
+	</script
 
 </lift:surround>

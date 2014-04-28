@@ -1,4 +1,4 @@
-#fixed-subheader {
+.fixed-header {
 	position: fixed;
 	top: 0px;
 	height: 60px;
@@ -6,6 +6,14 @@
 	right: 0;
 
 	z-index: 3;
+
+	background: #323232;
+	color: white;
+	line-height: 60px;
+}
+
+.fixed-header h1 {
+	font-weight: normal;
 }
 
 .fixed-sidebar {

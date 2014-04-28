@@ -10,67 +10,84 @@
 
 	<div class="header-push"></div>
 
-	<div id="fixed-subheader" class="titlearea">	
-		<div class="wscope">
-			<trace:nameconflict>
-				<i class="fa fa-exclamation-triangle warningIcon"></i>
-				<div class="warningText">
-					This project has the same name as another project. Click the name to change it now.
+	<div class="fixed-header">	
+		<div class="project-header">
+			<div class="header-section">
+				<div data-toggle="TraceSwitcher">
+					Projects
 				</div>
-
-				<h1 class="editable">
-					<div class="edit-content">
-						<trace:name></trace:name>
-					</div>
-					<div class="editor">
-						<input type="text"/>
-						<span class="editor-save">&#x23ce;</span>
-					</div>
-				</h1>
-			</trace:nameconflict>
-			<div class="header-detail">
-				<span class="detail-name">created on</span>
-				<span class="date">
-					<trace:creationdate></trace:creationdate>
-				</span>
 			</div>
-			<trace:ifimported>
+
+			<div class="header-section breadcrumb-carat">
+				<i class="fa fa-chevron-circle-right"></i>
+			</div>
+
+			<div class="header-section">
+				<trace:nameconflict>
+					<i class="fa fa-exclamation-triangle warningIcon"></i>
+					<div class="warningText">
+						This project has the same name as another project. Click the name to change it now.
+					</div>
+
+					<h1 class="editable">
+						<div class="edit-content">
+							<trace:name></trace:name>
+						</div>
+						<div class="editor">
+							<input type="text"/>
+							<span class="editor-save">&#x23ce;</span>
+						</div>
+					</h1>
+				</trace:nameconflict>
+			</div>
+
+			<div class="header-section">
 				<div class="header-detail">
-					<span class="detail-name">imported on</span>
+					<span class="detail-name">created on</span>
 					<span class="date">
-						<trace:importdate></trace:importdate>
+						<trace:creationdate></trace:creationdate>
 					</span>
 				</div>
+			</div>
+
+			<trace:ifimported>
+				<div class="header-section">
+					<div class="header-detail">
+						<span class="detail-name">imported on</span>
+						<span class="date">
+							<trace:importdate></trace:importdate>
+						</span>
+					</div>
+				</div>
 			</trace:ifimported>
-			<div class="header-detail">
-				<trace:exportlink>
-					<i class="fa fa-share-square-o"></i>
-					Export
-				</trace:exportlink>
+
+			<div class="header-section">
+				<div class="header-detail">
+					<trace:exportlink>
+						<i class="fa fa-share-square-o"></i>
+						Export
+					</trace:exportlink>
+				</div>
 			</div>
 		</div>
 
-		<div class="trace-buttons">
+	<!-- 	<div class="trace-buttons">
 			<div class="btn-group options">
 				<div class="btn btn-flat" data-toggle="dropdown">
-					Options
-					<span class="caret"></span>
+					<i class="fa fa-cog"></i>
 				</div>
 
 				<ul id="options-menu" class="dropdown-menu pull-right">
 					<li>
 						<span class="option-label">Agent Port Number</span>
 						<input id="agent-port" class="control" type="text" />
-						<i title="The port number that Code Pulse listens for tracer agent connections on. In most cases, the default value should be acceptable." class="help fa fa-question-circle"></i>
+							<i title="The port number that Code Pulse listens for tracer agent connections on. In most cases, the default value should be acceptable." class="help fa fa-question-circle"></i>
 						<div id="agent-port-error" class="alert alert-danger hide"></div>
 					</li>
 				</ul>
 			</div>
+		</div> -->
 
-			<div class="btn btn-flat" data-toggle="TraceSwitcher">
-				Projects
-			</div>
-		</div>
 	</div>
 
 	<lift:embed what="TraceSwitcher"></lift:embed>

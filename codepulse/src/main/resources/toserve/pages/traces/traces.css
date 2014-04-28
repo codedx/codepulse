@@ -88,21 +88,32 @@ body > .overlay:before {
 | Subheader Styles (breadcrumbs + options menu) |
 \***********************************************/
 
- .titlearea h1 {
+ .project-header {
+ 	height: 60px;
+ 	line-height: 60px;
  	display: inline-block;
  }
 
- .titlearea .header-detail {
+ .project-header .header-section {
+ 	display: inline-block;
+ }
+
+ .breadcrumb-carat {
+ 	margin-left: -11px;
+ 	pointer-events: none;
+ }
+
+ .header-detail {
  	display: inline-block;
  	margin-left: 15px;
  }
 
- .titlearea .header-detail .detail-name {
+ .header-detail .detail-name {
  	font-size: 0.7em;
  	color: lightgray;
  }
  
- .titlearea .settings {
+ .settings {
  	margin-right: 15px;
  	margin-top: 15px;
  }
@@ -125,34 +136,6 @@ body > .overlay:before {
  	min-width: 100px;
  }
 
- .options .control {
- 	font-size: 0.9em;
- 	vertical-align: middle;
- 	margin-bottom: 0;
- }
-
- .options .help {
- 	vertical-align: middle;
- 	color: #323232;
- }
-
- .options #agent-port {
- 	width: 42px;
- }
-
- .options #agent-port.invalid:focus {
- 	border-color: rgba(239, 111, 107, 0.8);
- 	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
- }
-
- .options .alert {
- 	margin-top: 6px;
- 	margin-bottom: 0;
- 	word-wrap: break-word;
- 	white-space: normal;
- }
  
  ul.traces-list {
  	list-style: none;

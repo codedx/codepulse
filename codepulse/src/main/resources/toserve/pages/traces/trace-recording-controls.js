@@ -526,11 +526,82 @@
 		// Set up the connection help link
 		var connectionHelpPopup = $('#connection-help-popup')
 		$('#connection-help-link').click(function(){
-			connectionHelpPopup.show()
+			var isVisible = connectionHelpPopup.is(':visible')
+			//toggle visibility
+			connectionHelpPopup[isVisible ? 'hide' : 'show']()
 		})
 		connectionHelpPopup.find('.dismissal').click(function(){
 			connectionHelpPopup.hide()
 		})
+
+		// setup the agent port number control
+		;(function() {
+			var $agentPort = $('#agent-port'), $agentLine = $agentPort.parent(), $agentError = $('#agent-port-error')
+
+			$('#options-menu').click(function(e) { e.stopPropagation() })
+			
+			function errorOut() {
+				$agentError.slideUp(100, function() { blockErrorOut = false })
+			}
+			function errorIn(error) {
+				if (error) {
+					$agentError.text(error)
+					$agentError.slideDown(100, function() { blockErrorIn = false })
+				} else {
+					errorOut()
+				}
+			}
+
+			function setPortSaving() {
+				$agentPort.removeClass('invalid')
+				errorOut()
+			}
+			function setPortSaved() {
+				$agentPort.removeClass('invalid')
+				errorOut()
+			}
+			function setPortInvalid(error) {
+				$agentPort.addClass('invalid')
+				errorIn(error)
+			}
+
+			$agentLine.overlay('wait')
+
+			$.ajax('/trace-api/agent-port', {
+				type: 'GET',
+				success: function(data) {
+					$agentPort.val(data)
+					setPortSaved()
+					$agentLine.overlay('ready')
+				},
+				error: function(xhr, status) {
+					setPortInvalid()
+					console.error('failed to get agent port', xhr.responseText)
+				}
+			})
+
+			$agentPort.on('input', function() {
+				var val = $agentPort.val().trim()
+				if (/^\d+$/.test(val)) {
+					setPortSaving()
+
+					$.ajax('/trace-api/agent-port', {
+						data: { 'port': val },
+						type: 'PUT',
+						success: function() {
+							$agentPort.val(val)
+							setPortSaved()
+							updateTraceAgentCommand()
+						},
+						error: function(xhr, status) {
+							setPortInvalid(xhr.responseText)
+						}
+					})
+				} else {
+					setPortInvalid()
+				}
+			})
+		})()
 
 	})
 	

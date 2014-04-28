@@ -6,7 +6,7 @@
 	position: fixed;
 	bottom: 0;
 	top: 60px;
-	right: 0;
+	left: 0;
 	width: 285px;
 	overflow-y: hidden;
 
@@ -54,6 +54,16 @@
 	overflow-y: auto;
 }
 
+[data-toggle=TraceSwitcher] {
+	height: 100%;
+	padding: 0 20px;
+	background-color: #055;
+	font-size: 1.2em;
+	cursor: pointer;
+}
+[data-toggle=TraceSwitcher]:hover {
+	background-color: #066;
+}
 [data-toggle=TraceSwitcher].active {
 	background-color: #FFA500;
 }
