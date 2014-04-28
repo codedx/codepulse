@@ -98,6 +98,9 @@ svg {
 	border-radius: 0 !important;
 	box-shadow: none;
 }
+.btn.btn-flat.disabled {
+	opacity: 0.2;
+}
 
 .btn-primary, .btn-primary:focus { background: #3a87ad; color: #eee; }
 .btn-primary:hover { background: #4299C3; }
