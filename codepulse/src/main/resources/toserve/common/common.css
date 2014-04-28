@@ -103,10 +103,10 @@ svg {
 }
 
 .btn-primary, .btn-primary:focus { background: #3a87ad; color: #eee; }
-.btn-primary:hover { background: #4299C3; }
+.btn-primary:hover:not(.disabled) { background: #4299C3; }
 
 .btn-danger, .btn-danger:focus { background: #bd362f; color: #eee; }
-.btn-danger:hover { background: #F34739; }
+.btn-danger:hover:not(.disabled) { background: #F34739; }
 
 .btn-secondary, .btn-secondary:focus { background: #d2d2d2; color: #323232;}
 
