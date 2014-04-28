@@ -132,7 +132,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 	}
 
 	def scheduleTraceDeletion(trace: TracingTarget) = {
-		val deletionFuture = trace.setDeletePending()
+		val (deletionKey, deletionFuture) = trace.setDeletePending()
 
 		// in 10 seconds, actually delete the trace
 		actorSystem.scheduler.scheduleOnce(15.seconds) {
@@ -141,7 +141,7 @@ class TraceManager(val actorSystem: ActorSystem) extends Observing {
 			// Doing so returns a Future that will succeed if the target
 			// transitioned to the Deleted state, or fail if the deletion
 			// was canceled.
-			trace.finalizeDeletion() onComplete { result =>
+			trace.finalizeDeletion(deletionKey) onComplete { result =>
 				println(s"trace.finalizeDeletion() finished with $result")
 			}
 		}

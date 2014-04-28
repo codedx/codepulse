@@ -52,6 +52,14 @@ object TracingTargetState {
 	case object Deleted extends TracingTargetState("deleted")
 }
 
+/** A token that represents the ability to finalize a pending deletion.
+  * Calling `setDeletePending` will return an instance of DeletionKey,
+  * and the call to `finalizeDeletion` needs to pass in the same key. If
+  * `cancelPendingDeletion` is called, any existing DeletionKeys should
+  * be invalidated.
+  */
+case class DeletionKey(val id: Int)
+
 /** Manages the state of a single "Trace". A Trace in this context is
   * some persistent target, which Agents can connect and disconnect from,
   * one at a time.
@@ -74,9 +82,12 @@ trait TracingTarget {
 	def traceData: TraceData
 	def transientData: TransientTraceData
 
-	def setDeletePending()(implicit exc: ExecutionContext): Future[Unit]
+	private val deletionKeyGen = Iterator from 0 map { id => new DeletionKey(id) }
+	protected def newDeletionKey = deletionKeyGen.next
+
+	def setDeletePending()(implicit exc: ExecutionContext): (DeletionKey, Future[Unit])
 	def cancelPendingDeletion()(implicit exc: ExecutionContext): Future[Unit]
-	def finalizeDeletion()(implicit exc: ExecutionContext): Future[Unit]
+	def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext): Future[Unit]
 
 	def notifyLoadingFinished()(implicit exc: ExecutionContext): Future[Unit]
 	def notifyLoadingFailed()(implicit exc: ExecutionContext): Future[Unit]
@@ -119,9 +130,13 @@ object AkkaTracingTarget {
 	private case class TraceConnected(trace: Trace)
 	private case class TraceEnded(reason: TraceEndReason)
 
-	private case object SetDeletePending extends TargetRequest
+	/* SetDeletePending and FinalizeDeletion use an `inc` id, e.g.
+	 * `FinalizeDeletion(2)` cannot affect the trace when it is in
+	 * the state for `SetDeletePending(3)`.
+	 */
+	private case class SetDeletePending(key: DeletionKey) extends TargetRequest
+	private case class FinalizeDeletion(key: DeletionKey) extends TargetRequest
 	private case object CancelPendingDeletion extends TargetRequest
-	private case object FinalizeDeletion extends TargetRequest
 
 	private case object Ack
 	private case class AntiAck(msg: Option[String] = None)
@@ -138,13 +153,15 @@ object AkkaTracingTarget {
 			reply.mapTo[TracingTargetState]
 		}
 
-		def setDeletePending()(implicit exc: ExecutionContext): Future[Unit] = {
+		def setDeletePending()(implicit exc: ExecutionContext): (DeletionKey, Future[Unit]) = {
 			val timeout = new Timeout(30.seconds)
-			val replyFuture = actor.ask(SetDeletePending)(timeout)
+
+			val deletionKey = newDeletionKey
+			val replyFuture = actor.ask(SetDeletePending(deletionKey))(timeout)
 
 			// the actor will reply with either CancelPendingDeletion or FinalizeDeletion,
 			// the same as whichever message was sent while it was in the DeletePending state.
-			replyFuture flatMap {
+			val deletionFuture = replyFuture flatMap {
 				case CancelPendingDeletion =>
 					Future.failed { new Exception("Deletion was canceled") }
 				case FinalizeDeletion =>
@@ -152,10 +169,12 @@ object AkkaTracingTarget {
 				case _ =>
 					Future.failed { new Exception("Unexpected reply from TracingTarget actor") }
 			}
+
+			deletionKey -> deletionFuture
 		}
 
 		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
-		def finalizeDeletion()(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion)
+		def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion(key))
 		def notifyLoadingFinished()(implicit exc: ExecutionContext) = getAckFuture(LoadingFinished)
 		def notifyLoadingFailed()(implicit exc: ExecutionContext) = getAckFuture(LoadingFailed)
 
@@ -273,7 +292,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	val StateIdle: State = State(TracingTargetState.Idle, {
 		case RequestTraceConnect => onTraceRequested()
 
-		case SetDeletePending => changeState { StateDeletePending(sender) }
+		case SetDeletePending(key) => changeState { StateDeletePending(sender, key) }
 	})
 
 	/** Deletion has been finalized, and the actor will soon be terminated (at this
@@ -286,17 +305,21 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 	  * If the deletion is canceled, the state goes back to Idle. If it is finalized,
 	  * the state changes to Deleted and the actor will be terminated via PoisonPill.
 	  */
-	def StateDeletePending(requester: ActorRef) = State(TracingTargetState.DeletePending, {
+	def StateDeletePending(requester: ActorRef, key: DeletionKey) = State(TracingTargetState.DeletePending, {
 		case CancelPendingDeletion =>
 			requester ! CancelPendingDeletion
 			changeState(StateIdle)
 			sender ! Ack
 
-		case FinalizeDeletion =>
+		case FinalizeDeletion(`key`) =>
+			println(s"Finalizing deletion using $key")
 			requester ! FinalizeDeletion
 			changeState(StateDeleted)
 			self ! PoisonPill
 			sender ! Ack
+		case FinalizeDeletion(invalidKey) =>
+			sender ! AntiAck(s"Won't finalize deletion due to invalid key: $invalidKey")
+
 	})
 
 	/** Currently waiting for a new Tracer Agent to connect.
