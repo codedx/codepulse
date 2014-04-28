@@ -463,6 +463,8 @@ $(document).ready(function(){
 	// setup the agent port number control
 	;(function() {
 		var $agentPort = $('#agent-port'), $agentLine = $agentPort.parent(), $agentError = $('#agent-port-error')
+
+		$('#options-menu').click(function(e) { e.stopPropagation() })
 		
 		function errorOut() {
 			$agentError.slideUp(100, function() { blockErrorOut = false })
@@ -504,7 +506,6 @@ $(document).ready(function(){
 			}
 		})
 
-		$agentPort.click(function(e) { e.stopPropagation() })
 		$agentPort.on('input', function() {
 			var val = $agentPort.val().trim()
 			if (/^\d+$/.test(val)) {

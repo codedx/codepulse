@@ -131,8 +131,13 @@ body > .overlay:before {
  	margin-bottom: 0;
  }
 
+ .options .help {
+ 	vertical-align: middle;
+ 	color: #323232;
+ }
+
  .options #agent-port {
- 	width: 75px;
+ 	width: 42px;
  }
 
  .options #agent-port.invalid:focus {
