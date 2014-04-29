@@ -103,7 +103,7 @@ object Distributor extends BuildExtra {
 			val jetty = depsDir / "common" / "jetty"
 
 			if (!jetty.exists)
-				sys.error("Missing jetty. Please download and place in " + jetty + ".")
+				sys.error("Missing jetty. Please run `fetch-package-dependencies` or download and place in " + jetty + ".")
 
 			val jettyExclusions = List(
 				"demo-base/", "etc/", "start.d/", "start.ini"
@@ -130,7 +130,7 @@ object Distributor extends BuildExtra {
 			val nwk = deps / platform / "node-webkit"
 
 			if (!nwk.exists)
-				sys.error("Missing node-webkit for " + platform + ". Please download and place in " + nwk + ".")
+				sys.error("Missing node-webkit for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + nwk + ".")
 
 			val nwkFiles: Seq[ZipEntry] = nwk.*** x rebase(nwk, rootZipFolder) map {
 				// replace \ in paths with /, for easier matching below
@@ -243,7 +243,7 @@ object Distributor extends BuildExtra {
 			val jreDest = rootZipFolder + "jre/"
 
 			if (!jre.exists)
-				sys.error("Missing JRE for " + platform + ". Please download and place in " + jre + ".")
+				sys.error("Missing JRE for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + jre + ".")
 
 			val jreFiles: Seq[ZipEntry] = appResource(platform, rootZipFolder, jre.*** x rebase(jre, jreDest)) map {
 				// replace \ in paths with /, for easier matching below

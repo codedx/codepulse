@@ -22,6 +22,9 @@ import sbt._
 object PluginDef extends Build {
 	// see http://stackoverflow.com/questions/8568821/in-sbt-how-do-you-add-a-plugin-thats-in-the-local-filesystem
 	lazy override val projects = Seq(root)
-	lazy val root = Project("plugins", file(".")).dependsOn(betterzipPlugin)
+	lazy val root = Project("plugins", file(".")).dependsOn(betterzipPlugin).settings(
+		sbt.Keys.libraryDependencies += "org.apache.commons" % "commons-compress" % "1.6",
+		sbt.Keys.libraryDependencies += "commons-io" % "commons-io" % "2.1"
+	)
 	lazy val betterzipPlugin = file("sbt-betterzip")
 }

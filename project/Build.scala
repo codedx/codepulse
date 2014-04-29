@@ -28,6 +28,7 @@ import com.earldouglas.xsbtwebplugin._
 	import WebPlugin._
 	import WebappPlugin._
 import Distributor.{ Keys => DistribKeys, distribSettings }
+import DependencyFetcher.dependencyFetcherSettings
 import sbtassembly.Plugin._
 	import AssemblyKeys._
 
@@ -66,6 +67,7 @@ object BuildDef extends Build with VersionSystem {
 		.settings(webappProjectSettings: _*)
 		.settings(EclipseKeys.withSource := true)
 		.settings(distribSettings: _*)
+		.settings(dependencyFetcherSettings: _*)
 		.settings(assemblySettings: _*)
 		.settings(
 			resolvers ++= dependencyResolvers,
