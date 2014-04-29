@@ -19,8 +19,7 @@
 
 ;(function(Trace){
 
-	var totalNumMethods = 0,
-		packageTree = undefined,
+	var packageTree = undefined,
 		coverageSets = {},
 		treeDataReady = false,
 		treeDataReadyCallbacks = []
@@ -34,21 +33,12 @@
 
 			treeDataReady = true
 
-			packageTree.root.children.forEach(function(topNode){
-				console.log('counting methods from ', topNode)
-				totalNumMethods += topNode.methodCount
-			})
-
 			treeDataReadyCallbacks.forEach(function(callback){
 				callback()
 			})
 			treeDataReadyCallbacks = []
 		})
 
-	})
-
-	Trace.__defineGetter__('totalNumMethods', function(){
-		return totalNumMethods
 	})
 
 	Trace.__defineGetter__('packageTree', function(){

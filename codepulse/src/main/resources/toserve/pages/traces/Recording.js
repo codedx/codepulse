@@ -31,9 +31,6 @@
 			_label = null,
 			_labelChange = new Bacon.Bus(),
 
-			_coverage = [0,0], // [x,y] means x out of y methods covered
-			_coverageChange = new Bacon.Bus(),
-
 			_menu = [], // expect items with {icon, text, onSelect}
 			_menuChange = new Bacon.Bus(),
 
@@ -54,7 +51,6 @@
 
 		this.getColor = function(){ return _color }
 		this.getLabel = function(){ return _label }
-		this.getCoverage = function(){ return _coverage }
 		this.getMenu = function(){ return _menu }
 		this.getDataKey = function(){ return _dataKey }
 		this.isSelected = function(){ return _selected }
@@ -67,19 +63,9 @@
 			_colorChange.push(_color)
 			return self
 		}
-
 		this.setLabel = function(newLabel){
 			_label = newLabel
 			_labelChange.push(_label)
-			return self
-		}
-
-		this.setCoverage = function(numCovered, outOfNum){
-			if(isNaN(numCovered) || isNaN(outOfNum)) throw 'illegal argument: required 2 numbers'
-			if(numCovered > outOfNum) throw 'illegal argument: numCovered must be <= outOfNum'
-			_coverage[0] = numCovered
-			_coverage[1] = outOfNum
-			_coverageChange.push(_coverage)
 			return self
 		}
 		this.setMenu = function(newMenu){
@@ -108,7 +94,6 @@
 
 		this.color = _colorChange.toProperty(_color).noLazy()
 		this.label = _labelChange.toProperty(_label).noLazy()
-		this.coverage = _coverageChange.toProperty(_coverage).noLazy()
 		this.menu = _menuChange.toProperty(_menu).noLazy()
 		this.dataKey = _dataKeyChange.toProperty(_dataKey).noLazy()
 		this.selected = _selectedChange.toProperty(_selected).noLazy()

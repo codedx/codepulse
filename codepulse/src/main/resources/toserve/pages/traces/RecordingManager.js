@@ -123,28 +123,6 @@
 		)
 		.toProperty().noLazy()
 
-	// As the trace coverage is updated, calculate how many methods were covered
-	// by each recording, then update their coverage counts accordingly.
-	Trace.coverageRecords
-		.map(function(records){
-			var coverageCounts = {}
-			for(var id in recordings){
-				coverageCounts[id] = 0
-			}
-			for(var methodId in records){
-				var coverage = records[methodId]
-				coverage.forEach(function(id){
-					coverageCounts[id]++
-				})
-			}
-			return coverageCounts
-		})
-		.onValue(function(coverageCounts){
-			for(var id in coverageCounts){
-				recordings[id].setCoverage(coverageCounts[id], Trace.totalNumMethods)
-			}
-		})
-
 	// Exposes the latest live trace data events. Each event is an
 	// array of IDs of methods that were traced since the last request.
 	// Events are requested roughly 3 times per second.

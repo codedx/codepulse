@@ -69,7 +69,6 @@
 		recording.label.onValue(widget.setLabel)
 		recording.menu.onValue(widget.setMenu)
 		recording.selected.onValue(widget.setSelected)
-		recording.coverage.onValue(function(c){ widget.setCoverage(c[0], c[1]) })
 
 		widget.labelEdits.onValue(recording.setLabel)
 		widget.colorEdits.onValue(recording.setColor)

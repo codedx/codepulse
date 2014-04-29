@@ -35,7 +35,6 @@
 			labelText = label.find('.text'),
 			labelTextEdit = label.find('.text-edit'),
 			labelTextSave = label.find('.text-edit-save'),
-			percBadge = template.find('.menu-badge abbr'),
 			colorSwatch = template.find('.swatch'),
 			swatchContainer = template.find('.swatch-container'),
 			menuRoot = template.find('.dropdown-menu'),
@@ -154,24 +153,6 @@
 		this.selectionClicks = template.find('.recording-label .text, .menu-badge').asEventStream('click')
 
 		this.setSelected = function(selected){ template.toggleClass('selected', selected) }
-
-		this.setCoverage = function(numCovered, outOfNum){
-			var percentage = outOfNum ? (numCovered / outOfNum) * 100 : 0
-
-			var percString
-			if(percentage <= 0) percString = '0%'
-			else if(percentage < 1) percString = '<1%'
-			else if(percentage >= 100) percString = '100%'
-			else if(percentage > 99) percString = '>99%'
-			else percString = parseInt(percentage) + '%'
-
-			var msg
-			if(!numCovered || !outOfNum) msg = 'Nothing was traced'
-			else msg = numCovered + ' out of the ' + outOfNum +
-				' methods in this codebase were called during this recording'
-
-			percBadge.attr('title', msg).text(percString)
-		}
 
 		this.enableColorEditor = function(){
 			colorpickerTooltip(swatchContainer, _color || 'black', {
