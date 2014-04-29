@@ -44,7 +44,7 @@
 			_runningChange = new Bacon.Bus()
 
 		this.logMe = function(){
-			console.log("Recording{ key: '" + _dataKey + "', label: '" + _label + "', coverage: '" + _coverage + "', color: '" + _color + "'}")
+			console.log("Recording{ key: '" + _dataKey + "', label: '" + _label + "', color: '" + _color + "'}")
 		}
 
 		// getters
