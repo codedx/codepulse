@@ -53,13 +53,24 @@ class SlickH2TraceDataProvider(folder: File, actorSystem: ActorSystem) extends T
 		}
 	}
 
+	private val masterData = {
+		val needsInit = !(folder / "master.h2.db").exists
+
+		val db = Database.forURL(s"jdbc:h2:file:${(folder / "master").getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
+		val data = new SlickMasterData(db, H2Driver)
+
+		if (needsInit) data.init
+
+		data
+	}
+
 	def getTrace(id: TraceId): TraceData = getTraceInternal(id)
 
 	private def getTraceInternal(id: TraceId, suppressInit: Boolean = false) = cache.getOrElseUpdate(id, {
 		val needsInit = !(folder / TraceFilename(id)).exists
 
 		val db = Database.forURL(s"jdbc:h2:file:${(folder / TraceFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
-		val data = new SlickTraceData(db, H2Driver, EncountersBufferSize, EncountersFlushInterval, actorSystem)
+		val data = new SlickTraceData(db, H2Driver, masterData.metadataMaster get id.num, EncountersBufferSize, EncountersFlushInterval, actorSystem)
 
 		if (!suppressInit && needsInit) data.init
 

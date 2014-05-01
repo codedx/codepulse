@@ -29,34 +29,42 @@ import com.secdec.codepulse.data.trace._
 private[slick] class TraceMetadataDao(val driver: JdbcProfile) {
 	import driver.simple._
 
-	class TraceMetadata(tag: Tag) extends Table[(String, String)](tag, "trace_metadata") {
-		def key = column[String]("key", O.PrimaryKey, O.NotNull)
+	class TraceMetadata(tag: Tag) extends Table[(Int, String, String)](tag, "trace_metadata") {
+		def traceId = column[Int]("trace_id", O.NotNull)
+		def key = column[String]("key", O.NotNull)
 		def value = column[String]("value", O.NotNull)
-		def * = key -> value
+		def pk = primaryKey("pk_trace_metadata", (traceId, key))
+		def * = (traceId, key, value)
 	}
 	val traceMetadata = TableQuery[TraceMetadata]
 
 	def create(implicit session: Session) = traceMetadata.ddl.create
 
-	def getMap()(implicit session: Session): Map[String, String] = traceMetadata.list.toMap
-
-	def get(key: String)(implicit session: Session): Option[String] =
-		(for (r <- traceMetadata if r.key === key) yield r.value).firstOption
-
-	def set(key: String, value: String)(implicit session: Session) {
-		set(key, Some(value))
+	def getMap()(implicit session: Session): Map[Int, Map[String, String]] = traceMetadata.list.groupBy(_._1) mapValues {
+		entries => (entries map { case (_, key, value) => key -> value }).toMap
 	}
 
-	def set(key: String, value: Option[String])(implicit session: Session) {
+	def get(traceId: Int, key: String)(implicit session: Session): Option[String] =
+		(for (r <- traceMetadata if r.traceId === traceId && r.key === key) yield r.value).firstOption
+
+	def set(traceId: Int, key: String, value: String)(implicit session: Session) {
+		set(traceId, key, Some(value))
+	}
+
+	def set(traceId: Int, key: String, value: Option[String])(implicit session: Session) {
 		value match {
 			case Some(value) =>
-				get(key) match {
-					case Some(_) => (for (r <- traceMetadata if r.key === key) yield r.value).update(value)
-					case None => traceMetadata += key -> value
+				get(traceId, key) match {
+					case Some(_) => (for (r <- traceMetadata if r.traceId === traceId && r.key === key) yield r.value).update(value)
+					case None => traceMetadata += (traceId, key, value)
 				}
 
 			case None =>
-				(for (r <- traceMetadata if r.key === key) yield r).delete
+				(for (r <- traceMetadata if r.traceId === traceId && r.key === key) yield r).delete
 		}
+	}
+
+	def delete(traceId: Int)(implicit session: Session) {
+		(for (r <- traceMetadata if r.traceId === traceId) yield r).delete
 	}
 }

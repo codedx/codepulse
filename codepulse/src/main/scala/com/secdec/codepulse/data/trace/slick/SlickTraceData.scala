@@ -31,10 +31,7 @@ import com.secdec.codepulse.data.trace._
   *
   * @author robertf
   */
-private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends TraceData {
-	private val traceMetadataDao = new TraceMetadataDao(driver)
-	private val metadataAccess = new SlickTraceMetadataAccess(traceMetadataDao, db) with DefaultTraceMetadataUpdates with TraceMetadata
-
+private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, metadataAccess: SlickTraceMetadataAccess with TraceMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends TraceData {
 	private val treeNodeDataDao = new TreeNodeDataDao(driver)
 	private val treeNodeDataAccess = new SlickTreeNodeDataAccess(treeNodeDataDao, db)
 
@@ -51,7 +48,6 @@ private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, e
 
 	/** Initialize a blank DB for use. */
 	private[slick] def init() = db withTransaction { implicit transaction =>
-		traceMetadataDao.create
 		treeNodeDataDao.create
 		recordingMetadataDao.create
 		encountersDao.create
@@ -66,6 +62,8 @@ private[slick] class SlickTraceData(val db: Database, val driver: JdbcProfile, e
 	}
 
 	def delete() {
+		metadataAccess.delete
+
 		close
 
 		db withTransaction { implicit session =>

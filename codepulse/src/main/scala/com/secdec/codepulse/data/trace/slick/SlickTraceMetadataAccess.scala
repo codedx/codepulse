@@ -20,22 +20,36 @@
 package com.secdec.codepulse.data.trace.slick
 
 import scala.slick.jdbc.JdbcBackend.{ Database, Session }
-import com.secdec.codepulse.data.trace.TraceMetadataAccess
+import com.secdec.codepulse.data.trace.{ DefaultTraceMetadataUpdates, TraceMetadataAccess, TraceMetadata }
 import net.liftweb.util.Helpers.AsLong
 import net.liftweb.util.Helpers.AsBoolean
+
+/** Master controller for centralized Slick-backed metadata access.
+  *
+  * @author robertf
+  */
+private[slick] class SlickTraceMetadataMaster(dao: TraceMetadataDao, db: Database) {
+	def get(traceId: Int) = new SlickTraceMetadataAccess(traceId, dao, db) with DefaultTraceMetadataUpdates with TraceMetadata
+}
 
 /** Slick-backed TraceMetadataAccess implementation.
   *
   * @author robertf
   */
-private[slick] class SlickTraceMetadataAccess(dao: TraceMetadataDao, db: Database) extends TraceMetadataAccess {
+private[slick] class SlickTraceMetadataAccess(traceId: Int, dao: TraceMetadataDao, db: Database) extends TraceMetadataAccess {
 	private val cache = collection.mutable.Map.empty[String, Option[String]]
 
-	private def get(key: String)(implicit session: Session) = cache.getOrElseUpdate(key, dao get key)
+	private def get(key: String)(implicit session: Session) = cache.getOrElseUpdate(key, dao.get(traceId, key))
 	private def set(key: String, value: String)(implicit session: Session): Unit = set(key, Some(value))
 	private def set(key: String, value: Option[String])(implicit session: Session) {
-		dao.set(key, value)
+		dao.set(traceId, key, value)
 		cache += key -> value
+	}
+
+	def delete() {
+		db withSession { implicit session =>
+			dao delete traceId
+		}
 	}
 
 	def name = db withSession { implicit session =>
