@@ -20,7 +20,6 @@
 package com.secdec.codepulse.tracer
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.language.implicitConversions
@@ -44,8 +43,12 @@ import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.notifications.Notifications.NotificationId
 import java.net.BindException
 import java.util.Locale
+import scala.concurrent.ExecutionContext
+import java.util.concurrent.Executors
 
 class TraceAPIServer(manager: TraceManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
+
+	implicit val executionContext = ExecutionContext fromExecutor Executors.newCachedThreadPool
 
 	import ActivityRequest._
 
