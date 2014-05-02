@@ -26,7 +26,7 @@
 
 			// if the node was a "self node", add its parent
 			// and parent id to the nodes map.
-			if(node.label == '<self>'){
+			if(node.label == '<self>' || node.label == '<root>'){
 				node.isSelfNode = true
 				parent.id = node.id + '_original'
 				nodes[parent.id] = parent

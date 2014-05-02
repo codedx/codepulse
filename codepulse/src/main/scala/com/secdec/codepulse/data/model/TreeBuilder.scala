@@ -83,9 +83,9 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 		  * package child and one non-package child (class/method).
 		  */
 		def isEligibleForSelfNode(node: TreeNode) = {
-			node.data.kind == CodeTreeNodeKind.Pkg &&
+			(node.data.kind == CodeTreeNodeKind.Pkg || node.data.kind == CodeTreeNodeKind.Grp) &&
 				node.children.exists {
-					case TreeNode(data, _) if data.kind == CodeTreeNodeKind.Pkg => true
+					case TreeNode(data, _) if data.kind == node.data.kind => true
 					case _ => false
 				} &&
 				node.children.exists {
@@ -95,10 +95,10 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 		}
 
 		def countMethods(node: TreeNode): Int = {
-			(node.children map {
-				case TreeNode(data, _) if data.kind == CodeTreeNodeKind.Mth => 1
-				case node => countMethods(node)
-			}).sum
+			(node.data.kind match {
+				case CodeTreeNodeKind.Mth => 1
+				case _ => node.children.map(countMethods).sum
+			})
 		}
 
 		def getOtherDescendants(node: TreeNode): List[Int] = {
@@ -115,7 +115,7 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 			builder.result
 		}
 
-		def transform(node: TreeNode): PackageTreeNode = {
+		def transform(isRoot: Boolean)(node: TreeNode): PackageTreeNode = {
 			// we only want groups and packages
 			def filterChildren(children: List[TreeNode]) = children.filter { n => n.data.kind == CodeTreeNodeKind.Grp || n.data.kind == CodeTreeNodeKind.Pkg }
 
@@ -129,14 +129,14 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 				}
 
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), CodeTreeNodeKind.Pkg, "<self>", selfChildren.map(countMethods).sum, otherDescendants, Nil)(() => node.data.traced)
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), Nil, selfNode :: filterChildren(children).map(transform))(() => node.data.traced)
+				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, otherDescendants, Nil)(() => node.data.traced)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), Nil, selfNode :: filterChildren(children).map(transform(false)))(() => node.data.traced)
 			} else {
-				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), otherDescendants, filterChildren(node.children).map(transform))(() => node.data.traced)
+				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), otherDescendants, filterChildren(node.children).map(transform(false)))(() => node.data.traced)
 			}
 		}
 
-		roots.map(transform)
+		roots.map(transform(true))
 	}
 
 	/** Projects a tree containing the selected packages and their immediate children */
