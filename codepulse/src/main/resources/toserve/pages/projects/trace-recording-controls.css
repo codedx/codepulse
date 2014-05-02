@@ -216,6 +216,18 @@
  	background-color: #DEDEDE;
  }
 
+ [data-role=new-trace] .control-button {
+ 	display: inline-block;
+ 	line-height: 46px;
+ 	height: 48px;
+ 	float: left;
+ 	margin-right: -60px;
+ 	padding-right: 60px;
+ 	padding-left: 10px;
+ 	padding-top: 0;
+ 	padding-bottom: 0;
+ }
+
 
 /*************************\
 | Connection Waiting Area |
@@ -232,7 +244,7 @@
 	padding: 4px;
 }
 
-#connection-help-link {
+.connection-help-link {
 	font-size: 1.2em;
 	float: right;
 	vertical-align: top;

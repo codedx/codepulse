@@ -512,7 +512,7 @@
 		 * a new tracer connection. This may be ignored if the trace
 		 * is not in the 'idle' state.
 		 */
-		newTraceButton.click(function(){ API.requestStart(exports.updateTraceAgentCommand) })
+		newTraceButton.find('.control-button').click(function(){ API.requestStart(exports.updateTraceAgentCommand) })
 
 		/* Clicking the endTraceButton asks the server to stop the
 		 * current trace (if there is one). Open a waiting overlay
@@ -524,7 +524,7 @@
 
 		// Set up the connection help link
 		var connectionHelpPopup = $('#connection-help-popup')
-		$('#connection-help-link').click(function(){
+		$('.connection-help-link').click(function(){
 			var isVisible = connectionHelpPopup.is(':visible')
 			//toggle visibility
 			connectionHelpPopup[isVisible ? 'hide' : 'show']()
