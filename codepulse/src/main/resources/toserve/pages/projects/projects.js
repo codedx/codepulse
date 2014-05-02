@@ -343,7 +343,7 @@ $(document).ready(function(){
 							.addClass('coverage-area')
 						
 						recordings.forEach(function(ld){ 
-							var bg = ld.getColor,
+							var bg = ld.getColor(),
 								lightness = d3.hsl(bg).l,
 								textColor = (lightness > 0.4) ? 'black' : 'white'
 
