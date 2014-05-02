@@ -44,7 +44,7 @@ $(document).ready(function(){
 			}
 
 			if(status == 'loading-failed'){
-				alert('Processing upload data failed. You will be redirected to the home screen.')
+				alert('Processing data failed. You will be redirected to the home screen.')
 				window.location.href = '/'
 			}
 

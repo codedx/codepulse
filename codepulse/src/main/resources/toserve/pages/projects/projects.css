@@ -11,7 +11,7 @@ body > .overlay {
 }
 
 body > .overlay:before {
-	content: 'Processing upload data...';
+	content: 'Processing ...';
 	position: absolute;
 	top: calc(50% - 50px);
 	width: 100%;
