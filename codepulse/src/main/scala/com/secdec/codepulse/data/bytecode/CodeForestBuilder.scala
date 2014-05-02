@@ -25,7 +25,7 @@ import scala.collection.mutable.SortedSet
 import CodeForestBuilder._
 import java.lang.reflect.Modifier
 import com.secdec.codepulse.data.MethodSignatureParser
-import com.secdec.codepulse.data.trace.TreeNodeData
+import com.secdec.codepulse.data.model.TreeNodeData
 
 object CodeForestBuilder {
 	val JSPGroupName = "JSPs"

@@ -31,8 +31,8 @@ import scala.util.Success
 import com.secdec.bytefrog.hq.trace.Trace
 import com.secdec.bytefrog.hq.trace.TraceEndReason
 import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.trace.TraceData
-import com.secdec.codepulse.data.trace.TraceId
+import com.secdec.codepulse.data.model.ProjectData
+import com.secdec.codepulse.data.model.ProjectId
 
 import akka.actor._
 import akka.pattern.AskSupport
@@ -72,14 +72,14 @@ case class DeletionKey(val id: Int)
   */
 trait TracingTarget {
 	/** An identifier used to distinguish this TracingTarget from others. */
-	def id: TraceId
+	def id: ProjectId
 
 	def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit)(implicit exc: ExecutionContext): Future[Unit]
 	def requestNewTraceConnection()(implicit exc: ExecutionContext): Future[Unit]
 	def requestTraceEnd()(implicit exc: ExecutionContext): Future[Unit]
 	def getState: Future[TracingTargetState]
 
-	def traceData: TraceData
+	def projectData: ProjectData
 	def transientData: TransientTraceData
 
 	private val deletionKeyGen = Iterator from 0 map { id => new DeletionKey(id) }
@@ -142,7 +142,7 @@ object AkkaTracingTarget {
 	private case class AntiAck(msg: Option[String] = None)
 	private def AntiAck(msg: String): AntiAck = AntiAck(Some(msg))
 
-	private class TracingTargetImpl(val id: TraceId, actor: ActorRef, val traceData: TraceData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
+	private class TracingTargetImpl(val id: ProjectId, actor: ActorRef, val projectData: ProjectData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
 		def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit)(implicit exc: ExecutionContext) = getAckFuture(Subscribe(sub))
 		def requestNewTraceConnection()(implicit exc: ExecutionContext) = getAckFuture(RequestTraceConnect)
 		def requestTraceEnd()(implicit exc: ExecutionContext) = getAckFuture(RequestTraceEnd)
@@ -194,10 +194,10 @@ object AkkaTracingTarget {
 		}
 	}
 
-	def apply(actorSystem: ActorSystem, traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]): TracingTarget = {
-		val props = Props { new AkkaTracingTarget(traceId, traceData, transientTraceData, jspMapper) }
+	def apply(actorSystem: ActorSystem, projectId: ProjectId, projectData: ProjectData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]): TracingTarget = {
+		val props = Props { new AkkaTracingTarget(projectId, projectData, transientTraceData, jspMapper) }
 		val actorRef = actorSystem.actorOf(props)
-		new TracingTargetImpl(traceId, actorRef, traceData, transientTraceData)
+		new TracingTargetImpl(projectId, actorRef, projectData, transientTraceData)
 	}
 
 }
@@ -222,7 +222,7 @@ object AkkaTracingTarget {
   * - **Deleted** - The pending deletion was finalized. This actor will soon
   * be terminated and its associated data deleted.
   */
-class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]) extends Actor {
+class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]) extends Actor {
 
 	import AkkaTracingTarget._
 
@@ -268,7 +268,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 
 	private def changeState(newState: State) = {
 		context.become(newState.receive)
-		println(s"$traceId target state changing to ${newState.s}")
+		println(s"$projectId target state changing to ${newState.s}")
 		stateChanges fire newState.s
 	}
 
@@ -354,7 +354,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		println("New Trace Requested")
 
 		// ask for a new trace via the TraceServer
-		val traceFuture = TraceServer.awaitNewTrace(traceData, jspMapper)
+		val traceFuture = TraceServer.awaitNewTrace(projectData, jspMapper)
 
 		// when a new trace comes in, send a Msg to update the state
 		for (trace <- traceFuture) self ! TraceConnected(trace)
@@ -370,7 +370,7 @@ class AkkaTracingTarget(traceId: TraceId, traceData: TraceData, transientTraceDa
 		for (reason <- t.completion) self ! TraceEnded(reason)
 
 		// set up data management for the trace
-		val dataManager = new StreamingTraceDataManager(traceData, transientTraceData, jspMapper)
+		val dataManager = new StreamingTraceDataManager(projectData, transientTraceData, jspMapper)
 
 		// remember this trace
 		trace = Some(t)

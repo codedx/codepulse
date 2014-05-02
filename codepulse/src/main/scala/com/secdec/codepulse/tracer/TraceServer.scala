@@ -27,7 +27,7 @@ import com.secdec.bytefrog.hq.trace.Trace
 import net.liftweb.http.LiftRules
 import bootstrap.liftweb.AppCleanup
 import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.trace.TraceData
+import com.secdec.codepulse.data.model.ProjectData
 
 object TraceServer {
 
@@ -45,13 +45,13 @@ object TraceServer {
 	def port = socketServer.port
 	def setPort(newPort: Int) = socketServer.setPort(newPort)
 
-	def awaitNewTrace(traceData: TraceData, jspMapper: Option[JspMapper]) = {
+	def awaitNewTrace(projectData: ProjectData, jspMapper: Option[JspMapper]) = {
 		val agentConfig = AgentConfiguration()
 		val hqConfig = HQConfiguration()
 		val monitorConfig = MonitorConfiguration()
 
 		val configProvider = () => {
-			val traceSettings = TraceSettingsCreator.generateTraceSettings(traceData, jspMapper)
+			val traceSettings = TraceSettingsCreator.generateTraceSettings(projectData, jspMapper)
 			(traceSettings, agentConfig, hqConfig, monitorConfig)
 		}
 

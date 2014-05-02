@@ -21,7 +21,7 @@ package com.secdec.codepulse.tracer
 
 import java.io.{ OutputStream, OutputStreamWriter }
 
-import com.secdec.codepulse.data.trace._
+import com.secdec.codepulse.data.model._
 
 import com.fasterxml.jackson.core.{ JsonFactory, JsonGenerator }
 import net.liftweb.http.OutputStreamResponse

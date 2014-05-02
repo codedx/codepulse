@@ -111,36 +111,36 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val overlay = register("overlay", spinner, JS("widgets/overlay/overlay.js"), CSS("widgets/overlay/overlay.css"))
 	val commonStyle = register("commonStyle", CSS("common/common.css"))
 	val desktopStyle = register("desktopStyle", CSS("common/desktop.css"))
-	val traceList = register("TraceList", JS("pages/TraceList/TraceList.js"))
-	val traceSwitcher = register("TraceSwitcher", JS("pages/TraceSwitcher/TraceSwitcher.js"), CSS("pages/TraceSwitcher/TraceSwitcher.css"))
+	val projectList = register("ProjectList", JS("pages/ProjectList/ProjectList.js"))
+	val projectSwitcher = register("ProjectSwitcher", JS("pages/ProjectSwitcher/ProjectSwitcher.js"), CSS("pages/ProjectSwitcher/ProjectSwitcher.css"))
 	val codepulseCommon = register("CodePulseCommon", JS("common/CodePulse.js"))
 	val downloader = register("Downloader", JS("common/Downloader.js"))
-	val traceAPI = register("TraceAPI", JS("pages/traces/TraceAPI.js"))
+	val api = register("API", JS("pages/projects/API.js"))
 	val codeTreemap = register("codetreemap", overlay, qtip2, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
-	val colorpickerTooltip = register("colorpickerTooltip", colorpicker, qtip2, JS("pages/traces/colorpicker-tooltip.js"), CSS("pages/traces/colorpicker-tooltip.css"))
+	val colorpickerTooltip = register("colorpickerTooltip", colorpicker, qtip2, JS("pages/projects/colorpicker-tooltip.js"), CSS("pages/projects/colorpicker-tooltip.css"))
 	val notifications = register("notifications", CSS("widgets/Notifications/Notifications.css"), JS("widgets/Notifications/Notifications.js"), JS("widgets/Notifications/PieClock.js"))
-	val traceInputForm = register("TraceInputForm", CSS("pages/TraceInputForm/TraceInputForm.css"), JS("pages/TraceInputForm/TraceInputForm.js"))
+	val projectInputForm = register("ProjectInputForm", CSS("pages/ProjectInputForm/ProjectInputForm.css"), JS("pages/ProjectInputForm/ProjectInputForm.js"))
 	val brandingStyle = register("brandingStyle", CSS("common/branding.css"))
 
 	val indexPage = register("indexPage", CSS("pages/index/index.css"))
 
-	val tracesPage = register("tracesPage",
-		traceAPI,
-		JS("pages/traces/TraceDataUpdates.js"),
-		JS("pages/traces/TraceStatus.js"),
-		JS("pages/traces/TreeData.js"),
-		JS("pages/traces/TraceTreeData.js"),
+	val projectsPage = register("projectsPage",
+		api,
+		JS("pages/projects/TraceDataUpdates.js"),
+		JS("pages/projects/TraceStatus.js"),
+		JS("pages/projects/TreeData.js"),
+		JS("pages/projects/TraceTreeData.js"),
 		colorpickerTooltip,
-		CSS("pages/traces/PackageWidget.css"),
-		JS("pages/traces/PackageWidget.js"),
-		JS("pages/traces/PackageController.js"),
-		CSS("pages/traces/treemap-tooltip.css"),
-		JS("pages/traces/Recording.js"),
-		JS("pages/traces/RecordingWidget.js"),
-		JS("pages/traces/RecordingManager.js"),
-		JS("pages/traces/trace-recording-controls.js"),
-		CSS("pages/traces/trace-recording-controls.css"),
-		JS("pages/traces/editable.js"),
-		JS("pages/traces/traces.js"),
-		CSS("pages/traces/traces.css"))
+		CSS("pages/projects/PackageWidget.css"),
+		JS("pages/projects/PackageWidget.js"),
+		JS("pages/projects/PackageController.js"),
+		CSS("pages/projects/treemap-tooltip.css"),
+		JS("pages/projects/Recording.js"),
+		JS("pages/projects/RecordingWidget.js"),
+		JS("pages/projects/RecordingManager.js"),
+		JS("pages/projects/trace-recording-controls.js"),
+		CSS("pages/projects/trace-recording-controls.css"),
+		JS("pages/projects/editable.js"),
+		JS("pages/projects/projects.js"),
+		CSS("pages/projects/projects.css"))
 }

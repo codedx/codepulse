@@ -144,14 +144,14 @@ object Notifications extends CometActor with PublicCometInit with DispatchSnippe
 
 		// attributes for the message itself
 		note.message match {
-			case NotificationMessage.TraceDeletion(traceName, undoHref) =>
+			case NotificationMessage.ProjectDeletion(projectName, undoHref) =>
 				attribs += "type" -> "deletion"
-				attribs += "traceName" -> traceName
+				attribs += "projectName" -> projectName
 				attribs += "undoHref" -> undoHref
 
-			case NotificationMessage.TraceUndeletion(traceName) =>
+			case NotificationMessage.ProjectUndeletion(projectName) =>
 				attribs += "type" -> "undeletion"
-				attribs += "traceName" -> traceName
+				attribs += "projectName" -> projectName
 		}
 
 		// the optional 'autoDismissDelay' attribute
@@ -174,8 +174,8 @@ object Notifications extends CometActor with PublicCometInit with DispatchSnippe
 			attribs += "dismissable" -> "dismissable"
 
 			// add 'dismissHref' for manual dismissal
-			import com.secdec.codepulse.tracer.traceAPIServer
-			val dismissHref = traceAPIServer().Paths.DismissNotification.toHref(note.id)
+			import com.secdec.codepulse.tracer.apiServer
+			val dismissHref = apiServer.Paths.DismissNotification.toHref(note.id)
 			attribs += "dismissHref" -> dismissHref
 		}
 

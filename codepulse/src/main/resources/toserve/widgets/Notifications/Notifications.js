@@ -133,18 +133,18 @@
 
 			/*
 			 * Sets this Notification's message content as a deletion message,
-			 * stating that the given trace (by its `traceName`) has been deleted,
+			 * stating that the given project (by its `projectName`) has been deleted,
 			 * providing an "undo" link that should be valid before the message
 			 * is cleared.
 			 * Sends an 'undo' event when the undo button is clicked, and an
 			 * 'undone' event when the server acknowledges it.
 			 */
-			function setDeletionMessage(traceName, undoHref){
+			function setDeletionMessage(projectName, undoHref){
 				var $msg = $deletionMessageTemplate.clone(),
-					$traceName = $msg.find('.trace-name'),
+					$projectName = $msg.find('.project-name'),
 					$undoLink = $msg.find('.deletion-undo')
 
-				$traceName.text(traceName)
+				$projectName.text(projectName)
 
 				var undoClicked = false
 				$undoLink.click(function(){
@@ -174,11 +174,11 @@
 				return _this
 			}
 
-			function setUndeletionMessage(traceName){
+			function setUndeletionMessage(projectName){
 				var $msg = $undeletionMessageTemplate.clone(),
-					$traceName = $msg.find('.trace-name')
+					$projectName = $msg.find('.project-name')
 
-				$traceName.text(traceName)
+				$projectName.text(projectName)
 				$noteContent.append($msg)
 
 				return _this
@@ -280,10 +280,10 @@
 		 * as follows:
 		 *
 		 *  - `type` - Specifies the message type. Should be one of [deletion|undeletion] 
-		 *    - if "deletion", the element should also have a "traceName" and "undoHref"
+		 *    - if "deletion", the element should also have a "projectName" and "undoHref"
 		 *      attribute set, specifying the same strings as with the `setDeletionMessage`
 		 *      method.
-		 *    - if "undeletion", the element should also have a "traceName" attribute
+		 *    - if "undeletion", the element should also have a "projectName" attribute
 		 *      set, specifying the same string as with the `setUndeletionMessage` method.
 		 *  - `dismissable` - Specifies if the notification can be manually dismissed by users.
 		 *  - `usesTransition` - Specifies if the notification should use animations for its
@@ -303,13 +303,13 @@
 			// Set the message content based on the `type` param
 			switch(type){
 			case 'deletion':
-				var traceName = params.get('traceName'),
+				var projectName = params.get('projectName'),
 					undoHref = params.get('undoHref')
-				note.setDeletionMessage(traceName, undoHref)
+				note.setDeletionMessage(projectName, undoHref)
 				break;
 			case 'undeletion':
-				var traceName = params.get('traceName')
-				note.setUndeletionMessage(traceName)
+				var projectName = params.get('projectName')
+				note.setUndeletionMessage(projectName)
 				break;
 			}
 

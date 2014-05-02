@@ -1,0 +1,54 @@
+
+<div class="projectList">
+
+	<div template="template" style="display:none">
+		<div class="projectListItem">
+
+			<!-- The actual link -->
+			<a class="projectLink" href="#">
+				Example Project
+			</a>
+
+			<!-- Dates -->
+			<div class="date date-created">
+				<span class="small">created</span>
+				<span name="date">
+					<!-- auto-generated creation date text -->
+				</span>
+			</div>
+			<div class="date date-imported">
+				<span class="small">imported</span>
+				<span name="date">
+					<!-- auto-generated import date text -->
+				</span>
+			</div>
+
+			<!-- Menu -->
+			<div class="menu-links">
+
+				<!-- Export Link -->
+				<a href="javascript: void 0;" name="export">
+					<i class="fa fa-share-square-o"></i>
+					Export
+				</a>
+
+				<!-- Delete Link -->
+				<a href="javascript: void 0;" name="delete">
+					<i class="fa fa-trash-o"></i>
+					Delete
+				</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="lift:Comet?type=ProjectListUpdates"></div>
+
+	<div class="emptyListPlaceholder" style="display:none;">
+		No projects
+	</div>
+
+	<lift:head>
+		<script class="lift:Includes.ProjectList"></script>
+	</lift:head>
+
+</div>

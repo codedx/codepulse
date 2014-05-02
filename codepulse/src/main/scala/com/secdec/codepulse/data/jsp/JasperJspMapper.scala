@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.data.jsp
 
-import com.secdec.codepulse.data.trace.TreeNodeDataAccess
+import com.secdec.codepulse.data.model.TreeNodeDataAccess
 
 /** Handles mapping of Jasper JSP method signatures down to their JSP node.
   *

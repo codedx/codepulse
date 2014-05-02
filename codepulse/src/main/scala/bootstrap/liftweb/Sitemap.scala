@@ -26,8 +26,8 @@ import net.liftweb.sitemap.Loc._
 import net.liftweb.sitemap.**
 import net.liftweb.sitemap.SiteMap
 
-import com.secdec.codepulse.pages.traces.TraceDetailsPage
-import com.secdec.codepulse.tracer.TraceManager
+import com.secdec.codepulse.pages.traces.ProjectDetailsPage
+import com.secdec.codepulse.tracer.ProjectManager
 
 /** Provides the sitemap for lift.
   */
@@ -35,9 +35,9 @@ object Sitemap {
 
 	/** Builds a SiteMap based on all of the current values of the `var`s in this object.
 	  */
-	def buildSitemap(traceManager: TraceManager): SiteMap = SiteMap(homeMenu, traceDetailsMenu(traceManager))
+	def buildSitemap(projectManager: ProjectManager): SiteMap = SiteMap(homeMenu, projectDetailsMenu(projectManager))
 
 	val homeMenu = Menu.i("Home") / "index"
 
-	def traceDetailsMenu(traceManager: TraceManager) = TraceDetailsPage.traceMenu(traceManager) >> Hidden
+	def projectDetailsMenu(projectManager: ProjectManager) = ProjectDetailsPage.projectMenu(projectManager) >> Hidden
 }

@@ -62,7 +62,7 @@ class Boot extends Loggable {
 		 * Due to our use of obfuscation, that is undesireable, so
 		 * every snippet must be explicitly registered in BootSnippets.
 		 */
-		BootSnippets(tracer.traceManager)
+		BootSnippets(tracer.projectManager)
 
 		// initialize the "Includes"
 		Includes.init
@@ -74,7 +74,7 @@ class Boot extends Loggable {
 		}
 
 		// Set Lift's SiteMap based on the SitemapConfig object.
-		LiftRules.setSiteMap(Sitemap.buildSitemap(tracer.traceManager))
+		LiftRules.setSiteMap(Sitemap.buildSitemap(tracer.projectManager))
 
 		LiftRules.jsArtifacts = net.liftweb.http.js.jquery.JQueryArtifacts
 

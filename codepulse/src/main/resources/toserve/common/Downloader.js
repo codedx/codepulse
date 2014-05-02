@@ -87,31 +87,31 @@
 
 	}
 
-	$.fn.traceDownloader = function(method){
+	$.fn.projectDownloader = function(method){
 		if(method == 'create'){
-			var old = this.data('traceDownloader')
+			var old = this.data('projectDownloader')
 			if(old) old.destroy()
 
 			var downloader = new Downloader(this)
-			this.data('traceDownloader', downloader)
+			this.data('projectDownloader', downloader)
 			return this
 		}
 
 		if(method == 'destroy'){
-			var old = this.data('traceDownloader')
+			var old = this.data('projectDownloader')
 			if(old) old.destroy()
-			this.data('traceDownloader', null)
+			this.data('projectDownloader', null)
 			return this
 		}
 
-		var dl = this.data('traceDownloader')
+		var dl = this.data('projectDownloader')
 		return dl
 	}
 
 	$(document).ready(function(){
 		$('[data-downloader]').each(function(){
 			// new Downloader($(this))
-			$(this).traceDownloader('create')
+			$(this).projectDownloader('create')
 		})
 	})
 

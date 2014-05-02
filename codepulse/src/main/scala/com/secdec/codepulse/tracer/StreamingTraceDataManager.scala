@@ -25,7 +25,7 @@ import com.secdec.bytefrog.hq.trace.TraceDataManager
 import com.secdec.bytefrog.hq.trace.TraceEndReason
 import com.secdec.bytefrog.hq.trace.TraceSegmentManager
 import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.trace.TraceData
+import com.secdec.codepulse.data.model.ProjectData
 
 /** A TraceDataManager that records events through the `TraceRecorderServer`,
   * which will make the events available through a REST api for use by the
@@ -35,7 +35,7 @@ import com.secdec.codepulse.data.trace.TraceData
   * done at constructor time by creating a "PrecalculatedMethodCorrelator" for the
   * given analysis.
   */
-class StreamingTraceDataManager(traceData: TraceData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends TraceDataManager {
+class StreamingTraceDataManager(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends TraceDataManager {
 
 	/** Set up listeners for the various trace segment builder events,
 	  * adapt them to LiveSegmentData instances,
@@ -49,7 +49,7 @@ class StreamingTraceDataManager(traceData: TraceData, transientData: TransientTr
 	  * fires it back through the `liveTraceData` event stream.
 	  */
 	def setupDataProcessors(router: DataRouter): Unit = {
-		router += new TraceRecorderDataProcessor(traceData, transientData, jspMapper)
+		router += new TraceRecorderDataProcessor(projectData, transientData, jspMapper)
 	}
 
 	def finish(reason: TraceEndReason, traceWasStarted: Boolean): Unit = {

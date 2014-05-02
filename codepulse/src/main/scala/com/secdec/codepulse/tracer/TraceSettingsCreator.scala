@@ -22,12 +22,12 @@ package com.secdec.codepulse.tracer
 import com.secdec.bytefrog.hq.config.TraceSettings
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.trace.TraceData
+import com.secdec.codepulse.data.model.ProjectData
 
 object TraceSettingsCreator {
 
-	def generateTraceSettings(traceData: TraceData, jspMapper: Option[JspMapper]): TraceSettings = {
-		val treeNodeData = traceData.treeNodeData
+	def generateTraceSettings(projectData: ProjectData, jspMapper: Option[JspMapper]): TraceSettings = {
+		val treeNodeData = projectData.treeNodeData
 		import treeNodeData.ExtendedTreeNodeData
 
 		val inclusions = treeNodeData.iterate { it =>

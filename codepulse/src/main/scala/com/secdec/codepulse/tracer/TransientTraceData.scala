@@ -19,11 +19,11 @@
 
 package com.secdec.codepulse.tracer
 
-import com.secdec.codepulse.data.trace.TraceId
+import com.secdec.codepulse.data.model.ProjectId
 
 /** Holds trace ID */
-trait HasTraceId {
-	def id: TraceId
+trait HasProjectId {
+	def id: ProjectId
 }
 
 /** Keeps track of last encounter time by node ID */
@@ -76,7 +76,7 @@ trait HasAccumulatingEncounterData {
   *
   * @author robertf
   */
-class TransientTraceData(val id: TraceId) extends HasTraceId with HasTimedEncounterData with HasAccumulatingEncounterData {
+class TransientTraceData(val id: ProjectId) extends HasProjectId with HasTimedEncounterData with HasAccumulatingEncounterData {
 	def addEncounter(nodeId: Int) {
 		setLatestNodeEncounterTime(nodeId)
 		addRecentlyEncounteredNode(nodeId)
@@ -88,7 +88,7 @@ class TransientTraceData(val id: TraceId) extends HasTraceId with HasTimedEncoun
   * @author robertf
   */
 class TransientTraceDataProvider {
-	private val traces = collection.mutable.Map.empty[TraceId, TransientTraceData]
+	private val projects = collection.mutable.Map.empty[ProjectId, TransientTraceData]
 
-	def get(id: TraceId) = traces.getOrElseUpdate(id, new TransientTraceData(id))
+	def get(id: ProjectId) = projects.getOrElseUpdate(id, new TransientTraceData(id))
 }

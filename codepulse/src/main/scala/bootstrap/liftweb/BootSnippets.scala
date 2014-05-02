@@ -22,11 +22,11 @@ package bootstrap.liftweb
 import com.secdec.codepulse.components.includes.snippet.Includes
 import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.version.snippet.VersionSnippet
-import com.secdec.codepulse.tracer.TraceManager
+import com.secdec.codepulse.tracer.ProjectManager
 import com.secdec.codepulse.tracer.TracingTarget
 import com.secdec.codepulse.tracer.snippet.CometTracerUI
-import com.secdec.codepulse.tracer.snippet.TraceListUpdates
-import com.secdec.codepulse.tracer.snippet.TraceWidgetry
+import com.secdec.codepulse.tracer.snippet.ProjectListUpdates
+import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
 import com.secdec.codepulse.util.comet.PublicCometInit
 
 import net.liftweb.common.Full
@@ -36,17 +36,17 @@ import net.liftweb.http.LiftRulesMocker.toLiftRules
 import net.liftweb.util.StringHelpers
 
 private[liftweb] object BootSnippets {
-	def apply(traceManager: TraceManager) = {
+	def apply(projectManager: ProjectManager) = {
 		LiftRules.snippetDispatch.prepend {
 			case SnippetRequest("Includes", _) => Includes
 			case SnippetRequest("VersionSnippet", _) => new VersionSnippet
-			case SnippetRequest("TraceWidgetry", Full(target: TracingTarget)) => new TraceWidgetry(traceManager, target)
+			case SnippetRequest("ProjectWidgetry", Full(target: TracingTarget)) => new ProjectWidgetry(projectManager, target)
 			case SnippetRequest("Notifications", _) => Notifications
 		}
 
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {
 			case CometTracerUI.className => new CometTracerUI
-			case "TraceListUpdates" => new TraceListUpdates(traceManager)
+			case "ProjectListUpdates" => new ProjectListUpdates(projectManager)
 			case "Notifications" => Notifications
 		}
 

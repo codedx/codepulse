@@ -25,13 +25,13 @@
 		</div>
 
 		<div class="deletion-message">
-			<span class="trace-name">[project name]</span>
+			<span class="project-name">[project name]</span>
 			has been deleted.
 			<a class="deletion-undo"><i class="fa fa-undo"></i> Undo</a>
 		</div>
 
 		<div class="undeletion-message">
-			<span class="trace-name">[project name]</span>
+			<span class="project-name">[project name]</span>
 			has been un-deleted.
 		</div>
 	</div>
@@ -51,15 +51,15 @@
 
 			<notification
 				type="deletion"
-				traceName="Some cool trace"
-				undoHref = "/trace-api/traces/2/undo-delete"
+				projectName="Some cool project"
+				undoHref = "/api/projects/2/undo-delete"
 				dismissable="dismissable"
 				usesTransition="usesTransition"
 				/>
 
 			<notification
 				type="undeletion"
-				traceName="Another cool trace"
+				projectName="Another cool project"
 				dismissable="dismissable"
 				usesTransition="usesTransition"
 				autoDismissDelay="3000"

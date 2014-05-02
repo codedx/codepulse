@@ -20,8 +20,8 @@
 package com.secdec.codepulse
 
 import language.implicitConversions
-import com.secdec.codepulse.data.trace.TraceDataProvider
-import com.secdec.codepulse.data.trace.slick.SlickH2TraceDataProvider
+import com.secdec.codepulse.data.model.ProjectDataProvider
+import com.secdec.codepulse.data.model.slick.SlickH2ProjectDataProvider
 import com.secdec.codepulse.tracer.TransientTraceDataProvider
 import akka.actor.ActorSystem
 
@@ -39,29 +39,29 @@ package object tracer {
 
 	implicit def bootVarToInstance[T](v: BootVar[T]): T = v.apply()
 
-	val traceActorSystem = new BootVar[ActorSystem]
-	val traceManager = new BootVar[TraceManager]
-	val traceDataProvider = new BootVar[TraceDataProvider]
+	val actorSystem = new BootVar[ActorSystem]
+	val projectManager = new BootVar[ProjectManager]
+	val projectDataProvider = new BootVar[ProjectDataProvider]
 	val transientTraceDataProvider = new BootVar[TransientTraceDataProvider]
 	val treeBuilderManager = new BootVar[TreeBuilderManager]
-	val traceFileUploadServer = new BootVar[TraceFileUploadHandler]
-	val traceAPIServer = new BootVar[TraceAPIServer]
+	val projectFileUploadServer = new BootVar[ProjectFileUploadHandler]
+	val apiServer = new BootVar[APIServer]
 
 	def boot() {
-		val as = TraceManager.defaultActorSystem
+		val as = ProjectManager.defaultActorSystem
 
-		val dataProvider = new SlickH2TraceDataProvider(TraceDataProvider.DefaultStorageDir, as)
-		traceDataProvider set dataProvider
+		val dataProvider = new SlickH2ProjectDataProvider(ProjectDataProvider.DefaultStorageDir, as)
+		projectDataProvider set dataProvider
 		transientTraceDataProvider set new TransientTraceDataProvider
 
 		val tbm = new TreeBuilderManager(dataProvider)
 		treeBuilderManager set tbm
 
-		val tm = new TraceManager(as)
+		val tm = new ProjectManager(as)
 
-		traceActorSystem set as
-		traceManager set tm
-		traceFileUploadServer set new TraceFileUploadHandler(tm).initializeServer
-		traceAPIServer set new TraceAPIServer(tm, tbm).initializeServer
+		actorSystem set as
+		projectManager set tm
+		projectFileUploadServer set new ProjectFileUploadHandler(tm).initializeServer
+		apiServer set new APIServer(tm, tbm).initializeServer
 	}
 }

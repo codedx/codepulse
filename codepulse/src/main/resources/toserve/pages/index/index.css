@@ -9,9 +9,9 @@
 	display: inline-block;
 }
 
-.traceSwitcher .traceList {
+.projectSwitcher .projectList {
 	max-height: 100% !important;
 }
-.traceSwitcher .traceInputLinks {
+.projectSwitcher .projectInputLinks {
 	display: none;
 }

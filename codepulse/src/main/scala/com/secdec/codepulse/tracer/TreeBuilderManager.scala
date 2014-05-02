@@ -19,35 +19,35 @@
 
 package com.secdec.codepulse.tracer
 
-import com.secdec.codepulse.data.trace.TraceDataProvider
-import com.secdec.codepulse.data.trace.TraceId
-import com.secdec.codepulse.data.trace.TreeBuilder
+import com.secdec.codepulse.data.model.ProjectDataProvider
+import com.secdec.codepulse.data.model.ProjectId
+import com.secdec.codepulse.data.model.TreeBuilder
 
 /** Manages a single TreeBuilder instance, such that we're only holding an
-  * entire trace tree for a single trace at a time.
+  * entire project tree for a single project at a time.
   *
   * @author robertf
   */
-class TreeBuilderManager(dataProvider: TraceDataProvider) {
+class TreeBuilderManager(dataProvider: ProjectDataProvider) {
 	private val lock = new Object
-	private var cachedId = None: Option[TraceId]
+	private var cachedId = None: Option[ProjectId]
 	private var current = None: Option[TreeBuilder]
 
-	private def changeTrace(newTrace: TraceId) = {
+	private def changeProject(newProject: ProjectId) = {
 		cachedId = None
-		val data = dataProvider.getTrace(newTrace)
+		val data = dataProvider getProject newProject
 		val builder = new TreeBuilder(data.treeNodeData)
 		current = Some(builder)
-		cachedId = Some(newTrace)
+		cachedId = Some(newProject)
 		builder
 	}
 
-	def get(trace: TraceId): TreeBuilder = {
+	def get(project: ProjectId): TreeBuilder = {
 		lock.synchronized {
-			if (cachedId.exists(_ == trace))
-				current.getOrElse(changeTrace(trace))
+			if (cachedId.exists(_ == project))
+				current.getOrElse(changeProject(project))
 			else
-				changeTrace(trace)
+				changeProject(project)
 		}
 	}
 

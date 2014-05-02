@@ -20,7 +20,7 @@
 var WidgetsPlugin = (function() {
 	return {
 		renderTagText: function(tag) {
-			if(tag['isTrace']) return 'Trace';
+			if(tag['isProject']) return 'Project';
 			
 			return null;
 		}

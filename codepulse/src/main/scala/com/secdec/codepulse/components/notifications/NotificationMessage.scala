@@ -26,7 +26,7 @@ sealed trait NotificationMessage
 
 object NotificationMessage {
 
-	case class TraceDeletion(traceName: String, undoHref: String) extends NotificationMessage
-	case class TraceUndeletion(traceName: String) extends NotificationMessage
+	case class ProjectDeletion(projectName: String, undoHref: String) extends NotificationMessage
+	case class ProjectUndeletion(projectName: String) extends NotificationMessage
 
 }

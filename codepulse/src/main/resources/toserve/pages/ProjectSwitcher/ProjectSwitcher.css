@@ -1,0 +1,156 @@
+.projectSwitcher * {
+	box-sizing: border-box;
+}
+
+.projectSwitcher .slideDownSidebar {
+	position: fixed;
+	bottom: 25px;
+	top: 60px;
+	left: 0;
+	width: 285px;
+	overflow-y: hidden;
+
+	transition: bottom .3s ease;
+
+	background-color: lightgray;
+	color: white;
+
+	box-shadow: 0 0 5px black;
+}
+
+.projectSwitcher .slideDownSidebar.collapsed {
+	/* set the `bottom` attribute to match the `top`, for a height of 0 */
+	bottom: calc(100% - 60px);
+}
+
+.projectSwitcher .full-container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.projectSwitcher .projectInputLinks {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+
+.projectSwitcher .projectInputLink {
+	display: block;
+	padding: 5px;
+	box-sizing: border-box;
+
+	background-color: silver;
+	color: black;
+	text-decoration: none;
+}
+
+.projectSwitcher .projectInputLink:hover {
+	background-color: gray;
+}
+
+.projectSwitcher .projectList {
+	max-height: calc(100% - 60px);
+	overflow-y: auto;
+}
+
+[data-toggle=ProjectSwitcher] {
+	height: 100%;
+	padding: 0 20px;
+	background-color: #055;
+	font-size: 1.2em;
+	cursor: pointer;
+}
+[data-toggle=ProjectSwitcher]:hover {
+	background-color: #066;
+}
+[data-toggle=ProjectSwitcher].active {
+	background-color: #FFA500;
+}
+[data-toggle=ProjectSwitcher].active:hover {
+	background-color: #FFBA00;
+}
+
+/********************\
+| Project List Items |
+\********************/
+
+ .projectList .emptyListPlaceholder {
+ 	color: gray;
+ 	text-align: center;
+ 	margin-top: 22px;
+ }
+
+ .projectSwitcher .projectListItem {
+	display: block;
+	box-sizing: border-box;
+	padding: 3px;
+	background-color: lightgray;
+	color: black;
+	border-bottom: 1px solid silver;
+ }
+
+ .projectSwitcher .projectListItem a {
+ 	color: #666;
+	text-decoration: none;
+ }
+
+ .projectSwitcher .projectListItem a:hover {
+ 	color: black;
+ }
+
+ .projectSwitcher .projectListItem .menu-links a {
+ 	font-size: 0.8em;
+ }
+
+ .projectSwitcher .projectListItem .menu-links a:not(:first-child) {
+ 	margin-left: 5px;
+ }
+
+ .projectSwitcher .projectListItem:hover {
+	background-color: #BBB;
+ }
+
+ .projectSwitcher .projectListItem .menu-links a[disabled] {
+ 	text-decoration: line-through;
+ }
+
+ .projectSwitcher .projectListItem .date {
+ 	font-size: small;
+ }
+
+ .projectSwitcher .projectListItem .date span {
+ 	font-size: x-small;
+ }
+
+
+/******************************\
+| Striped Background Animation |
+\******************************/
+
+ /* Striped Background Effect for .in-progress recordings */
+ @keyframes stripe-animation {
+ 	from { background-position: 40px 0; }
+ 	to { background-position: 0 0; }
+ }
+ @-webkit-keyframes stripe-animation {
+ 	from { background-position: 40px 0; }
+ 	to { background-position: 0 0; }
+ }
+ 
+ .stripedBackground {
+ 	background-image: linear-gradient(45deg, 
+ 		rgba(255, 255, 255, 0.15) 25%, rgba(0, 0, 0, 0) 25%, 
+ 		rgba(0, 0, 0, 0) 50%, rgba(255, 255, 255, 0.15) 50%, 
+ 		rgba(255, 255, 255, 0.15) 75%, rgba(0, 0, 0, 0) 75%, 
+ 		rgba(0, 0, 0, 0)
+ 	);
+ 
+ 	background-size: 40px 40px;
+ 
+ }
+ /* show an animation on the stripes when the project is running */
+ .stripedBackground.animated {
+ 	animation: stripe-animation 2s linear infinite;
+ 	-webkit-animation: stripe-animation 2s linear infinite;
+ }

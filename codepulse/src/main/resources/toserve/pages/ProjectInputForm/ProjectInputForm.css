@@ -1,0 +1,203 @@
+/*******************\
+| High Level Layout |
+\*******************/
+
+#project-input-form .form-field {
+	margin-bottom: 1em;
+}
+
+#project-input-form .input-area {
+	width: 61.8%;
+	float: left;
+}
+
+#project-input-form .feedback-area {
+	width: 38.2%;
+	float: left;
+	padding-left: 1em;
+	box-sizing: border-box;
+}
+
+.align-right {
+	text-align: right;
+}
+
+
+#project-input-form .input-label {
+	font-size: large;
+	font-weight: bold;
+	margin-bottom: 3px;
+}
+
+#project-input-form input[type=text] {
+	margin-bottom: 0;
+}
+
+#project-input-form .input-help {
+	padding-left: 22px;
+	position: relative;
+	margin-top: 5px;
+	color: gray;
+	font-size: 90%;
+}
+
+#project-input-form .input-help i:first-child {
+	position: absolute;
+	left: 0;
+}
+
+#new-analysis-form:not(.active),
+#new-import-form:not(.active) { 
+	display: none; 
+}
+
+/***********\
+| Form Tabs |
+\***********/
+
+#project-input-form ul.form-tabs-list {
+	list-style: none;
+	margin: 0 0 20px 0;
+	border-bottom: 2px solid steelblue;
+}
+
+#project-input-form .form-tab {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 5px 10px;
+	background-color: lightgray;
+	cursor: pointer;
+	position: relative;
+}
+
+#project-input-form .form-tab a {
+	/* overriding bootstrap styles*/
+	text-decoration: none;
+	color: #323232;
+}
+
+#project-input-form .form-tab.active {
+	background-color: steelblue;
+}
+
+#project-input-form .form-tab.active a {
+	color: white;
+}
+
+/***************\
+| Feedback Area |
+\***************/
+
+#project-input-form .feedback-area .feedback {
+	color: steelblue;
+}
+#project-input-form .feedback-area .feedback:before {
+	font-family: FontAwesome;
+	margin-right: 3px;
+	content: "\f075"; /* fa-comment */
+}
+
+#project-input-form .feedback-area .feedback.error {
+	color: crimson;
+}
+#project-input-form .feedback-area .feedback.error:before {
+	content: "\f06a"; /* fa-exclamation-circle */
+}
+
+#project-input-form .feedback-area .feedback.warning {
+	color: goldenrod;
+}
+#project-input-form .feedback-area .feedback.warning:before {
+	content: "\f071"; /* fa-exclamation-triangle */
+}
+
+/*********************\
+| File Input Elements |
+\*********************/
+
+.file-input-button {
+	position: relative;
+	overflow: hidden;
+	background-color: lightgray;
+	font-size: 14px;
+	text-align: center;
+}
+
+.file-input-button input[type=file] {
+	position: absolute;
+	opacity: 0;
+	right: 0;
+	top: 0;
+	font-size: 200px;
+	direction: ltr;
+	cursor: pointer;
+	height: 100%;
+}
+
+.file-input-area .file-input-button {
+	float: left;
+	width: 100px;
+	box-sizing: border-box;
+	height: 72px;
+}
+
+.file-input-area .file-input-button .prompt {
+	margin-top: 12px;
+}
+
+.file-input-area .file-or-msg {
+	width: 50px;
+	text-align: center;
+	font-weight: bold;
+	float: left;
+	line-height: 72px;
+}
+
+.file-input-area .file-dropzone {
+	float: left;
+	width: calc(100% - 150px);
+	color: gray;
+	box-sizing: border-box;
+	padding: .5em;
+	text-align: center;
+	height: 72px;
+}
+
+.file-input-area .file-dropzone.in {
+	background-color: lightgray;
+}
+
+.file-input-area .file-dropzone.hover {
+	background-color: lightgreen;
+}
+
+.file-input-area .file-dropzone .dropzone-msg {
+	border: 2px dashed;
+	padding: 1em;
+	border-radius: .5em;
+}
+
+.file-input-area .file-dropzone .dropzone-msg:before {
+	content: 'Drag a file here';
+}
+.file-input-area .file-dropzone.in .dropzone-msg:before {
+	content: 'Drop it here!';
+}
+
+/*********************\
+| File Input Feedback |
+\*********************/
+
+#project-input-form .file-input-result {
+	margin-top: 5px;
+	font-size: small;
+	color: gray;
+}
+
+#project-input-form .file-input-result .file-input-name {
+	font-weight: bold;
+}
+
+.filetype {
+	font-family: monospace;
+}

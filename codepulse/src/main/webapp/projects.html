@@ -1,0 +1,142 @@
+<lift:surround with="desktop" at="content">
+<lift:head>
+	<link class="lift:Includes.d3"></link>
+	<link class="lift:Includes.codetreemap"></link>
+	<link class="lift:Includes.projectsPage"></link>
+</lift:head>
+
+<div class="lift:ProjectWidgetry">
+	<project:stateupdates></project:stateupdates>
+
+	<div class="header-push"></div>
+
+	<div class="fixed-header">	
+		<div class="project-header">
+			<div class="header-section">
+				<div data-toggle="ProjectSwitcher">
+					Projects
+				</div>
+			</div>
+
+			<div class="header-section breadcrumb-carat">
+				<i class="fa fa-chevron-circle-right"></i>
+			</div>
+
+			<div class="header-section">
+				<project:nameconflict><i class="fa fa-exclamation-triangle warningIcon"></i></project:nameconflict>
+			</div>
+
+			<div class="header-section">
+				<project:nameconflict>
+					<div class="warningText">
+						This project has the same name as another project. Click the name to change it now.
+					</div>
+
+					<h1 class="editable">
+						<div class="edit-content">
+							<project:name></project:name>
+						</div>
+						<div class="editor">
+							<input type="text"/>
+							<span class="editor-save">&#x23ce;</span>
+						</div>
+					</h1>
+				</project:nameconflict>
+			</div>
+
+			<div class="header-section">
+				<div class="header-detail">
+					<span class="detail-name" style="/*hax*/margin-right:5px;">created on</span>
+					<span class="date">
+						<project:creationdate></project:creationdate>
+					</span>
+				</div>
+				<project:ifimported>
+					<div class="header-detail">
+						<span class="detail-name">imported on</span>
+						<span class="date">
+							<project:importdate></project:importdate>
+						</span>
+					</div>
+				</project:ifimported>
+			</div>
+
+
+			<div class="header-section">
+				<div class="header-detail">
+					<project:exportlink>
+						<i class="fa fa-share-square-o"></i>
+						Export
+					</project:exportlink>
+				</div>
+			</div>
+
+			<lift:embed what="branding"></lift:embed>
+			
+		</div>
+	</div>
+
+	<lift:embed what="ProjectSwitcher"></lift:embed>
+
+	<!-- Provides the base HTML for the PackageWidget (see PackageWidget.js) -->
+	<lift:embed what="package-widget-template"></lift:embed>
+
+		
+	<div class="projects-scope">
+			
+		<!-- package header area -->
+		<div class="packages-header">
+			<div class="header-row">
+				<div class="header-label">Application Inventory</div>
+				<div class="header-trace">
+					<abbr title="Toggle whether or not an item will be watched during a trace">
+						Trace
+					</abbr>
+				</div>
+				<div class="header-method-count">method count</div>
+				<div class="header-barchart">% Coverage</div>
+			</div>
+		</div>
+
+		<div class="main-column" id="packages">
+			<div class="package-totals" id="totals">
+				<!-- auto-generated content for the root package -->
+			</div>
+
+			<div id="clear-selections-button" class="hidden">
+				Clear all selections
+			</div>
+
+			<!-- auto-generated content for package widgets/barchart stuff -->
+		</div>
+
+		<div class="middle-column-alt fixed-sidebar" id="treemap">
+			<div class="treemap-header">
+				<div id="show-treemap-button">
+					<!-- Show/Hide treemap button, floating as a tab on the treemap drawer -->
+				</div>
+				<div class="header-text">
+					Code Treemap
+				</div>
+			</div>
+			
+			<div id="treemap-container">
+				<div class="widget-body"><!-- Treemap goes here --></div>
+				<div id="performance-warning">
+					<a name="close">[dismiss]</a>
+					The visualization performance may be degraded due to how many items are currently displayed.
+				</div>
+				<div class="no-selection-message">
+					Select packages from the list on the left to display them in more detail here
+				</div>
+			</div>
+		</div>
+		
+		<div class="side-column fixed-sidebar" id="trace-controls">
+			
+			<lift:embed what="trace-recording-controls"></lift:embed>
+		</div>
+	</div>
+
+</div>
+</lift:surround>

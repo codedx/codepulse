@@ -23,10 +23,10 @@ import com.secdec.bytefrog.hq.data.processing.DataProcessor
 import com.secdec.bytefrog.hq.protocol.DataMessageContent
 import com.secdec.codepulse.data.MethodSignature
 import com.secdec.codepulse.data.MethodSignatureParser
-import com.secdec.codepulse.data.trace.TraceData
+import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.jsp.JspMapper
 
-class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor {
+class TraceRecorderDataProcessor(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor {
 
 	val methodCor = collection.mutable.Map[Int, Int]()
 
@@ -35,16 +35,16 @@ class TraceRecorderDataProcessor(traceData: TraceData, transientData: TransientT
 
 		// handle method encounters
 		case DataMessageContent.MethodEntry(methodId, timestamp, _) =>
-			val runningRecordings = traceData.recordings.all.filter(_.running).map(_.id)
+			val runningRecordings = projectData.recordings.all.filter(_.running).map(_.id)
 
 			for (nodeId <- methodCor get methodId) {
-				traceData.encounters.record(runningRecordings, nodeId :: Nil)
+				projectData.encounters.record(runningRecordings, nodeId :: Nil)
 				transientData addEncounter nodeId
 			}
 
 		// make method correlations
 		case DataMessageContent.MapMethodSignature(sig, id) =>
-			val node = traceData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
+			val node = projectData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
 			for (treemapNodeId <- node) methodCor.put(id, treemapNodeId)
 
 		// ignore everything else
