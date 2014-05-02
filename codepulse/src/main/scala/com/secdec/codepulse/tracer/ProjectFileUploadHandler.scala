@@ -105,6 +105,19 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 	}
 
 	def hrefResponse(projectId: ProjectId) = {
+
+		projectManager.getProject(projectId) match {
+			case None =>
+				// Something went horribly wrong. Somehow the ProjectManager
+				// generated a ProjectId for us without actually registering it?
+				// This is probably a race condition, but we still don't kwow
+				// what is causing it. For now, just sleep for a bit and hope
+				// that the race is over 1 second from now.
+				Thread.sleep(1000)
+			case Some(_) =>
+			// of course it's a Some. It would be crazy if it wasn't.
+		}
+
 		val href = ProjectDetailsPage.projectHref(projectId)
 		JsonResponse("href" -> href)
 	}
