@@ -299,7 +299,6 @@ $(document).ready(function(){
 			.filter(canSubmitForm)
 			.filter(isUploading.property.not())
 			.onValue(function(criteria){
-				console.log('allow submission with ', criteria)
 
 				var file = criteria.fileData.files[0],
 					filepath = file.path
