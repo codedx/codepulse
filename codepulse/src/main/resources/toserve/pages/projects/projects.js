@@ -289,20 +289,10 @@ $(document).ready(function(){
 			treemapWidget.nodeColoring(treemapColoring())
 		}
 
-		// Property that starts as `false`, but becomes `true` once 
-		// the [dismiss] button is clicked in the performance warning
-		var slowWarningDismissed = $('#performance-warning a')
-			.asEventStream('click')
-			.map(function(){ return true })
-			.toProperty(false)
-
-		// Add the 'in-view' class to the performance warning if
-		// the treemap is running slowly and the alert hasn't been dismissed.
+		// Show the 'slow-treemap' status if the treemap is running slowly
 		treemapWidget.isRunningSlowly
-			.and(slowWarningDismissed.not())
-			.onValue(function(showWarning){
-				$('#performance-warning').toggleClass('in-view', showWarning)
-			})
+			.assign($('#status-bar'), 'toggleClass', 'slow-treemap')
+
 	})
 
 	var treemapTooltipContentProvider = {

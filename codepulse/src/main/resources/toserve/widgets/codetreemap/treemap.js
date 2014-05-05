@@ -146,7 +146,7 @@
 			.filter(select('slow'))
 			.flatMapLatest(function(){
 				// step function: starts at true, then becomes false 5 seconds later
-				return Bacon.once(true).concat(Bacon.later(5000, false))
+				return Bacon.once(true).concat(Bacon.laterWithRender(5000, false))
 			})
 			.toProperty(false)
 			.skipDuplicates()

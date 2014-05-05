@@ -330,42 +330,6 @@ body > .overlay:before {
  	position: relative;
  }
 
-/****************************\
-| Performance Warning Styles |
-\****************************/
-
- #performance-warning {
- 	position: absolute;
- 	width: 100%;
- 	bottom: 0;
- 	padding: 5px;
- 	font-size: 12px;
- 	line-height: 12px;
- 	max-height: 22px;
- 	background-color: #FF9067;
- 	opacity: 0;
- 	pointer-events: none;
- 	border: 1px solid;
- 	box-sizing: border-box;
- }
-
- #performance-warning.in-view {
- 	opacity: 1;
- 	pointer-events: initial;
- 	transition: opacity .5s linear;
- }
-
- #performance-warning a {
- 	color: gray;
- 	cursor: pointer;
- 	float: right;
- }
-
- #performance-warning a:hover {
- 	text-decoration: none;
- 	color: black;
- }
-
 /***********************************\
 | Treemap Area No Selection Message |
 \***********************************/

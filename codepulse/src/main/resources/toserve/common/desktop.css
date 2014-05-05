@@ -75,3 +75,16 @@
 #refresh-link-tooltip a {
 	color: rgb(219, 175, 0);
 }
+
+.vr {
+	border-left: 1px solid;
+	display: inline;
+	margin-right: 5px;
+}
+
+#status-bar {
+	display: inline-block;
+}
+
+#status-bar .status { display: none; }
+#status-bar.slow-treemap .status.status-slow-treemap { display: block; }

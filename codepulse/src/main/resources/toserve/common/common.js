@@ -40,3 +40,15 @@ Bacon.Model = function(initial){
 	this.__defineGetter__('changes', function(){ return changes })
 	this.__defineGetter__('property', function(){ return prop })
 }
+
+// Mimics `Bacon.later` but doesn't actually start the `delay`
+// until an animation frame is available.
+Bacon.laterWithRender = function(delay, value){
+	return Bacon.fromCallback(function(fire){
+		requestAnimationFrame(function(){
+			setTimeout(function(){
+				fire(value)
+			}, delay)
+		})
+	})
+}
