@@ -28,7 +28,6 @@ import com.earldouglas.xsbtwebplugin._
 	import WebPlugin._
 	import WebappPlugin._
 import Distributor.{ Keys => DistribKeys, distribSettings }
-import EmbeddedToolResources.embeddedToolSettings
 import DependencyFetcher.dependencyFetcherSettings
 import sbtassembly.Plugin._
 	import AssemblyKeys._
@@ -37,7 +36,7 @@ object BuildDef extends Build with VersionSystem {
 
 	lazy val liftDependencies = Seq(lift_webkit, servletApi, logback, slf4j)
 	lazy val testDependencies = Seq(junit, specs, scalatest)
-	lazy val libDependencies = Seq(akka, reactive, jna, commons.io, concLinkedHashMap, juniversalchardet) ++ asm ++ jackson
+	lazy val libDependencies = Seq(akka, reactive, jna, commons.io, concLinkedHashMap, juniversalchardet, dependencyCheckCore) ++ asm ++ jackson
 	lazy val dbDependencies = Seq(slick, h2)
 	
 	val baseCompilerSettings = Seq(
@@ -69,7 +68,6 @@ object BuildDef extends Build with VersionSystem {
 		.settings(EclipseKeys.withSource := true)
 		.settings(distribSettings: _*)
 		.settings(dependencyFetcherSettings: _*)
-		.settings(embeddedToolSettings: _*)
 		.settings(assemblySettings: _*)
 		.settings(
 			resolvers ++= dependencyResolvers,

@@ -14,7 +14,6 @@ Code Pulse is a code coverage tool that works on running programs in real time. 
 
 ##Setup
 
- - Run `fetch-runtime-dependencies` to download the required dependencies for running Code Pulse.
  - Run SBT from this directory. Run `container:start` to start the webserver on [localhost:8080](http://localhost:8080)
  - Eclipse Users:
   - Within SBT, run `eclipse` to generate Eclipse project files.

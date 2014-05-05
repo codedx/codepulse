@@ -29,6 +29,4 @@ object BuildKeys {
 	val packageEmbeddedLinuxX86 = TaskKey[File]("package-embedded-linux-x86", "Creates a ZIP distribution of the node-webkit embedded version of the current project for Linux (x86)")
 
 	val fetchPackageDependencies = TaskKey[Unit]("fetch-package-dependencies")
-	val fetchRunDependencies = TaskKey[Unit]("fetch-runtime-dependencies")
-	val fetchDependencies = TaskKey[Unit]("fetch-dependencies")
 }

@@ -93,12 +93,9 @@ object DependencyFetcher extends BuildExtra {
 		val resourcer = SettingKey[File]("resourcer")
 
 		val jettyUrl = SettingKey[String]("jetty-url")
-		val dependencyCheckUrl = SettingKey[String]("dependency-check-url")
 		val resourcerUrl = SettingKey[String]("resourcer-url")
 
 		val packageDependencyList = TaskKey[Seq[Dependency]]("package-dependencies")
-		val runtimeDependencyList = TaskKey[Seq[Dependency]]("runtime-dependencies")
-		val dependencyList = TaskKey[Seq[Dependency]]("dependencies")
 	}
 
 	import Keys._
@@ -292,7 +289,6 @@ object DependencyFetcher extends BuildExtra {
 		dependencyFolder in Dependencies := file("distrib/dependencies"),
 
 		packageDependencyList in Dependencies := Nil,
-		runtimeDependencyList in Dependencies := Nil,
 
 		jreWindowsUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-windows-i586.tar.gz",
 		jreWindows in Dependencies <<= (dependencyFolder in Dependencies) { _ / "win32" / "jre" },
@@ -338,8 +334,6 @@ object DependencyFetcher extends BuildExtra {
 
 		jetty in Dependencies <<= (dependencyFolder in Dependencies) { _ / "common" / "jetty" },
 		jettyUrl in Dependencies := "http://mirrors.xmission.com/eclipse/jetty/9.1.4.v20140401/dist/jetty-distribution-9.1.4.v20140401.zip",
-		dependencyCheck in Dependencies <<= (dependencyFolder in Dependencies) { _ / "common" / "dependency-check" },
-		dependencyCheckUrl in Dependencies := "http://dl.bintray.com/jeremy-long/owasp/dependency-check-1.2.0.1-release.zip",
 		resourcer in Dependencies <<= (dependencyFolder in Dependencies) { _ / "tools" / "resourcer" },
 		resourcerUrl in Dependencies := "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1", // http://anolis.codeplex.com/downloads/get/81545
 
@@ -356,18 +350,6 @@ object DependencyFetcher extends BuildExtra {
 			jettyDep :: resourcerDep :: Nil
 		},
 
-		runtimeDependencyList in Dependencies <++= (dependencyCheckUrl in Dependencies, dependencyCheck in Dependencies) map { (depCheckUrl, depCheck) =>
-			val dependencyCheckDep = new CommonDependency("dependency-check-cli 1.2.0.1", DependencyFile(Platform.Unspecified, depCheckUrl, depCheck, FileFormat.Zip))
-
-			dependencyCheckDep :: Nil
-		},
-
-		dependencyList in Dependencies := Nil,
-		dependencyList in Dependencies <++= packageDependencyList in Dependencies,
-		dependencyList in Dependencies <++= runtimeDependencyList in Dependencies,
-
-		fetchPackageDependencies <<= fetchDependenciesTask(packageDependencyList),
-		fetchRunDependencies <<= fetchDependenciesTask(runtimeDependencyList),
-		fetchDependencies <<= fetchDependenciesTask(dependencyList)
+		fetchPackageDependencies <<= fetchDependenciesTask(packageDependencyList)
 	)
 }

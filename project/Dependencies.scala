@@ -50,12 +50,15 @@ object Dependencies {
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
-	lazy val h2 = "com.h2database" % "h2" % "1.3.170"
+	lazy val h2 = "com.h2database" % "h2" % "1.3.172"
 	
 	// apache commons dependencies
 	object commons {
 		lazy val io = "commons-io" % "commons-io" % "2.1"
 	}
+
+	// dependency-check
+	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.0"
 	
 	lazy val dependencyResolvers = Seq(
 		"apache.repo" at "https://repository.apache.org/content/repositories/snapshots/",
