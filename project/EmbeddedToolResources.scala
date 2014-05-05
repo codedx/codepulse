@@ -40,9 +40,9 @@ object EmbeddedToolResources extends BuildExtra {
 	lazy val embeddedToolSettings: Seq[Setting[_]] = Seq(
 		dependencyCheckFolder in EmbeddedTools := "tools/dependency-check",
 
-		resourceGenerators in Compile <+= (cacheDirectory in Compile, resourceManaged in Compile, dependencyCheck in Dependencies, dependencyCheckFolder in EmbeddedTools) map { (cache, managedRes, depCheck, depCheckFolder) =>
+		resourceGenerators in Compile <+= (streams, cacheDirectory in Compile, resourceManaged in Compile, dependencyCheck in Dependencies, dependencyCheckFolder in EmbeddedTools) map { (s, cache, managedRes, depCheck, depCheckFolder) =>
 			if (!depCheck.exists)
-				sys.error("Missing dependency check. Please run `fetch-runtime-dependencies` or download and place in " + depCheck + ".")
+				s.log.warn("Missing dependency check. Please run `fetch-runtime-dependencies` or download and place in " + depCheck + ".")
 
 			val folder = managedRes / depCheckFolder
 			val mappings = depCheck.*** x rebase(depCheck, folder)
