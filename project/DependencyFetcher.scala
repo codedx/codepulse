@@ -32,13 +32,11 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.IOUtils
 
-/** Helper for fetching the Code Pulse dependencies from the web.
+/** Helper for fetching various Code Pulse dependencies from the web.
   *
   * @author robertf
   */
 object DependencyFetcher extends BuildExtra {
-
-	import Distributor.Keys.{ Distribution, distDeps }
 
 	sealed trait Platform
 	object Platform {
@@ -55,35 +53,52 @@ object DependencyFetcher extends BuildExtra {
 		case object TarGz extends FileFormat
 	}
 
-	case class DependencyFile(platform: Platform, url: String, format: FileFormat)
+	case class DependencyFile(platform: Platform, url: String, destPath: File, format: FileFormat)
 
-	sealed trait Dependency { def name: String; def destPath: String }
+	sealed trait Dependency { def name: String }
 	sealed trait PackageHelper { def trimPath(platform: Platform)(path: String): String }
-	case class JreDependency(name: String, rawPath: String, destPath: String, files: List[DependencyFile]) extends Dependency with PackageHelper {
+	case class JreDependency(name: String, rawPath: String, files: List[DependencyFile]) extends Dependency with PackageHelper {
 		private val trimPathRegex = ("^\\Q" + rawPath + "\\E(?:\\.jre)?/").r
 		def trimPath(platform: Platform)(path: String) = trimPathRegex.replaceFirstIn(path, "")
 	}
-	case class PlatformDependency(name: String, destPath: String, files: List[DependencyFile]) extends Dependency
-	case class CommonDependency(name: String, destPath: String, file: DependencyFile) extends Dependency
-	case class ToolDependency(name: String, destPath: String, file: DependencyFile) extends Dependency
+	case class PlatformDependency(name: String, files: List[DependencyFile]) extends Dependency
+	case class CommonDependency(name: String, file: DependencyFile) extends Dependency
+	case class ToolDependency(name: String, file: DependencyFile) extends Dependency
 
 	val BufferLen = 4096
 
 	object Keys {
-		val PackageDependencies = config("package-dependencies")
+		val Dependencies = config("dependencies")
 
-		val jreWindows = SettingKey[String]("jre-windows")
-		val jreLinux = SettingKey[String]("jre-linux")
-		val jreOsx = SettingKey[String]("jre-osx")
+		val dependencyFolder = SettingKey[File]("deps-folder")
 
-		val nwkWindows = SettingKey[String]("nwk-windows")
-		val nwkLinux = SettingKey[String]("nwk-linux")
-		val nwkOsx = SettingKey[String]("nwk-osx")
+		val jreWindows = SettingKey[File]("jre-windows")
+		val jreLinux = SettingKey[File]("jre-linux")
+		val jreOsx = SettingKey[File]("jre-osx")
 
-		val jetty = SettingKey[String]("jetty")
-		val resourcer = SettingKey[String]("resourcer")
+		val jreWindowsUrl = SettingKey[String]("jre-windows-url")
+		val jreLinuxUrl = SettingKey[String]("jre-linux-url")
+		val jreOsxUrl = SettingKey[String]("jre-osx-url")
 
-		val dependencyList = TaskKey[Seq[Dependency]]("dependency-list")
+		val nwkWindows = SettingKey[File]("nwk-windows")
+		val nwkLinux = SettingKey[File]("nwk-linux")
+		val nwkOsx = SettingKey[File]("nwk-osx")
+
+		val nwkWindowsUrl = SettingKey[String]("nwk-windows-url")
+		val nwkLinuxUrl = SettingKey[String]("nwk-linux-url")
+		val nwkOsxUrl = SettingKey[String]("nwk-osx-url")
+
+		val jetty = SettingKey[File]("jetty")
+		val dependencyCheck = SettingKey[File]("dependency-check")
+		val resourcer = SettingKey[File]("resourcer")
+
+		val jettyUrl = SettingKey[String]("jetty-url")
+		val dependencyCheckUrl = SettingKey[String]("dependency-check-url")
+		val resourcerUrl = SettingKey[String]("resourcer-url")
+
+		val packageDependencyList = TaskKey[Seq[Dependency]]("package-dependencies")
+		val runtimeDependencyList = TaskKey[Seq[Dependency]]("runtime-dependencies")
+		val dependencyList = TaskKey[Seq[Dependency]]("dependencies")
 	}
 
 	import Keys._
@@ -237,48 +252,35 @@ object DependencyFetcher extends BuildExtra {
 	}
 
 	object Settings {
-		val fetchDependenciesTask: Initialize[Task[Unit]] = (distDeps in Distribution, dependencyList in PackageDependencies, streams) map { (distDepsFolder, deps, streams) =>
+		def fetchDependenciesTask(dependencyList: TaskKey[Seq[Dependency]]): Initialize[Task[Unit]] = (dependencyList in Dependencies, streams) map { (deps, streams) =>
 			val log = streams.log
 
-			val commonFolder = distDepsFolder / "common"
-			val toolsFolder = distDepsFolder / "tools"
-			def getPlatformFolder(platform: Platform) = platform match {
-				case Platform.Windows => distDepsFolder / "win32"
-				case Platform.Linux => distDepsFolder / "linux-x86"
-				case Platform.OSX => distDepsFolder / "osx"
-				case Platform.Unspecified => commonFolder
-			}
-
 			deps foreach {
-				case dep @ JreDependency(name, _, destPath, files) =>
-					for (file @ DependencyFile(platform, url, _) <- files)
+				case dep @ JreDependency(name, _, files) =>
+					for (file @ DependencyFile(platform, _, destPath, _) <- files)
 						doDownload(
 							name + " [" + platform + "]", log,
-							dep, file,
-							getPlatformFolder(platform) / destPath,
+							dep, file, destPath,
 							{ _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
 						)
 
-				case dep @ PlatformDependency(name, destPath, files) =>
-					for (file @ DependencyFile(platform, url, _) <- files)
+				case dep @ PlatformDependency(name, files) =>
+					for (file @ DependencyFile(platform, _, destPath, _) <- files)
 						doDownload(
 							name + " [" + platform + "]", log,
-							dep, file,
-							getPlatformFolder(platform) / destPath
+							dep, file, destPath
 						)
 
-				case dep @ CommonDependency(name, destPath, file) =>
+				case dep @ CommonDependency(name, file @ DependencyFile(_, _, destPath, _)) =>
 					doDownload(
 						name + " [common]", log,
-						dep, file,
-						commonFolder / destPath
+						dep, file, destPath
 					)
 
-				case dep @ ToolDependency(name, destPath, file) =>
+				case dep @ ToolDependency(name, file @ DependencyFile(_, _, destPath, _)) =>
 					doDownload(
 						name + " [tool]", log,
-						dep, file,
-						toolsFolder / destPath
+						dep, file, destPath
 					)
 			}
 		}
@@ -287,32 +289,43 @@ object DependencyFetcher extends BuildExtra {
 	import Settings._
 
 	lazy val dependencyFetcherSettings: Seq[Setting[_]] = Seq(
-		dependencyList in PackageDependencies := Nil,
+		dependencyFolder in Dependencies := file("distrib/dependencies"),
 
-		jreWindows in PackageDependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-windows-i586.tar.gz",
-		jreLinux in PackageDependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-linux-i586.tar.gz",
-		jreOsx in PackageDependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-macosx-x64.tar.gz",
-		dependencyList in PackageDependencies <+= (jreWindows in PackageDependencies, jreLinux in PackageDependencies, jreOsx in PackageDependencies) map { (jreWin, jreLin, jreOsx) =>
+		packageDependencyList in Dependencies := Nil,
+		runtimeDependencyList in Dependencies := Nil,
+
+		jreWindowsUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-windows-i586.tar.gz",
+		jreWindows in Dependencies <<= (dependencyFolder in Dependencies) { _ / "win32" / "jre" },
+		jreLinuxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-linux-i586.tar.gz",
+		jreLinux in Dependencies <<= (dependencyFolder in Dependencies) { _ / "linux-x86" / "jre" },
+		jreOsxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-macosx-x64.tar.gz",
+		jreOsx in Dependencies <<= (dependencyFolder in Dependencies) { _ / "osx" / "jre" },
+
+		packageDependencyList in Dependencies <+= (jreWindowsUrl in Dependencies, jreWindows in Dependencies, jreLinuxUrl in Dependencies, jreLinux in Dependencies, jreOsxUrl in Dependencies, jreOsx in Dependencies) map { (jreWinUrl, jreWin, jreLinUrl, jreLin, jreOsxUrl, jreOsx) =>
 			JreDependency(
-				name = "jre 7u55", rawPath = "jre1.7.0_55", destPath = "jre",
+				name = "jre 7u55", rawPath = "jre1.7.0_55",
 				files = List(
-					DependencyFile(Platform.Windows, jreWin, FileFormat.TarGz),
-					DependencyFile(Platform.Linux, jreLin, FileFormat.TarGz),
-					DependencyFile(Platform.OSX, jreOsx, FileFormat.TarGz)
+					DependencyFile(Platform.Windows, jreWinUrl, jreWin, FileFormat.TarGz),
+					DependencyFile(Platform.Linux, jreLinUrl, jreLin, FileFormat.TarGz),
+					DependencyFile(Platform.OSX, jreOsxUrl, jreOsx, FileFormat.TarGz)
 				)
 			)
 		},
 
-		nwkWindows in PackageDependencies := "http://dl.node-webkit.org/v0.9.2/node-webkit-v0.9.2-win-ia32.zip",
-		nwkLinux in PackageDependencies := "http://dl.node-webkit.org/v0.9.2/node-webkit-v0.9.2-linux-ia32.tar.gz",
-		nwkOsx in PackageDependencies := "http://dl.node-webkit.org/v0.9.2/node-webkit-v0.9.2-osx-ia32.zip",
-		dependencyList in PackageDependencies <+= (nwkWindows in PackageDependencies, nwkLinux in PackageDependencies, nwkOsx in PackageDependencies) map { (nwkWin, nwkLin, nwkOsx) =>
+		nwkWindows in Dependencies <<= (dependencyFolder in Dependencies) { _ / "win32" / "node-webkit" },
+		nwkWindowsUrl in Dependencies := "http://dl.node-webkit.org/v0.9.2/node-webkit-v0.9.2-win-ia32.zip",
+		nwkLinux in Dependencies <<= (dependencyFolder in Dependencies) { _ / "linux-x86" / "node-webkit" },
+		nwkLinuxUrl in Dependencies := "http://dl.node-webkit.org/v0.9.2/node-webkit-v0.9.2-linux-ia32.tar.gz",
+		nwkOsx in Dependencies <<= (dependencyFolder in Dependencies) { _ / "osx" / "node-webkit" },
+		nwkOsxUrl in Dependencies := "http://dl.node-webkit.org/v0.9.2/node-webkit-v0.9.2-osx-ia32.zip",
+
+		packageDependencyList in Dependencies <+= (nwkWindowsUrl in Dependencies, nwkWindows in Dependencies, nwkLinuxUrl in Dependencies, nwkLinux in Dependencies, nwkOsxUrl in Dependencies, nwkOsx in Dependencies) map { (nwkWinUrl, nwkWin, nwkLinUrl, nwkLin, nwkOsxUrl, nwkOsx) =>
 			new PlatformDependency(
-				name = "node-webkit v0.9.2", destPath = "node-webkit",
+				name = "node-webkit v0.9.2",
 				files = List(
-					DependencyFile(Platform.Windows, nwkWin, FileFormat.Zip),
-					DependencyFile(Platform.Linux, nwkLin, FileFormat.TarGz),
-					DependencyFile(Platform.OSX, nwkOsx, FileFormat.Zip)
+					DependencyFile(Platform.Windows, nwkWinUrl, nwkWin, FileFormat.Zip),
+					DependencyFile(Platform.Linux, nwkLinUrl, nwkLin, FileFormat.TarGz),
+					DependencyFile(Platform.OSX, nwkOsxUrl, nwkOsx, FileFormat.Zip)
 				)
 			) with PackageHelper {
 				private val trimPathRegex = ("^\\Qnode-webkit-v0.9.2-linux-ia32\\E/").r
@@ -323,22 +336,38 @@ object DependencyFetcher extends BuildExtra {
 			}
 		},
 
-		jetty in PackageDependencies := "http://mirrors.xmission.com/eclipse/jetty/9.1.4.v20140401/dist/jetty-distribution-9.1.4.v20140401.zip",
-		//resourcer in PackageDependencies := "http://anolis.codeplex.com/downloads/get/81545",
-		resourcer in PackageDependencies := "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1",
-		dependencyList in PackageDependencies <++= (jetty in PackageDependencies, resourcer in PackageDependencies) map { (jetty, resourcer) =>
-			val jettyDep = new CommonDependency("Jetty 9.1.4 v20140401", "jetty", DependencyFile(Platform.Unspecified, jetty, FileFormat.Zip)) with PackageHelper {
+		jetty in Dependencies <<= (dependencyFolder in Dependencies) { _ / "common" / "jetty" },
+		jettyUrl in Dependencies := "http://mirrors.xmission.com/eclipse/jetty/9.1.4.v20140401/dist/jetty-distribution-9.1.4.v20140401.zip",
+		dependencyCheck in Dependencies <<= (dependencyFolder in Dependencies) { _ / "common" / "dependency-check" },
+		dependencyCheckUrl in Dependencies := "http://dl.bintray.com/jeremy-long/owasp/dependency-check-1.2.0.1-release.zip",
+		resourcer in Dependencies <<= (dependencyFolder in Dependencies) { _ / "tools" / "resourcer" },
+		resourcerUrl in Dependencies := "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1", // http://anolis.codeplex.com/downloads/get/81545
+
+		packageDependencyList in Dependencies <++= (jettyUrl in Dependencies, jetty in Dependencies, resourcerUrl in Dependencies, resourcer in Dependencies) map { (jettyUrl, jetty, resourcerUrl, resourcer) =>
+			val jettyDep = new CommonDependency("Jetty 9.1.4 v20140401", DependencyFile(Platform.Unspecified, jettyUrl, jetty, FileFormat.Zip)) with PackageHelper {
 				private val trimPathRegex = ("^\\Qjetty-distribution-9.1.4.v20140401\\E/").r
 				def trimPath(platform: Platform)(path: String) = {
 					trimPathRegex.replaceFirstIn(path, "")
 				}
 			}
 
-			val resourcerDep = ToolDependency("Resourcer", "resourcer", DependencyFile(Platform.Unspecified, resourcer, FileFormat.Zip))
+			val resourcerDep = ToolDependency("Resourcer", DependencyFile(Platform.Unspecified, resourcerUrl, resourcer, FileFormat.Zip))
 
 			jettyDep :: resourcerDep :: Nil
 		},
 
-		fetchDependencies <<= fetchDependenciesTask
+		runtimeDependencyList in Dependencies <++= (dependencyCheckUrl in Dependencies, dependencyCheck in Dependencies) map { (depCheckUrl, depCheck) =>
+			val dependencyCheckDep = new CommonDependency("dependency-check-cli 1.2.0.1", DependencyFile(Platform.Unspecified, depCheckUrl, depCheck, FileFormat.Zip))
+
+			dependencyCheckDep :: Nil
+		},
+
+		dependencyList in Dependencies := Nil,
+		dependencyList in Dependencies <++= packageDependencyList in Dependencies,
+		dependencyList in Dependencies <++= runtimeDependencyList in Dependencies,
+
+		fetchPackageDependencies <<= fetchDependenciesTask(packageDependencyList),
+		fetchRunDependencies <<= fetchDependenciesTask(runtimeDependencyList),
+		fetchDependencies <<= fetchDependenciesTask(dependencyList)
 	)
 }
