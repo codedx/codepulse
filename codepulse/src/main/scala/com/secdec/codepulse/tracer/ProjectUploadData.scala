@@ -171,6 +171,12 @@ object ProjectUploadData {
 			// since this is not an import of a .pulse file.
 			projectData.metadata.creationDate = System.currentTimeMillis
 		}
+
+		{
+			import com.secdec.codepulse.dependencycheck._
+			import Settings.defaultSettings
+			DependencyCheck.runScan(ScanSettings(file, projectData.metadata.name, projectData.id))
+		}
 	}
 
 	def handleUpload(file: File): Box[ProjectId] = {
