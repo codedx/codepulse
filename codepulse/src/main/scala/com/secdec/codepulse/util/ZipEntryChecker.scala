@@ -19,7 +19,9 @@
 
 package com.secdec.codepulse.util
 
+import java.io.BufferedInputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -31,6 +33,7 @@ import scala.util.Success
 import scala.util.Try
 
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.io.input.CloseShieldInputStream
 
 object ZipEntryChecker extends ZipEntryChecker
 
@@ -58,46 +61,38 @@ trait ZipEntryChecker {
 	}
 
 	def isZip(name: String): Boolean = FilenameUtils.getExtension(name) match {
-		case "zip" | "jar" => true
+		case "zip" | "jar" | "war" => true
 		case _ => false
 	}
 
-	def forEachEntry(file: File)(callback: (String, ZipEntry, InputStream) => Unit): Unit = {
-		Try { new ZipFile(file) } match {
-			// non-zip files don't work in this checker
-			case Failure(_) =>
+	def forEachEntry(filename: String, stream: InputStream, recursive: Boolean)(callback: (String, ZipEntry, InputStream) => Unit) {
+		val zipStream = new ZipInputStream(stream)
+		try {
+			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
+				.map(_.toOption.flatMap { Option(_) })
+				.takeWhile(_.isDefined)
+				.flatten
 
-			// check the zipfile for matching entries, then close it
-			case Success(zipfile) => {
-				try {
-					val x = zipfile.entries.filterNot(ZipCleaner.shouldFilter).foreach { entry =>
-						val stream = zipfile getInputStream entry
-
-						if (isZip { entry.getName() }) {
-
-							val zipStream = new ZipInputStream(stream)
-
-							try {
-								Stream.continually(zipStream.getNextEntry)
-									.takeWhile(_ != null)
-									.filterNot(ZipCleaner.shouldFilter)
-									.foreach { innerEntry => callback(entry.getName, innerEntry, zipStream) }
-
-							} finally {
-								zipStream.close()
-							}
-						} else {
-							try {
-								callback(file.getName, entry, stream)
-							} finally {
-								stream.close
-							}
-						}
-					}
-				} finally {
-					zipfile.close
-				}
+			for {
+				entry <- entryStream
+				if !ZipCleaner.shouldFilter(entry)
+			} {
+				if (isZip(entry.getName) && recursive)
+					forEachEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(callback)
+				else
+					callback(filename, entry, zipStream)
 			}
+		} finally {
+			zipStream.close
+		}
+	}
+
+	def forEachEntry(file: File, recursive: Boolean = true)(callback: (String, ZipEntry, InputStream) => Unit) {
+		val stream = new BufferedInputStream(new FileInputStream(file))
+		try {
+			forEachEntry(file.getName, stream, recursive)(callback)
+		} finally {
+			stream.close
 		}
 	}
 }
