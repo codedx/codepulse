@@ -26,6 +26,7 @@ import scala.util.control.Exception.catching
 
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 
 import net.liftweb.common.Loggable
@@ -46,8 +47,8 @@ object FileUploadSetup extends Loggable {
 		// FileUtils.forceMkdir(tempFileDir)
 	}
 
-	def createTempUpload: File = {
-		val tempFile = File.createTempFile("upload", ".data")
+	def createTempUpload(extension: String): File = {
+		val tempFile = File.createTempFile("upload", s".$extension")
 		tempFile.deleteOnExit
 		tempFile
 	}
@@ -71,7 +72,7 @@ object FileUploadSetup extends Loggable {
 			val uploadFile = {
 				import scala.util.control.Exception._
 				//copy the stream to a local temp file:
-				val tempFile = createTempUpload
+				val tempFile = createTempUpload(Option(FilenameUtils getExtension fileName) getOrElse "data")
 				val output = catching(classOf[java.io.IOException]) opt { FileUtils.openOutputStream(tempFile) }
 				for (o <- output) {
 					try {
