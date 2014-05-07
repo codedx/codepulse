@@ -121,7 +121,7 @@ object ProjectUploadData {
 		val loader = new SmartLoader
 
 		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-			val groupName = if (filename == file.getName) RootGroupName else s"JARs/$filename"
+			val groupName = if (filename == file.getName) RootGroupName else s"JARs/${filename substring file.getName.length + 1}"
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
