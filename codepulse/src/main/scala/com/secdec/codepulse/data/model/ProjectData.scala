@@ -50,6 +50,8 @@ object ProjectDataProvider {
   * @author robertf
   */
 trait ProjectData {
+	def id: ProjectId
+
 	def metadata: ProjectMetadata
 	def treeNodeData: TreeNodeDataAccess
 	def recordings: RecordingMetadataAccess

@@ -70,7 +70,7 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 		val needsInit = !(folder / ProjectFilename(id)).exists
 
 		val db = Database.forURL(s"jdbc:h2:file:${(folder / ProjectFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
-		val data = new SlickProjectData(db, H2Driver, masterData.metadataMaster get id.num, EncountersBufferSize, EncountersFlushInterval, actorSystem)
+		val data = new SlickProjectData(id, db, H2Driver, masterData.metadataMaster get id.num, EncountersBufferSize, EncountersFlushInterval, actorSystem)
 
 		if (!suppressInit && needsInit) data.init
 
