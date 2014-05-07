@@ -25,84 +25,58 @@ import java.io.File
   * based on the current platform.
   */
 object ApplicationData {
-	def getApplicationDataFolder(companyName: String, appName: String, appShortName: String) = OperatingSystem.current match {
+	import RichFile._
+
+	private def getAppData(companyName: String, appName: String, appShortName: String, local: Boolean) = OperatingSystem.current match {
 		case OperatingSystem.Windows =>
-			val appData = WindowsHelper.appDataFolder
+			val appData = if (local) WindowsHelper.localAppDataFolder else WindowsHelper.appDataFolder
 			if (appData == null)
 				throw new IllegalStateException("Could not find application data folder")
 
-			val companyFolder = new File(appData, companyName)
-			val dataFolder = new File(companyFolder, appName)
-
-			dataFolder
+			new File(appData) / companyName / appName
 
 		case OperatingSystem.OSX =>
 			val home = System.getProperty("user.home")
 			if (home == null)
 				throw new IllegalStateException("Could not find user home folder")
 
-			val appSupport = new File(home, "Library/Application Support")
-			val dataFolder = new File(appSupport, appName)
-
-			dataFolder
+			new File(home) / "Library" / "Application Support" / appName
 
 		case OperatingSystem.Linux | OperatingSystem.Unix =>
 			val home = System.getProperty("user.home")
 			if (home == null)
 				throw new IllegalStateException("Could not find user home folder")
 
-			val dataFolder = new File(home, s".$appShortName")
-
-			dataFolder
+			new File(home) / s".$appShortName"
 
 		case _ =>
 			throw new NotImplementedError
 	}
 
+	def getApplicationDataFolder(companyName: String, appName: String, appShortName: String) = getAppData(companyName, appName, appShortName, false)
+	def getLocalApplicationDataFolder(companyName: String, appName: String, appShortName: String) = getAppData(companyName, appName, appShortName, true)
+
 	/** Internal helper for Windows to query for appdata folder the proper way */
 	private object WindowsHelper {
 		import com.sun.jna._
 		import com.sun.jna.win32._
+		import com.sun.jna.platform.win32._
 
 		import scala.collection.immutable.HashMap
 		import scala.collection.JavaConversions._
 
-		// based on the code from http://stackoverflow.com/a/586917/1620756
-		class HANDLE extends PointerType with NativeMapped
-		class HWND extends HANDLE
+		private def getFolderPath(folder: Int) = {
+			val path = new Array[Char](WinDef.MAX_PATH)
+			val result = Shell32.INSTANCE.SHGetFolderPath(null, folder, null, ShlObj.SHGFP_TYPE_CURRENT, path)
 
-		lazy val options = HashMap(
-			Library.OPTION_TYPE_MAPPER -> W32APITypeMapper.UNICODE,
-			Library.OPTION_FUNCTION_MAPPER -> W32APIFunctionMapper.UNICODE)
-
-		trait Shell32 extends Library {
-			/** see http://msdn.microsoft.com/en-us/library/bb762181(VS.85).aspx
-			  *
-			  * HRESULT SHGetFolderPath( HWND hwndOwner, int nFolder, HANDLE hToken,
-			  * DWORD dwFlags, LPTSTR pszPath);
-			  */
-			def SHGetFolderPath(hwndOwner: HWND, nFolder: Integer, hToken: HANDLE, dwFlags: Integer, pszPath: Array[Char]): Integer
-		}
-
-		object Shell32 {
-			val MAX_PATH = 260
-			val CSIDL_APPDATA = 0x001a
-			val SHGFP_TYPE_CURRENT = 0
-			val SHGFP_TYPE_DEFAULT = 1
-			val S_OK = 0
-
-			lazy val instance = Native.loadLibrary("shell32", classOf[Shell32], options).asInstanceOf[Shell32]
-		}
-
-		lazy val appDataFolder = {
-			val path = new Array[Char](Shell32.MAX_PATH)
-			val result = Shell32.instance.SHGetFolderPath(null, Shell32.CSIDL_APPDATA, null, Shell32.SHGFP_TYPE_CURRENT, path)
-
-			if (result == Shell32.S_OK) {
+			if (result == WinError.S_OK) {
 				val pathStr = new String(path)
 				pathStr.substring(0, pathStr.indexOf(0))
 			} else
 				null
 		}
+
+		lazy val appDataFolder = getFolderPath(ShlObj.CSIDL_APPDATA)
+		lazy val localAppDataFolder = getFolderPath(ShlObj.CSIDL_LOCAL_APPDATA)
 	}
 }

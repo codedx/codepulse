@@ -36,7 +36,7 @@ object BuildDef extends Build with VersionSystem {
 
 	lazy val liftDependencies = Seq(lift_webkit, servletApi, logback, slf4j)
 	lazy val testDependencies = Seq(junit, specs, scalatest)
-	lazy val libDependencies = Seq(akka, reactive, jna, commons.io, concLinkedHashMap, juniversalchardet, dependencyCheckCore) ++ asm ++ jackson
+	lazy val libDependencies = Seq(akka, reactive, commons.io, concLinkedHashMap, juniversalchardet, dependencyCheckCore) ++ asm ++ jackson ++ jna
 	lazy val dbDependencies = Seq(slick, h2)
 	
 	val baseCompilerSettings = Seq(
