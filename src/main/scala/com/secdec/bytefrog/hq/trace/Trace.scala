@@ -19,8 +19,6 @@
 
 package com.secdec.bytefrog.hq.trace
 
-import java.io.File
-
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -35,9 +33,9 @@ import com.secdec.bytefrog.hq.errors.TraceErrorController
 import com.secdec.bytefrog.hq.monitor._
 import com.secdec.bytefrog.hq.protocol.ControlMessage
 import com.secdec.bytefrog.hq.util.Completable
+import com.secdec.bytefrog.hq.util.DoOnce
 import com.secdec.bytefrog.hq.util.Startable
 
-import reactive.EventSource
 import reactive.EventStream
 import reactive.Observing
 
@@ -114,7 +112,7 @@ class Trace(val runId: Byte, controlConnection: ControlConnection, hqConfig: HQC
 	val errorController = new TraceErrorController
 
 	// reaction to errors
-	for (error <- errorController.fatalErrors.takeWhile { _ => completion.isCompleted }) {
+	for (error <- errorController.fatalErrors.takeWhile { _ => !completion.isCompleted }) {
 		println(s"Killing trace because of fatal error: ${error.errorMessage}")
 		for (exception <- error.exception)
 			exception.printStackTrace
@@ -220,15 +218,22 @@ class Trace(val runId: Byte, controlConnection: ControlConnection, hqConfig: HQC
 	}
 
 	/** Manages end-of-life of trace and cleans up any players, then fires off the completion hook.
+	  * May only be called once!
 	  */
-	private def finishTrace(reason: TraceEndReason) {
+	val finishTrace = DoOnce { (reason: TraceEndReason) =>
 		// clean up the trace first, because in the case of failure, we need to delete potentially open files
 		players.cleanup
-		segmentManager.complete(System.currentTimeMillis)
-		dataManager.finish(reason, isStarted)
-		status.cleanup()
+		if (isStarted) {
+			// if tracing hadn't started yet, segmentManager and dataManager will be null
+			segmentManager.complete(System.currentTimeMillis)
+			dataManager.finish(reason, isStarted)
+		}
 
 		complete(reason)
+	}
+
+	val stopPlayers = DoOnce { (method: StopMethod) =>
+		players.stop(method)
 	}
 
 	/** Reconfigure the agent
@@ -245,14 +250,14 @@ class Trace(val runId: Byte, controlConnection: ControlConnection, hqConfig: HQC
 	/** Stops the current trace by detaching the agent. Data processing is finished normally. */
 	def stop() {
 		if (isStarted) {
-			players.stop(StopMethod.GracefulStop)
+			stopPlayers(StopMethod.GracefulStop)
 		}
 	}
 
 	/** Kills the current trace - immediately tears everything down and cleans up everything. */
 	def kill() {
 		if (isStarted) {
-			players.stop(StopMethod.ImmediateHalt)
+			stopPlayers(StopMethod.ImmediateHalt)
 		}
 
 		finishTrace(TraceEndReason.Halted)
