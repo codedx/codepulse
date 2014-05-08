@@ -31,7 +31,7 @@ import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.jsp.JasperJspAdapter
 import com.secdec.codepulse.data.jsp.JspAnalyzer
-import com.secdec.codepulse.data.model.{ ProjectData, ProjectId, TreeNodeImporter }
+import com.secdec.codepulse.data.model.{ ProjectData, ProjectId, TreeNodeFlag, TreeNodeImporter }
 import com.secdec.codepulse.tracer.export.ProjectImporter
 import com.secdec.codepulse.util.SmartLoader
 import com.secdec.codepulse.util.ZipEntryChecker
@@ -173,9 +173,26 @@ object ProjectUploadData {
 		}
 
 		{
+			import scala.xml._
 			import com.secdec.codepulse.dependencycheck._
 			import Settings.defaultSettings
-			DependencyCheck.runScan(ScanSettings(file, projectData.metadata.name, projectData.id))
+			import com.secdec.codepulse.util.RichFile._
+
+			val treeNodeData = projectData.treeNodeData
+			import treeNodeData.ExtendedTreeNodeData
+
+			val reportDir = DependencyCheck.runScan(ScanSettings(file, projectData.metadata.name, projectData.id))
+			val x = XML loadFile reportDir / "dependency-check-report.xml"
+
+			for {
+				dep <- x \\ "dependency"
+				vulns = dep \\ "vulnerability"
+				if !vulns.isEmpty
+			} {
+				val f = new File((dep \ "filePath").text)
+				val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
+				for (node <- treeNodeData getNode jarLabel) node.flags += TreeNodeFlag.HasVulnerability
+			}
 		}
 	}
 

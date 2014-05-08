@@ -32,6 +32,12 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
   */
 case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int])
 
+sealed trait TreeNodeFlag
+object TreeNodeFlag {
+	/** This flag signals that the node was tagged as having a vulnerability */
+	case object HasVulnerability extends TreeNodeFlag
+}
+
 /** Access trait for tree node data.
   *
   * @author robertf
@@ -41,6 +47,7 @@ trait TreeNodeDataAccess {
 	def iterate[T](f: Iterator[TreeNodeData] => T): T
 
 	def getNode(id: Int): Option[TreeNodeData]
+	def getNode(label: String): Option[TreeNodeData]
 
 	def getNodeIdForSignature(signature: String): Option[Int]
 	def getNodeForSignature(signature: String): Option[TreeNodeData]
@@ -75,10 +82,26 @@ trait TreeNodeDataAccess {
 	def updateTraced(node: TreeNodeData, traced: Boolean): Unit = updateTraced(node.id, Some(traced))
 	def updateTraced(values: Iterable[(Int, Boolean)]): Unit = values foreach { case (id, traced) => updateTraced(id, Some(traced)) }
 
+	def getFlags(id: Int): List[TreeNodeFlag]
+	def getFlags(node: TreeNodeData): List[TreeNodeFlag] = getFlags(node.id)
+
+	def setFlag(id: Int, flag: TreeNodeFlag): Unit
+	def setFlag(node: TreeNodeData, flag: TreeNodeFlag): Unit = setFlag(node.id, flag)
+	def clearFlag(id: Int, flag: TreeNodeFlag): Unit
+	def clearFlag(node: TreeNodeData, flag: TreeNodeFlag): Unit = clearFlag(node.id, flag)
+
 	implicit class ExtendedTreeNodeData(n: TreeNodeData) {
 		/** whether or not this treenode is being traced; this value may be unspecified (None) */
 		def traced = isTraced(n)
 		def traced_=(newVal: Boolean) = updateTraced(n, newVal)
 		def traced_=(newVal: Option[Boolean]) = updateTraced(n, newVal)
+
+		/** the flags set on this node */
+		object flags {
+			lazy val flags = getFlags(n).toSet
+			def contains(flag: TreeNodeFlag) = flags contains flag
+			def +=(flag: TreeNodeFlag) = setFlag(n, flag)
+			def -=(flag: TreeNodeFlag) = clearFlag(n, flag)
+		}
 	}
 }

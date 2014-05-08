@@ -21,6 +21,8 @@ package com.secdec.codepulse.data.model.slick
 
 import scala.slick.driver.JdbcProfile
 import scala.slick.model.ForeignKeyAction
+import scala.util.Try
+
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.model.{ TreeNodeData => TreeNode, _ }
 
@@ -49,6 +51,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		def kind = column[CodeTreeNodeKind]("kind", O.NotNull)
 		def size = column[Option[Int]]("size", O.Nullable)
 		def * = (id, parentId, label, kind, size) <> (TreeNode.tupled, TreeNode.unapply)
+		def labelIndex = index("tnd_label_index", label)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
 
@@ -60,6 +63,21 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		def node = foreignKey("tn_node", nodeId, treeNodeData)(_.id, onDelete = ForeignKeyAction.Cascade)
 	}
 	val tracedNodes = TableQuery[TracedNodes]
+
+	class TreeNodeFlags(tag: Tag) extends Table[(Int, TreeNodeFlag)](tag, "tree_node_flags") {
+		private val TreeNodeFlagMapping = Map[TreeNodeFlag, String](
+			TreeNodeFlag.HasVulnerability -> "has_vuln")
+		private val TreeNodeFlagUnmapping = TreeNodeFlagMapping.map(_.swap)
+
+		private implicit val TreeNodeFlagMapper = MappedColumnType.base[TreeNodeFlag, String](
+			TreeNodeFlagMapping.apply,
+			TreeNodeFlagUnmapping.apply)
+
+		def nodeId = column[Int]("node_id", O.PrimaryKey, O.NotNull)
+		def flag = column[TreeNodeFlag]("flag", O.NotNull)
+		def * = (nodeId, flag)
+	}
+	val treeNodeFlags = TableQuery[TreeNodeFlags]
 
 	class MethodSignatureNodeMap(tag: Tag) extends Table[(String, Int)](tag, "method_signature_node_map") {
 		def signature = column[String]("sig", O.PrimaryKey, O.NotNull)
@@ -79,10 +97,14 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 	}
 	val jspNodeMap = TableQuery[JspNodeMap]
 
-	def create(implicit session: Session) = (treeNodeData.ddl ++ tracedNodes.ddl ++ methodSignatureNodeMap.ddl ++ jspNodeMap.ddl).create
+	def create(implicit session: Session) = (treeNodeData.ddl ++ tracedNodes.ddl ++ treeNodeFlags.ddl ++ methodSignatureNodeMap.ddl ++ jspNodeMap.ddl).create
 
 	def get(id: Int)(implicit session: Session): Option[TreeNode] = {
 		(for (n <- treeNodeData if n.id === id) yield n).firstOption
+	}
+
+	def get(label: String)(implicit session: Session): Option[TreeNode] = {
+		(for (n <- treeNodeData if n.label === label) yield n).firstOption
 	}
 
 	def getForSignature(signature: String)(implicit session: Session): Option[TreeNode] = getIdForSignature(signature).flatMap(get(_))
@@ -166,5 +188,20 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 				val q = for (row <- tracedNodes if row.nodeId === id) yield row
 				q.delete
 		}
+	}
+
+	def getFlags(id: Int)(implicit session: Session): List[TreeNodeFlag] = {
+		// wrapped in a try, since older versions may not have the concept of flags
+		Try {
+			(for (flag <- treeNodeFlags if flag.nodeId === id) yield flag.flag).list
+		} getOrElse Nil
+	}
+
+	def setFlag(id: Int, flag: TreeNodeFlag)(implicit session: Session) {
+		treeNodeFlags += id -> flag
+	}
+
+	def clearFlag(id: Int, flag: TreeNodeFlag)(implicit session: Session) {
+		(for (flag <- treeNodeFlags if flag.nodeId === id) yield flag).delete
 	}
 }

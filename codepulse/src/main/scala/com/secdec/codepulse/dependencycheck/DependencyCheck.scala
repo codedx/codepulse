@@ -19,6 +19,8 @@
 
 package com.secdec.codepulse.dependencycheck
 
+import java.io.File
+
 import org.owasp.dependencycheck.Engine
 import org.owasp.dependencycheck.data.nvdcve._
 import org.owasp.dependencycheck.dependency.Dependency
@@ -40,7 +42,7 @@ object DependencyCheck {
 		}
 	}
 
-	def runScan(scanSettings: ScanSettings)(implicit settings: Settings) {
+	def runScan(scanSettings: ScanSettings)(implicit settings: Settings): File = {
 		DepCheckSettings.initialize
 		settings.applySettings
 
@@ -51,6 +53,8 @@ object DependencyCheck {
 
 			val report = new ReportGenerator(scanSettings.appName, scanner.getDependencies, scanner.getAnalyzers, cveDbProps)
 			report.generateReports(scanSettings.reportDir.getCanonicalPath, scanSettings.reportFormat.value)
+
+			scanSettings.reportDir
 		} finally {
 			scanner.cleanup
 			DepCheckSettings.cleanup
