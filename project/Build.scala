@@ -70,7 +70,6 @@ object BuildDef extends Build with VersionSystem {
 		.settings(dependencyFetcherSettings: _*)
 		.settings(assemblySettings: _*)
 		.settings(
-			resolvers ++= dependencyResolvers,
 			libraryDependencies ++= liftDependencies,
 			libraryDependencies ++= testDependencies,
 			libraryDependencies ++= libDependencies,

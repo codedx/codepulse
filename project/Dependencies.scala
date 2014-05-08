@@ -62,11 +62,4 @@ object Dependencies {
 
 	// dependency-check
 	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.0"
-	
-	lazy val dependencyResolvers = Seq(
-		"apache.repo" at "https://repository.apache.org/content/repositories/snapshots/",
-		"sonatype.repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
-		"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-		"Typesafe IDE-2.10" at "http://repo.typesafe.com/typesafe/ide-2.10/"
-	)
 }
