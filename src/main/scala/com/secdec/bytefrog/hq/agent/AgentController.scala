@@ -112,6 +112,7 @@ class AgentController(protected val traceErrorController: TraceErrorController, 
 
 	override protected def postLoop = {
 		complete
+		agentControlConnection.close
 	}
 
 	override def stop(how: StopMethod) {
