@@ -343,7 +343,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// POST a new tracer agent connection
 		case Paths.Start(target) Post req =>
-			target.requestNewTraceConnection()
+			//			target.requestNewTraceConnection()
+			// TODO: do other things to start the trace
 			OkResponse()
 
 		// POST the current trace to stop

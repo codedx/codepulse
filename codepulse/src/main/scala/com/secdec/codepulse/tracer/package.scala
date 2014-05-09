@@ -46,6 +46,7 @@ package object tracer {
 	val treeBuilderManager = new BootVar[TreeBuilderManager]
 	val projectFileUploadServer = new BootVar[ProjectFileUploadHandler]
 	val apiServer = new BootVar[APIServer]
+	val traceConnectionLooper = new BootVar[TraceConnectionLooper.API]
 
 	def boot() {
 		val as = ProjectManager.defaultActorSystem
@@ -58,6 +59,18 @@ package object tracer {
 		treeBuilderManager set tbm
 
 		val tm = new ProjectManager(as)
+
+		val looper = TraceConnectionLooper.create(as, { trace =>
+			import scala.concurrent.ExecutionContext.Implicits.global
+			scala.concurrent.Future {
+				println("Connection Looper got a new connection. I'll acknowledge it soon.")
+				Thread.sleep(3000)
+				println("Rejecting the trace connection. ")
+				false
+			}
+		})
+		looper.start()
+		traceConnectionLooper set looper
 
 		actorSystem set as
 		projectManager set tm
