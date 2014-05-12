@@ -57,16 +57,16 @@ object TraceConnectionLooper {
 	private case object Stop
 	private case object Start
 
-	def props(acknowledgeTrace: (Trace) => Future[Boolean]) =
-		Props(classOf[TraceConnectionLooper], acknowledgeTrace)
+	def props(acknowledger: TraceConnectionAcknowledger) =
+		Props(classOf[TraceConnectionLooper], acknowledger)
 
 	case class API(loopActor: ActorRef) {
 		def start() = loopActor ! Start
 		def stop() = loopActor ! Stop
 	}
 
-	def create(actorSystem: ActorSystem, acknowledgeTrace: (Trace) => Future[Boolean]): API = {
-		val loopActor = actorSystem.actorOf(props(acknowledgeTrace))
+	def create(actorSystem: ActorSystem, acknowledger: TraceConnectionAcknowledger): API = {
+		val loopActor = actorSystem.actorOf(props(acknowledger))
 		API(loopActor)
 	}
 }
@@ -82,7 +82,7 @@ object TraceConnectionLooper {
   * Use the companion object's methods to get an instance of the `API` class, which can be
   * used to interact with an `ActorRef` for this class.
   */
-class TraceConnectionLooper(acknowledgeTrace: (Trace) => Future[Boolean]) extends Actor with Observing with Loggable {
+class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends Actor with Observing with Loggable {
 
 	import TraceConnectionLooper._
 	import context.dispatcher
@@ -231,16 +231,19 @@ class TraceConnectionLooper(acknowledgeTrace: (Trace) => Future[Boolean]) extend
 	def onTraceConnected(currentCounter: Int, trace: Trace) = {
 		context become WaitingForAcknowledgement(currentCounter, trace)
 
-		val acknowledgement = acknowledgeTrace(trace)
+		val acknowledgment = acknowledger.getTraceAcknowledgment(trace)
 
 		// if the trace 'completes' before it has been acknowledged, we need to look for a new one
 		// (this might happen if the agent gets ctrl+C'd before the ack)
 		for {
 			completion <- trace.completion
-			if !acknowledgement.isCompleted
-		} onStart()
+			if !acknowledgment.isCompleted
+		} {
+			acknowledger.cancelCurrentAcknowledgmentRequest()
+			onStart()
+		}
 
-		acknowledgement onComplete {
+		acknowledgment onComplete {
 			case Success(true) => self ! TraceAcknowledged(currentCounter, true)
 			case _ => self ! TraceAcknowledged(currentCounter, false)
 		}

@@ -47,6 +47,7 @@ package object tracer {
 	val projectFileUploadServer = new BootVar[ProjectFileUploadHandler]
 	val apiServer = new BootVar[APIServer]
 	val traceConnectionLooper = new BootVar[TraceConnectionLooper.API]
+	val traceConnectionAcknowledger = new BootVar[TraceConnectionAcknowledger]
 
 	def boot() {
 		val as = ProjectManager.defaultActorSystem
@@ -60,15 +61,9 @@ package object tracer {
 
 		val tm = new ProjectManager(as)
 
-		val looper = TraceConnectionLooper.create(as, { trace =>
-			import scala.concurrent.ExecutionContext.Implicits.global
-			scala.concurrent.Future {
-				println("Connection Looper got a new connection. I'll acknowledge it soon.")
-				Thread.sleep(3000)
-				println("Rejecting the trace connection. ")
-				false
-			}
-		})
+		traceConnectionAcknowledger set TraceConnectionAcknowledgerActor.create(as)
+
+		val looper = TraceConnectionLooper.create(as, traceConnectionAcknowledger())
 		looper.start()
 		traceConnectionLooper set looper
 
