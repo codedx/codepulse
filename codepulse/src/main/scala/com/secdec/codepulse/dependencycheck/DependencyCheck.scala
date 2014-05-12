@@ -20,9 +20,12 @@
 package com.secdec.codepulse.dependencycheck
 
 import java.io.File
+import scala.collection.JavaConversions._
+import scala.util.Try
 
 import org.owasp.dependencycheck.Engine
 import org.owasp.dependencycheck.data.nvdcve._
+import org.owasp.dependencycheck.data.update.UpdateService
 import org.owasp.dependencycheck.dependency.Dependency
 import org.owasp.dependencycheck.reporting.ReportGenerator
 import org.owasp.dependencycheck.utils.{ LogUtils, Settings => DepCheckSettings }
@@ -39,6 +42,20 @@ object DependencyCheck {
 			cveDb.getDatabaseProperties
 		} finally {
 			cveDb.close
+		}
+	}
+
+	def doUpdates()(implicit settings: Settings): Try[Unit] = Try {
+		DepCheckSettings.initialize
+		settings.applySettings
+
+		try {
+			val svc = new UpdateService(Thread.currentThread.getContextClassLoader)
+			for (src <- svc.getDataSources) {
+				src.update
+			}
+		} finally {
+			DepCheckSettings.cleanup
 		}
 	}
 

@@ -32,6 +32,7 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.jsp.JasperJspAdapter
 import com.secdec.codepulse.data.jsp.JspAnalyzer
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId, TreeNodeFlag, TreeNodeImporter }
+import com.secdec.codepulse.dependencycheck
 import com.secdec.codepulse.tracer.export.ProjectImporter
 import com.secdec.codepulse.util.SmartLoader
 import com.secdec.codepulse.util.ZipEntryChecker
@@ -39,6 +40,8 @@ import com.secdec.codepulse.util.ZipEntryChecker
 import net.liftweb.common.Box
 import net.liftweb.common.Failure
 import net.liftweb.common.Full
+
+import akka.actor.ActorSystem
 
 object ProjectUploadData {
 
@@ -173,25 +176,27 @@ object ProjectUploadData {
 		}
 
 		{
-			import scala.xml._
-			import com.secdec.codepulse.dependencycheck._
-			import Settings.defaultSettings
-			import com.secdec.codepulse.util.RichFile._
+			import dependencycheck._
 
 			val treeNodeData = projectData.treeNodeData
-			import treeNodeData.ExtendedTreeNodeData
+			val scanSettings = ScanSettings(file, projectData.metadata.name, projectData.id)
 
-			val reportDir = DependencyCheck.runScan(ScanSettings(file, projectData.metadata.name, projectData.id))
-			val x = XML loadFile reportDir / "dependency-check-report.xml"
+			dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) { reportDir =>
+				import scala.xml._
+				import com.secdec.codepulse.util.RichFile._
+				import treeNodeData.ExtendedTreeNodeData
 
-			for {
-				dep <- x \\ "dependency"
-				vulns = dep \\ "vulnerability"
-				if !vulns.isEmpty
-			} {
-				val f = new File((dep \ "filePath").text)
-				val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
-				for (node <- treeNodeData getNode jarLabel) node.flags += TreeNodeFlag.HasVulnerability
+				val x = XML loadFile reportDir / "dependency-check-report.xml"
+
+				for {
+					dep <- x \\ "dependency"
+					vulns = dep \\ "vulnerability"
+					if !vulns.isEmpty
+				} {
+					val f = new File((dep \ "filePath").text)
+					val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
+					for (node <- treeNodeData getNode jarLabel) node.flags += TreeNodeFlag.HasVulnerability
+				}
 			}
 		}
 	}
