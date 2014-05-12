@@ -1,0 +1,44 @@
+<div class="TraceConnectorUI trace-idle">
+
+	<lift:head>
+		<link class="lift:Includes.TraceConnectorUI" />
+	</lift:head>
+
+	<!-- The settings box goes here -->
+	<div class="settings-container">
+
+		<!-- the settings slider slides out from the right, under the edge button -->
+		<div class="settings-slider out">
+			<div class="settings-content">
+				<!-- the actual settings form and stuff goes in here -->
+				<div class="btn" id="test-trace-idle">idle</div>
+				<div class="btn" id="test-trace-connecting">connecting</div>
+				<div class="btn" id="test-trace-running">running</div>
+			</div>
+		</div>
+
+	</div>
+
+	<!-- The main button and slide-out message go here -->
+	<div class="main-container">
+
+		<!-- the message slider slides out from the right, under the gear button -->
+		<div class="message-slider">
+			<div class="message">
+				This is the message text
+			</div>
+		</div>
+
+		<!-- the gear button is the trigger to open the settings container -->
+		<div class="gear-button">
+
+			<!-- the gear container will do a spin animation when the trace is running -->
+			<div class="gear">
+				<!-- the fa-spin class makes the cog spin -->
+				<i class="fa fa-cog"></i>
+			</div>
+		</div>
+
+	</div>
+
+</div>
