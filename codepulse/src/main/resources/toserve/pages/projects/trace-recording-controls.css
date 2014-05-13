@@ -250,57 +250,7 @@
 	vertical-align: top;
 	line-height: 40px;
 }
-#connection-help-popup {
-	position: fixed;
-	top: 59px;
-	right: 240px;
-	width: 450px;
-	background-color: lightgray;
-	border: 1px solid;
-	padding: 1em 1em .5em;
-}
-#connection-help-popup code {
-	display: block;
-	padding: .5em;
-	overflow-x: scroll;
-}
-#connection-help-popup .dismissal {
-	display: block;
-	margin-top: 5px;
-	text-align: right;
-	font-size: small;
-	cursor: pointer;
-}
 
-
-#connection-help-popup .control {
-	font-size: 0.9em;
-	vertical-align: middle;
-	margin-bottom: 0;
-}
-
-#connection-help-popup .help {
-	vertical-align: middle;
-	color: #323232;
-}
-
-#agent-port {
-	width: 42px;
-}
-
-#agent-port.invalid:focus {
-	border-color: rgba(239, 111, 107, 0.8);
-	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-}
-
-#connection-help-popup .alert {
-	margin-top: 6px;
-	margin-bottom: 0;
-	word-wrap: break-word;
-	white-space: normal;
-}
 
 /*********************\
 | Color Swatch Styles |

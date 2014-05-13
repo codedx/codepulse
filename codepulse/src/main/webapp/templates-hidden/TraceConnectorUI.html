@@ -8,12 +8,47 @@
 	<div class="settings-container">
 
 		<!-- the settings slider slides out from the right, under the edge button -->
-		<div class="settings-slider out">
+		<div class="settings-slider">
 			<div class="settings-content">
 				<!-- the actual settings form and stuff goes in here -->
 				<div class="btn" id="test-trace-idle">idle</div>
 				<div class="btn" id="test-trace-connecting">connecting</div>
 				<div class="btn" id="test-trace-running">running</div>
+			</div>
+
+
+			<div class="connection-help-form">
+				<h3>Settings</h3>
+
+				<div class="form-field">
+					<input name="agent-port" class="control" type="text" />
+					<span class="control-label">Agent Connection Port</span>
+					<i title="The port number that Code Pulse listens for tracer agent connections on. In most cases, the default value should be acceptable." class="help fa fa-question-circle"></i>
+					<div id="agent-port-error" class="alert alert-danger hide"></div>
+				</div>
+
+				<div class="form-result success">
+					<!-- Appears only when the 'success' class is on -->
+					<div class="in-success">
+						<div class="agent-help-text">
+							To make a new trace connection, run your Java-based program 
+							with the following addition to the Java command line:
+						</div>
+						<code class="lift:ConnectionHelp trace-agent-command">
+							<help:agentcommand></help:agentcommand>
+							<!-- -javaagent:bytefrog-tracer.jar=localhost:8765 -->
+						</code>
+					</div>
+
+					<!-- Appears only when the 'error' class is on -->
+					<div class="in-error">
+						<div class="error-message alert alert-danger">
+							<!-- dynamic error message -->
+							alart!
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 

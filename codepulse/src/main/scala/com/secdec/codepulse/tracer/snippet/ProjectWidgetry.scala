@@ -94,9 +94,6 @@ class ProjectWidgetry(manager: ProjectManager, target: TracingTarget) extends Di
 				val href = apiServer.Paths.Export.toHref(target)
 				<a data-downloader={ href } data-filename={ s"${data.metadata.name}.pulse" }>{ runBinding(xml) }</a>
 			},
-			"agentcommand" -> { (xml: NodeSeq) =>
-				Text(ProjectWidgetry.traceAgentCommand)
-			},
 			"stateupdates" -> { (xml: NodeSeq) =>
 				val (cometName, cometTemplate) = CometTracerUI.create(target)
 				cometTemplate
@@ -107,21 +104,5 @@ class ProjectWidgetry(manager: ProjectManager, target: TracingTarget) extends Di
 
 	def renderName(ignored: NodeSeq): NodeSeq = {
 		Text(target.projectData.metadata.name)
-	}
-}
-
-object ProjectWidgetry {
-	def traceAgentCommand = {
-		// embedded versions will be running in "some/install/dir/backend", and
-		// the agent jar will be located at "some/install/dir/agent.jar"
-		val agentPath = new File("../agent.jar").getCanonicalPath
-
-		val hqAddress = "localhost"
-		val hqPort = com.secdec.codepulse.userSettings.tracePort
-
-		val cmd = s"-javaagent:$agentPath=$hqAddress:$hqPort"
-
-		// if `cmd` has spaces, wrap it in "quotes"
-		if (cmd.contains(" ")) '"' + cmd + '"' else cmd
 	}
 }

@@ -1,0 +1,51 @@
+.connection-help-form {}
+
+.connection-help-form .form-field {
+	margin-bottom: 3px;
+}
+
+.connection-help-form .form-field > * {
+	vertical-align: middle;
+}
+
+.connection-help-form .control-label {
+	font-size: 80%;
+}
+
+.connection-help-form code {
+	display: block;
+	padding: .5em;
+	overflow-x: scroll;
+}
+
+.connection-help-form .control {
+	font-size: 0.9em;
+	vertical-align: middle;
+	margin-bottom: 0;
+}
+
+.connection-help-form .help {
+	vertical-align: middle;
+	color: #323232;
+}
+
+.connection-help-form input[name=agent-port] {
+	width: 42px;
+}
+
+.connection-help-form input[name=agent-port].invalid:focus {
+	border-color: rgba(239, 111, 107, 0.8);
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
+	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
+}
+
+.connection-help-form .alert {
+	margin-top: 6px;
+	margin-bottom: 0;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+.connection-help-form .form-result:not(.success) .in-success { display: none; }
+.connection-help-form .form-result:not(.error) .in-error { display: none; }

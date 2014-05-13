@@ -29,7 +29,7 @@ import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
+import com.secdec.codepulse.tracer.snippet.ConnectionHelp
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -162,7 +162,6 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			"api" :: "notifications" :: ts._1.num.toString :: ts._2
 		}
 	}
-
 	protected def simpleTargetPath(tail: String): PathMatcher[TracingTarget] = TargetPath.map[TracingTarget](
 		{ case (target, List(`tail`)) => target },
 		(_, List(tail)))
@@ -327,7 +326,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// GET the agent string
 		case List("api", "agent-string") Get req =>
-			PlainTextResponse(ProjectWidgetry.traceAgentCommand)
+			PlainTextResponse(ConnectionHelp.traceAgentCommand)
 
 		// DELETE a project (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>

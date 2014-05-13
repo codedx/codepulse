@@ -1,3 +1,22 @@
+/*
+ * Code Pulse: A real-time code coverage testing tool. For more information
+ * see http://code-pulse.com
+ *
+ * Copyright (C) 2014 Applied Visions - http://securedecisions.avi.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 $(document).ready(function(){
 	var $uiContainer = $('.TraceConnectorUI'),
 		$gearButton = $uiContainer.find('.gear-button'),
@@ -38,6 +57,8 @@ $(document).ready(function(){
 
 		$messageSlider.toggleClass('animated', animated)
 		$messageSlider.toggleClass('open', state == 'connecting')
+
+		ConnectionHelpForm.setDisabledState(state == 'running')
 	}
 
 	// Some testing buttons to manually set the UI state
@@ -62,4 +83,5 @@ $(document).ready(function(){
 	// Clicking the 'another project' links in the new connection message
 	// should open the Project Switcher.
 	$messageSlider.find('.message a[role=other]').click(ProjectSwitcher.open)
+
 })

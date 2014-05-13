@@ -55,43 +55,13 @@
 			<div class="control-button big">
 				Start a Trace
 			</div>
-			<a class="connection-help-link btn btn-flat btn-primary">
-				<i class="fa fa-cog"></i>
-			</a>
 		</div>
 		<div data-role="connection-waiting">
 			<div>Waiting for a trace connection...</div>
-
-			<a class="connection-help-link btn btn-flat btn-primary">
-				<i class="fa fa-cog"></i>
-			</a>
 		</div>
 		<div class="control-button big" data-role="end-trace">
 			End Trace
 		</div>
-	</div>
-
-	<div id="connection-help-popup" style="display: none;">
-		<p>
-			To make a new trace connection, run your Java-based program with the following addition
-			to the Java command line:
-		</p>
-		
-		<p>
-			<code id="trace-agent-command" class="lift:ProjectWidgetry">
-				<project:agentcommand></project:agentcommand>
-				<!-- -javaagent:bytefrog-tracer.jar=localhost:8765 -->
-			</code>
-		</p>
-
-		<p>
-			<span class="option-label">Agent Port Number</span>
-			<input id="agent-port" class="control" type="text" />
-				<i title="The port number that Code Pulse listens for tracer agent connections on. In most cases, the default value should be acceptable." class="help fa fa-question-circle"></i>
-			<div id="agent-port-error" class="alert alert-danger hide"></div>
-		</p>
-
-		<a class="dismissal">dismiss</a>
 	</div>
 
 	<h1>Treemap Legend</h1>
