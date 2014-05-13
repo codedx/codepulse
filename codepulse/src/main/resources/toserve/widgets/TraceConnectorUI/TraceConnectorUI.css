@@ -19,7 +19,8 @@ edgeWidth = 25px
 	top: 0;
 	right: 0;
 	height: 60px;
-	width: 100%;
+	width: 500px;
+	max-width: 70%;
 }
 
 .TraceConnectorUI .settings-container {
@@ -29,6 +30,11 @@ edgeWidth = 25px
 	height: 300px;
 	width: 500px;
 	max-width: 70%;
+
+	pointer-events: none;
+}
+.TraceConnectorUI .settings-container * {
+	pointer-events: auto;
 }
 
 /*************\
@@ -126,4 +132,44 @@ edgeWidth = 25px
 	left: 0; /* slid into view */
 
 	box-shadow: 0 0 3px 3px rgba(0,0,0,.5);
+}
+
+/*************************************\
+| Connection Message slide-out styles |
+\*************************************/
+
+.TraceConnectorUI .main-container .message-slider {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+
+	left: 100%;
+
+	/*aesthetics*/
+	background: #FFF4A5;
+	padding: 10px 35px 10px 10px;
+	box-sizing: border-box;
+	box-shadow: 0 0 3px 3px rgba(128,128,128,0.5);
+}
+
+.TraceConnectorUI .main-container .message-slider.open {
+	left: 0;
+}
+
+.TraceConnectorUI .main-container .message-slider.animated {
+	transition: left .25s ease;
+}
+
+.TraceConnectorUI .main-container .message-slider .message a {
+	cursor: pointer;
+}
+
+.TraceConnectorUI .main-container .message-slider .project-page-message,
+.TraceConnectorUI .main-container .message-slider .main-page-message {
+	/* Hide the page-specific connection messages by default.
+	 * Since one is picked over the other via javascript, having
+	 * them initially hidden avoids having both of them briefly
+	 * flash on screen before one is hidden.
+	 */
+	display: none;
 }

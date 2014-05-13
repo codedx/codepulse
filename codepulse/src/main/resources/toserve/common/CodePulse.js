@@ -28,6 +28,22 @@
 	// True if the client is node-webkit; False if the client is a browser
 	CodePulse.isEmbedded = (CodePulse.nativeUserAgent == CodePulse.currentUserAgent)
 
+	// Detect which page the user is looking at
+	;(function(){
+		var homeRegex = /(\/$|\/index$|\/index.html$)/,
+			projectRegex = /\/projects\/(\d+)$/,
+			currentPath = document.location.pathname
+
+		// Assign flags for whether the user is on the home page or a project page
+		CodePulse.isOnHomePage = homeRegex.test(currentPath)
+		CodePulse.isOnProjectPage = projectRegex.test(currentPath)
+
+		if(CodePulse.isOnProjectPage){
+			// Get the numeric project ID if the client is on the project page
+			CodePulse.projectPageId = parseInt(projectRegex.exec(currentPath)[1])
+		}
+	})()
+
 	// Handle external links via the "external-href" attribute
 	$(document).ready(function(){
 
