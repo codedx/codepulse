@@ -173,3 +173,13 @@ edgeWidth = 25px
 	 */
 	display: none;
 }
+
+/*************************\
+| Current Trace Indicator |
+\*************************/
+.TraceConnectorUI .current-trace-message:not(.this-project) .on-this-project {
+	display: none;
+}
+.TraceConnectorUI .current-trace-message:not(.other-project) .on-other-project {
+	display: none;
+}

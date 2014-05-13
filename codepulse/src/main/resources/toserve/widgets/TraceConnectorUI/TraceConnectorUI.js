@@ -22,7 +22,8 @@ $(document).ready(function(){
 		$gearButton = $uiContainer.find('.gear-button'),
 		$gearIcon = $gearButton.find('.gear i'),
 		$settingsSlider = $uiContainer.find('.settings-slider'),
-		$messageSlider = $uiContainer.find('.message-slider')
+		$messageSlider = $uiContainer.find('.message-slider'),
+		$currentTraceMessage = $uiContainer.find('.current-trace-message')
 
 	var isSettingsOpen = false
 
@@ -34,7 +35,7 @@ $(document).ready(function(){
 		$settingsSlider.toggleClass('open', isSettingsOpen)
 	}
 
-	function setUIState(newState /* one of <idle|connecting|running> */, animated){
+	function setUIState(newState /* one of <idle|connecting|running> */, animated, traceLink){
 		var state, spinning;
 		if(newState == 'idle'){
 			state = 'idle'
@@ -53,6 +54,14 @@ $(document).ready(function(){
 		$uiContainer.removeClass('trace-idle trace-connecting trace-running')
 		$uiContainer.addClass('trace-' + state)
 
+		if(state == 'running'){
+			$currentTraceMessage.removeClass('this-project other-project')
+			$currentTraceMessage.addClass(traceLink ? 'other-project' : 'this-project')
+			$currentTraceMessage.slideDown(150)
+		} else {
+			$currentTraceMessage.slideUp(150)
+		}
+
 		$gearIcon.toggleClass('fa-spin', spinning)
 
 		$messageSlider.toggleClass('animated', animated)
@@ -64,7 +73,10 @@ $(document).ready(function(){
 	// Some testing buttons to manually set the UI state
 	$('#test-trace-idle').click(function(){ setUIState('idle', true) })
 	$('#test-trace-connecting').click(function(){ setUIState('connecting', true) })
-	$('#test-trace-running').click(function(){ setUIState('running', true) })
+	$('#test-trace-running').click(function(){ 
+		setUIState('running', true, '/projects/123')
+	})
+	$('#test-trace-running-here').click(function(){ setUIState('running', true) })
 
 	// Clicking the gear button should toggle the settings popup
 	$gearButton.click(toggleSettingsOpen)

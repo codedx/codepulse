@@ -12,6 +12,10 @@
 	font-size: 80%;
 }
 
+.connection-help-form .agent-help-text {
+	font-size: 80%;
+}
+
 .connection-help-form code {
 	display: block;
 	padding: .5em;
