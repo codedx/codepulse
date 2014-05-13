@@ -21,6 +21,7 @@ package com.secdec.codepulse.data.model.slick
 
 import scala.slick.jdbc.JdbcBackend.{ Database, Session }
 import com.secdec.codepulse.data.model.{ DefaultProjectMetadataUpdates, ProjectMetadataAccess, ProjectMetadata }
+import com.secdec.codepulse.dependencycheck.{ DependencyCheckStatus, TransientDependencyCheckStatus }
 import net.liftweb.util.Helpers.AsLong
 import net.liftweb.util.Helpers.AsBoolean
 
@@ -82,5 +83,54 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 	def importDate_=(newDate: Option[Long]) = db withTransaction { implicit transaction =>
 		set("importDate", newDate.map(_.toString))
 		newDate
+	}
+
+	private object DependencyCheckStatusHelpers {
+		private val FinishedStatus = raw"finished\((\d+), (\d+)\)".r
+		private def finishedStatus(numDeps: Int, numFlagged: Int) = s"finished($numDeps, $numFlagged)"
+		private val FailedStatus = "failed"
+		private val NotRunStatus = "notrun"
+		private val UnknownStatus = "unknown"
+
+		def serialize(status: DependencyCheckStatus): String = status match {
+			case _: TransientDependencyCheckStatus => serialize(DependencyCheckStatus.Unknown)
+			case DependencyCheckStatus.Finished(numDeps, numFlagged) => finishedStatus(numDeps, numFlagged)
+			case DependencyCheckStatus.Failed => FailedStatus
+			case DependencyCheckStatus.NotRun => NotRunStatus
+			case DependencyCheckStatus.Unknown => UnknownStatus
+		}
+
+		def deserialize(status: String): Option[DependencyCheckStatus] = status match {
+			case FinishedStatus(numDeps, numFlagged) => Some(DependencyCheckStatus.Finished(numDeps.toInt, numFlagged.toInt))
+			case FailedStatus => Some(DependencyCheckStatus.Failed)
+			case NotRunStatus => Some(DependencyCheckStatus.NotRun)
+			case UnknownStatus => Some(DependencyCheckStatus.Unknown)
+			case _ => None
+		}
+
+		private var transientStatus = None: Option[TransientDependencyCheckStatus]
+
+		def dependencyCheckStatus(implicit session: Session) = {
+			transientStatus getOrElse {
+				get("dependencyCheckStatus").flatMap(deserialize) getOrElse DependencyCheckStatus.NotRun
+			}
+		}
+
+		def dependencyCheckStatus_=(newStatus: DependencyCheckStatus)(implicit session: Session) = {
+			set("dependencyCheckStatus", serialize(newStatus))
+			newStatus match {
+				case transient: TransientDependencyCheckStatus => transientStatus = Some(transient)
+				case _ => transientStatus = None
+			}
+			newStatus
+		}
+	}
+
+	def dependencyCheckStatus = db withSession { implicit session =>
+		DependencyCheckStatusHelpers.dependencyCheckStatus
+	}
+
+	def dependencyCheckStatus_=(newStatus: DependencyCheckStatus) = db withTransaction { implicit transaction =>
+		DependencyCheckStatusHelpers.dependencyCheckStatus = newStatus
 	}
 }

@@ -118,6 +118,9 @@ object ProjectUploadData {
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 
+		// mark the dependency check scan as 'queued' immediately
+		projectData.metadata.dependencyCheckStatus = dependencycheck.DependencyCheckStatus.Queued
+
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
 
@@ -181,22 +184,38 @@ object ProjectUploadData {
 			val treeNodeData = projectData.treeNodeData
 			val scanSettings = ScanSettings(file, projectData.metadata.name, projectData.id)
 
-			dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) { reportDir =>
+			dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) {
+				// before running, set status to running
+				projectData.metadata.dependencyCheckStatus = DependencyCheckStatus.Running
+			} { reportDir =>
+				// on successful run, process the results
 				import scala.xml._
 				import com.secdec.codepulse.util.RichFile._
 				import treeNodeData.ExtendedTreeNodeData
 
 				val x = XML loadFile reportDir / "dependency-check-report.xml"
 
+				var deps = 0
+				var vulnDeps = 0
+
 				for {
 					dep <- x \\ "dependency"
 					vulns = dep \\ "vulnerability"
-					if !vulns.isEmpty
 				} {
-					val f = new File((dep \ "filePath").text)
-					val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
-					for (node <- treeNodeData getNode jarLabel) node.flags += TreeNodeFlag.HasVulnerability
+					deps += 1
+					if (!vulns.isEmpty) {
+						vulnDeps += 1
+						val f = new File((dep \ "filePath").text)
+						val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
+						for (node <- treeNodeData getNode jarLabel) node.flags += TreeNodeFlag.HasVulnerability
+					}
 				}
+
+				projectData.metadata.dependencyCheckStatus = DependencyCheckStatus.Finished(deps, vulnDeps)
+			} { exception =>
+				// on error, set status to failed
+				println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
+				projectData.metadata.dependencyCheckStatus = DependencyCheckStatus.Failed
 			}
 		}
 	}

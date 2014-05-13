@@ -28,6 +28,7 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
+import com.secdec.codepulse.dependencycheck.DependencyCheckStatus
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
 import akka.actor.Cancellable
@@ -259,6 +260,16 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				val data = target.projectData
 				val href = ProjectDetailsPage.projectHref(target.id)
 
+				val depCheckStatus: JObject = data.metadata.dependencyCheckStatus match {
+					case DependencyCheckStatus.Queued => ("state" -> "queued")
+					case DependencyCheckStatus.Running => ("state" -> "running")
+					case DependencyCheckStatus.Finished(numDeps, numFlagged) => ("state" -> "finished") ~
+						("numDeps" -> numDeps) ~ ("numFlaggedDeps" -> numFlagged)
+					case DependencyCheckStatus.Failed => ("state" -> "failed")
+					case DependencyCheckStatus.NotRun => ("state" -> "none")
+					case DependencyCheckStatus.Unknown => ("state" -> "unknown")
+				}
+
 				for (traceState <- target.getState) yield ("id" -> target.id.num) ~
 					("name" -> data.metadata.name) ~
 					("hasCustomName" -> data.metadata.hasCustomName) ~
@@ -267,7 +278,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					("href" -> href) ~
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
-					("state" -> traceState.name)
+					("state" -> traceState.name) ~
+					("dependencyCheck" -> depCheckStatus)
 			}
 
 			Future.sequence(projectJsonFutures) map { JsonResponse(_) }

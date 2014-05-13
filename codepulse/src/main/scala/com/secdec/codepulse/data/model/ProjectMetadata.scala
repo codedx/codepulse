@@ -20,6 +20,7 @@
 package com.secdec.codepulse.data.model
 
 import reactive.{ EventStream, EventSource }
+import com.secdec.codepulse.dependencycheck.DependencyCheckStatus
 
 /** Access trait for project metadata.
   *
@@ -36,6 +37,9 @@ trait ProjectMetadataAccess {
 
 	def importDate: Option[Long]
 	def importDate_=(newDate: Option[Long]): Option[Long]
+
+	def dependencyCheckStatus: DependencyCheckStatus
+	def dependencyCheckStatus_=(newStatus: DependencyCheckStatus): DependencyCheckStatus
 }
 
 /** Trait for project metadata update events.

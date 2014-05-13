@@ -30,6 +30,17 @@ import org.owasp.dependencycheck.dependency.Dependency
 import org.owasp.dependencycheck.reporting.ReportGenerator
 import org.owasp.dependencycheck.utils.{ LogUtils, Settings => DepCheckSettings }
 
+sealed trait DependencyCheckStatus
+sealed trait TransientDependencyCheckStatus extends DependencyCheckStatus
+object DependencyCheckStatus {
+	case object Queued extends TransientDependencyCheckStatus
+	case object Running extends TransientDependencyCheckStatus
+	case class Finished(numDeps: Int, numFlaggedDeps: Int) extends DependencyCheckStatus
+	case object Failed extends DependencyCheckStatus
+	case object NotRun extends DependencyCheckStatus
+	case object Unknown extends DependencyCheckStatus
+}
+
 /** Wrapper for running dependency check scans.
   *
   * @author robertf
