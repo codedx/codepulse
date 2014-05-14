@@ -262,7 +262,8 @@
 #connection-help-popup code {
 	display: block;
 	padding: .5em;
-	white-space: normal;
+	white-space: pre;
+	overflow-wrap: break-word;
 }
 #connection-help-popup .dismissal {
 	display: block;
