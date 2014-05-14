@@ -35,48 +35,71 @@ $(document).ready(function(){
 		$settingsSlider.toggleClass('open', isSettingsOpen)
 	}
 
-	function setUIState(newState /* one of <idle|connecting|running> */, animated, traceLink){
-		var state, spinning;
-		if(newState == 'idle'){
-			state = 'idle'
-			spinning = false
-		} else if(newState == 'connecting'){
-			state = 'connecting'
-			spinning = false
-		} else if(newState == 'running'){
-			state = 'running'
-			spinning = true
-		} else {
-			console.error('invalid state:', newState)
-			return
-		}
+	// `stateObj` contains the following fields:
+	// 'state': a String, either "idle", "connecting", or "running"
+	// 'animateSlide': Boolean, defaults to false. Determines if the message
+	//     slider should animate in/out.
+	// 'tracedProject': an Integer, optional if the 'state' isn't "running"
+	function setUIState(stateObj){
 
+		var state = stateObj.state
+		if(state != 'idle' && state != 'connecting' && state != 'running') return
+
+		// flag for if the given 'tracedProject' is the same as the page we are looking at
+		var tracedProjectIsCurrent = CodePulse.isOnProjectPage &&
+			(CodePulse.projectPageId == stateObj.tracedProject)
+
+		// set the 'trace-xxx' class on the container based on the state
 		$uiContainer.removeClass('trace-idle trace-connecting trace-running')
 		$uiContainer.addClass('trace-' + state)
 
 		if(state == 'running'){
+			console.log('running in state:', state)
 			$currentTraceMessage.removeClass('this-project other-project')
-			$currentTraceMessage.addClass(traceLink ? 'other-project' : 'this-project')
+			$currentTraceMessage.addClass(tracedProjectIsCurrent ? 'this-project' : 'other-project')
+			$currentTraceMessage.find('a')
+				.attr('href', CodePulse.projectPath(stateObj.tracedProject))
 			$currentTraceMessage.slideDown(150)
 		} else {
+			console.log('hide current trace message')
 			$currentTraceMessage.slideUp(150)
 		}
 
-		$gearIcon.toggleClass('fa-spin', spinning)
+		$gearIcon.toggleClass('fa-spin', state == 'running')
 
-		$messageSlider.toggleClass('animated', animated)
+		$messageSlider.toggleClass('animated', stateObj.animateSlide)
 		$messageSlider.toggleClass('open', state == 'connecting')
 
 		ConnectionHelpForm.setDisabledState(state == 'running')
 	}
 
 	// Some testing buttons to manually set the UI state
-	$('#test-trace-idle').click(function(){ setUIState('idle', true) })
-	$('#test-trace-connecting').click(function(){ setUIState('connecting', true) })
-	$('#test-trace-running').click(function(){ 
-		setUIState('running', true, '/projects/123')
+	$('#test-trace-idle').click(function(){
+		setUIState({
+			state: 'idle',
+			animateSlide: true
+		})
 	})
-	$('#test-trace-running-here').click(function(){ setUIState('running', true) })
+	$('#test-trace-connecting').click(function(){
+		setUIState({
+			state: 'connecting',
+			animateSlide: true
+		})
+	})
+	$('#test-trace-running-0').click(function(){
+		setUIState({
+			state: 'running',
+			tracedProject: 0,
+			animateSlide: true
+		})
+	})
+	$('#test-trace-running-1').click(function(){
+		setUIState({
+			state: 'running',
+			tracedProject: 1,
+			animateSlide: true
+		})
+	})
 
 	// Clicking the gear button should toggle the settings popup
 	$gearButton.click(toggleSettingsOpen)
@@ -85,7 +108,10 @@ $(document).ready(function(){
 	;(function(){
 		var cls = $uiContainer.attr('class'),
 			r = /trace-(\w+)/.exec(cls)
-		r && r[1] && setUIState(r[1], false)
+		r && r[1] && setUIState({
+			state: r[1],
+			animateSlide: false
+		})
 	})()
 
 	// Show the appropriate message based on the current page

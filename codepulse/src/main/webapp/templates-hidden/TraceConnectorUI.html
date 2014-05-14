@@ -14,8 +14,8 @@
 				test buttons:
 				<div class="btn" id="test-trace-idle">idle</div>
 				<div class="btn" id="test-trace-connecting">connecting</div>
-				<div class="btn" id="test-trace-running">running</div>
-				<div class="btn" id="test-trace-running-here">running here</div>
+				<div class="btn" id="test-trace-running-0">running 0</div>
+				<div class="btn" id="test-trace-running-1">running 1</div>
 
 				<div class="current-trace-message other-project">
 					<div class="on-other-project">
@@ -44,10 +44,13 @@
 								To make a new trace connection, run your Java-based program 
 								with the following addition to the Java command line:
 							</div>
-							<code class="lift:ConnectionHelp trace-agent-command">
-								<help:agentcommand></help:agentcommand>
-								<!-- -javaagent:bytefrog-tracer.jar=localhost:8765 -->
-							</code>
+
+							<!-- avoid whitespace inside this code tag -->
+							<code
+								class="lift:ConnectionHelp trace-agent-command"
+							><help:agentcommand>
+							<!-- -javaagent:bytefrog-tracer.jar=localhost:8765 -->
+							</help:agentcommand></code>
 						</div>
 
 						<!-- Appears only when the 'error' class is on -->

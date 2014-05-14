@@ -19,7 +19,8 @@
 .connection-help-form code {
 	display: block;
 	padding: .5em;
-	overflow-x: scroll;
+	white-space: pre;
+	overflow-wrap: break-word;
 }
 
 .connection-help-form .control {

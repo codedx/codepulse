@@ -19,6 +19,12 @@
 
  ;(function(CodePulse){
 
+	var homeRegex = /^(.*)\/(index(\.html)?)?$/,
+		projectRegex = /^(.*)\/projects\/(\d+)$/,
+		currentPath = document.location.pathname,
+		homeMatch = homeRegex.exec(currentPath),
+		projectMatch = projectRegex.exec(currentPath)
+
 	// The userAgent string expected from the node-webkit client
 	CodePulse.nativeUserAgent = 'CodePulse (node-webkit)'
 
@@ -29,20 +35,21 @@
 	CodePulse.isEmbedded = (CodePulse.nativeUserAgent == CodePulse.currentUserAgent)
 
 	// Detect which page the user is looking at
-	;(function(){
-		var homeRegex = /(\/$|\/index$|\/index.html$)/,
-			projectRegex = /\/projects\/(\d+)$/,
-			currentPath = document.location.pathname
+	CodePulse.isOnHomePage = homeMatch != null
+	CodePulse.isOnProjectPage = projectMatch != null
+	CodePulse.projectPageId = projectMatch && parseInt(projectMatch[2])
 
-		// Assign flags for whether the user is on the home page or a project page
-		CodePulse.isOnHomePage = homeRegex.test(currentPath)
-		CodePulse.isOnProjectPage = projectRegex.test(currentPath)
+	// in case CodePulse is running as a non-root .war in some javaEE web container,
+	// the path prefix might not be empty.
+	CodePulse.pathPrefix = (homeMatch && homeMatch[1]) || (projectMatch && projectMatch[1]) || ''
 
-		if(CodePulse.isOnProjectPage){
-			// Get the numeric project ID if the client is on the project page
-			CodePulse.projectPageId = parseInt(projectRegex.exec(currentPath)[1])
-		}
-	})()
+	// Convenience functions to generate URL paths to the home and project pages.
+	CodePulse.homePath = function(){
+		return CodePulse.pathPrefix + '/'
+	}
+	CodePulse.projectPath = function(projectId){
+		return CodePulse.pathPrefix + '/projects/' + projectId
+	}
 
 	// Handle external links via the "external-href" attribute
 	$(document).ready(function(){
