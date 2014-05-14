@@ -262,7 +262,7 @@
 #connection-help-popup code {
 	display: block;
 	padding: .5em;
-	overflow-x: scroll;
+	white-space: normal;
 }
 #connection-help-popup .dismissal {
 	display: block;
