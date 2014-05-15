@@ -43,7 +43,6 @@ object TracingTargetState {
 	case object Loading extends TracingTargetState("loading")
 	case object LoadingFailed extends TracingTargetState("loading-failed")
 	case object Idle extends TracingTargetState("idle")
-	//	case object Connecting extends TracingTargetState("connecting")
 	case object Running extends TracingTargetState("running")
 	case object Ending extends TracingTargetState("ending")
 	case object DeletePending extends TracingTargetState("delete-pending")
@@ -287,7 +286,6 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	  * which will cause the state to transition to the "Connecting" state.
 	  */
 	val StateIdle: State = State(TracingTargetState.Idle, {
-		//		case RequestTraceConnect => onTraceRequested()
 		case TraceConnected(t) =>
 			onTraceConnected(t)
 			sender ! Ack
