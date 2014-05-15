@@ -23,9 +23,11 @@ $(document).ready(function(){
 		$gearIcon = $gearButton.find('.gear i'),
 		$settingsSlider = $uiContainer.find('.settings-slider'),
 		$messageSlider = $uiContainer.find('.message-slider'),
-		$currentTraceMessage = $uiContainer.find('.current-trace-message')
+		$currentTraceLink = $uiContainer.find('.current-trace-link'),
+		$stopTracingButton = $uiContainer.find('.stop-tracing-button')
 
-	var isSettingsOpen = false
+	var isSettingsOpen = false,
+		tracedProject = undefined
 
 	function toggleSettingsOpen(open){
 		if(arguments.length) isSettingsOpen = open
@@ -45,6 +47,13 @@ $(document).ready(function(){
 		var state = stateObj.state
 		if(state != 'idle' && state != 'connecting' && state != 'running') return
 
+		// the stop tracing button gets a spinner overlay when endTrace is called.
+		// when the state makes a corresponding change, turn off the overlay.
+		if(state != 'running') $stopTracingButton.overlay('ready')
+
+		// updated the tracedProject variable so it can be used outside this scope
+		tracedProject = stateObj.tracedProject // may be undefined
+
 		// flag for if the given 'tracedProject' is the same as the page we are looking at
 		var tracedProjectIsCurrent = CodePulse.isOnProjectPage &&
 			(CodePulse.projectPageId == stateObj.tracedProject)
@@ -53,21 +62,25 @@ $(document).ready(function(){
 		$uiContainer.removeClass('trace-idle trace-connecting trace-running')
 		$uiContainer.addClass('trace-' + state)
 
-		if(state == 'running'){
-			$currentTraceMessage.removeClass('this-project other-project')
-			$currentTraceMessage.addClass(tracedProjectIsCurrent ? 'this-project' : 'other-project')
-			$currentTraceMessage.find('a')
-				.attr('href', CodePulse.projectPath(stateObj.tracedProject))
-			$currentTraceMessage.slideDown(150)
-		} else {
-			$currentTraceMessage.slideUp(150)
-		}
+		// set the current trace link's href
+		$currentTraceLink.attr('href', CodePulse.projectPath(tracedProject))
 
+		// only show the current trace link while a trace is running on a different page
+		$currentTraceLink[(state == 'running' && !tracedProjectIsCurrent) ? 'show' : 'hide']()
+
+		// show the stop tracing button while any trace is running
+		$stopTracingButton[state == 'running' ? 'show' : 'hide']()
+
+		// make the gear icon spin while a trace is running
 		$gearIcon.toggleClass('fa-spin', state == 'running')
 
+		// open the message slider when in the 'connecting' state;
+		// if 'animateSlide' is set, let the opening be animated,
+		// otherwise, just let it appear immediately (i.e. on page load)
 		$messageSlider.toggleClass('animated', stateObj.animateSlide)
 		$messageSlider.toggleClass('open', state == 'connecting')
 
+		// disable the connection help form when the trace is running
 		ConnectionHelpForm.setDisabledState(state == 'running')
 	}
 
@@ -79,42 +92,16 @@ $(document).ready(function(){
 		$.ajax(CodePulse.apiPath('connection/accept/' + projectId), {type: 'POST'})
 	}
 
-	// Some testing buttons to manually set the UI state
-	$('#test-trace-idle').click(function(){
-		setUIState({
-			state: 'idle',
-			animateSlide: true
-		})
-	})
-	$('#test-trace-connecting').click(function(){
-		setUIState({
-			state: 'connecting',
-			animateSlide: true
-		})
-	})
-	$('#test-trace-running-0').click(function(){
-		setUIState({
-			state: 'running',
-			tracedProject: 0,
-			animateSlide: true
-		})
-	})
-	$('#test-trace-running-1').click(function(){
-		setUIState({
-			state: 'running',
-			tracedProject: 1,
-			animateSlide: true
-		})
-	})
+	function endTrace(){
+		$stopTracingButton.overlay('wait', {lines: 7, radius: 3, width: 3, length: 4})
+		$.ajax(CodePulse.apiPath(tracedProject + '/end'), {type: 'POST'})
+	}
 
 	// The ConnectionLooperEvents comet component will trigger
 	// 'connector-state-change' events when it changes state.
 	$(document).on('connector-state-change', function(e,data){
-		var state = {
-			state: data.state,
-			animateSlide: true
-		}
-		if(data.project) state.tracedProject = data.project
+		var state = $.extend(data, {animateSlide: true})
+		console.log('connector state change', JSON.stringify(state))
 		setUIState(state)
 	})
 
@@ -148,4 +135,6 @@ $(document).ready(function(){
 	$messageSlider.find('.message a[role=accept]').click(function(){
 		acceptConnection(CodePulse.projectPageId)
 	})
+
+	$stopTracingButton.click(endTrace)
 })

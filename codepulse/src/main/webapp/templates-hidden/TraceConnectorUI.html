@@ -13,24 +13,24 @@
 		<div class="settings-slider">
 			<div class="settings-content">
 				<!-- the actual settings form and stuff goes in here -->
-				test buttons:
-				<div class="btn" id="test-trace-idle">idle</div>
-				<div class="btn" id="test-trace-connecting">connecting</div>
-				<div class="btn" id="test-trace-running-0">running 0</div>
-				<div class="btn" id="test-trace-running-1">running 1</div>
-
-				<div class="current-trace-message other-project">
-					<div class="on-other-project">
-						A trace is in progress.
-						Click <a href="#">here</a> to see it.
-					</div>
-					<div class="on-this-project">
-						The trace is in progress.
-					</div>
-				</div>
 
 				<div class="connection-help-form">
-					<h3>Settings</h3>
+					<div class="settings-header clearfix">
+						<h3>Settings</h3>
+
+						<div class="settings-controls">
+							<a class="control-button current-trace-link" href="#">
+								<i class="fa fa-cog fa-spin"></i>
+								See Traced Project
+							</a>
+
+							<div class="control-button stop-tracing-button">
+								<i class="fa fa-stop"></i>
+								Stop Tracing
+							</div>
+						</div>
+
+					</div>
 
 					<div class="form-field">
 						<input name="agent-port" class="control" type="text" />

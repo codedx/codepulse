@@ -48,6 +48,6 @@ class TraceConnectorStateChanges
 		case Idle => "state" -> "idle"
 		case Connecting => "state" -> "connecting"
 		case Running(target) =>
-			("state" -> "running") ~ ("project" -> target.id.num)
+			("state" -> "running") ~ ("tracedProject" -> target.id.num)
 	}
 }
