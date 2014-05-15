@@ -62,7 +62,7 @@ window.onload = function() {
 	codepulse.once('started', redirect);
 
 	// register the close hooks/etc for the window
-	backend.registerMainWindow(gui.Window.get());
+	backend.registerMainWindow({ window: window, gui: gui.Window.get() });
 }
 
 if (gui.App.argv.indexOf('--log') >= 0) {

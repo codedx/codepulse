@@ -436,7 +436,7 @@ $(document).ready(function(){
 		}
 
 		if(shouldSave){
-			API.renameTrace(newName, function(reply, error){
+			API.renameProject(newName, function(reply, error){
 				if(!error){
 					var hasNameConflict = (reply.warn == 'nameConflict')
 					$('.nameConflict').toggleClass('hasConflict', hasNameConflict)
