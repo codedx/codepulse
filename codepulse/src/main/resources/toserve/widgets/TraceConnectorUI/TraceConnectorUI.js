@@ -73,6 +73,14 @@ $(document).ready(function(){
 		ConnectionHelpForm.setDisabledState(state == 'running')
 	}
 
+	function rejectConnection(){
+		$.ajax(CodePulse.apiPath('connection/reject'), {type: 'POST'})
+	}
+
+	function acceptConnection(projectId){
+		$.ajax(CodePulse.apiPath('connection/accept/' + projectId), {type: 'POST'})
+	}
+
 	// Some testing buttons to manually set the UI state
 	$('#test-trace-idle').click(function(){
 		setUIState({
@@ -101,16 +109,29 @@ $(document).ready(function(){
 		})
 	})
 
+	// The ConnectionLooperEvents comet component will trigger
+	// 'connector-state-change' events when it changes state.
+	$(document).on('connector-state-change', function(e,data){
+		var state = {
+			state: data.state,
+			animateSlide: true
+		}
+		if(data.project) state.tracedProject = data.project
+		setUIState(state)
+	})
+
 	// Clicking the gear button should toggle the settings popup
 	$gearButton.click(toggleSettingsOpen)
 
-	// Update the ui state based on the initial css class on the container
+	// Update the ui state based on the initial css class on the container.
+	// The tracedProject may be specified as a data attribute.
 	;(function(){
 		var cls = $uiContainer.attr('class'),
 			r = /trace-(\w+)/.exec(cls)
 		r && r[1] && setUIState({
 			state: r[1],
-			animateSlide: false
+			animateSlide: false,
+			tracedProject: $uiContainer.data('tracedProject')
 		})
 	})()
 
@@ -122,4 +143,11 @@ $(document).ready(function(){
 	// should open the Project Switcher.
 	$messageSlider.find('.message a[role=other]').click(ProjectSwitcher.open)
 
+	// Clicking the 'drop' links in the message slider should reject the awaiting connection
+	$messageSlider.find('.message a[role=drop]').click(rejectConnection)
+
+	// Clicking the 'accept' links in the message slider should accept the trace with the current project
+	$messageSlider.find('.message a[role=accept]').click(function(){
+		acceptConnection(CodePulse.projectPageId)
+	})
 })

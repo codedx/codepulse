@@ -82,6 +82,8 @@ trait TracingTarget {
 	private val deletionKeyGen = Iterator from 0 map { id => new DeletionKey(id) }
 	protected def newDeletionKey = deletionKeyGen.next
 
+	def connectTrace(trace: Trace)(implicit exc: ExecutionContext): Future[Unit]
+
 	def setDeletePending()(implicit exc: ExecutionContext): (DeletionKey, Future[Unit])
 	def cancelPendingDeletion()(implicit exc: ExecutionContext): Future[Unit]
 	def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext): Future[Unit]
@@ -123,7 +125,7 @@ object AkkaTracingTarget {
 	private case class Subscribe(f: EventStream[TracingTargetState] => Unit) extends TargetRequest
 	private case object RequestState extends TargetRequest
 
-	private case class TraceConnected(trace: Trace)
+	private case class TraceConnected(trace: Trace) extends TargetRequest
 	private case class TraceEnded(reason: TraceEndReason)
 
 	/* SetDeletePending and FinalizeDeletion use an `inc` id, e.g.
@@ -167,6 +169,8 @@ object AkkaTracingTarget {
 
 			deletionKey -> deletionFuture
 		}
+
+		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = getAckFuture(TraceConnected(trace))
 
 		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
 		def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion(key))
@@ -284,7 +288,9 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	  */
 	val StateIdle: State = State(TracingTargetState.Idle, {
 		//		case RequestTraceConnect => onTraceRequested()
-		case TraceConnected(t) => onTraceConnected(t)
+		case TraceConnected(t) =>
+			onTraceConnected(t)
+			sender ! Ack
 
 		case SetDeletePending(key) => changeState { StateDeletePending(sender, key) }
 	})

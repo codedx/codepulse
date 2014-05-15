@@ -1,8 +1,10 @@
-<div class="TraceConnectorUI trace-idle">
+<div class="TraceConnectorUI lift:TraceConnectorState">
 
 	<lift:head>
 		<link class="lift:Includes.TraceConnectorUI" />
 	</lift:head>
+
+	<lift:comet type="TraceConnectorStateChanges"></lift:comet>
 
 	<!-- The settings box goes here -->
 	<div class="settings-container">

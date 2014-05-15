@@ -41,12 +41,14 @@ private[liftweb] object BootSnippets {
 			case SnippetRequest("ProjectWidgetry", Full(target: TracingTarget)) => new ProjectWidgetry(projectManager, target)
 			case SnippetRequest("ConnectionHelp", _) => ConnectionHelp
 			case SnippetRequest("Notifications", _) => Notifications
+			case SnippetRequest("TraceConnectorState", _) => TraceConnectorState
 		}
 
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {
 			case CometTracerUI.className => new CometTracerUI
 			case "ProjectListUpdates" => new ProjectListUpdates(projectManager)
 			case "Notifications" => Notifications
+			case "TraceConnectorStateChanges" => new TraceConnectorStateChanges
 		}
 
 		LiftRules.cometCreation append {

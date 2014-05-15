@@ -162,6 +162,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			"api" :: "notifications" :: ts._1.num.toString :: ts._2
 		}
 	}
+
 	protected def simpleTargetPath(tail: String): PathMatcher[TracingTarget] = TargetPath.map[TracingTarget](
 		{ case (target, List(`tail`)) => target },
 		(_, List(tail)))
@@ -169,6 +170,24 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	protected def simpleNotificationPath(tail: String): PathMatcher[NotificationId] = NotificationPath.map[NotificationId](
 		{ case (id, List(`tail`)) => id },
 		(_, List(tail)))
+
+	protected object AcknowledgmentPath extends PathMatcher[TraceConnectionAcknowledgment] {
+		def unapply(path: List[String]): Option[TraceConnectionAcknowledgment] = path match {
+			case "api" :: "connection" :: "accept" :: ProjectId(projectId) :: Nil =>
+				manager.getProject(projectId) map { TraceConnectionAcknowledgment.Acknowledged(_) }
+			case "api" :: "connection" :: "reject" :: Nil =>
+				Some(TraceConnectionAcknowledgment.Rejected)
+			case _ => None
+		}
+		def apply(ack: TraceConnectionAcknowledgment) = ack match {
+			case TraceConnectionAcknowledgment.Acknowledged(target) =>
+				"api" :: "connection" :: "accept" :: target.id.num.toString :: Nil
+			case TraceConnectionAcknowledgment.Rejected =>
+				"api" :: "connection" :: "reject" :: Nil
+			case TraceConnectionAcknowledgment.Canceled =>
+				throw new IllegalArgumentException("No path available for 'Canceled'")
+		}
+	}
 
 	/** Object that contains PathExtractor instances that can be used to parse or generate
 	  * Paths with their respective bits of data.
@@ -226,6 +245,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					(target, rec)
 			},
 			{ case (target, recording) => (target, List("recording", recording.id.toString)) })
+
+		/** /api/connection/[reject|accept/<project.id>] */
+		val Acknowledgment = AcknowledgmentPath
 	}
 
 	private object DataPath {
@@ -327,6 +349,18 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// GET the agent string
 		case List("api", "agent-string") Get req =>
 			PlainTextResponse(ConnectionHelp.traceAgentCommand)
+
+		// POST an acknowledgment of an agent connection
+		case Paths.Acknowledgment(ack) Post req => ack match {
+			case TraceConnectionAcknowledgment.Acknowledged(target) =>
+				traceConnectionAcknowledger().acknowledgeCurrentTrace(target)
+				OkResponse()
+			case TraceConnectionAcknowledgment.Rejected =>
+				traceConnectionAcknowledger().rejectCurrentTrace()
+				OkResponse()
+			case _ =>
+				BadResponse()
+		}
 
 		// DELETE a project (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>

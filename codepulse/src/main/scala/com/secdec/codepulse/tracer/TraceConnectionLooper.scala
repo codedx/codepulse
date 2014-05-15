@@ -37,18 +37,37 @@ import com.secdec.bytefrog.hq.config.AgentConfiguration
 import java.net.SocketException
 import reactive.Observing
 import net.liftweb.common.Loggable
+import reactive.EventStream
+import reactive.EventSource
+import akka.util.Timeout
+import scala.concurrent.duration._
+import akka.pattern.ask
 
 object TraceConnectionLooper {
+
+	sealed trait State
+	case object Idle extends State
+	case object Connecting extends State
+	case class Running(target: TracingTarget) extends State
+
+	// message sent to get the current actor's state
+	private case object RequestState
+
+	// message sent to watch the actor's state changes
+	private case class WatchStateChanges(sub: EventStream[State] => Unit)
 
 	// messages for when an agent connects or not
 	private case class TraceConnected(counter: Int, trace: Trace)
 	private case class NoTraceConnected(counter: Int)
 
+	private case object TraceStarted
+	private case object TraceFinished
+
 	// message to trigger a request for trace acknowledgement
 	private case class RequestTraceAck(trace: Trace)
 
 	// message for when the agent connection has been acknowledged
-	private case class TraceAcknowledged(counter: Int, acked: Boolean)
+	private case class TraceAcknowledged(counter: Int, ack: TraceConnectionAcknowledgment)
 
 	// message to trigger the search for a new tracer agent connection
 	private case object RequestNewTrace
@@ -63,6 +82,15 @@ object TraceConnectionLooper {
 	case class API(loopActor: ActorRef) {
 		def start() = loopActor ! Start
 		def stop() = loopActor ! Stop
+
+		def getState = {
+			implicit val timeout = Timeout(5.seconds)
+			(loopActor ? RequestState).mapTo[State]
+		}
+
+		def watchStateChanges(sub: EventStream[State] => Unit) = {
+			loopActor ! WatchStateChanges(sub)
+		}
 	}
 
 	def create(actorSystem: ActorSystem, acknowledger: TraceConnectionAcknowledger): API = {
@@ -95,18 +123,32 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	  */
 	private var counter = 0
 
+	protected val stateChanges = new EventSource[State]
+	protected class StateReceive(val state: State, val receive: Receive)
+	protected def StateReceive(state: State, body: Receive): StateReceive = {
+		new StateReceive(state, body orElse {
+			case RequestState => sender ! state
+			case WatchStateChanges(sub) => sub(stateChanges)
+		})
+	}
+	protected def becomeState(newSR: StateReceive, discardOld: Boolean = true) = {
+		context.become(newSR.receive, discardOld)
+		println(s"Connection Looper becoming state ${newSR.state}")
+		stateChanges fire newSR.state
+	}
+
 	// initially, the looper does nothing until `Start`ed
-	def receive = Stopped
+	def receive = StateStopped.receive
 
 	/** IDLE
 	  * In this state, the actor expects a `RequestNewTrace` message
 	  * in order to actually initiate a new trace request.
 	  */
-	val Idle: Receive = {
+	val StateIdle = StateReceive(Idle, {
 		case RequestNewTrace => onRequestNewTrace(counter)
 
 		case Stop => onStop()
-	}
+	})
 
 	/** STOPPED
 	  * In this state, the "loop" is not running. Any trace-related
@@ -114,11 +156,11 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	  * have been requested earlier will be killed when they report in.
 	  * To exit the "STOPPED" state, send a `Start` message.
 	  */
-	val Stopped: Receive = {
+	val StateStopped = StateReceive(Idle, {
 		case TraceConnected(anyCounter, trace) => trace.kill()
 
 		case Start => onStart()
-	}
+	})
 
 	/** WAITING FOR TRACE
 	  * In this state, a trace connection request has been made but not
@@ -126,7 +168,7 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	  * succeeds, the actor will seek acknowledgement for the trace (via
 	  * the `acknowledgeTrace` constructor argument).
 	  */
-	def WaitingForTrace(currentCounter: Int): Receive = {
+	def WaitingForTrace(currentCounter: Int) = StateReceive(Idle, {
 		case TraceConnected(`currentCounter`, trace) => onTraceConnected(currentCounter, trace)
 		case NoTraceConnected(`currentCounter`) => onStart()
 
@@ -137,7 +179,7 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 			logger.debug(s"A trace failed to connect, but the counter was wrong, so we don't care. ($wrongCounter but expected $currentCounter)")
 
 		case Stop => onStop()
-	}
+	})
 
 	/** WAITING FOR ACK
 	  * In this state, a connected trace has been sent for acknowledgement.
@@ -146,15 +188,19 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	  * and may forget about it. Otherwise, the trace is considered "rejected"
 	  * and will be killed before restarting the loop.
 	  */
-	def WaitingForAcknowledgement(currentCounter: Int, trace: Trace): Receive = {
-		case TraceAcknowledged(`currentCounter`, acked) =>
-			// if the trace was not acknowledged, start the app without tracing
-			if (!acked) {
-				stopTracing(trace)
-			}
+	def WaitingForAcknowledgement(currentCounter: Int, trace: Trace) = StateReceive(Connecting, {
+		case TraceAcknowledged(`currentCounter`, ack) =>
+			import TraceConnectionAcknowledgment._
+			ack match {
+				// if the trace was not acknowledged, start the app without tracing
+				case Rejected | Canceled =>
+					stopTracing(trace)
+					onStart()
 
-			// either way, start looking for a new one
-			onStart()
+				// if the trace *was* acknowledged, start tracing
+				case Acknowledged(target) =>
+					onTraceAcknowledged(trace, target)
+			}
 
 		case TraceAcknowledged(wrongCounter, acked) =>
 			// An old trace connection (that probably died) was [un-]acknowledged,
@@ -165,7 +211,11 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 		case Stop =>
 			stopTracing(trace)
 			onStop()
-	}
+	})
+
+	def StateRunning(trace: Trace, target: TracingTarget) = StateReceive(Running(target), {
+		case TraceFinished => onStart()
+	})
 
 	/** Turn off the trace and allow the traced app to run normally.
 	  * This needs to happen when a trace is rejected, or when the looper
@@ -205,18 +255,18 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	// called to initate a new loop iteration from the IDLE state
 	def onStart() = {
 		counter += 1
-		context become Idle
+		becomeState(StateIdle)
 		self ! RequestNewTrace
 	}
 
 	// called when a `Stop` message is received, to move to the STOPPED state
-	def onStop() = {
-		context become Stopped
+	def onStop(): Unit = {
+		becomeState(StateStopped)
 	}
 
 	// called when a new trace is requested, to move to the WAITING FOR TRACE state
-	def onRequestNewTrace(currentCounter: Int) = {
-		context become WaitingForTrace(currentCounter)
+	def onRequestNewTrace(currentCounter: Int): Unit = {
+		becomeState(WaitingForTrace(currentCounter))
 
 		logger.debug("Requesting a new Trace connection")
 
@@ -228,8 +278,8 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	}
 
 	// called when a trace is connected, to move to the WAITING FOR ACK state
-	def onTraceConnected(currentCounter: Int, trace: Trace) = {
-		context become WaitingForAcknowledgement(currentCounter, trace)
+	def onTraceConnected(currentCounter: Int, trace: Trace): Unit = {
+		becomeState(WaitingForAcknowledgement(currentCounter, trace))
 
 		val acknowledgment = acknowledger.getTraceAcknowledgment(trace)
 
@@ -240,12 +290,26 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 			if !acknowledgment.isCompleted
 		} {
 			acknowledger.cancelCurrentAcknowledgmentRequest()
+			// TODO: notify the user that the connection was dropped
+			println("Agent connection was dropped I think. TODO: notify the frontend about this")
 			onStart()
 		}
 
-		acknowledgment onComplete {
-			case Success(true) => self ! TraceAcknowledged(currentCounter, true)
-			case _ => self ! TraceAcknowledged(currentCounter, false)
+		import akka.pattern.pipe
+		acknowledgment map { TraceAcknowledged(currentCounter, _) } pipeTo self
+	}
+
+	def onTraceAcknowledged(trace: Trace, target: TracingTarget): Unit = {
+		becomeState(StateRunning(trace, target))
+
+		target.connectTrace(trace) onComplete {
+			case Success(_) =>
+				trace.completion onComplete {
+					case _ => self ! TraceFinished
+				}
+			case Failure(_) =>
+				stopTracing(trace)
+				onStart()
 		}
 	}
 

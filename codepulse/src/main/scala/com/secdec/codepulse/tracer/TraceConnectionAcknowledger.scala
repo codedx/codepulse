@@ -35,6 +35,24 @@ import akka.actor.ActorSystem
 import scala.concurrent.Promise
 import scala.util.Success
 
+/** Represents a possible reaction to an incoming agent connection,
+  * by either the user or the system.
+  */
+sealed trait TraceConnectionAcknowledgment
+object TraceConnectionAcknowledgment {
+
+	/** The user acknowledged the connection, intending to trace with the given `target` */
+	case class Acknowledged(target: TracingTarget) extends TraceConnectionAcknowledgment
+
+	/** The user rejected the connection, so it should be dropped */
+	case object Rejected extends TraceConnectionAcknowledgment
+
+	/** The system stopped caring about the connection, probably because
+	  * it dropped itself.
+	  */
+	case object Canceled extends TraceConnectionAcknowledgment
+}
+
 /** An object that manages the acceptance and rejection of traces. Instances of
   * this trait will generally have two clients; one that requests acknowledgment
   * or traces (and potentially cancels its request for acknowledgment); and another
@@ -58,27 +76,25 @@ trait TraceConnectionAcknowledger {
 	/** Requests acknowledgment of the given `trace`. The acknowledgment is returned as
 	  * a `Future`. The future will complete with a different value depending on which
 	  * other method is called; `cancelCurrentAcknowledgmentRequest` will cause the
-	  * acknowledgment future to fail with an exception; `acknowledgeCurrentTrace`
-	  * will cause the future to complete with `true` (as well as connect the trace
-	  * to the given `TracingTarget`); `rejectCurrentTrace` will cause the future to
-	  * complete with `false`.
+	  * acknowledgment future to complete as `Canceled`; `acknowledgeCurrentTrace`
+	  * will cause the future to complete as `Acknowledged`, associated with a given
+	  * `TracingTarget`; `rejectCurrentTrace` will cause the future to complete as `Rejected`.
 	  */
-	def getTraceAcknowledgment(trace: Trace): Future[Boolean]
+	def getTraceAcknowledgment(trace: Trace): Future[TraceConnectionAcknowledgment]
 
 	/** If there is currently a request waiting for acknowledgment of a trace,
-	  * its future will complete with an exception. If not, this method has no effect.
+	  * its future will complete as `Canceled`. If not, this method has no effect.
 	  */
 	def cancelCurrentAcknowledgmentRequest()
 
 	/** If there is currently a request waiting for acknowledgment of a trace,
-	  * its future will complete with `true`, and the awaiting trace will be
-	  * connected to the given `target` to begin tracing. If not, this method
+	  * its future will complete with `Acknowledged(target)`. If not, this method
 	  * has no effect.
 	  */
 	def acknowledgeCurrentTrace(target: TracingTarget)
 
 	/** If there is currently a request waiting for acknowledgment of a trace,
-	  * its future will complete with `false`. If not, this method has no effect.
+	  * its future will complete as `Rejected`. If not, this method has no effect.
 	  */
 	def rejectCurrentTrace()
 }
@@ -93,7 +109,7 @@ object TraceConnectionAcknowledgerActor {
 	  * The actor should fulfil the `ackPromise` once the user accepts
 	  * or rejects the trace.
 	  */
-	case class RequestAcknowledgment(trace: Trace, ackPromise: Promise[Boolean])
+	case class RequestAcknowledgment(trace: Trace, ackPromise: Promise[TraceConnectionAcknowledgment])
 
 	case object CancelCurrentAcknowledgementRequest
 
@@ -111,8 +127,8 @@ object TraceConnectionAcknowledgerActor {
 	  */
 	case class API(acknowledgerActor: ActorRef) extends TraceConnectionAcknowledger {
 
-		def getTraceAcknowledgment(trace: Trace): Future[Boolean] = {
-			val ackPromise = Promise[Boolean]
+		def getTraceAcknowledgment(trace: Trace): Future[TraceConnectionAcknowledgment] = {
+			val ackPromise = Promise[TraceConnectionAcknowledgment]
 			acknowledgerActor ! RequestAcknowledgment(trace, ackPromise)
 			ackPromise.future
 		}
@@ -160,7 +176,7 @@ class TraceConnectionAcknowledgerActor extends Actor with Stash with Loggable {
 	  * until the state changes back to normal (which will happen once the promise is
 	  * completed).
 	  */
-	def waitForUserAck(trace: Trace, ackPromise: Promise[Boolean]) = {
+	def waitForUserAck(trace: Trace, ackPromise: Promise[TraceConnectionAcknowledgment]) = {
 
 		/*
 		 * NOTE: if the timing is (un)lucky, the ackPromise might be completed
@@ -172,18 +188,17 @@ class TraceConnectionAcknowledgerActor extends Actor with Stash with Loggable {
 		context.become({
 
 			case UserAcknowledgement(target) =>
-				if (ackPromise trySuccess true) {
+				if (ackPromise trySuccess TraceConnectionAcknowledgment.Acknowledged(target)) {
 					logger.info(s"User acknowledged trace. Connected to ${target}")
-					// TODO: actually connect
 				}
 
 			case CancelCurrentAcknowledgementRequest =>
-				if (ackPromise tryFailure new Exception("Acknowledgement Request Cancelled")) {
+				if (ackPromise trySuccess TraceConnectionAcknowledgment.Canceled) {
 					logger.info("Acknowledgement was cancelled")
 				}
 
 			case UserReject =>
-				if (ackPromise trySuccess false) {
+				if (ackPromise trySuccess TraceConnectionAcknowledgment.Rejected) {
 					logger.info("User rejected trace.")
 				}
 
