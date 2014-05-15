@@ -207,6 +207,10 @@
 
 		'renameProject': function(newName, callback){
 			postCommand('/rename', {'name': newName}, callback)
+		},
+
+		'getDependencyCheckStatus': function(callback) {
+			$.getJSON(commandPath('/dcstatus'), callback)
 		}
 	}
 

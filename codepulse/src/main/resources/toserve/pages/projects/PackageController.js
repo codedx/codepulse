@@ -80,7 +80,7 @@
 			/*getChanges*/ function(pw){ return pw.instrumentationSelectedProp.changes() }
 			)
 
-		var widgets = {}
+		var widgets = {}, nodes = {}
 
 		// build this into a Map[node.id -> packageNode]
 		// Note: the package tree doesn't include all nodes; instead, it includes
@@ -127,6 +127,19 @@
 
 		})(treeData.root, undefined)
 
+		function setVulnerable(node, pw) {
+			if (node) {
+				pw = pw || widgets[node.id]
+				pw.addVulnerableBadge(true)
+
+				;(function bubbleUp(n) {
+					if (!n) return
+					if (widgets[n.id]) widgets[n.id].addVulnerableBadge(false)
+					bubbleUp(n.parent)
+				})(node.parent)
+			}
+		}
+
 		var widgetCount = 0
 
 		// initialize the `stateTemplate` and `widgets` maps
@@ -134,6 +147,7 @@
 		;(function setupTreeHierarchy(packageParentNode, node){
 
 			var pw = new PackageWidget()
+			nodes[node.id] = node
 			widgets[node.id] = pw
 			pw.associatedNode = node
 			// pw.parentNode = packageParentNode
@@ -147,6 +161,8 @@
 				pw.collapseChildren('toggle', true)
 				event.stopPropagation()
 			})
+
+			if (node.vulnerable) setVulnerable(node, pw)
 
 			node.children
 				.sort(function(a,b){
@@ -194,6 +210,33 @@
 			}
 
 		})(undefined, treeData.root)
+
+		// wire up the dependency area to listen for dependency check status
+		var depRoot = false
+		treeData.root.children.forEach(function (subroot) {
+			if (subroot.kind == 'group' && subroot.label == 'JARs') {
+				depRoot = widgets[subroot.id]
+				$(document).on('dependencycheck-update', function(e, update) {
+					console.log(update.summary)
+					if (update.project == CodePulse.projectPageId) {
+						depRoot.addDependencyCheckBadge(update.summary)
+
+						update.vulnerableNodes.forEach(function (nid) {
+							// mark any vulnerable nodes as vulnerable.
+							// this will NOT unmark any previously marked nodes, we're not
+							// expecting nodes to become not-vulnerable
+							setVulnerable(nodes[nid])
+						})
+					}
+				})
+			}
+		})
+
+		if (depRoot)
+			API.getDependencyCheckStatus(function(data) {
+				console.log(data)
+				depRoot.addDependencyCheckBadge(data)
+			})
 
 		console.log('created', widgetCount, 'PackageWidgets')
 

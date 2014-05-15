@@ -19,6 +19,7 @@
 
 package bootstrap.liftweb
 
+import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
 import com.secdec.codepulse.components.includes.snippet.Includes
 import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.version.snippet.VersionSnippet
@@ -48,6 +49,7 @@ private[liftweb] object BootSnippets {
 			case CometTracerUI.className => new CometTracerUI
 			case "ProjectListUpdates" => new ProjectListUpdates(projectManager)
 			case "Notifications" => Notifications
+			case "DependencyCheck" => DependencyCheckUpdates
 		}
 
 		LiftRules.cometCreation append {

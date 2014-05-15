@@ -26,6 +26,7 @@ import scala.concurrent.Future
 
 import org.apache.commons.io.FilenameUtils
 
+import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
@@ -181,12 +182,19 @@ object ProjectUploadData {
 		{
 			import dependencycheck._
 
+			def updateStatus(status: DependencyCheckStatus, vulnNodes: Seq[Int] = Nil) {
+				projectData.metadata.dependencyCheckStatus = status
+				DependencyCheckUpdates.pushUpdate(projectData.id, projectData.metadata.dependencyCheckStatus, vulnNodes)
+			}
+
+			updateStatus(DependencyCheckStatus.Queued)
+
 			val treeNodeData = projectData.treeNodeData
 			val scanSettings = ScanSettings(file, projectData.metadata.name, projectData.id)
 
 			dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) {
 				// before running, set status to running
-				projectData.metadata.dependencyCheckStatus = DependencyCheckStatus.Running
+				updateStatus(DependencyCheckStatus.Running)
 			} { reportDir =>
 				// on successful run, process the results
 				import scala.xml._
@@ -197,6 +205,7 @@ object ProjectUploadData {
 
 				var deps = 0
 				var vulnDeps = 0
+				val vulnNodes = List.newBuilder[Int]
 
 				for {
 					dep <- x \\ "dependency"
@@ -207,15 +216,18 @@ object ProjectUploadData {
 						vulnDeps += 1
 						val f = new File((dep \ "filePath").text)
 						val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
-						for (node <- treeNodeData getNode jarLabel) node.flags += TreeNodeFlag.HasVulnerability
+						for (node <- treeNodeData getNode jarLabel) {
+							node.flags += TreeNodeFlag.HasVulnerability
+							vulnNodes += node.id
+						}
 					}
 				}
 
-				projectData.metadata.dependencyCheckStatus = DependencyCheckStatus.Finished(deps, vulnDeps)
+				updateStatus(DependencyCheckStatus.Finished(deps, vulnDeps), vulnNodes.result)
 			} { exception =>
 				// on error, set status to failed
 				println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
-				projectData.metadata.dependencyCheckStatus = DependencyCheckStatus.Failed
+				updateStatus(DependencyCheckStatus.Failed)
 			}
 		}
 	}

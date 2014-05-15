@@ -28,7 +28,7 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.dependencycheck.DependencyCheckStatus
+import com.secdec.codepulse.dependencycheck.{ DependencyCheckStatus, JsonHelpers => DCJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
 import akka.actor.Cancellable
@@ -46,6 +46,7 @@ import java.net.BindException
 import java.util.Locale
 import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
+import DCJson._
 
 class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -185,6 +186,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/<target.id>/status */
 		val Status = simpleTargetPath("status")
 
+		/** /api/<target.id>/dcstatus */
+		val DepCheckStatus = simpleTargetPath("dcstatus")
+
 		/** /api/<target.id>/export */
 		val Export = simpleTargetPath("export")
 
@@ -260,16 +264,6 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				val data = target.projectData
 				val href = ProjectDetailsPage.projectHref(target.id)
 
-				val depCheckStatus: JObject = data.metadata.dependencyCheckStatus match {
-					case DependencyCheckStatus.Queued => ("state" -> "queued")
-					case DependencyCheckStatus.Running => ("state" -> "running")
-					case DependencyCheckStatus.Finished(numDeps, numFlagged) => ("state" -> "finished") ~
-						("numDeps" -> numDeps) ~ ("numFlaggedDeps" -> numFlagged)
-					case DependencyCheckStatus.Failed => ("state" -> "failed")
-					case DependencyCheckStatus.NotRun => ("state" -> "none")
-					case DependencyCheckStatus.Unknown => ("state" -> "unknown")
-				}
-
 				for (traceState <- target.getState) yield ("id" -> target.id.num) ~
 					("name" -> data.metadata.name) ~
 					("hasCustomName" -> data.metadata.hasCustomName) ~
@@ -279,7 +273,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
 					("state" -> traceState.name) ~
-					("dependencyCheck" -> depCheckStatus)
+					("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
 			}
 
 			Future.sequence(projectJsonFutures) map { JsonResponse(_) }
@@ -366,6 +360,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// GET the current status of the trace
 		case Paths.Status(target) Get req =>
 			target.getState map { state => PlainTextResponse(state.name) }
+
+		// GET the current dependency check status for the trace
+		case Paths.DepCheckStatus(target) Get req =>
+			JsonResponse(target.projectData.metadata.dependencyCheckStatus.json)
 
 		// GET a project data export (as a .pulse file)
 		case Paths.Export(target) Get req =>

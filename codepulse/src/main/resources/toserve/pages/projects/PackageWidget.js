@@ -220,6 +220,74 @@
 			return self
 		}
 
+		this.addDependencyCheckBadge = function(status) {
+			if (status.state == 'none') return;
+
+			if (self.uiParts.vulnerableBadge) {
+				self.uiParts.vulnerableBadge.remove();
+				delete self.uiParts.vulnerableBadge;
+			}
+
+			var badge = self.uiParts.depCheckBadge
+			if (!badge) {
+				badge = PackageWidget.depCheckBadge.clone()
+				self.uiParts.depCheckBadge = badge
+				self.uiParts.labelText.before(badge)
+			}
+
+			var $status = $('#dependencycheck-status', badge),
+				$summary = $('#dependencycheck-summary', badge)
+
+			function setStatus(status) {
+				$summary.hide()
+				$status.show()
+				$status.text(status)
+			}
+
+			function setSummary(numVuln, numClean) {
+				$status.hide()
+				$summary.show()
+
+				var $numVuln = $('#dependencycheck-numvuln', $summary),
+					$numClean = $('#dependencycheck-numclean', $summary)
+
+				$numVuln.text(numVuln)
+				$numClean.text(numClean)
+			}
+
+			switch (status.state) {
+				case 'queued':
+				case 'running':
+					setStatus('[scanning]')
+					break
+
+				case 'failed':
+					setStatus('[failed]')
+					break
+
+				case 'unknown':
+					setStatus('[unknown]')
+					break
+
+				case 'finished':
+					setSummary(status.numFlaggedDeps, status.numDeps - status.numFlaggedDeps)
+					break
+			}
+		}
+
+		this.addVulnerableBadge = function(isSelf) {
+			if (!self.uiParts.depCheckBadge) {
+				var badge = self.uiParts.vulnerableBadge
+				if (!badge) {
+					badge = PackageWidget.vulnBadge.clone()
+					badge.addClass('bubbled')
+					self.uiParts.vulnerableBadge = badge
+					self.uiParts.labelText.before(badge)
+				}
+				if (isSelf) badge.removeClass('bubbled')
+			}
+		}
+
 		/*
 		Get or set the selected state:
 			`selected()` returns the state
@@ -349,6 +417,8 @@
 
 	$(document).ready(function(){
 		PackageWidget.template = $('#package-widget-template').attr('id', null).remove()
+		PackageWidget.vulnBadge = $('#package-widget-template-has-vuln').attr('id', null).remove()
+		PackageWidget.depCheckBadge = $('#package-widget-template-dependency-check').attr('id', null).remove()
 	})
 
 	exports.PackageWidget = PackageWidget
