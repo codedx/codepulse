@@ -61,8 +61,12 @@ body > .overlay:before {
  	background-color: #9C9C9C;
  	border-left: 1px solid black;
  }
+
+ .middle-column-alt.no-tab:not(.in-view) {
+ 	display: none;
+ }
  
- .middle-column-alt:not(.in-view):hover {
+ .middle-column-alt:not(.in-view):not(.no-tab):hover {
  	left: calc(100% - 260px);
  }
  
@@ -354,4 +358,37 @@ body > .overlay:before {
 
  	/* not displayed unless the container has '.no-selection' */
  	display: none;
+ }
+
+ /*************************\
+ | Dependency Check Report |
+ \*************************/
+
+ #dependency-check-report {
+ 	z-order: 3;
+ 	position: fixed;
+ 	top: 60px;
+ 	bottom: 25px;
+ }
+
+ .report-header {
+ 	height: 40px;
+ 	border-bottom: 2px solid black;
+ 	padding: 0 4px;
+ }
+
+ .report-header .header-text, .report-header .close-button {
+ 	color: white;
+ 	line-height: 40px;
+ }
+
+ .report-header .close-button {
+ 	float: right;
+ 	cursor: pointer;
+ }
+
+ .report-container {
+ 	height: calc(100% - 40px);
+ 	padding: 4px;
+ 	overflow-y: auto;
  }

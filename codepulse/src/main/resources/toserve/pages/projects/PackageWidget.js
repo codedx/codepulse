@@ -231,6 +231,10 @@
 			var badge = self.uiParts.depCheckBadge
 			if (!badge) {
 				badge = PackageWidget.depCheckBadge.clone()
+				badge.click(function(e) {
+					self.vulnerableBadgeClicks.push(e)
+					e.stopPropagation()
+				})
 				self.uiParts.depCheckBadge = badge
 				self.uiParts.labelText.before(badge)
 			}
@@ -280,6 +284,10 @@
 				var badge = self.uiParts.vulnerableBadge
 				if (!badge) {
 					badge = PackageWidget.vulnBadge.clone()
+					badge.click(function(e) {
+						self.vulnerableBadgeClicks.push(e)
+						e.stopPropagation()
+					})
 					badge.addClass('bubbled')
 					self.uiParts.vulnerableBadge = badge
 					self.uiParts.labelText.before(badge)
@@ -363,6 +371,8 @@
 		this.instrumentationSelectedProp = _instrumentationSelectedBus.toProperty(_instrumentationSelected).noLazy().skipDuplicates()
 
 		this.instrumentationSelectedClicks = new Bacon.Bus()
+
+		this.vulnerableBadgeClicks = new Bacon.Bus()
 
 		// ============================================================================
 		// Helper Methods

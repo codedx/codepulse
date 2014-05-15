@@ -198,6 +198,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/<target.id>/packageTree */
 		val PackageTree = simpleTargetPath("packageTree")
 
+		/** /api/<target.id>/vulnerableNodes */
+		val VulnerableNodes = simpleTargetPath("vulnerableNodes")
+
 		/** /api/<target.id>/treemap */
 		val Treemap = simpleTargetPath("treemap")
 
@@ -364,6 +367,19 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// GET the current dependency check status for the trace
 		case Paths.DepCheckStatus(target) Get req =>
 			JsonResponse(target.projectData.metadata.dependencyCheckStatus.json)
+
+		// GET the vulnerable nodes
+		case Paths.VulnerableNodes(target) Get req =>
+			def collectVulnNodes(node: PackageTreeNode): List[Int] = {
+				val children = node.children.flatMap(collectVulnNodes)
+
+				node.id match {
+					case Some(id) if node.vulnerable getOrElse false => id :: children
+					case _ => children
+				}
+			}
+			val vulnNodes = treeBuilderManager.get(target.id).packageTree.flatMap(collectVulnNodes)
+			JsonResponse(vulnNodes)
 
 		// GET a project data export (as a .pulse file)
 		case Paths.Export(target) Get req =>

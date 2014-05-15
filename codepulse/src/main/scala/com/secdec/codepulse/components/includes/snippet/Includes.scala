@@ -142,5 +142,6 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		CSS("pages/projects/trace-recording-controls.css"),
 		JS("pages/projects/editable.js"),
 		JS("pages/projects/projects.js"),
-		CSS("pages/projects/projects.css"))
+		CSS("pages/projects/projects.css"),
+		JS("pages/projects/DependencyCheck.js"))
 }

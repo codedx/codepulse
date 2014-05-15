@@ -41,7 +41,6 @@ object PackageTreeStreamer {
 		jg.writeStringField("kind", node.kind.label)
 		jg.writeStringField("label", node.label)
 		jg.writeNumberField("methodCount", node.methodCount)
-		for (vulnerable <- node.vulnerable) jg.writeBooleanField("vulnerable", vulnerable)
 		for (traced <- node.traced) jg.writeBooleanField("traced", traced)
 
 		if (!node.otherDescendantIds.isEmpty) {

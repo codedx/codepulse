@@ -31,7 +31,10 @@ $(document).ready(function(){
 		packagesContainer = $('#packages'),
 
 		// initialize a treemap widget
-		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count')
+		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
+
+		// initialize dependency check controller
+		depCheckController = new DependencyCheckController($('#dependency-check-report'))
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
@@ -171,6 +174,11 @@ $(document).ready(function(){
 		$('#treemap').toggleClass('in-view', show)
 	})
 
+	// show the dependency check report, when applicable
+	depCheckController.reportShown.onValue(function(shown) {
+		$('#dependency-check-report').toggleClass('in-view', shown)
+	})
+
 	// Start a spinner to indicate that the package list is loading. 
 	// It will be stopped after the PackageController is created.
 	packagesContainer.overlay('wait')
@@ -188,7 +196,7 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, packagesContainer, $('#totals'), $('#clear-selections-button'))
+		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#clear-selections-button'))
 
 		packagesContainer.overlay('ready')
 
@@ -245,8 +253,9 @@ $(document).ready(function(){
 			return Bacon.fromCallback(API.projectTreeMap, selectedIds)
 		})
 
-		// Match the 'compactMode' with the 'showTreemap' state.
-		showTreemap.onValue(function(show){
+		// Match the 'compactMode' with the 'showTreemap' and 'reportShown' states.
+		var compactMode = showTreemap.or(depCheckController.reportShown)
+		compactMode.onValue(function(show){
 			controller.compactMode(show)
 			$('.packages-header').toggleClass('compact', show)
 		})

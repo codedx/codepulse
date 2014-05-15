@@ -211,6 +211,10 @@
 
 		'getDependencyCheckStatus': function(callback) {
 			$.getJSON(commandPath('/dcstatus'), callback)
+		},
+
+		'getVulnerableNodes': function(callback) {
+			$.getJSON(commandPath('/vulnerableNodes'), callback)
 		}
 	}
 
