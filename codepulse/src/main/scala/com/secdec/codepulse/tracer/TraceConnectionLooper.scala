@@ -19,29 +19,35 @@
 
 package com.secdec.codepulse.tracer
 
-import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 import scala.util.Failure
 import scala.util.Success
+
+import com.secdec.bytefrog.hq.data.processing.DataRouter
+import com.secdec.bytefrog.hq.trace.DefaultSegmentAccess
 import com.secdec.bytefrog.hq.trace.Trace
+import com.secdec.bytefrog.hq.trace.TraceDataManager
+import com.secdec.bytefrog.hq.trace.TraceEndReason
+import com.secdec.bytefrog.hq.trace.TraceSegmentManager
+import com.secdec.codepulse.components.notifications.NotificationMessage
+import com.secdec.codepulse.components.notifications.NotificationSettings
+import com.secdec.codepulse.components.notifications.Notifications
+
+import TraceConnectionAcknowledgment.Acknowledged
+import TraceConnectionAcknowledgment.Canceled
+import TraceConnectionAcknowledgment.Rejected
 import akka.actor.Actor
 import akka.actor.ActorRef
-import akka.actor.Props
 import akka.actor.ActorSystem
-import com.secdec.bytefrog.hq.trace.TraceSegmentManager
-import com.secdec.bytefrog.hq.trace.TraceDataManager
-import com.secdec.bytefrog.hq.trace.DefaultSegmentAccess
-import com.secdec.bytefrog.hq.data.processing.DataRouter
-import com.secdec.bytefrog.hq.trace.TraceEndReason
-import com.secdec.bytefrog.hq.config.TraceSettings
-import com.secdec.bytefrog.hq.config.AgentConfiguration
-import java.net.SocketException
-import reactive.Observing
-import net.liftweb.common.Loggable
-import reactive.EventStream
-import reactive.EventSource
-import akka.util.Timeout
-import scala.concurrent.duration._
+import akka.actor.Props
+import akka.actor.actorRef2Scala
 import akka.pattern.ask
+import akka.pattern.pipe
+import akka.util.Timeout
+import net.liftweb.common.Loggable
+import reactive.EventSource
+import reactive.EventStream
+import reactive.Observing
 
 object TraceConnectionLooper {
 
@@ -290,8 +296,7 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 			if !acknowledgment.isCompleted
 		} {
 			acknowledger.cancelCurrentAcknowledgmentRequest()
-			// TODO: notify the user that the connection was dropped
-			println("Agent connection was dropped I think. TODO: notify the frontend about this")
+			Notifications.enqueueNotification(NotificationMessage.AgentDisconnected, NotificationSettings.defaultDelayed(3000), persist = false)
 			onStart()
 		}
 
