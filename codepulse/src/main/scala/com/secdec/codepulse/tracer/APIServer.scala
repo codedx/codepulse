@@ -193,8 +193,6 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	  * Paths with their respective bits of data.
 	  */
 	object Paths {
-		/** /api/<target.id>/start */
-		val Start = simpleTargetPath("start")
 
 		/** /api/<target.id>/end */
 		val End = simpleTargetPath("end")
@@ -373,12 +371,6 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				.cancelProjectDeletion(target)
 				.map { _ => OkResponse() }
 				.recover { case e => new NotFoundResponse(e.getMessage) }
-
-		// POST a new tracer agent connection
-		case Paths.Start(target) Post req =>
-			//			target.requestNewTraceConnection()
-			// TODO: do other things to start the trace
-			OkResponse()
 
 		// POST the current trace to stop
 		case Paths.End(target) Post req =>
