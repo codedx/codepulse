@@ -54,14 +54,12 @@ $(document).ready(function(){
 		$uiContainer.addClass('trace-' + state)
 
 		if(state == 'running'){
-			console.log('running in state:', state)
 			$currentTraceMessage.removeClass('this-project other-project')
 			$currentTraceMessage.addClass(tracedProjectIsCurrent ? 'this-project' : 'other-project')
 			$currentTraceMessage.find('a')
 				.attr('href', CodePulse.projectPath(stateObj.tracedProject))
 			$currentTraceMessage.slideDown(150)
 		} else {
-			console.log('hide current trace message')
 			$currentTraceMessage.slideUp(150)
 		}
 
