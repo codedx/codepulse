@@ -430,12 +430,7 @@
 	// -------------------------------------------------------------------
 
 	$(document).ready(function(){
-		var controlsContainer = $('#recording-controls'),
-			newTraceArea = controlsContainer.find('.trace-setup-area'),
-			newTraceButton = newTraceArea.find('[data-role=new-trace]').hide(),
-			connectionWaitingText = newTraceArea.find('[data-role=connection-waiting]').hide(),
-			endTraceButton = newTraceArea.find('[data-role=end-trace]').hide(),
-			recordingControls = $('#recording-controls')
+		var controlsContainer = $('#recording-controls')
 		
 		Trace.allActivityRecordingId = createAllActivityRecording(controlsContainer)
 
@@ -471,56 +466,6 @@
 
 		// assign the 'trace-running' attribute to the controlsContainer, depending on the trace state
 		Trace.running.assign(controlsContainer, 'attr', 'trace-running')
-
-		// Update the state of the newTraceArea based on the Trace's state.
-		;(function(){
-			function togglerFunc($elem){
-				return function(show, animate){
-					if(animate) $elem[show? 'slideDown': 'slideUp']()
-					else $elem[show? 'show': 'hide']()
-				}
-			}
-			var toggleNewTraceButton = togglerFunc(newTraceButton),
-				toggleConnectingText = togglerFunc(connectionWaitingText),
-				toggleEndTraceButton = togglerFunc(endTraceButton)
-
-			function toggleFinishing(finishing){ endTraceButton.overlay(finishing ? 'wait': 'ready') }
-
-			function onStateChange(state, animate){
-				toggleNewTraceButton(state == 'idle', animate)
-				toggleConnectingText(state == 'connecting', animate)
-				toggleEndTraceButton(state == 'running' || state == 'ending', animate)
-				toggleFinishing(state == 'ending')
-			}
-
-			var gotFirstValue = false,
-				valuesThatCount = d3.set(['idle', 'connecting', 'running', 'ending'])
-
-			// When the state changes, show or hide the appropriate divs.
-			// Depending on whether this is the first 'visible' state change, the show/hide 
-			// effect will have an animation. (it animates after the initial change).
-			Trace.status.onValue(function(state){
-				var doAnimate = gotFirstValue
-
-				gotFirstValue = gotFirstValue || valuesThatCount.has(state)
-
-				onStateChange(state, doAnimate)
-			})
-		})()
-
-		/* Clicking the newTraceButton asks the server to look for
-		 * a new tracer connection. This may be ignored if the trace
-		 * is not in the 'idle' state.
-		 */
-		newTraceButton.find('.control-button').click(function(){ API.requestStart(exports.updateTraceAgentCommand) })
-
-		/* Clicking the endTraceButton asks the server to stop the
-		 * current trace (if there is one). Open a waiting overlay
-		 * that will be closed when the trace's state becomes 'finished'.
-		 */
-		endTraceButton.click(function(){ 
-			API.requestEnd() 
-		})
 
 	})
 

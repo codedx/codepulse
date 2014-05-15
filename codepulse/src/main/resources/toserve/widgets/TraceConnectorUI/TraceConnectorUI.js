@@ -101,7 +101,6 @@ $(document).ready(function(){
 	// 'connector-state-change' events when it changes state.
 	$(document).on('connector-state-change', function(e,data){
 		var state = $.extend(data, {animateSlide: true})
-		console.log('connector state change', JSON.stringify(state))
 		setUIState(state)
 	})
 
