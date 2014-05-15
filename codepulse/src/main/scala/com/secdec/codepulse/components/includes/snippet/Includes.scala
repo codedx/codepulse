@@ -143,4 +143,11 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("pages/projects/editable.js"),
 		JS("pages/projects/projects.js"),
 		CSS("pages/projects/projects.css"))
+
+	val traceConnectionUI = register("TraceConnectorUI",
+		overlay,
+		CSS("widgets/TraceConnectorUI/ConnectionHelpForm.css"),
+		JS("widgets/TraceConnectorUI/ConnectionHelpForm.js"),
+		CSS("widgets/TraceConnectorUI/TraceConnectorUI.css"),
+		JS("widgets/TraceConnectorUI/TraceConnectorUI.js"))
 }

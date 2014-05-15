@@ -1,0 +1,110 @@
+<div class="TraceConnectorUI lift:TraceConnectorState">
+
+	<lift:head>
+		<link class="lift:Includes.TraceConnectorUI" />
+	</lift:head>
+
+	<lift:comet type="TraceConnectorStateChanges"></lift:comet>
+
+	<!-- The settings box goes here -->
+	<div class="settings-container">
+
+		<!-- the settings slider slides out from the right, under the edge button -->
+		<div class="settings-slider">
+			<div class="settings-content">
+				<!-- the actual settings form and stuff goes in here -->
+
+				<div class="connection-help-form">
+					<div class="settings-header clearfix">
+						<h3>Settings</h3>
+
+						<div class="settings-controls">
+							<a class="control-button current-trace-link" href="#">
+								<i class="fa fa-cog fa-spin"></i>
+								See Traced Project
+							</a>
+
+							<div class="control-button stop-tracing-button">
+								<i class="fa fa-stop"></i>
+								Stop Tracing
+							</div>
+						</div>
+
+					</div>
+
+					<div class="form-field">
+						<input name="agent-port" class="control" type="text" />
+						<span class="control-label">Agent Connection Port</span>
+						<i title="The port number that Code Pulse listens for tracer agent connections on. In most cases, the default value should be acceptable." class="help fa fa-question-circle"></i>
+						<div id="agent-port-error" class="alert alert-danger hide"></div>
+					</div>
+
+					<div class="form-result success">
+						<!-- Appears only when the 'success' class is on -->
+						<div class="in-success">
+							<div class="agent-help-text">
+								To make a new trace connection, run your Java-based program 
+								with the following addition to the Java command line:
+							</div>
+
+							<!-- avoid whitespace inside this code tag -->
+							<code
+								class="lift:ConnectionHelp trace-agent-command"
+							><help:agentcommand>
+							<!-- -javaagent:bytefrog-tracer.jar=localhost:8765 -->
+							</help:agentcommand></code>
+						</div>
+
+						<!-- Appears only when the 'error' class is on -->
+						<div class="in-error">
+							<div class="error-message alert alert-danger">
+								<!-- dynamic error message -->
+								alart!
+							</div>
+						</div>
+					</div>
+
+				</div> <!-- end of connection help form -->
+
+			</div> <!-- end of settings content -->
+		</div> <!-- end of settings slider -->
+	</div>
+
+	<!-- The main button and slide-out message go here -->
+	<div class="main-container">
+
+		<!-- the message slider slides out from the right, under the gear button -->
+		<div class="message-slider">
+			<div class="message">
+				<div class="main-page-message">
+					A new agent connected.
+					Select, create, or import a project to trace, or
+					click to
+					<a role="drop">drop</a>
+					the connection.
+				</div>
+				<div class="project-page-message">
+					A new agent connected.
+					Click to trace
+					<a role="accept">this project</a>,
+					<a role="other">another project</a>,
+					or
+					<a role="drop">drop</a>
+					the connection
+				</div>
+			</div>
+		</div>
+
+		<!-- the gear button is the trigger to open the settings container -->
+		<div class="gear-button">
+
+			<!-- the gear container will do a spin animation when the trace is running -->
+			<div class="gear">
+				<!-- the fa-spin class makes the cog spin -->
+				<i class="fa fa-cog"></i>
+			</div>
+		</div>
+
+	</div>
+
+</div>

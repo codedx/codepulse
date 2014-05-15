@@ -19,6 +19,12 @@
 
  ;(function(CodePulse){
 
+	var homeRegex = /^(.*)\/(index(\.html)?)?$/,
+		projectRegex = /^(.*)\/projects\/(\d+)$/,
+		currentPath = document.location.pathname,
+		homeMatch = homeRegex.exec(currentPath),
+		projectMatch = projectRegex.exec(currentPath)
+
 	// The userAgent string expected from the node-webkit client
 	CodePulse.nativeUserAgent = 'CodePulse (node-webkit)'
 
@@ -27,6 +33,26 @@
 
 	// True if the client is node-webkit; False if the client is a browser
 	CodePulse.isEmbedded = (CodePulse.nativeUserAgent == CodePulse.currentUserAgent)
+
+	// Detect which page the user is looking at
+	CodePulse.isOnHomePage = homeMatch != null
+	CodePulse.isOnProjectPage = projectMatch != null
+	CodePulse.projectPageId = projectMatch && parseInt(projectMatch[2])
+
+	// in case CodePulse is running as a non-root .war in some javaEE web container,
+	// the path prefix might not be empty.
+	CodePulse.pathPrefix = (homeMatch && homeMatch[1]) || (projectMatch && projectMatch[1]) || ''
+
+	// Convenience functions to generate URL paths to the home and project pages.
+	CodePulse.homePath = function(){
+		return CodePulse.pathPrefix + '/'
+	}
+	CodePulse.projectPath = function(projectId){
+		return CodePulse.pathPrefix + '/projects/' + projectId
+	}
+	CodePulse.apiPath = function(endpoint){
+		return CodePulse.pathPrefix + '/api/' + endpoint
+	}
 
 	// Handle external links via the "external-href" attribute
 	$(document).ready(function(){

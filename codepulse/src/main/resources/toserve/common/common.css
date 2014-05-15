@@ -336,34 +336,6 @@ a.to-login:hover { border-bottom-style: solid; }
     background-color: rgb(207, 32, 32);
 }
 
-.error-messages.at-top {
-	z-index: 1;
-	position: absolute;
-	left: 0;
-	right: 0;
-}
-
-.error-messages ul {
-	margin-left: 0px;
-}
-
-.error-messages.at-top ul {
-	margin-bottom: 0px;
-}
-
-.error-messages li {
-	color: white;
-	list-style-type: none;
-	padding: 5px;
-}
-
-.error-message {
-	color: white;
-    background-color: rgb(207, 32, 32);
-	padding: 5px;
-	display: block;
-}
-
 /* drop down menu re-coloring */
 .dropdown-menu .active>a, .dropdown-menu .active>a:hover {
 	background-color: #EF7600 !important;

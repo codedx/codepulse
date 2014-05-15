@@ -152,6 +152,9 @@ object Notifications extends CometActor with PublicCometInit with DispatchSnippe
 			case NotificationMessage.ProjectUndeletion(projectName) =>
 				attribs += "type" -> "undeletion"
 				attribs += "projectName" -> projectName
+
+			case NotificationMessage.AgentDisconnected =>
+				attribs += "type" -> "agent-disconnected"
 		}
 
 		// the optional 'autoDismissDelay' attribute

@@ -46,6 +46,8 @@ package object tracer {
 	val treeBuilderManager = new BootVar[TreeBuilderManager]
 	val projectFileUploadServer = new BootVar[ProjectFileUploadHandler]
 	val apiServer = new BootVar[APIServer]
+	val traceConnectionLooper = new BootVar[TraceConnectionLooper.API]
+	val traceConnectionAcknowledger = new BootVar[TraceConnectionAcknowledger]
 
 	def boot() {
 		val as = ProjectManager.defaultActorSystem
@@ -58,6 +60,12 @@ package object tracer {
 		treeBuilderManager set tbm
 
 		val tm = new ProjectManager(as)
+
+		traceConnectionAcknowledger set TraceConnectionAcknowledgerActor.create(as)
+
+		val looper = TraceConnectionLooper.create(as, traceConnectionAcknowledger())
+		looper.start()
+		traceConnectionLooper set looper
 
 		actorSystem set as
 		projectManager set tm

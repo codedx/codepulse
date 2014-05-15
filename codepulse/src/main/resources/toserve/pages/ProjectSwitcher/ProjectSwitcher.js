@@ -38,9 +38,18 @@ template html.
 	// the main exported variable, defined later
 	var ProjectSwitcher
 
+	// flag for if the sidebar is shown
+	var isSidebarOpen = false
+
+	// save any trigger buttons
+	var triggers = $()
+
 	$(document).ready(function(){
 		// get references to the moving parts
 		slideDownSidebar = $('.projectSwitcher .slideDownSidebar')
+
+		// update the flag for if the sidebar is open
+		isSidebarOpen = !slideDownSidebar.hasClass('collapsed')
 
 		// auto-setup a master button control to toggle the ProjectSwitcher view
 		$('[data-toggle=ProjectSwitcher]').each(function(){
@@ -52,21 +61,36 @@ template html.
 	function showSidebar(arg){
 		if(!slideDownSidebar) return
 
-		var isCollapsed = slideDownSidebar.hasClass('collapsed'),
-			shouldBeCollapsed = (arg == 'toggle') ? !isCollapsed : !arg
+		// if it is already shown, shake it to draw attention
+		if(arg == true && isSidebarOpen){
+			shakeSidebar()
+			return true
+		}
 
-		slideDownSidebar.toggleClass('collapsed', shouldBeCollapsed)
+		// collapse or expand depending on the argument
+		isSidebarOpen = (arg == 'toggle') ? !isSidebarOpen : arg
+		slideDownSidebar.toggleClass('collapsed', !isSidebarOpen)
 
-		return !shouldBeCollapsed
+		// update the 'active' state on all of the trigger buttons
+		triggers.toggleClass('active', isSidebarOpen)
+
+		// return the new open state
+		return isSidebarOpen
+	}
+
+	function shakeSidebar(){
+		if(!slideDownSidebar) return
+
+		// The shake css class (in ProjectSwitcher.css) starts an animation.
+		// When that animation ends, remove the shake class so we can add it again later.
+		slideDownSidebar.addClass('shake')
+		slideDownSidebar.one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+			function(){ slideDownSidebar.removeClass('shake') })
 	}
 
 	function wireUpController($button){
-		var switcherOpen = false
-		$button.click(function(){
-			switcherOpen = !switcherOpen
-			ProjectSwitcher[switcherOpen ? 'open': 'close']()
-			$button.toggleClass('active', switcherOpen)
-		})
+		triggers = triggers.add($button)
+		$button.click(function(){ showSidebar('toggle') })
 	}
 
 	ProjectSwitcher = exports['ProjectSwitcher'] = {

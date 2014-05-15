@@ -20,32 +20,29 @@
 package com.secdec.codepulse.tracer
 
 import java.util.concurrent.TimeoutException
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.util.Failure
 import scala.util.Success
-
 import com.secdec.bytefrog.hq.trace.Trace
 import com.secdec.bytefrog.hq.trace.TraceEndReason
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.model.ProjectId
-
 import akka.actor._
 import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
+import com.secdec.bytefrog.hq.config.AgentConfiguration
 
 sealed abstract class TracingTargetState(val name: String)
 object TracingTargetState {
 	case object Loading extends TracingTargetState("loading")
 	case object LoadingFailed extends TracingTargetState("loading-failed")
 	case object Idle extends TracingTargetState("idle")
-	case object Connecting extends TracingTargetState("connecting")
 	case object Running extends TracingTargetState("running")
 	case object Ending extends TracingTargetState("ending")
 	case object DeletePending extends TracingTargetState("delete-pending")
@@ -75,7 +72,6 @@ trait TracingTarget {
 	def id: ProjectId
 
 	def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit)(implicit exc: ExecutionContext): Future[Unit]
-	def requestNewTraceConnection()(implicit exc: ExecutionContext): Future[Unit]
 	def requestTraceEnd()(implicit exc: ExecutionContext): Future[Unit]
 	def getState: Future[TracingTargetState]
 
@@ -84,6 +80,8 @@ trait TracingTarget {
 
 	private val deletionKeyGen = Iterator from 0 map { id => new DeletionKey(id) }
 	protected def newDeletionKey = deletionKeyGen.next
+
+	def connectTrace(trace: Trace)(implicit exc: ExecutionContext): Future[Unit]
 
 	def setDeletePending()(implicit exc: ExecutionContext): (DeletionKey, Future[Unit])
 	def cancelPendingDeletion()(implicit exc: ExecutionContext): Future[Unit]
@@ -122,12 +120,11 @@ object AkkaTracingTarget {
 	// ----
 	private case object LoadingFinished extends TargetRequest
 	private case object LoadingFailed extends TargetRequest
-	private case object RequestTraceConnect extends TargetRequest
 	private case object RequestTraceEnd extends TargetRequest
 	private case class Subscribe(f: EventStream[TracingTargetState] => Unit) extends TargetRequest
 	private case object RequestState extends TargetRequest
 
-	private case class TraceConnected(trace: Trace)
+	private case class TraceConnected(trace: Trace) extends TargetRequest
 	private case class TraceEnded(reason: TraceEndReason)
 
 	/* SetDeletePending and FinalizeDeletion use an `inc` id, e.g.
@@ -144,7 +141,6 @@ object AkkaTracingTarget {
 
 	private class TracingTargetImpl(val id: ProjectId, actor: ActorRef, val projectData: ProjectData, val transientData: TransientTraceData) extends TracingTarget with AskSupport {
 		def subscribeToStateChanges(sub: EventStream[TracingTargetState] => Unit)(implicit exc: ExecutionContext) = getAckFuture(Subscribe(sub))
-		def requestNewTraceConnection()(implicit exc: ExecutionContext) = getAckFuture(RequestTraceConnect)
 		def requestTraceEnd()(implicit exc: ExecutionContext) = getAckFuture(RequestTraceEnd)
 
 		def getState = {
@@ -172,6 +168,8 @@ object AkkaTracingTarget {
 
 			deletionKey -> deletionFuture
 		}
+
+		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = getAckFuture(TraceConnected(trace))
 
 		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
 		def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion(key))
@@ -202,16 +200,14 @@ object AkkaTracingTarget {
 
 }
 
-/** An Akka Actor that can be in one of 8 states while managing a Trace.
+/** An Akka Actor that can be in one of 7 states while managing a Trace.
   *
   * - **Loading** - The server is still analyzing the uploaded file. The trace
   * is not ready for any real interaction.
   * - **LoadingFailed** - Terminal state, where the Loading phase failed and whatever
   * data was generated should soon be deleted.
-  * - **Idle** - The trace is inactive. May transition to *Connecting* or *DeletePending*
+  * - **Idle** - The trace is inactive. May transition to *Tracing* or *DeletePending*
   * depending on user interaction.
-  * - **Connecting** - Waiting for a Tracer Agent to connect. Transitions to *Tracing*
-  * once the connection is established.
   * - **Tracing** - A Tracer Agent is connected and running. May transition to *Ending*
   * with user input, or directly back to *Idle* if the agent ends the trace on its own.
   * - **Ending** - Waiting for the trace to finish after a stop command. Transitions back
@@ -290,7 +286,9 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	  * which will cause the state to transition to the "Connecting" state.
 	  */
 	val StateIdle: State = State(TracingTargetState.Idle, {
-		case RequestTraceConnect => onTraceRequested()
+		case TraceConnected(t) =>
+			onTraceConnected(t)
+			sender ! Ack
 
 		case SetDeletePending(key) => changeState { StateDeletePending(sender, key) }
 	})
@@ -322,13 +320,6 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 
 	})
 
-	/** Currently waiting for a new Tracer Agent to connect.
-	  * The state will be advanced to "Tracing"
-	  */
-	val StateConnecting = State(TracingTargetState.Connecting, {
-		case TraceConnected(t) => onTraceConnected(t)
-	})
-
 	/** A trace is currently connected and running.
 	  * It may stop on its own, which would cause a TraceCompleted message.
 	  * Or the user might request the trace to end, which would cause a
@@ -350,24 +341,15 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	// Implementation of the State changes below here
 	// ----
 
-	private def onTraceRequested(): Unit = {
-		println("New Trace Requested")
-
-		// ask for a new trace via the TraceServer
-		val traceFuture = TraceServer.awaitNewTrace(projectData, jspMapper)
-
-		// when a new trace comes in, send a Msg to update the state
-		for (trace <- traceFuture) self ! TraceConnected(trace)
-
-		// change the state to "Connecting"
-		changeState(StateConnecting)
-	}
-
 	private def onTraceConnected(t: Trace): Unit = {
 		println("New Trace Connected")
 
 		// send a Msg to update the state when `t` completes
 		for (reason <- t.completion) self ! TraceEnded(reason)
+
+		// reconfigure the trace's settings so that it instruments the packages/jsps from this project
+		val traceSettings = TraceSettingsCreator.generateTraceSettings(projectData, jspMapper)
+		t.reconfigureAgent(traceSettings, AgentConfiguration())
 
 		// set up data management for the trace
 		val dataManager = new StreamingTraceDataManager(projectData, transientTraceData, jspMapper)

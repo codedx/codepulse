@@ -28,5 +28,5 @@ object NotificationMessage {
 
 	case class ProjectDeletion(projectName: String, undoHref: String) extends NotificationMessage
 	case class ProjectUndeletion(projectName: String) extends NotificationMessage
-
+	case object AgentDisconnected extends NotificationMessage
 }

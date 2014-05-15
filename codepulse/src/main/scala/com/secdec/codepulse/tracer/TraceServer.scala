@@ -28,6 +28,7 @@ import net.liftweb.http.LiftRules
 import bootstrap.liftweb.AppCleanup
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
+import com.secdec.bytefrog.hq.config.TraceSettings
 
 object TraceServer {
 
@@ -45,6 +46,10 @@ object TraceServer {
 	def port = socketServer.port
 	def setPort(newPort: Int) = socketServer.setPort(newPort)
 
+	/** Returns the next incoming trace connection (as a future).
+	  * This method uses the given `ProjectData` and optional `JspMapper` to
+	  * determine which classes will be instrumented.
+	  */
 	def awaitNewTrace(projectData: ProjectData, jspMapper: Option[JspMapper]) = {
 		val agentConfig = AgentConfiguration()
 		val hqConfig = HQConfiguration()
@@ -57,4 +62,13 @@ object TraceServer {
 
 		Trace.getTrace(configProvider)
 	}
+
+	def awaitNewTrace() = {
+		val configProvider = { () =>
+			val ts = TraceSettings(exclusions = List(".*"), inclusions = Nil)
+			(ts, AgentConfiguration(), HQConfiguration(), MonitorConfiguration())
+		}
+		Trace.getTrace(configProvider)
+	}
+
 }
