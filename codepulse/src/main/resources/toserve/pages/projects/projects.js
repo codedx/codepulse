@@ -64,6 +64,16 @@ $(document).ready(function(){
 		})
 	})()
 
+	// Set up the tooltip for the Code Treemap's info icon
+	$('#treemap-help-tooltip-trigger').qtip({
+		content: {
+			text: $('#treemap-help-tooltip-content')
+		},
+		style: {
+			classes: 'qtip-dark'
+		}
+	})
+
 	// Initial value for instrumentedPackages. This will be replaced
 	// once the PackageController is initialized.
 	Trace.instrumentedPackages = d3.set()
