@@ -1,3 +1,7 @@
+#recording-controls {
+	height: 100%;
+}
+
 #recording-controls h1 {
 	font-size: small;
 	border-bottom: 1px solid;
@@ -7,6 +11,39 @@
 
 #trace-controls {
 	overflow-y: auto;
+}
+
+#recording-controls .controls-container {
+	max-height: calc(100% - 24px);
+	overflow-y: auto;
+}
+
+#recording-controls .controls-menu {
+	position: absolute;
+	bottom: 0;
+	height: 24px;
+	width: 100%;
+	padding: 2px;
+	box-sizing: border-box;
+}
+
+/***********************\
+| Controls menu buttons |
+\***********************/
+
+.controls-menu .menu-button {
+	font-size: 14px;
+	color: teal;
+	background: #BEBEBE;
+	display: inline-block;
+	vertical-align: top;
+	padding: 0 4px;
+	float: right;
+	cursor: pointer;
+}
+
+.controls-menu .menu-button:hover {
+	background: #B0B0B0;
 }
 
 /*************************\

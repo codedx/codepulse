@@ -19,7 +19,6 @@
 
 ;(function(exports){
 	
-	// define variables to represent
 	var controlsContainer,
 		templatesContainer
 	
@@ -31,6 +30,8 @@
 
 	var traceCoverageUpdateRequests = new Bacon.Bus()
 	var traceRecordingColorUpdates = new Bacon.Bus()
+
+	var recordingColorResets = new Bacon.Bus()
 
 	// ColorBrewer's 'Paired12' scheme, but re-ordered to avoid 
 	// putting similar colors adjacent to each other.
@@ -55,6 +56,10 @@
 		nextTemplateColor.nextId = id + 1
 		nextTemplateColor.palette = c
 		return c(id)
+	}
+
+	nextTemplateColor.reset = function(){
+		nextTemplateColor.nextId = 0
 	}
 
 	RecordingController.nextId = 0
@@ -87,6 +92,10 @@
 			.setLabel('overlaps')
 			.setColor('purple')
 			.setDataKey('overlaps')
+
+		recordingColorResets.onValue(function(){
+			recording.setColor('purple')
+		})
 
 		var managedId = Trace.addRecording(recording)
 
@@ -210,11 +219,16 @@
 		var $swatchContainer = $(swatchContainer),
 			$swatch = $swatchContainer.find('.swatch')
 
-		colorpickerTooltip($swatch, recording.getColor(), {
+		var colorPicker = colorpickerTooltip($swatch, recording.getColor(), {
 			progressCallback: function(current){ $swatch.css('background-color', current) },
 			finishedCallback: function(choice){ choice && recording.setColor(choice) },
 			onOpen: function(){ $swatchContainer.addClass('editor-open') },
 			onClose: function(){ $swatchContainer.removeClass('editor-open') }
+		})
+
+		recording.color.onValue(function(color){
+			colorPicker.reset(color)
+			$swatch.css('background-color', color)
 		})
 	}
 
@@ -225,6 +239,10 @@
 			.setLabel('all activity')
 			.setDataKey('all')
 			.setColor('steelblue')
+
+		recordingColorResets.onValue(function(){
+			recording.setColor('steelblue')
+		})
 
 		var managedId = Trace.addRecording(recording)
 
@@ -246,6 +264,10 @@
 			widget = new RecordingWidget()
 
 		recording.setColor('darkgreen')
+
+		recordingColorResets.onValue(function(){
+			recording.setColor('darkgreen')
+		})
 
 		widget.$ui.find('.recording-label').addClass('no-icon')
 
@@ -389,7 +411,8 @@
 	// ----------------------------------------------------------------
 	function CustomRecordingAdder($adderButton, $recordingsList){
 
-		var isRunning = false
+		var isRunning = false,
+			addedRecordings = d3.set()
 
 		Trace.status.onValue(function(status){
 			isRunning = (status == 'running')
@@ -415,6 +438,7 @@
 			toShow[animate? 'slideDown': 'show']()
 
 			var managedId = Trace.addRecording(testRecording.recording)
+			addedRecordings.add(managedId)
 
 			// Watch the recording for coloring changes, sending the events
 			// to the treemapColoringStateChanges stream.
@@ -422,6 +446,17 @@
 				watchForTreemapColoringUpdates(testRecording.recording, managedId)
 			)
 		}
+
+		// handle color resets
+		recordingColorResets.onValue(function(){
+			nextTemplateColor.reset()
+			Trace.getManagedRecordingIds().forEach(function(id){
+				if(addedRecordings.has(id)){
+					var rec = Trace.getRecording(id)
+					rec && rec.setColor(nextTemplateColor())
+				}
+			})
+		})
 
 		this.addNewRecording = addNewRecording
 		
@@ -445,6 +480,7 @@
 
 		// Add a Recording/Widget for the "all activity"/"latest XXX"
 		var timeWindowsController = createRecentRecording(controlsContainer.find('.timingFilterArea'))
+		console.log(timeWindowsController)
 
 		var legendMultiplesKey = setupOverlapsRecording(controlsContainer)
 
@@ -475,6 +511,10 @@
 
 		// assign the 'trace-running' attribute to the controlsContainer, depending on the trace state
 		Trace.running.assign(controlsContainer, 'attr', 'trace-running')
+
+		$('#recording-color-resetter').click(function(){
+			recordingColorResets.push(1)
+		})
 
 	})
 

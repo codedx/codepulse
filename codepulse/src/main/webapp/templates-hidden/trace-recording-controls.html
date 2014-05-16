@@ -49,8 +49,9 @@
 	</div>
 	<!-- ^ end of #templates-container ^ -->
 
-	<h1>Treemap Legend</h1>
-	<div class="recordingsLegend">
+	<div class="controls-container">
+		<h1>Treemap Legend</h1>
+		<div class="recordingsLegend">
 		<div class="legend-entry clearfix">
 			<div class="swatch-container" id="all-activity-color-swatch">
 				<div class="swatch" style="background-color: red"></div>
@@ -64,28 +65,36 @@
 			</div>
 			<div class="legend-text">Overlaps</div>
 		</div>
-	</div>
-
-	<h1>
-		Timing Filter
-		<i class="help fa fa-question-circle" title="Select this to view methods that were called recently. You can also change the time window by using the menu button on the right."></i>
-	</h1>
-	<div class="timingFilterArea">
-		<!-- Latest X seconds recording goes here -->
-	</div>
-
-	<h1>
-		Recordings
-		<i class="help fa fa-question-circle" title="You can add recordings while the trace is running, and select them to view the methods that were called while they were active."></i>
-	</h1>
-	<div class="recordingsArea">
-		<!-- ADD RECORDING BUTTON -->
-		<div class="recording-adder-button">
-			<i class="fa fa-plus"></i> Start a Recording
 		</div>
 
-		<div class="recordingsList">
-			<!-- User-added recordings go here -->
+		<h1>
+			Timing Filter
+			<i class="help fa fa-question-circle" title="Select this to view methods that 	were called recently. You can also change the time window by using the menu 	button on the right."></i>
+		</h1>
+		<div class="timingFilterArea">
+			<!-- Latest X seconds recording goes here -->
+		</div>
+
+		<h1>
+			Recordings
+			<i class="help fa fa-question-circle" title="You can add recordings while the 	trace is running, and select them to view the methods that were called while 	they were active."></i>
+		</h1>
+		<div class="recordingsArea">
+			<!-- ADD RECORDING BUTTON -->
+			<div class="recording-adder-button">
+				<i class="fa fa-plus"></i> Start a Recording
+			</div>
+
+			<div class="recordingsList">
+				<!-- User-added recordings go here -->
+			</div>
+		</div>
+	</div>
+
+	<div class="controls-menu">
+		<div class="menu-button" id="recording-color-resetter">
+			<i class="fa fa-tint"></i>
+			reset colors
 		</div>
 	</div>
 
