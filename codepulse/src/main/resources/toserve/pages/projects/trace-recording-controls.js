@@ -388,14 +388,23 @@
 	// server in order to obtain a recording id.
 	// ----------------------------------------------------------------
 	function CustomRecordingAdder($adderButton, $recordingsList){
-		
+
+		var isRunning = false
+
+		Trace.status.onValue(function(status){
+			isRunning = (status == 'running')
+			$adderButton.toggleClass('disabled', !isRunning)
+		})
+
 		$adderButton.click(function(){
+			if(!isRunning) return
+
 			API.requestNewRecording(function(recordingData, error){
 				if(error) alert("failed to start a new recording because: " + error)
 				else addNewRecording(recordingData, true)
 			})
 		})
-		
+
 		function addNewRecording(recordingData, animate){
 			var testRecording = createUserRecording(recordingData)
 

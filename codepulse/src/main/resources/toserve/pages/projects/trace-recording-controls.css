@@ -172,21 +172,20 @@
 | Recording Adder Button |
 \************************/
 
- .recording-adder-button {
- 	display: none;
+.recording-adder-button {
+	padding: 5px;
+	margin-bottom: 2px;
+	cursor: pointer;
+}
 
- 	padding: 5px;
- 	margin-bottom: 2px;
- 	cursor: pointer;
- }
+.recording-adder-button.disabled {
+	color: #AAA;
+	cursor: default;
+}
 
- .recording-adder-button:hover {
- 	background-color: rgba(255,255,255,0.2);
- }
-
- [trace-running=true] .recording-adder-button {
- 	display: block;
- }
+.recording-adder-button:not(.disabled):hover {
+	background-color: rgba(255,255,255,0.2);
+}
 
 /***************************\
 | Start/Stop Trace Controls |
