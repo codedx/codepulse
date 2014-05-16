@@ -22,7 +22,8 @@
 	var packageTree = undefined,
 		coverageSets = {},
 		treeDataReady = false,
-		treeDataReadyCallbacks = []
+		treeDataReadyCallbacks = [],
+		treeDataReadyBus = new Bacon.Bus()
 
 	// Load the treemap data once the trace's status is no longer 'loading'
 	Trace.ready(function(){
@@ -32,6 +33,7 @@
 			packageTree = pt
 
 			treeDataReady = true
+			treeDataReadyBus.push(true)
 
 			treeDataReadyCallbacks.forEach(function(callback){
 				callback()
@@ -60,6 +62,8 @@
 	Trace.__defineGetter__('treeDataReady', function(){
 		return treeDataReady
 	})
+
+	Trace.treeDataReadyProp = treeDataReadyBus.toProperty(false).noLazy()
 
 	Trace.onTreeDataReady = function(callback){
 		if(treeDataReady) callback()

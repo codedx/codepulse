@@ -35,14 +35,23 @@ $(document).ready(function(){
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
-		Trace.status.onValue(function(status){
-			console.log('watching UI, status = ', status)
-			if(status == 'loading'){
-				$('body').overlay('wait')
-			} else {
-				$('body').overlay('ready')
-			}
 
+		// Cover the page in a 'loading' overlay while the project's
+		// data is being analyzed (aka 'loading').
+		Trace.isLoadingProp.onValue(function(loading){
+			$('body').overlay(loading ? 'wait' : 'ready')
+		})
+
+		// Show a loading indicator over the Application Inventory between the
+		// time that the main overlay ends and the time that the treemap data
+		// becomes available.
+		Trace.isLoadingProp.not().and(Trace.treeDataReadyProp.not())
+			.skipDuplicates()
+			.onValue(function(waiting){
+				packagesContainer.overlay(waiting ? 'wait' : 'ready')
+			})
+
+		Trace.status.onValue(function(status){
 			if(status == 'loading-failed'){
 				alert('Processing data failed. You will be redirected to the home screen.')
 				window.location.href = '/'
@@ -171,10 +180,6 @@ $(document).ready(function(){
 		$('#treemap').toggleClass('in-view', show)
 	})
 
-	// Start a spinner to indicate that the package list is loading. 
-	// It will be stopped after the PackageController is created.
-	packagesContainer.overlay('wait')
-
 	/*
 	 * Request the treemap data from the server. Note that coverage lists
 	 * are only specified for the most specific element; for the sake of 
@@ -189,8 +194,6 @@ $(document).ready(function(){
 		var packageTree = Trace.packageTree
 
 		var controller = new PackageController(packageTree, packagesContainer, $('#totals'), $('#clear-selections-button'))
-
-		packagesContainer.overlay('ready')
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
