@@ -190,6 +190,23 @@ $(document).ready(function(){
 		$('#treemap').toggleClass('in-view', show)
 	})
 
+	var treemapMaximizer = $('#treemap .maximizer')
+
+	var treemapMaximized = treemapMaximizer.asEventStream('click').map('toggle')
+		.merge(
+			showTreemap.changes().filter(function(show){ return !show }).map('hide')
+		)
+		.scan(false, function(state, command){
+			if(command == 'toggle') return !state
+			return false
+		})
+
+	treemapMaximized.onValue(function(maxed){
+		$('#treemap').toggleClass('maximized', maxed)
+		treemapMaximizer.attr('title', maxed ? 'collapse' : 'expand')
+	})
+
+
 	/*
 	 * Request the treemap data from the server. Note that coverage lists
 	 * are only specified for the most specific element; for the sake of 
