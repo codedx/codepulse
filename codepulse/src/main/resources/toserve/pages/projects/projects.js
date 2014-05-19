@@ -156,6 +156,7 @@ $(document).ready(function(){
 
 				if(numCovered == 0) {
 					if(coverage.has(allActivityId)){
+						// console.log('all activity coverage for', node, 'with coverage', coverage)
 						if(activeRecordingIds.empty()) return allActivityColor
 						else return allActivityColorFaded
 					} else {
@@ -311,11 +312,7 @@ $(document).ready(function(){
 		Trace.traceCoverageUpdateRequests.push('initial load')
 
 		function setTreemapCoverage(recordData){
-
-			for(var nodeId in recordData){
-				Trace.setNodeCoverage(nodeId, recordData[nodeId])
-			}
-
+			Trace.setCoverageMap(recordData)
 			treemapWidget.nodeColoring(treemapColoring())
 		}
 

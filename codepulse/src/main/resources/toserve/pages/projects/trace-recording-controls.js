@@ -232,16 +232,58 @@
 		})
 	}
 
-	function createAllActivityRecording(){
-		var recording = new Recording()
+	function createActivityTickerRecording(){
+		var recording = new Recording(),
+			$container = $('#activity-ticker'),
+			$swatch = $container.find('.swatch-container'),
+			$menuItems = $container.find('.dropdown-menu li'),
+			$label = $container.find('.legend-text'),
+			defaultColor = 'steelblue'
 
-		recording
-			.setLabel('all activity')
-			.setDataKey('all')
-			.setColor('steelblue')
-
+		// set the initial and reset color
+		recording.setColor(defaultColor)
 		recordingColorResets.onValue(function(){
-			recording.setColor('steelblue')
+			recording.setColor(defaultColor)
+		})
+
+		var menuItems = []
+
+		// fill in the menuItems array
+		$menuItems.each(function(){
+			var $li = $(this),
+				$a = $li.find('a'),
+				label = $a.text(),
+				key = $a.data('tickerKey'),
+				active = $li.hasClass('active')
+
+			$a.attr('href', 'javascript:void(0)')
+
+			menuItems.push({
+				'$li': $li,
+				'$a': $a,
+				'key': key,
+				'label': label
+			})
+		})
+
+		function activateItem(menuItem){
+			// set the `active` class
+			$menuItems.removeClass('active')
+			menuItem.$li.addClass('active')
+
+			recording
+				.setLabel(menuItem.label)
+				.setDataKey(menuItem.key)
+
+			$label.text(menuItem.label)
+		}
+
+		// activate the default item, now, and any item when clicked
+		menuItems.forEach(function(item, index){
+			if(index == 0) activateItem(item)
+			item.$a.click(function(){
+				activateItem(item)
+			})
 		})
 
 		var managedId = Trace.addRecording(recording)
@@ -250,92 +292,21 @@
 		// to the treemapColoringStateChanges stream.
 		Trace.treemapColoringStateChanges.plug(
 			recording.color.map(function(color){
-				return 'Recording Update: color(all activity) -> ' + color
+				return 'Recording Update: color(ticker) -> ' + color
 			})
-		)
-
-		setupRecordingColorpicker(recording, '#all-activity-color-swatch')
-
-		return managedId
-	}
-
-	function createRecentRecording(controlsContainer){
-		var recording = new Recording(),
-			widget = new RecordingWidget()
-
-		recording.setColor('darkgreen')
-
-		recordingColorResets.onValue(function(){
-			recording.setColor('darkgreen')
-		})
-
-		widget.$ui.find('.recording-label').addClass('no-icon')
-
-		var timeWindows = [
-			{label: 'Latest 10 seconds', dataKey: 'recent/10000'},
-			{label: 'Latest 60 seconds', dataKey: 'recent/60000'},
-			{label: 'Latest 2 minutes', dataKey: 'recent/120000'},
-			{label: 'Latest 5 minutes', dataKey: 'recent/300000'},
-			{label: 'Latest 10 minutes', dataKey: 'recent/600000'}
-		]
-
-		function generateMenu(setMenu){
-
-			var activeIndex = 0
-
-			function activateIndex(index){
-				activeIndex = index
-
-				timeWindows.forEach(function(tw, i){
-					tw.active = (i === index)
-				})
-				var label = timeWindows[index].label,
-					dataKey = timeWindows[index].dataKey
-
-				recording
-					.setLabel(label)
-					.setDataKey(dataKey)
-
-				setMenu(createMenu())
-			}
-
-			function createMenu(){
-				return timeWindows.map(function(tw, i){
-					if(tw.divider) return {
-						divider: true
-					} 
-					else return {
-						icon: 'time',
-						label: tw.label,
-						onSelect: function(){ activateIndex(i) },
-						selected: (i == activeIndex)
-					}
-				})
-			}
-
-			activateIndex(activeIndex)
-		}
-
-		// Register the recording with the Trace
-		var managedId = Trace.addRecording(recording)
-
-		// Add the recording UI to the container
-		widget.$ui.appendTo(controlsContainer)
-
-		// Watch the recording for coloring changes, sending the events
-		// to the treemapColoringStateChanges stream.
-		Trace.treemapColoringStateChanges.plug(
-			watchForTreemapColoringUpdates(recording, managedId)
 		)
 
 		// Watch the recording for scenarios where it should poll for
 		// coverage updates, forwarding these events to the 
 		// traceCoverageUpdateRequests stream.
+		var watcher = watchForRecentDataKeyChanges(recording, managedId)
 		Trace.traceCoverageUpdateRequests.plug(
-			watchForRecentDataKeyChanges(recording, managedId)
+			watcher
 		)
 
-		return new RecordingController(recording, widget, generateMenu)
+		setupRecordingColorpicker(recording, $swatch)
+
+		return managedId
 	}
 
 	// In order to minimize the frequency that the browser needs to request trace
@@ -351,13 +322,13 @@
 		return Bacon
 			// poll if the recording is selected and on a 'recent/*' dataKey
 			.combineWith(function(isSelected, dataKey){
-				if(isSelected && isRecentKey(dataKey)){
+				if(/*isSelected && */isRecentKey(dataKey)){
 					return 'poll'
-				} else if(isSelected){
+				} else /*if(isSelected)*/{
 					return 'once'
-				} else {
+				} /*else {
 					return false
-				}
+				}*/
 			}, recording.selected, recording.dataKey)
 			// if the `combineWith` returns true, kick off a polling stream
 			// (otherwise, do nothing)
@@ -476,12 +447,12 @@
 	$(document).ready(function(){
 		var controlsContainer = $('#recording-controls')
 		
-		Trace.allActivityRecordingId = createAllActivityRecording(controlsContainer)
+		// Set up the 'ticker' recording, which holds the 'all activity'
+		// and the 'latest X seconds' recordings.
+		Trace.allActivityRecordingId = createActivityTickerRecording()
 
-		// Add a Recording/Widget for the "all activity"/"latest XXX"
-		var timeWindowsController = createRecentRecording(controlsContainer.find('.timingFilterArea'))
-		console.log(timeWindowsController)
-
+		// set up the 'overlaps' recording, which represents overlaps in
+		// coverage between multiple selected recordings
 		var legendMultiplesKey = setupOverlapsRecording(controlsContainer)
 
 		Trace.getColorLegend = function(){

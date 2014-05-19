@@ -7,6 +7,7 @@
 	border-bottom: 1px solid;
 	line-height: 20px;
 	margin: 5px;
+	margin-bottom: 0;
 }
 
 #trace-controls {
@@ -14,6 +15,7 @@
 }
 
 #recording-controls .controls-container {
+	height: calc(100% - 24px);
 	max-height: calc(100% - 24px);
 	overflow-y: auto;
 }
@@ -33,17 +35,18 @@
 
 .controls-menu .menu-button {
 	font-size: 14px;
-	color: teal;
-	background: #BEBEBE;
-	display: inline-block;
+	color: steelblue;
+	background: #C7C7C7;
 	vertical-align: top;
-	padding: 0 4px;
-	float: right;
 	cursor: pointer;
+
+	width: 100px;
+	margin: 0 auto;
+	text-align: center;
 }
 
 .controls-menu .menu-button:hover {
-	background: #B0B0B0;
+	background: #BEBEBE;
 }
 
 /*************************\
@@ -322,11 +325,30 @@
 | Activity Legend Styles |
 \************************/
 
- .recordingsLegend .legend-entry {
- 	line-height: 30px;
- 	font-size: small;
- }
+.recordingsLegend .legend-entry {
+	line-height: 30px;
+	font-size: small;
+	border-bottom: 1px solid #bebebe;
+}
 
+.recordingsLegend .legend-text {
+	display: inline-block;
+}
+
+.recordingsLegend .legend-menu {
+	display: inline-block;
+	float: right;
+}
+
+.recordingsLegend .legend-menu .dropdown-toggle {
+	height: 30px;
+	width: 30px;
+	line-height: 30px;
+	text-align: center;
+	padding: 0;
+	box-sizing: border-box;
+	border-left: 1px solid #bebebe;
+}
 
 /*************************************************\
 | Special overrides for the 'multiples-recording' |

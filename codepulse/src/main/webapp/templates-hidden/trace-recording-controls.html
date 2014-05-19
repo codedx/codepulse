@@ -52,32 +52,55 @@
 	<div class="controls-container">
 		<h1>Treemap Legend</h1>
 		<div class="recordingsLegend">
-		<div class="legend-entry clearfix">
-			<div class="swatch-container" id="all-activity-color-swatch">
-				<div class="swatch" style="background-color: red"></div>
-			</div>
-			<div class="legend-text">All Activity</div>
-		</div>
 
-		<div class="legend-entry clearfix">
-			<div class="swatch-container" id="overlaps-color-swatch">
-				<div class="swatch" style="background-color: blue"></div>
-			</div>
-			<div class="legend-text">Overlaps</div>
-		</div>
-		</div>
+			<!-- Activity Ticker -->
+			<div class="legend-entry clearfix" id="activity-ticker">
 
-		<h1>
-			Timing Filter
-			<i class="help fa fa-question-circle" title="Select this to view methods that 	were called recently. You can also change the time window by using the menu 	button on the right."></i>
-		</h1>
-		<div class="timingFilterArea">
-			<!-- Latest X seconds recording goes here -->
+				<div class="swatch-container">
+					<div class="swatch" style="background-color: steelblue"></div>
+				</div>
+
+				<div class="legend-text">All Activity</div>
+
+				<div class="legend-menu btn-group">
+					<div data-toggle="dropdown" class="btn btn-flat btn-secondary dropdown-toggle">
+						<i class="fa fa-clock-o"></i>
+					</div>
+					<ul class="dropdown-menu pull-right">
+						<li>
+							<a data-ticker-key="all">All Activity</a>
+						</li>
+						<li>
+							<a data-ticker-key="recent/10000">Latest 10 seconds</a>
+						</li>
+						<li>
+							<a data-ticker-key="recent/60000">Latest 60 seconds</a>
+						</li>
+						<li>
+							<a data-ticker-key="recent/120000">Latest 2 minutes</a>
+						</li>
+						<li>
+							<a data-ticker-key="recent/300000">Latest 5 minutes</a>
+						</li>
+						<li>
+							<a data-ticker-key="recent/600000">Latest 10 minutes</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Overlaps -->
+			<div class="legend-entry clearfix">
+				<div class="swatch-container" id="overlaps-color-swatch">
+					<div class="swatch" style="background-color: blue"></div>
+				</div>
+				<div class="legend-text">Overlaps</div>
+			</div>
 		</div>
 
 		<h1>
 			Recordings
-			<i class="help fa fa-question-circle" title="You can add recordings while the 	trace is running, and select them to view the methods that were called while 	they were active."></i>
+			<i class="help fa fa-question-circle" title="You can add recordings while the trace is running, and select them to view the methods that were called while they were active."></i>
 		</h1>
 		<div class="recordingsArea">
 			<!-- ADD RECORDING BUTTON -->

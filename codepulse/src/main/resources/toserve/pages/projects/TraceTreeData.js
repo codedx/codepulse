@@ -55,6 +55,17 @@
 		return coverageSets[nodeId] = d3.set(coverageArray)
 	}
 
+	// map is a Map[NodeId -> Array[RecordingId]],
+	// where NodeId is the ID of a covered node, and the array
+	// lists the IDs of recordings that covered the node.
+	Trace.setCoverageMap = function(map){
+		coverageSets = {}
+		for(var nodeId in map){
+			var nodeCoverage = d3.set(map[nodeId])
+			coverageSets[nodeId] = nodeCoverage
+		}
+	}
+
 	Trace.clearCoverageSet = function(nodeId){
 		return coverageSets[nodeId] = d3.set()
 	}
