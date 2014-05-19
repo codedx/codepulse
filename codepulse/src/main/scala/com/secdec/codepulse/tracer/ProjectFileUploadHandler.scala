@@ -55,13 +55,13 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 	serve {
 		case UploadPath("create") Post req => fallbackResponse {
 			for {
-				inputFile <- getReqFile(req) ?~! "Creating a new project requires a file"
+				(inputFile, originalName) <- getReqFile(req) ?~! "Creating a new project requires a file"
 				_ <- ProjectUploadData.checkForBinaryZip(inputFile) ?~ {
 					s"The file you picked doesn't have any compiled Java files."
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
-				val projectId = ProjectUploadData.handleBinaryZip(inputFile)
+				val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName)
 
 				// set the new trace's name
 				projectManager.getProject(projectId) foreach {
@@ -74,7 +74,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 
 		case UploadPath("import") Post req => fallbackResponse {
 			for {
-				inputFile <- getReqFile(req) ?~! "Importing a project requires a file"
+				(inputFile, _) <- getReqFile(req) ?~! "Importing a project requires a file"
 				_ <- ProjectUploadData.checkForProjectExport(inputFile) ?~ {
 					s"The file you picked isn't an exported project file."
 				}
@@ -86,13 +86,13 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 		}
 	}
 
-	def getReqFile(req: Req): Box[File] = req.uploadedFiles match {
+	def getReqFile(req: Req): Box[(File, String)] = req.uploadedFiles match {
 		case List(upfile: OnDiskFileParamHolder) =>
-			Full(upfile.localFile)
+			Full(upfile.localFile -> upfile.fileName)
 
 		case Nil => req.param("path") flatMap { path =>
 			val file = new File(path)
-			if (file.canRead) Some(file) else None
+			if (file.canRead) Some(file -> file.getName) else None
 		}
 
 		case _ => Empty

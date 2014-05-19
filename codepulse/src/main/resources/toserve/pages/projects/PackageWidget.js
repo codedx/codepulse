@@ -248,15 +248,12 @@
 				$status.text(status)
 			}
 
-			function setSummary(numVuln, numClean) {
+			function setSummary(numVuln) {
 				$status.hide()
-				$summary.show()
-
-				var $numVuln = $('#dependencycheck-numvuln', $summary),
-					$numClean = $('#dependencycheck-numclean', $summary)
-
-				$numVuln.text(numVuln)
-				$numClean.text(numClean)
+				if (numVuln > 0) {
+					$summary.show()
+					$('#dependencycheck-numvuln', $summary).text(numVuln)
+				} else $summary.hide()
 			}
 
 			switch (status.state) {
@@ -274,7 +271,7 @@
 					break
 
 				case 'finished':
-					setSummary(status.numFlaggedDeps, status.numDeps - status.numFlaggedDeps)
+					setSummary(status.numFlaggedDeps)
 					break
 			}
 		}

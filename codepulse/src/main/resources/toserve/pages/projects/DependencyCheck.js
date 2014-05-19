@@ -40,12 +40,48 @@
 			})
 		})()
 
-		this.showReport = function(node) {
-			//!! fetch and render report to $reportContainer
-			$reportContainer.text(node.label)
-			console.log(node)
+		function generateReport(report, isFullReport, container) {
+			var jars = d3.select(container).select('#vulns').selectAll('li.jar')
+				.data(report.vulns, function(d) { return d.jar })
 
-			reportShownBus.push(true)
+			jars.exit().remove()
+			var jarNodes = jars.enter().append('li').classed('jar', true)
+
+			var jarNodeInfo = jarNodes.append('div').classed('jar-info', true)
+			jarNodeInfo.append('span').classed('jar-name', true).text(function(d) { return d.jar })
+
+			var cves = jarNodes.append('ul').classed('cve-list', true).selectAll('li.cve').data(function(d) { return d.cves })
+
+			cves.exit().remove()
+			var cveNodes = cves.enter().append('li').classed('cve', true)
+
+			cveNodes.append('a')
+				.classed('cve-name', true)
+				.attr('external-href', function(d) { return d.url })
+				.text(function(d) { return d.name })
+			cveNodes.append('a')
+				.classed('cwe-name', true)
+				.attr('external-href', function(d) { return d.cwe.url })
+				.text(function(d) { return d.cwe.name })
+			cveNodes.append('p').classed('cve-description', true)
+				.text(function(d) { return d.description })
+
+			$('#full-report-link', container).attr('external-href', report.report)
+			CodePulse.handleExternalHrefs($(container))
+		}
+
+		this.showReport = function(node, isFullReport) {
+			var reportNodes = []
+
+			;(function findVulnerableNodes(node) {
+				if (vulnerableNodeSet.has(node.id)) reportNodes.push(node.id)
+				node.children.forEach(findVulnerableNodes)
+			})(node)
+
+			API.getDependencyCheckReport(reportNodes, function(report) {
+				generateReport(report, isFullReport, $reportContainer[0])
+				reportShownBus.push(true)
+			})
 		}
 
 		this.closeReport = function() {
@@ -56,6 +92,11 @@
 		var statusBus = new Bacon.Bus, vulnerableNodesBus = new Bacon.Bus
 		this.status = statusBus.toProperty().noLazy()
 		this.vulnerableNodes = vulnerableNodesBus.toProperty().noLazy()
+
+		var vulnerableNodeSet = d3.set()
+		this.vulnerableNodes.onValue(function(vulnerableNodes) {
+			vulnerableNodeSet = d3.set(vulnerableNodes)
+		})
 
 		API.getDependencyCheckStatus(function(status) {
 			statusBus.push(status)

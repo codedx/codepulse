@@ -28,7 +28,7 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.dependencycheck.{ DependencyCheckStatus, JsonHelpers => DCJson }
+import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
 import akka.actor.Cancellable
@@ -188,6 +188,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		/** /api/<target.id>/dcstatus */
 		val DepCheckStatus = simpleTargetPath("dcstatus")
+
+		/** /api/<target.id>/dcreport */
+		val DepCheckReport = simpleTargetPath("dcreport")
 
 		/** /api/<target.id>/export */
 		val Export = simpleTargetPath("export")
@@ -367,6 +370,17 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// GET the current dependency check status for the trace
 		case Paths.DepCheckStatus(target) Get req =>
 			JsonResponse(target.projectData.metadata.dependencyCheckStatus.json)
+
+		// GET a dependency check report for the trace
+		// query: nodes=<comma separated node IDs>
+		case Paths.DepCheckReport(target) Get req =>
+			req.param("nodes") match {
+				case Full(nodes) =>
+					JsonResponse {
+						DependencyCheckReporter.buildReport(target.projectData, nodes.split(',').flatMap(AsInt.unapply))
+					}
+				case _ => BadResponse()
+			}
 
 		// GET the vulnerable nodes
 		case Paths.VulnerableNodes(target) Get req =>

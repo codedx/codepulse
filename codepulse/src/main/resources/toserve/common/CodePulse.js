@@ -52,9 +52,10 @@
 	}
 
 	// Handle external links via the "external-href" attribute
-	$(document).ready(function(){
+	CodePulse.handleExternalHrefs = function($container) {
+		$container = $container || $(document)
 
-		$('[external-href]').each(function(){
+		$('[external-href]', $container).each(function(){
 			var $this = $(this),
 				href = $this.attr('external-href')
 			$this
@@ -72,6 +73,9 @@
 				$this.attr('target', '_blank')
 			}
 		})
+	}
+	$(document).ready(function(){
+		CodePulse.handleExternalHrefs($(this))
 	})
 
 })(this.CodePulse || (this.CodePulse = {}));

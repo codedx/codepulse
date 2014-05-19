@@ -377,9 +377,12 @@ body > .overlay:before {
  	padding: 0 4px;
  }
 
+ .report-header > * {
+ 	line-height: 40px;
+ }
+
  .report-header .header-text, .report-header .close-button {
  	color: white;
- 	line-height: 40px;
  }
 
  .report-header .close-button {
@@ -388,7 +391,72 @@ body > .overlay:before {
  }
 
  .report-container {
+ 	background: #f0f0f0;
  	height: calc(100% - 40px);
- 	padding: 4px;
+ 	padding: 20px 30px;
  	overflow-y: auto;
+ 	box-sizing: border-box;
+ }
+
+ .report-container .summary {
+ 	margin: 0 -15px 15px -15px;
+ 	padding: 10px 19px;
+ }
+
+ .report-container .summary .credits {
+ 	float: right;
+ 	font-style: italic;
+ 	font-size: 90%;
+ }
+
+ .report-container #vulns {
+ 	list-style: none;
+ 	margin-left: 0;
+ }
+
+ .report-container #vulns .jar {
+ 	margin-bottom: 30px;
+ }
+
+ .report-container #vulns .jar-info {
+ 	margin-bottom: 10px;
+ 	border-bottom: 1px solid darkgray;
+ 	background: #DDD;
+ 	color: #333;
+ 	font-weight: bold;
+ 	padding: 2px 4px;
+ }
+
+ .report-container #vulns .cve-list {
+ 	list-style: none;
+ 	margin-left: 0;
+ }
+
+ .report-container #vulns .cve-list .cve {
+ 	margin-bottom: 15px;
+ }
+
+ .report-container #vulns .cve-list .cve .cve-name {
+ 	color: #cf0000;
+ 	font-weight: bold;
+ 	margin-left: 15px;
+ 	border-bottom: 1px dotted #cf0000;
+ }
+
+ .report-container #vulns .cve-list .cve .cwe-name {
+ 	background: #4d85d1;
+ 	color: whitesmoke;
+ 	margin-left: 10px;
+ 	padding: 2px 6px;
+ 	border-radius: 3px;
+ 	vertical-align: 2px;
+ 	font-size: 75%;
+ }
+
+ .report-container #vulns .cve-list .cve .cve-description {
+ 	margin: 5px 15px 0 15px;
+ 	padding: 0 15px;
+ 	font-size: 85%;
+ 	text-align: justify;
+ 	border-left: 1px solid #F0BCBC;
  }

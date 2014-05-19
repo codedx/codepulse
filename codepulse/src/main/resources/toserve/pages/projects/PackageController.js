@@ -245,7 +245,7 @@
 				handleInstrumentationSelectionClick(node, pw)
 			})
 			pw.vulnerableBadgeClicks.onValue(function() {
-				depCheckController.showReport(node)
+				depCheckController.showReport(node, pw == depRoot)
 			})
 		})
 

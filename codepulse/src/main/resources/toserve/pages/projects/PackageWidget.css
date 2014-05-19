@@ -198,21 +198,13 @@
 
  .widget-label .dependencycheck-badge {
  	float: right;
- 	background: whitesmoke;
- 	border-radius: 6px;
- 	padding: 0 3px;
+ 	background: firebrick;
+ 	border-radius: 2px;
+ 	padding: 0 4px;
  	margin: 0 4px;
  	font-size: 80%;
- 	color: black;
+ 	color: whitesmoke;
  	cursor: pointer;
- }
-
- .widget-label .dependencycheck-badge #dependencycheck-numvuln {
- 	color: red;
- }
-
- .widget-label .dependencycheck-badge #dependencycheck-numclean {
- 	color: lime;
  }
 
  /* The actual text inside the label */

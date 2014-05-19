@@ -213,6 +213,10 @@
 			$.getJSON(commandPath('/dcstatus'), callback)
 		},
 
+		'getDependencyCheckReport': function(nodes, callback) {
+			$.getJSON(commandPath('/dcreport'), { nodes: nodes.join(',') }, callback)
+		},
+
 		'getVulnerableNodes': function(callback) {
 			$.getJSON(commandPath('/vulnerableNodes'), callback)
 		}

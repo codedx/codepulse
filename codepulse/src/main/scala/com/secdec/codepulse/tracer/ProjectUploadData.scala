@@ -113,7 +113,7 @@ object ProjectUploadData {
 		projectId
 	}
 
-	def handleBinaryZip(file: File): ProjectId = createAndLoadProjectData { projectData =>
+	def handleBinaryZip(file: File, originalName: String): ProjectId = createAndLoadProjectData { projectData =>
 		val RootGroupName = "Classes"
 		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
@@ -190,7 +190,7 @@ object ProjectUploadData {
 			updateStatus(DependencyCheckStatus.Queued)
 
 			val treeNodeData = projectData.treeNodeData
-			val scanSettings = ScanSettings(file, projectData.metadata.name, projectData.id)
+			val scanSettings = ScanSettings(file, originalName, projectData.id)
 
 			dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) {
 				// before running, set status to running
@@ -229,16 +229,6 @@ object ProjectUploadData {
 				println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
 				updateStatus(DependencyCheckStatus.Failed)
 			}
-		}
-	}
-
-	def handleUpload(file: File): Box[ProjectId] = {
-		if (checkForProjectExport(file)) {
-			Full(handleProjectExport(file))
-		} else if (checkForBinaryZip(file)) {
-			Full(handleBinaryZip(file))
-		} else {
-			Failure("Invalid upload file")
 		}
 	}
 
