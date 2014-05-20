@@ -228,36 +228,47 @@
 				delete self.uiParts.vulnerableBadge;
 			}
 
+			self.badgeClickEnabled = false
+
 			var badge = self.uiParts.depCheckBadge
 			if (!badge) {
 				badge = PackageWidget.depCheckBadge.clone()
 				badge.click(function(e) {
-					self.vulnerableBadgeClicks.push(e)
+					if (self.badgeClickEnabled) self.vulnerableBadgeClicks.push(e)
 					e.stopPropagation()
 				})
 				self.uiParts.depCheckBadge = badge
 				self.uiParts.labelText.before(badge)
 			}
 
-			var $status = $('#dependencycheck-status', badge),
+			var $badge = $(badge),
+				$status = $('#dependencycheck-status', badge),
 				$summary = $('#dependencycheck-summary', badge)
 
 			function setStatus(status) {
+				$badge.addClass('pending')
 				$summary.hide()
 				$status.show()
 				$status.text(status)
+				self.badgeClickEnabled = false
 			}
 
 			function setSummary(numVuln) {
 				$status.hide()
-				if (numVuln > 0) {
+				$badge.removeClass('pending')
+				if (numVuln >= 0) {
 					$summary.show()
 					$('#dependencycheck-numvuln', $summary).text(numVuln)
-				} else $summary.hide()
+					$badge.toggleClass('clean', numVuln == 0)
+					self.badgeClickEnabled = numVuln > 0
+				} else $badge.hide()
 			}
 
 			switch (status.state) {
 				case 'queued':
+					setStatus('[queued]')
+					break
+
 				case 'running':
 					setStatus('[scanning]')
 					break

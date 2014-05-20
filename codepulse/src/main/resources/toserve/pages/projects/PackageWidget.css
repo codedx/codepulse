@@ -205,6 +205,17 @@
  	font-size: 80%;
  	color: whitesmoke;
  	cursor: pointer;
+ 	transition: background 0.25s ease;
+ }
+
+ .widget-label .dependencycheck-badge.clean {
+ 	background: rgb(43, 177, 43);
+ 	cursor: default;
+ }
+
+ .widget-label .dependencycheck-badge.pending {
+ 	background: rgb(70, 70, 70);
+ 	cursor: default;
  }
 
  /* The actual text inside the label */
