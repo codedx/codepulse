@@ -21,6 +21,11 @@ edgeWidth = 25px
 	height: 60px;
 	width: 500px;
 	max-width: 70%;
+
+	pointer-events: none;
+}
+.TraceConnectorUI .main-container * {
+	pointer-events: auto;
 }
 
 .TraceConnectorUI .settings-container {
