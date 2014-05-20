@@ -111,8 +111,10 @@
 		var updateStream = $(document).asEventStream('dependencycheck-update', function(event, args) { return args })
 
 		updateStream.onValue(function(update) {
-			statusBus.push(update.summary)
-			vulnerableNodesBus.push(update.vulnerableNodes)
+			if (update.project == CodePulse.projectPageId) {
+				statusBus.push(update.summary)
+				vulnerableNodesBus.push(update.vulnerableNodes)
+			}
 		})
 	}
 
