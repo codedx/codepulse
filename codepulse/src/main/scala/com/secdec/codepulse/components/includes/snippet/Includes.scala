@@ -113,7 +113,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val desktopStyle = register("desktopStyle", CSS("common/desktop.css"))
 	val projectList = register("ProjectList", JS("pages/ProjectList/ProjectList.js"))
 	val projectSwitcher = register("ProjectSwitcher", JS("pages/ProjectSwitcher/ProjectSwitcher.js"), CSS("pages/ProjectSwitcher/ProjectSwitcher.css"))
-	val codepulseCommon = register("CodePulseCommon", JS("common/CodePulse.js"))
+	val codepulseCommon = register("CodePulseCommon", JS("common/CodePulse.js"), JS("common/UpdateController.js"))
 	val downloader = register("Downloader", JS("common/Downloader.js"))
 	val api = register("API", JS("pages/projects/API.js"))
 	val codeTreemap = register("codetreemap", overlay, qtip2, JS("widgets/codetreemap/treemap.js"), CSS("widgets/codetreemap/treemap.css"))
