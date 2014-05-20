@@ -26,7 +26,8 @@
 		}
 		var $template = getTemplate('.notification'),
 			$deletionMessageTemplate = getTemplate('.deletion-message'),
-			$undeletionMessageTemplate = getTemplate('.undeletion-message')
+			$undeletionMessageTemplate = getTemplate('.undeletion-message'),
+			$agentDisconnectedMessageTemplate = getTemplate('.agent-disconnected-message')
 
 		var $container = $('.notifications-visible')
 
@@ -184,6 +185,13 @@
 				return _this
 			}
 
+			function setAgentDisconnectedMessage(){
+				var $msg = $agentDisconnectedMessageTemplate.clone()
+				$noteContent.append($msg)
+
+				return _this
+			}
+
 			/*
 			 * Adds the notification to the notification container.
 			 * No effect if already added.
@@ -246,6 +254,7 @@
 			_this.setUsesTransition = setUsesTransition
 			_this.setDeletionMessage = setDeletionMessage
 			_this.setUndeletionMessage = setUndeletionMessage
+			_this.setAgentDisconnectedMessage = setAgentDisconnectedMessage
 			_this.addCallback = addCallback
 			_this.setDismissable = setDismissable
 			_this.setAutoDismissDelay = setAutoDismissDelay
@@ -310,6 +319,9 @@
 			case 'undeletion':
 				var projectName = params.get('projectName')
 				note.setUndeletionMessage(projectName)
+				break;
+			case 'agent-disconnected':
+				note.setAgentDisconnectedMessage()
 				break;
 			}
 

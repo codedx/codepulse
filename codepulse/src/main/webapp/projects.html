@@ -119,6 +119,22 @@
 				</div>
 				<div class="header-text">
 					Code Treemap
+					<i class="fa fa-question-circle"
+						id="treemap-help-tooltip-trigger"></i>
+				</div>
+				<div class="maximizer">
+					<i class="fa"><!-- css will pick the expand/collapse character --></i>
+				</div>
+				<!-- this div's content is used in the tooltip for the <i> directly above here -->
+				<div id="treemap-help-tooltip-content" style="display:none;">
+					<p>
+						The Code Treemap visualizes the items that you select from the Application Inventory.
+					</p>
+					<div>
+						The size of each item in the treemap is based on the number of bytecode instructions in
+						that particular item. (Source code is compiled to JVM bytecode; the number of lines of
+						source code roughly correlates to the number of bytecode instructions).
+					</div>
 				</div>
 			</div>
 			

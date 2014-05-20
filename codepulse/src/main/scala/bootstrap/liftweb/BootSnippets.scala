@@ -25,9 +25,7 @@ import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.version.snippet.VersionSnippet
 import com.secdec.codepulse.tracer.ProjectManager
 import com.secdec.codepulse.tracer.TracingTarget
-import com.secdec.codepulse.tracer.snippet.CometTracerUI
-import com.secdec.codepulse.tracer.snippet.ProjectListUpdates
-import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
+import com.secdec.codepulse.tracer.snippet._
 import com.secdec.codepulse.util.comet.PublicCometInit
 
 import net.liftweb.common.Full
@@ -42,13 +40,16 @@ private[liftweb] object BootSnippets {
 			case SnippetRequest("Includes", _) => Includes
 			case SnippetRequest("VersionSnippet", _) => new VersionSnippet
 			case SnippetRequest("ProjectWidgetry", Full(target: TracingTarget)) => new ProjectWidgetry(projectManager, target)
+			case SnippetRequest("ConnectionHelp", _) => ConnectionHelp
 			case SnippetRequest("Notifications", _) => Notifications
+			case SnippetRequest("TraceConnectorState", _) => TraceConnectorState
 		}
 
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {
 			case CometTracerUI.className => new CometTracerUI
 			case "ProjectListUpdates" => new ProjectListUpdates(projectManager)
 			case "Notifications" => Notifications
+			case "TraceConnectorStateChanges" => new TraceConnectorStateChanges
 			case "DependencyCheck" => DependencyCheckUpdates
 		}
 

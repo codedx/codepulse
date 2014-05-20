@@ -38,14 +38,23 @@ $(document).ready(function(){
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
-		Trace.status.onValue(function(status){
-			console.log('watching UI, status = ', status)
-			if(status == 'loading'){
-				$('body').overlay('wait')
-			} else {
-				$('body').overlay('ready')
-			}
 
+		// Cover the page in a 'loading' overlay while the project's
+		// data is being analyzed (aka 'loading').
+		Trace.isLoadingProp.onValue(function(loading){
+			$('body').overlay(loading ? 'wait' : 'ready')
+		})
+
+		// Show a loading indicator over the Application Inventory between the
+		// time that the main overlay ends and the time that the treemap data
+		// becomes available.
+		Trace.isLoadingProp.not().and(Trace.treeDataReadyProp.not())
+			.skipDuplicates()
+			.onValue(function(waiting){
+				packagesContainer.overlay(waiting ? 'wait' : 'ready')
+			})
+
+		Trace.status.onValue(function(status){
 			if(status == 'loading-failed'){
 				alert('Processing data failed. You will be redirected to the home screen.')
 				window.location.href = '/'
@@ -57,6 +66,16 @@ $(document).ready(function(){
 			}
 		})
 	})()
+
+	// Set up the tooltip for the Code Treemap's info icon
+	$('#treemap-help-tooltip-trigger').qtip({
+		content: {
+			text: $('#treemap-help-tooltip-content')
+		},
+		style: {
+			classes: 'qtip-dark'
+		}
+	})
 
 	// Initial value for instrumentedPackages. This will be replaced
 	// once the PackageController is initialized.
@@ -140,6 +159,7 @@ $(document).ready(function(){
 
 				if(numCovered == 0) {
 					if(coverage.has(allActivityId)){
+						// console.log('all activity coverage for', node, 'with coverage', coverage)
 						if(activeRecordingIds.empty()) return allActivityColor
 						else return allActivityColorFaded
 					} else {
@@ -179,9 +199,21 @@ $(document).ready(function(){
 		$('#dependency-check-report').toggleClass('in-view', shown)
 	})
 
-	// Start a spinner to indicate that the package list is loading. 
-	// It will be stopped after the PackageController is created.
-	packagesContainer.overlay('wait')
+	var treemapMaximizer = $('#treemap .maximizer')
+
+	var treemapMaximized = treemapMaximizer.asEventStream('click').map('toggle')
+		.merge(
+			showTreemap.changes().filter(function(show){ return !show }).map('hide')
+		)
+		.scan(false, function(state, command){
+			if(command == 'toggle') return !state
+			return false
+		})
+
+	treemapMaximized.onValue(function(maxed){
+		$('#treemap').toggleClass('maximized', maxed)
+		treemapMaximizer.attr('title', maxed ? 'collapse' : 'expand')
+	})
 
 	/*
 	 * Request the treemap data from the server. Note that coverage lists
@@ -197,8 +229,6 @@ $(document).ready(function(){
 		var packageTree = Trace.packageTree
 
 		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#clear-selections-button'))
-
-		packagesContainer.overlay('ready')
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
@@ -290,11 +320,7 @@ $(document).ready(function(){
 		Trace.traceCoverageUpdateRequests.push('initial load')
 
 		function setTreemapCoverage(recordData){
-
-			for(var nodeId in recordData){
-				Trace.setNodeCoverage(nodeId, recordData[nodeId])
-			}
-
+			Trace.setCoverageMap(recordData)
 			treemapWidget.nodeColoring(treemapColoring())
 		}
 
@@ -445,7 +471,7 @@ $(document).ready(function(){
 		}
 
 		if(shouldSave){
-			API.renameTrace(newName, function(reply, error){
+			API.renameProject(newName, function(reply, error){
 				if(!error){
 					var hasNameConflict = (reply.warn == 'nameConflict')
 					$('.nameConflict').toggleClass('hasConflict', hasNameConflict)

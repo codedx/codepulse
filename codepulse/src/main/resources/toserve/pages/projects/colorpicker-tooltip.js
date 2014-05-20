@@ -131,6 +131,14 @@
 				delay: 0
 			}
 		})
+
+		return {
+			reset: function(color){
+				var hexColor = d3.rgb(color).toString()
+				cp.setHex(hexColor)
+				initialColor = hexColor
+			}
+		}
 	}
 
 	exports.colorpickerTooltip = colorpickerTooltip

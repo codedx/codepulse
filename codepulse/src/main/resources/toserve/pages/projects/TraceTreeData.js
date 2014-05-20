@@ -22,7 +22,8 @@
 	var packageTree = undefined,
 		coverageSets = {},
 		treeDataReady = false,
-		treeDataReadyCallbacks = []
+		treeDataReadyCallbacks = [],
+		treeDataReadyBus = new Bacon.Bus()
 
 	// Load the treemap data once the trace's status is no longer 'loading'
 	Trace.ready(function(){
@@ -32,6 +33,7 @@
 			packageTree = pt
 
 			treeDataReady = true
+			treeDataReadyBus.push(true)
 
 			treeDataReadyCallbacks.forEach(function(callback){
 				callback()
@@ -53,6 +55,17 @@
 		return coverageSets[nodeId] = d3.set(coverageArray)
 	}
 
+	// map is a Map[NodeId -> Array[RecordingId]],
+	// where NodeId is the ID of a covered node, and the array
+	// lists the IDs of recordings that covered the node.
+	Trace.setCoverageMap = function(map){
+		coverageSets = {}
+		for(var nodeId in map){
+			var nodeCoverage = d3.set(map[nodeId])
+			coverageSets[nodeId] = nodeCoverage
+		}
+	}
+
 	Trace.clearCoverageSet = function(nodeId){
 		return coverageSets[nodeId] = d3.set()
 	}
@@ -60,6 +73,8 @@
 	Trace.__defineGetter__('treeDataReady', function(){
 		return treeDataReady
 	})
+
+	Trace.treeDataReadyProp = treeDataReadyBus.toProperty(false).noLazy()
 
 	Trace.onTreeDataReady = function(callback){
 		if(treeDataReady) callback()

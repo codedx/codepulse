@@ -1,12 +1,52 @@
+#recording-controls {
+	height: 100%;
+}
+
 #recording-controls h1 {
 	font-size: small;
 	border-bottom: 1px solid;
 	line-height: 20px;
 	margin: 5px;
+	margin-bottom: 0;
 }
 
 #trace-controls {
 	overflow-y: auto;
+}
+
+#recording-controls .controls-container {
+	height: calc(100% - 24px);
+	max-height: calc(100% - 24px);
+	overflow-y: auto;
+}
+
+#recording-controls .controls-menu {
+	position: absolute;
+	bottom: 0;
+	height: 24px;
+	width: 100%;
+	padding: 2px;
+	box-sizing: border-box;
+}
+
+/***********************\
+| Controls menu buttons |
+\***********************/
+
+.controls-menu .menu-button {
+	font-size: 14px;
+	color: steelblue;
+	background: #C7C7C7;
+	vertical-align: top;
+	cursor: pointer;
+
+	width: 100px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.controls-menu .menu-button:hover {
+	background: #BEBEBE;
 }
 
 /*************************\
@@ -172,21 +212,20 @@
 | Recording Adder Button |
 \************************/
 
- .recording-adder-button {
- 	display: none;
+.recording-adder-button {
+	padding: 5px;
+	margin-bottom: 2px;
+	cursor: pointer;
+}
 
- 	padding: 5px;
- 	margin-bottom: 2px;
- 	cursor: pointer;
- }
+.recording-adder-button.disabled {
+	color: #AAA;
+	cursor: default;
+}
 
- .recording-adder-button:hover {
- 	background-color: rgba(255,255,255,0.2);
- }
-
- [trace-running=true] .recording-adder-button {
- 	display: block;
- }
+.recording-adder-button:not(.disabled):hover {
+	background-color: rgba(255,255,255,0.2);
+}
 
 /***************************\
 | Start/Stop Trace Controls |
@@ -250,57 +289,6 @@
 	vertical-align: top;
 	line-height: 40px;
 }
-#connection-help-popup {
-	position: fixed;
-	top: 59px;
-	right: 240px;
-	width: 450px;
-	background-color: lightgray;
-	border: 1px solid;
-	padding: 1em 1em .5em;
-}
-#connection-help-popup code {
-	display: block;
-	padding: .5em;
-	overflow-x: scroll;
-}
-#connection-help-popup .dismissal {
-	display: block;
-	margin-top: 5px;
-	text-align: right;
-	font-size: small;
-	cursor: pointer;
-}
-
-
-#connection-help-popup .control {
-	font-size: 0.9em;
-	vertical-align: middle;
-	margin-bottom: 0;
-}
-
-#connection-help-popup .help {
-	vertical-align: middle;
-	color: #323232;
-}
-
-#agent-port {
-	width: 42px;
-}
-
-#agent-port.invalid:focus {
-	border-color: rgba(239, 111, 107, 0.8);
-	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(239, 111, 107, 0.8);
-}
-
-#connection-help-popup .alert {
-	margin-top: 6px;
-	margin-bottom: 0;
-	word-wrap: break-word;
-	white-space: normal;
-}
 
 /*********************\
 | Color Swatch Styles |
@@ -337,11 +325,30 @@
 | Activity Legend Styles |
 \************************/
 
- .recordingsLegend .legend-entry {
- 	line-height: 30px;
- 	font-size: small;
- }
+.recordingsLegend .legend-entry {
+	line-height: 30px;
+	font-size: small;
+	border-bottom: 1px solid #bebebe;
+}
 
+.recordingsLegend .legend-text {
+	display: inline-block;
+}
+
+.recordingsLegend .legend-menu {
+	display: inline-block;
+	float: right;
+}
+
+.recordingsLegend .legend-menu .dropdown-toggle {
+	height: 30px;
+	width: 30px;
+	line-height: 30px;
+	text-align: center;
+	padding: 0;
+	box-sizing: border-box;
+	border-left: 1px solid #bebebe;
+}
 
 /*************************************************\
 | Special overrides for the 'multiples-recording' |

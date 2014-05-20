@@ -36,6 +36,12 @@
 		}
 	})
 
+	Trace.isLoadingProp = statusProp.scan(true, function(previous, nextState){
+		// prop remains true while the state is 'loading'.
+		// once the state enters the first non-loading state, this prop becomes false
+		return previous && nextState == 'loading'
+	}).skipDuplicates()
+
 	/*
 	 * Load the current trace status.
 	 */

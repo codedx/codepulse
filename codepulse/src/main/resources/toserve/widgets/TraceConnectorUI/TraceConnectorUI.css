@@ -1,0 +1,219 @@
+/* Variables as a guideline:
+
+headerHeight = 60px
+headerWidth = min(500px, 70%)
+settingsHeight = 300px
+edgeWidth = 25px
+
+*/
+
+.TraceConnectorUI {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 100%;
+}
+
+.TraceConnectorUI .main-container {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 60px;
+	width: 500px;
+	max-width: 70%;
+
+	pointer-events: none;
+}
+.TraceConnectorUI .main-container * {
+	pointer-events: auto;
+}
+
+.TraceConnectorUI .settings-container {
+	position: absolute;
+	top: 60px;
+	right: 0;
+	height: 300px;
+	width: 500px;
+	max-width: 70%;
+
+	pointer-events: none;
+}
+.TraceConnectorUI .settings-container * {
+	pointer-events: auto;
+}
+
+/*************\
+| Gear button |
+\*************/
+
+.TraceConnectorUI .main-container .gear-button {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 100%; /* takes up the header height */
+	width: 25px;
+
+	cursor: pointer;
+	color: #333;
+
+	transition: height .15s ease;
+
+	/* this delay applies when the 'open' class has been removed,
+	 * i.e. the settings are being closed. This button needs to
+	 * wait until the settings slider is out of view before shrinking,
+	 * so we wait the .10s that the slider takes before we move
+	 */
+	transition-delay: .10s;
+}
+
+.TraceConnectorUI .main-container .gear-button.open {
+	/* this delay applies when the 'open' class has been added,
+	 * i.e. the settings are being opened. This button grows before
+	 * the settings slide in, so the delay here is 0.
+	 */
+	transition-delay: 0s;
+	height: calc(100% + 300px); /* header height + settings height */
+}
+
+.TraceConnectorUI .main-container .gear-button .gear {
+	text-align: center;
+	font-size: 25px;
+	line-height: 60px;
+}
+
+/********************\
+| Gear Button Colors |
+\********************/
+
+/* idle theme: gray */
+.TraceConnectorUI.trace-idle .main-container .gear-button { background: #999; }
+.TraceConnectorUI.trace-idle .main-container .gear-button:hover { background: #AAA; }
+
+/* connecting theme: yellow */
+.TraceConnectorUI.trace-connecting .main-container .gear-button { background: #F3D600; }
+.TraceConnectorUI.trace-connecting .main-container .gear-button:hover { background: #FFE100; }
+
+/* running theme: green */
+.TraceConnectorUI.trace-running .main-container .gear-button { background: #00C400; }
+.TraceConnectorUI.trace-running .main-container .gear-button:hover { background: #00CC00; }
+
+
+/***************************\
+| Settings slide-out styles |
+\***************************/
+
+/* To test slider functionality:
+	$('.settings-slider, .edge-button').toggleClass('out')
+*/
+
+.TraceConnectorUI .settings-container .settings-slider {
+	position: absolute;
+	left: calc(100% + 5px); /* out of view until .open */
+	height: 100%;
+	width: 100%;
+	background: lightgray;
+
+	transition: left .10s ease;
+
+	/* this delay applies when the 'open' class has been removed,
+	 * i.e. the slider is closing. The settings slider needs to close
+	 * before the gear button can shrink, so the delay here is 0.
+	 */
+	transition-delay: 0s;
+
+	/* 10px padding around visible area of the settings container.
+	 * Adds 25px (the edgeWidth) to the right padding to avoid having
+	 * content hidden behind the edge/gear button.
+	 */
+	padding: 10px 35px 10px 10px;
+	box-sizing: border-box;
+}
+.TraceConnectorUI .settings-container .settings-slider.open {
+	/* this delay applies when the 'open' class has been added,
+	 * i.e. the slider is opening. The settings slider needs to wait
+	 * until the gear button has grown, so delay its transition by .15s
+	 */
+	transition-delay: .15s;
+	left: 0; /* slid into view */
+
+	box-shadow: 0 0 3px 3px rgba(0,0,0,.5);
+}
+
+/*************************************\
+| Connection Message slide-out styles |
+\*************************************/
+
+.TraceConnectorUI .main-container .message-slider {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+
+	left: 100%;
+
+	/*aesthetics*/
+	background: #FFF4A5;
+	padding: 10px 35px 10px 10px;
+	box-sizing: border-box;
+	box-shadow: 0 0 3px 3px rgba(128,128,128,0.5);
+}
+
+.TraceConnectorUI .main-container .message-slider.open {
+	left: 0;
+}
+
+.TraceConnectorUI .main-container .message-slider.animated {
+	transition: left .25s ease;
+}
+
+.TraceConnectorUI .main-container .message-slider .message a {
+	cursor: pointer;
+}
+
+.TraceConnectorUI .main-container .message-slider .project-page-message,
+.TraceConnectorUI .main-container .message-slider .main-page-message {
+	/* Hide the page-specific connection messages by default.
+	 * Since one is picked over the other via javascript, having
+	 * them initially hidden avoids having both of them briefly
+	 * flash on screen before one is hidden.
+	 */
+	display: none;
+}
+
+/**********************\
+| Settings Header Area |
+\**********************/
+
+.TraceConnectorUI .settings-header {
+	margin-bottom: 10px;
+}
+
+.TraceConnectorUI .settings-header h3 {
+	float: left;
+	display: inline-block;
+	line-height: 20px;
+}
+
+.TraceConnectorUI .settings-header .settings-controls {
+	float: right;
+	display: inline-block;
+	font-size: 90%;
+}
+
+.TraceConnectorUI .settings-header .settings-controls .control-button {
+	display: inline-block;
+	padding: 0 5px;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.TraceConnectorUI .settings-header .settings-controls .control-button:hover {
+	background-color: #B9B9B9;
+}
+
+.TraceConnectorUI .settings-header .settings-controls .current-trace-link {
+	color: navy;
+}
+
+.TraceConnectorUI .settings-header .settings-controls .stop-tracing-button {
+	color: darkred;
+}

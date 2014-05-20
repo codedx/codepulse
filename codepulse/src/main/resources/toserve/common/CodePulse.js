@@ -50,6 +50,9 @@
 	CodePulse.projectPath = function(projectId){
 		return CodePulse.pathPrefix + '/projects/' + projectId
 	}
+	CodePulse.apiPath = function(endpoint){
+		return CodePulse.pathPrefix + '/api/' + endpoint
+	}
 
 	// Handle external links via the "external-href" attribute
 	CodePulse.handleExternalHrefs = function($container) {

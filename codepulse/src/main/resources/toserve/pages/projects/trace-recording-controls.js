@@ -19,7 +19,6 @@
 
 ;(function(exports){
 	
-	// define variables to represent
 	var controlsContainer,
 		templatesContainer
 	
@@ -31,6 +30,8 @@
 
 	var traceCoverageUpdateRequests = new Bacon.Bus()
 	var traceRecordingColorUpdates = new Bacon.Bus()
+
+	var recordingColorResets = new Bacon.Bus()
 
 	// ColorBrewer's 'Paired12' scheme, but re-ordered to avoid 
 	// putting similar colors adjacent to each other.
@@ -55,6 +56,10 @@
 		nextTemplateColor.nextId = id + 1
 		nextTemplateColor.palette = c
 		return c(id)
+	}
+
+	nextTemplateColor.reset = function(){
+		nextTemplateColor.nextId = 0
 	}
 
 	RecordingController.nextId = 0
@@ -87,6 +92,10 @@
 			.setLabel('overlaps')
 			.setColor('purple')
 			.setDataKey('overlaps')
+
+		recordingColorResets.onValue(function(){
+			recording.setColor('purple')
+		})
 
 		var managedId = Trace.addRecording(recording)
 
@@ -210,21 +219,72 @@
 		var $swatchContainer = $(swatchContainer),
 			$swatch = $swatchContainer.find('.swatch')
 
-		colorpickerTooltip($swatch, recording.getColor(), {
+		var colorPicker = colorpickerTooltip($swatch, recording.getColor(), {
 			progressCallback: function(current){ $swatch.css('background-color', current) },
 			finishedCallback: function(choice){ choice && recording.setColor(choice) },
 			onOpen: function(){ $swatchContainer.addClass('editor-open') },
 			onClose: function(){ $swatchContainer.removeClass('editor-open') }
 		})
+
+		recording.color.onValue(function(color){
+			colorPicker.reset(color)
+			$swatch.css('background-color', color)
+		})
 	}
 
-	function createAllActivityRecording(){
-		var recording = new Recording()
+	function createActivityTickerRecording(){
+		var recording = new Recording(),
+			$container = $('#activity-ticker'),
+			$swatch = $container.find('.swatch-container'),
+			$menuItems = $container.find('.dropdown-menu li'),
+			$label = $container.find('.legend-text'),
+			defaultColor = 'steelblue'
 
-		recording
-			.setLabel('all activity')
-			.setDataKey('all')
-			.setColor('steelblue')
+		// set the initial and reset color
+		recording.setColor(defaultColor)
+		recordingColorResets.onValue(function(){
+			recording.setColor(defaultColor)
+		})
+
+		var menuItems = []
+
+		// fill in the menuItems array
+		$menuItems.each(function(){
+			var $li = $(this),
+				$a = $li.find('a'),
+				label = $a.text(),
+				key = $a.data('tickerKey'),
+				active = $li.hasClass('active')
+
+			$a.attr('href', 'javascript:void(0)')
+
+			menuItems.push({
+				'$li': $li,
+				'$a': $a,
+				'key': key,
+				'label': label
+			})
+		})
+
+		function activateItem(menuItem){
+			// set the `active` class
+			$menuItems.removeClass('active')
+			menuItem.$li.addClass('active')
+
+			recording
+				.setLabel(menuItem.label)
+				.setDataKey(menuItem.key)
+
+			$label.text(menuItem.label)
+		}
+
+		// activate the default item, now, and any item when clicked
+		menuItems.forEach(function(item, index){
+			if(index == 0) activateItem(item)
+			item.$a.click(function(){
+				activateItem(item)
+			})
+		})
 
 		var managedId = Trace.addRecording(recording)
 
@@ -232,88 +292,21 @@
 		// to the treemapColoringStateChanges stream.
 		Trace.treemapColoringStateChanges.plug(
 			recording.color.map(function(color){
-				return 'Recording Update: color(all activity) -> ' + color
+				return 'Recording Update: color(ticker) -> ' + color
 			})
-		)
-
-		setupRecordingColorpicker(recording, '#all-activity-color-swatch')
-
-		return managedId
-	}
-
-	function createRecentRecording(controlsContainer){
-		var recording = new Recording(),
-			widget = new RecordingWidget()
-
-		recording.setColor('darkgreen')
-
-		widget.$ui.find('.recording-label').addClass('no-icon')
-
-		var timeWindows = [
-			{label: 'Latest 10 seconds', dataKey: 'recent/10000'},
-			{label: 'Latest 60 seconds', dataKey: 'recent/60000'},
-			{label: 'Latest 2 minutes', dataKey: 'recent/120000'},
-			{label: 'Latest 5 minutes', dataKey: 'recent/300000'},
-			{label: 'Latest 10 minutes', dataKey: 'recent/600000'}
-		]
-
-		function generateMenu(setMenu){
-
-			var activeIndex = 0
-
-			function activateIndex(index){
-				activeIndex = index
-
-				timeWindows.forEach(function(tw, i){
-					tw.active = (i === index)
-				})
-				var label = timeWindows[index].label,
-					dataKey = timeWindows[index].dataKey
-
-				recording
-					.setLabel(label)
-					.setDataKey(dataKey)
-
-				setMenu(createMenu())
-			}
-
-			function createMenu(){
-				return timeWindows.map(function(tw, i){
-					if(tw.divider) return {
-						divider: true
-					} 
-					else return {
-						icon: 'time',
-						label: tw.label,
-						onSelect: function(){ activateIndex(i) },
-						selected: (i == activeIndex)
-					}
-				})
-			}
-
-			activateIndex(activeIndex)
-		}
-
-		// Register the recording with the Trace
-		var managedId = Trace.addRecording(recording)
-
-		// Add the recording UI to the container
-		widget.$ui.appendTo(controlsContainer)
-
-		// Watch the recording for coloring changes, sending the events
-		// to the treemapColoringStateChanges stream.
-		Trace.treemapColoringStateChanges.plug(
-			watchForTreemapColoringUpdates(recording, managedId)
 		)
 
 		// Watch the recording for scenarios where it should poll for
 		// coverage updates, forwarding these events to the 
 		// traceCoverageUpdateRequests stream.
+		var watcher = watchForRecentDataKeyChanges(recording, managedId)
 		Trace.traceCoverageUpdateRequests.plug(
-			watchForRecentDataKeyChanges(recording, managedId)
+			watcher
 		)
 
-		return new RecordingController(recording, widget, generateMenu)
+		setupRecordingColorpicker(recording, $swatch)
+
+		return managedId
 	}
 
 	// In order to minimize the frequency that the browser needs to request trace
@@ -329,13 +322,13 @@
 		return Bacon
 			// poll if the recording is selected and on a 'recent/*' dataKey
 			.combineWith(function(isSelected, dataKey){
-				if(isSelected && isRecentKey(dataKey)){
+				if(/*isSelected && */isRecentKey(dataKey)){
 					return 'poll'
-				} else if(isSelected){
+				} else /*if(isSelected)*/{
 					return 'once'
-				} else {
+				} /*else {
 					return false
-				}
+				}*/
 			}, recording.selected, recording.dataKey)
 			// if the `combineWith` returns true, kick off a polling stream
 			// (otherwise, do nothing)
@@ -388,14 +381,24 @@
 	// server in order to obtain a recording id.
 	// ----------------------------------------------------------------
 	function CustomRecordingAdder($adderButton, $recordingsList){
-		
+
+		var isRunning = false,
+			addedRecordings = d3.set()
+
+		Trace.status.onValue(function(status){
+			isRunning = (status == 'running')
+			$adderButton.toggleClass('disabled', !isRunning)
+		})
+
 		$adderButton.click(function(){
+			if(!isRunning) return
+
 			API.requestNewRecording(function(recordingData, error){
 				if(error) alert("failed to start a new recording because: " + error)
 				else addNewRecording(recordingData, true)
 			})
 		})
-		
+
 		function addNewRecording(recordingData, animate){
 			var testRecording = createUserRecording(recordingData)
 
@@ -406,6 +409,7 @@
 			toShow[animate? 'slideDown': 'show']()
 
 			var managedId = Trace.addRecording(testRecording.recording)
+			addedRecordings.add(managedId)
 
 			// Watch the recording for coloring changes, sending the events
 			// to the treemapColoringStateChanges stream.
@@ -413,6 +417,17 @@
 				watchForTreemapColoringUpdates(testRecording.recording, managedId)
 			)
 		}
+
+		// handle color resets
+		recordingColorResets.onValue(function(){
+			nextTemplateColor.reset()
+			Trace.getManagedRecordingIds().forEach(function(id){
+				if(addedRecordings.has(id)){
+					var rec = Trace.getRecording(id)
+					rec && rec.setColor(nextTemplateColor())
+				}
+			})
+		})
 
 		this.addNewRecording = addNewRecording
 		
@@ -430,18 +445,14 @@
 	// -------------------------------------------------------------------
 
 	$(document).ready(function(){
-		var controlsContainer = $('#recording-controls'),
-			newTraceArea = controlsContainer.find('.trace-setup-area'),
-			newTraceButton = newTraceArea.find('[data-role=new-trace]').hide(),
-			connectionWaitingText = newTraceArea.find('[data-role=connection-waiting]').hide(),
-			endTraceButton = newTraceArea.find('[data-role=end-trace]').hide(),
-			recordingControls = $('#recording-controls')
+		var controlsContainer = $('#recording-controls')
 		
-		Trace.allActivityRecordingId = createAllActivityRecording(controlsContainer)
+		// Set up the 'ticker' recording, which holds the 'all activity'
+		// and the 'latest X seconds' recordings.
+		Trace.allActivityRecordingId = createActivityTickerRecording()
 
-		// Add a Recording/Widget for the "all activity"/"latest XXX"
-		var timeWindowsController = createRecentRecording(controlsContainer.find('.timingFilterArea'))
-
+		// set up the 'overlaps' recording, which represents overlaps in
+		// coverage between multiple selected recordings
 		var legendMultiplesKey = setupOverlapsRecording(controlsContainer)
 
 		Trace.getColorLegend = function(){
@@ -472,152 +483,10 @@
 		// assign the 'trace-running' attribute to the controlsContainer, depending on the trace state
 		Trace.running.assign(controlsContainer, 'attr', 'trace-running')
 
-		// Update the state of the newTraceArea based on the Trace's state.
-		;(function(){
-			function togglerFunc($elem){
-				return function(show, animate){
-					if(animate) $elem[show? 'slideDown': 'slideUp']()
-					else $elem[show? 'show': 'hide']()
-				}
-			}
-			var toggleNewTraceButton = togglerFunc(newTraceButton),
-				toggleConnectingText = togglerFunc(connectionWaitingText),
-				toggleEndTraceButton = togglerFunc(endTraceButton)
-
-			function toggleFinishing(finishing){ endTraceButton.overlay(finishing ? 'wait': 'ready') }
-
-			function onStateChange(state, animate){
-				toggleNewTraceButton(state == 'idle', animate)
-				toggleConnectingText(state == 'connecting', animate)
-				toggleEndTraceButton(state == 'running' || state == 'ending', animate)
-				toggleFinishing(state == 'ending')
-			}
-
-			var gotFirstValue = false,
-				valuesThatCount = d3.set(['idle', 'connecting', 'running', 'ending'])
-
-			// When the state changes, show or hide the appropriate divs.
-			// Depending on whether this is the first 'visible' state change, the show/hide 
-			// effect will have an animation. (it animates after the initial change).
-			Trace.status.onValue(function(state){
-				var doAnimate = gotFirstValue
-
-				gotFirstValue = gotFirstValue || valuesThatCount.has(state)
-
-				onStateChange(state, doAnimate)
-			})
-		})()
-
-		/* Clicking the newTraceButton asks the server to look for
-		 * a new tracer connection. This may be ignored if the trace
-		 * is not in the 'idle' state.
-		 */
-		newTraceButton.find('.control-button').click(function(){ API.requestStart(exports.updateTraceAgentCommand) })
-
-		/* Clicking the endTraceButton asks the server to stop the
-		 * current trace (if there is one). Open a waiting overlay
-		 * that will be closed when the trace's state becomes 'finished'.
-		 */
-		endTraceButton.click(function(){ 
-			API.requestEnd() 
+		$('#recording-color-resetter').click(function(){
+			recordingColorResets.push(1)
 		})
-
-		// Set up the connection help link
-		var connectionHelpPopup = $('#connection-help-popup')
-		$('.connection-help-link').click(function(){
-			var isVisible = connectionHelpPopup.is(':visible')
-			//toggle visibility
-			connectionHelpPopup[isVisible ? 'hide' : 'show']()
-		})
-		connectionHelpPopup.find('.dismissal').click(function(){
-			connectionHelpPopup.hide()
-		})
-
-		// setup the agent port number control
-		;(function() {
-			var $agentPort = $('#agent-port'), $agentLine = $agentPort.parent(), $agentError = $('#agent-port-error')
-
-			$('#options-menu').click(function(e) { e.stopPropagation() })
-			
-			function errorOut() {
-				$agentError.slideUp(100, function() { blockErrorOut = false })
-			}
-			function errorIn(error) {
-				if (error) {
-					$agentError.text(error)
-					$agentError.slideDown(100, function() { blockErrorIn = false })
-				} else {
-					errorOut()
-				}
-			}
-
-			function setPortSaving() {
-				$agentPort.removeClass('invalid')
-				errorOut()
-			}
-			function setPortSaved() {
-				$agentPort.removeClass('invalid')
-				errorOut()
-			}
-			function setPortInvalid(error) {
-				$agentPort.addClass('invalid')
-				errorIn(error)
-			}
-
-			$agentLine.overlay('wait')
-
-			$.ajax('/api/agent-port', {
-				type: 'GET',
-				success: function(data) {
-					$agentPort.val(data)
-					setPortSaved()
-					$agentLine.overlay('ready')
-				},
-				error: function(xhr, status) {
-					setPortInvalid()
-					console.error('failed to get agent port', xhr.responseText)
-				}
-			})
-
-			$agentPort.on('input', function() {
-				var val = $agentPort.val().trim()
-				if (/^\d+$/.test(val)) {
-					setPortSaving()
-
-					$.ajax('/api/agent-port', {
-						data: { 'port': val },
-						type: 'PUT',
-						success: function() {
-							$agentPort.val(val)
-							setPortSaved()
-							updateTraceAgentCommand()
-						},
-						error: function(xhr, status) {
-							setPortInvalid(xhr.responseText)
-						}
-					})
-				} else {
-					setPortInvalid()
-				}
-			})
-		})()
 
 	})
-	
-	exports.updateTraceAgentCommand = function() {
-		var $agentString = $('#trace-agent-command')
-
-		$agentString.overlay('wait')
-		$.ajax('/api/agent-string', {
-			type: 'GET',
-			success: function(str) {
-				$agentString.text(str)
-				$agentString.overlay('ready')
-			},
-			error: function(xhr, status) {
-				console.error('failed to get updated agent string', xhr.responseText)
-			}
-		})
-	}
 
 }(this));

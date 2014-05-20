@@ -30,7 +30,7 @@ import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
 import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import com.secdec.codepulse.tracer.snippet.ProjectWidgetry
+import com.secdec.codepulse.tracer.snippet.ConnectionHelp
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -173,12 +173,28 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		{ case (id, List(`tail`)) => id },
 		(_, List(tail)))
 
+	protected object AcknowledgmentPath extends PathMatcher[TraceConnectionAcknowledgment] {
+		def unapply(path: List[String]): Option[TraceConnectionAcknowledgment] = path match {
+			case "api" :: "connection" :: "accept" :: ProjectId(projectId) :: Nil =>
+				manager.getProject(projectId) map { TraceConnectionAcknowledgment.Acknowledged(_) }
+			case "api" :: "connection" :: "reject" :: Nil =>
+				Some(TraceConnectionAcknowledgment.Rejected)
+			case _ => None
+		}
+		def apply(ack: TraceConnectionAcknowledgment) = ack match {
+			case TraceConnectionAcknowledgment.Acknowledged(target) =>
+				"api" :: "connection" :: "accept" :: target.id.num.toString :: Nil
+			case TraceConnectionAcknowledgment.Rejected =>
+				"api" :: "connection" :: "reject" :: Nil
+			case TraceConnectionAcknowledgment.Canceled =>
+				throw new IllegalArgumentException("No path available for 'Canceled'")
+		}
+	}
+
 	/** Object that contains PathExtractor instances that can be used to parse or generate
 	  * Paths with their respective bits of data.
 	  */
 	object Paths {
-		/** /api/<target.id>/start */
-		val Start = simpleTargetPath("start")
 
 		/** /api/<target.id>/end */
 		val End = simpleTargetPath("end")
@@ -238,6 +254,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					(target, rec)
 			},
 			{ case (target, recording) => (target, List("recording", recording.id.toString)) })
+
+		/** /api/connection/[reject|accept/<project.id>] */
+		val Acknowledgment = AcknowledgmentPath
 	}
 
 	private object DataPath {
@@ -339,7 +358,19 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// GET the agent string
 		case List("api", "agent-string") Get req =>
-			PlainTextResponse(ProjectWidgetry.traceAgentCommand)
+			PlainTextResponse(ConnectionHelp.traceAgentCommand)
+
+		// POST an acknowledgment of an agent connection
+		case Paths.Acknowledgment(ack) Post req => ack match {
+			case TraceConnectionAcknowledgment.Acknowledged(target) =>
+				traceConnectionAcknowledger().acknowledgeCurrentTrace(target)
+				OkResponse()
+			case TraceConnectionAcknowledgment.Rejected =>
+				traceConnectionAcknowledger().rejectCurrentTrace()
+				OkResponse()
+			case _ =>
+				BadResponse()
+		}
 
 		// DELETE a project (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>
@@ -352,11 +383,6 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				.cancelProjectDeletion(target)
 				.map { _ => OkResponse() }
 				.recover { case e => new NotFoundResponse(e.getMessage) }
-
-		// POST a new tracer agent connection
-		case Paths.Start(target) Post req =>
-			target.requestNewTraceConnection()
-			OkResponse()
 
 		// POST the current trace to stop
 		case Paths.End(target) Post req =>

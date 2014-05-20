@@ -19,7 +19,7 @@
 
 //TODO handle uncaught node.js errors
 
-var events = require('events');
+var events = require('events'), http = require('http');
 
 var logContents = '', logEvent = new events.EventEmitter();
 
@@ -186,25 +186,62 @@ exports.codepulse = {
 
 startCodePulse();
 
+function checkWindowClose(window, cb) {
+	if (cpUrl) {
+		// make sure we don't wait any longer than 10 seconds
+		var cwcTimeout = setTimeout(function() {
+			cb();
+		}, 10000);
+
+		var request = http.get(cpUrl + '/api/projects', function(res) {
+			if (res.statusCode == 200) {
+				var body = '';
+				res.setEncoding('utf8');
+				res.on('data', function(chunk) {
+					body += chunk;
+				});
+				res.on('error', function() {
+					clearTimeout(cwcTimeout);
+					cb();
+				});
+				res.on('end', function() {
+					clearTimeout(cwcTimeout);
+					var projects = JSON.parse(body);
+					var idle = true;
+					projects.forEach(function(project) {
+						if (project.state == 'loading' || project.state == 'running')
+							idle = false;
+					});
+
+					if (idle || window.confirm('Exiting Code Pulse while a project is being loaded or traced may cause data loss. Would you like to exit anyway?'))
+						cb();
+				})
+			} else cb();
+		})
+	} else cb();
+}
+
 var gotMainWindow = false;
 
 exports.registerMainWindow = function(window) {
 	if (!gotMainWindow) {
 		writeLog('Registering main window...\n');
 
-		window.on('close', function() {
-			writeLog('Window closed, stopping Code Pulse...\n');
-			
-			this.hide();
-			if (childProcess)
-				killCodePulse();
-			else
-				this.close(true);
+		window.gui.on('close', function() {
+			checkWindowClose(window.window, function() {
+				writeLog('Window closed, stopping Code Pulse...\n');
+
+				window.gui.hide();
+				if (childProcess)
+					killCodePulse();
+				else
+					window.gui.close(true);
+			});
 		});
 
 		cpEvent.on('stopped', function() {
 			writeLog('Code Pulse stopped; closing main window.\n');
-			window.close(true);
+			window.gui.close(true);
 		});
 	} else {
 		writeLog('Attempt to re-register main window ignored...\n');

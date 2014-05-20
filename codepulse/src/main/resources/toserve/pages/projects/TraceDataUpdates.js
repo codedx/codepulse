@@ -34,7 +34,7 @@
 	// record data; When this happens, the browser should
 	// make a request through the API for the latest
 	// coverage data. When these requests are fulfilled,
-	// the response data is fired through [TODO: variable name here!]
+	// the response data is fired through Trace.coverageRecords
 	Trace.traceCoverageUpdateRequests = new Bacon.Bus()
 
 

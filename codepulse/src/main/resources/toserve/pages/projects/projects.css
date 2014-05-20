@@ -66,7 +66,7 @@ body > .overlay:before {
  	display: none;
  }
  
- .middle-column-alt:not(.in-view):not(.no-tab):hover {
+ .middle-column-alt:not(.in-view):not(.no-tab):not(.maximized):hover {
  	left: calc(100% - 260px);
  }
  
@@ -80,6 +80,11 @@ body > .overlay:before {
  	*/
  	left: 350px;
  	border-left: none;
+ }
+
+ .middle-column-alt.maximized {
+	left: 0;
+	width: calc(100% - 241px);
  }
 
  /* Special case for the projectSwitcher. It needs to be in front of
@@ -282,6 +287,25 @@ body > .overlay:before {
  .treemap-header .header-text {
  	color: white;
  	display: inline-block;
+ }
+
+ .treemap-header .maximizer {
+	display: inline-block;
+	float: right;
+	line-height: 40px;
+	width: 40px;
+	text-align: center;
+
+	cursor: pointer;
+ }
+ .treemap-header .maximizer:hover {
+	background-color: rgba(255,255,255,0.1);
+ }
+ .treemap-header .maximizer i:before {
+	content: '\f065'; /* fa-expand */
+ }
+ .maximized .treemap-header .maximizer i:before {
+	content: '\f066'; /* fa-compress */
  }
 
 /*********************\
