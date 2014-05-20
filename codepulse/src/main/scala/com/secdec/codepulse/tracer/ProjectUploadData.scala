@@ -46,13 +46,14 @@ import akka.actor.ActorSystem
 
 object ProjectUploadData {
 
-	def handleProjectExport(file: File): ProjectId = createAndLoadProjectData { projectData =>
+	def handleProjectExport(file: File, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
 
 		// Note: the `creationDate` should have been filled in by the importer.
 		//The `importDate` is now.
 		projectData.metadata.importDate = Some(System.currentTimeMillis)
 
 		ProjectImporter.importFrom(file, projectData)
+		cleanup
 	}
 
 	/** A naive check on a File that checks if it is a .zip file
@@ -113,7 +114,7 @@ object ProjectUploadData {
 		projectId
 	}
 
-	def handleBinaryZip(file: File, originalName: String): ProjectId = createAndLoadProjectData { projectData =>
+	def handleBinaryZip(file: File, originalName: String, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
 		val RootGroupName = "Classes"
 		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
@@ -224,10 +225,12 @@ object ProjectUploadData {
 				}
 
 				updateStatus(DependencyCheckStatus.Finished(deps, vulnDeps), vulnNodes.result)
+				cleanup
 			} { exception =>
 				// on error, set status to failed
 				println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
 				updateStatus(DependencyCheckStatus.Failed)
+				cleanup
 			}
 		}
 	}
