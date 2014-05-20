@@ -8,12 +8,12 @@ g.treemap-hover rect.node-outline {
 g.treemap rect.node {
 	stroke-width: 1px;
 	shape-rendering: crispEdges;
-	stroke: white;
+	stroke: #AAA;
 }
 
 g.treemap rect.node-highlight {
 	fill: orange;
-	stroke: white;
+	stroke: #AAA;
 	shape-rendering: crispEdges;
 	stroke-width: 1px;
 	pointer-events: none;

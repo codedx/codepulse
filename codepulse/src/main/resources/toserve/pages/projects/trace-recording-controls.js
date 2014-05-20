@@ -33,22 +33,13 @@
 
 	var recordingColorResets = new Bacon.Bus()
 
-	// ColorBrewer's 'Paired12' scheme, but re-ordered to avoid 
-	// putting similar colors adjacent to each other.
-	var colorScheme = [
-		'#a6cee3', // light blue
-		'#b2df8a', // light green
-		'#fb9a99', // light red/pink
-		'#fdbf6f', // light orange
-		'#cab2d6', // light purple
-		'#ffff99', // light tan/yellow
-		'#1f78b4', // blue
-		'#33a02c', // green
-		'#e31a1c', // red
-		'#ff7f00', // orange
-		'#6a3d9a', // purple
-		'#b15928', // brown
-	]
+	// Generating a 'pastel' color theme using HSL colors
+	// fixed at SAT = .5, LUM = .7, and rotating over hues.
+	// We start at green (2) and skip pink (5) because it
+	// looks so similar to red (0).
+	var colorScheme = [2,3,4,0,1].map(function(i){
+		return 'hsl(' + (i*60) + ', 50%, 70%)'
+	})
 
 	function nextTemplateColor(){
 		var id = nextTemplateColor.nextId || 0,
@@ -86,15 +77,16 @@
 	}
 
 	function setupOverlapsRecording(){
-		var recording = new Recording()
+		var recording = new Recording(),
+			defaultColor = '#333'
 
 		recording
 			.setLabel('overlaps')
-			.setColor('purple')
+			.setColor(defaultColor)
 			.setDataKey('overlaps')
 
 		recordingColorResets.onValue(function(){
-			recording.setColor('purple')
+			recording.setColor(defaultColor)
 		})
 
 		var managedId = Trace.addRecording(recording)
@@ -238,7 +230,7 @@
 			$swatch = $container.find('.swatch-container'),
 			$menuItems = $container.find('.dropdown-menu li'),
 			$label = $container.find('.legend-text'),
-			defaultColor = 'steelblue'
+			defaultColor = '#666'
 
 		// set the initial and reset color
 		recording.setColor(defaultColor)
@@ -319,17 +311,15 @@
 	function watchForRecentDataKeyChanges(recording, managedId){
 		function isRecentKey(key){ return key.indexOf('recent/') === 0 }
 
-		return Bacon
+		return recording.dataKey
 			// poll if the recording is selected and on a 'recent/*' dataKey
-			.combineWith(function(isSelected, dataKey){
-				if(/*isSelected && */isRecentKey(dataKey)){
+			.map(function(dataKey){
+				if(isRecentKey(dataKey)){
 					return 'poll'
-				} else /*if(isSelected)*/{
+				} else {
 					return 'once'
-				} /*else {
-					return false
-				}*/
-			}, recording.selected, recording.dataKey)
+				}
+			})
 			// if the `combineWith` returns true, kick off a polling stream
 			// (otherwise, do nothing)
 			.flatMapLatest(function(shouldPoll){
