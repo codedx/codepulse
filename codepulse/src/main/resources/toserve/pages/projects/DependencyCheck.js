@@ -54,13 +54,15 @@
 
 			cves.exit().remove()
 			var cveNodes = cves.enter().append('li').classed('cve', true)
+			var cveHeaders = cveNodes.append('div').classed('cve-header', true)
 
-			cveNodes.append('a')
+			cveHeaders.append('a')
 				.classed('cve-name', true)
 				.attr('external-href', function(d) { return d.url })
 				.text(function(d) { return d.name })
-			cveNodes.append('a')
+			cveHeaders.append('a')
 				.classed('cwe-name', true)
+				.attr('title', function(d) { return d.cwe.name })
 				.attr('external-href', function(d) { return d.cwe.url })
 				.text(function(d) { return d.cwe.name })
 			cveNodes.append('p').classed('cve-description', true)

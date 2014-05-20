@@ -407,6 +407,8 @@ body > .overlay:before {
  	float: right;
  	font-style: italic;
  	font-size: 90%;
+ 	max-width: calc(100% - 100px);
+ 	text-align: right;
  }
 
  .report-container #vulns {
@@ -436,21 +438,37 @@ body > .overlay:before {
  	margin-bottom: 15px;
  }
 
- .report-container #vulns .cve-list .cve .cve-name {
+ .report-container #vulns .cve-list .cve .cve-header {
+ 	padding: 0 15px;
+ }
+
+ .report-container #vulns .cve-list .cve .cve-header a {
+ 	box-sizing: border-box;
+ 	display: inline-block;
+ }
+
+ .report-container #vulns .cve-list .cve .cve-header .cve-name {
  	color: #cf0000;
  	font-weight: bold;
- 	margin-left: 15px;
+ 	width: 130px;
  	border-bottom: 1px dotted #cf0000;
  }
 
- .report-container #vulns .cve-list .cve .cwe-name {
+ .report-container #vulns .cve-list .cve .cve-header .cwe-name {
  	background: #4d85d1;
  	color: whitesmoke;
  	margin-left: 10px;
- 	padding: 2px 6px;
+ 	padding: 0 6px;
  	border-radius: 3px;
- 	vertical-align: 2px;
+ 	vertical-align: -2px;
  	font-size: 75%;
+ 	
+ 	overflow: hidden;
+ 	text-overflow: ellipsis;
+ 	white-space: nowrap;
+ 	max-width: calc(100% - 140px);
+ 	height: 15px;
+ 	line-height: 15px;
  }
 
  .report-container #vulns .cve-list .cve .cve-description {
