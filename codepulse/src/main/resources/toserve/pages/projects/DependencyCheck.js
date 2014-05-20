@@ -104,8 +104,10 @@
 			statusBus.push(status)
 		})
 
-		API.getVulnerableNodes(function(nodes) {
-			vulnerableNodesBus.push(nodes)
+		Trace.ready(function() {
+			API.getVulnerableNodes(function(nodes) {
+				vulnerableNodesBus.push(nodes)
+			})
 		})
 
 		var updateStream = $(document).asEventStream('dependencycheck-update', function(event, args) { return args })
