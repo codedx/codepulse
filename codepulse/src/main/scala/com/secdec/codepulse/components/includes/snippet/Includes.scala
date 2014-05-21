@@ -121,6 +121,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val notifications = register("notifications", CSS("widgets/Notifications/Notifications.css"), JS("widgets/Notifications/Notifications.js"), JS("widgets/Notifications/PieClock.js"))
 	val projectInputForm = register("ProjectInputForm", CSS("pages/ProjectInputForm/ProjectInputForm.css"), JS("pages/ProjectInputForm/ProjectInputForm.js"))
 	val brandingStyle = register("brandingStyle", CSS("common/branding.css"))
+	val updates = register("updates", JS("common/UpdateController.js"), CSS("widgets/updates/updates.css"), JS("widgets/updates/updates.js"))
 
 	val indexPage = register("indexPage", CSS("pages/index/index.css"))
 

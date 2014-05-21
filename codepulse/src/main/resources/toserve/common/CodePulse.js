@@ -64,16 +64,7 @@
 				.removeAttr('external-href')
 				.attr('href', href)
 
-			if(CodePulse.isEmbedded){
-				// open with native browser
-				$this.click(function(e){
-					e.preventDefault()
-					require('nw.gui').Shell.openExternal(href)
-				})
-			} else {
-				// open in a new tab
-				$this.attr('target', '_blank')
-			}
+			$this.openInBrowser()
 		})
 	})
 
