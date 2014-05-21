@@ -80,7 +80,7 @@
 			/*getChanges*/ function(pw){ return pw.instrumentationSelectedProp.changes() }
 			)
 
-		var widgets = {}, nodes = {}
+		var widgets = {}
 
 		// build this into a Map[node.id -> packageNode]
 		// Note: the package tree doesn't include all nodes; instead, it includes
@@ -134,7 +134,6 @@
 		;(function setupTreeHierarchy(packageParentNode, node){
 
 			var pw = new PackageWidget()
-			nodes[node.id] = node
 			widgets[node.id] = pw
 			pw.associatedNode = node
 			// pw.parentNode = packageParentNode
@@ -211,7 +210,7 @@
 					// mark any vulnerable nodes as vulnerable.
 					// this will NOT unmark any previously marked nodes, we're not
 					// expecting nodes to become not-vulnerable
-					var node = nodes[nid]
+					var node = treeData.getNode(nid)
 					if (node) {
 						var pw = widgets[node.id]
 						pw.addVulnerableBadge(true)

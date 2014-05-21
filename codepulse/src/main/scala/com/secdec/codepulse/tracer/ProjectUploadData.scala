@@ -52,8 +52,11 @@ object ProjectUploadData {
 		//The `importDate` is now.
 		projectData.metadata.importDate = Some(System.currentTimeMillis)
 
-		ProjectImporter.importFrom(file, projectData)
-		cleanup
+		try {
+			ProjectImporter.importFrom(file, projectData)
+		} finally {
+			cleanup
+		}
 	}
 
 	/** A naive check on a File that checks if it is a .zip file
@@ -197,40 +200,46 @@ object ProjectUploadData {
 				// before running, set status to running
 				updateStatus(DependencyCheckStatus.Running)
 			} { reportDir =>
-				// on successful run, process the results
-				import scala.xml._
-				import com.secdec.codepulse.util.RichFile._
-				import treeNodeData.ExtendedTreeNodeData
+				try {
+					// on successful run, process the results
+					import scala.xml._
+					import com.secdec.codepulse.util.RichFile._
+					import treeNodeData.ExtendedTreeNodeData
 
-				val x = XML loadFile reportDir / "dependency-check-report.xml"
+					val x = XML loadFile reportDir / "dependency-check-report.xml"
 
-				var deps = 0
-				var vulnDeps = 0
-				val vulnNodes = List.newBuilder[Int]
+					var deps = 0
+					var vulnDeps = 0
+					val vulnNodes = List.newBuilder[Int]
 
-				for {
-					dep <- x \\ "dependency"
-					vulns = dep \\ "vulnerability"
-				} {
-					deps += 1
-					if (!vulns.isEmpty) {
-						vulnDeps += 1
-						val f = new File((dep \ "filePath").text)
-						val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
-						for (node <- treeNodeData getNode jarLabel) {
-							node.flags += TreeNodeFlag.HasVulnerability
-							vulnNodes += node.id
+					for {
+						dep <- x \\ "dependency"
+						vulns = dep \\ "vulnerability"
+					} {
+						deps += 1
+						if (!vulns.isEmpty) {
+							vulnDeps += 1
+							val f = new File((dep \ "filePath").text)
+							val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
+							for (node <- treeNodeData getNode jarLabel) {
+								node.flags += TreeNodeFlag.HasVulnerability
+								vulnNodes += node.id
+							}
 						}
 					}
-				}
 
-				updateStatus(DependencyCheckStatus.Finished(deps, vulnDeps), vulnNodes.result)
-				cleanup
+					updateStatus(DependencyCheckStatus.Finished(deps, vulnDeps), vulnNodes.result)
+				} finally {
+					cleanup
+				}
 			} { exception =>
-				// on error, set status to failed
-				println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
-				updateStatus(DependencyCheckStatus.Failed)
-				cleanup
+				try {
+					// on error, set status to failed
+					println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
+					updateStatus(DependencyCheckStatus.Failed)
+				} finally {
+					cleanup
+				}
 			}
 		}
 	}

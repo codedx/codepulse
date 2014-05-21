@@ -98,8 +98,8 @@ trait TreeNodeDataAccess {
 
 		/** the flags set on this node */
 		object flags {
-			lazy val flags = getFlags(n).toSet
-			def contains(flag: TreeNodeFlag) = flags contains flag
+			lazy val value = getFlags(n).toSet
+			def contains(flag: TreeNodeFlag) = value contains flag
 			def +=(flag: TreeNodeFlag) = setFlag(n, flag)
 			def -=(flag: TreeNodeFlag) = clearFlag(n, flag)
 		}

@@ -41,7 +41,7 @@
 		})()
 
 		function generateReport(report, isFullReport, container) {
-			var jars = d3.select(container).select('#vulns').selectAll('li.jar')
+			var jars = d3.select(container).select('.vuln-list').selectAll('li.jar')
 				.data(report.vulns, function(d) { return d.jar })
 
 			jars.exit().remove()

@@ -31,6 +31,8 @@ import net.liftweb.http.OnDiskFileParamHolder
 class ManualOnDiskFileParamHolder(name: String, mimeType: String, fileName: String, localFile: File)
 	extends OnDiskFileParamHolder(name, mimeType, fileName, localFile) {
 
+		localFile.deleteOnExit
+
 	protected override def finalize {
 		// no-op
 	}
