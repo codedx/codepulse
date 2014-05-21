@@ -19,10 +19,10 @@
 
 package com.secdec.bytefrog.agent.bytefrog.test.util
 
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.net.URI
-import java.nio.file.Files
-import java.nio.file.Paths
 
 import com.secdec.bytefrog.agent.bytefrog.Instrumentor
 
@@ -71,11 +71,10 @@ class TestInstrumentor {
 			c
 		}
 
-		private def findClassFile(name: String) = getClass.getResource(s"/${name.replace('.', '/')}.class")
+		private def findClassFile(name: String) = new File(getClass.getResource(s"/${name.replace('.', '/')}.class").toURI)
 
 		override def findClass(name: String): Class[_ <: Any] = {
-			val oBytes = Files.readAllBytes(Paths.get(findClassFile(name).toURI))
-			val bytes = Instrumentor.instrument(name, oBytes)
+			val bytes = Instrumentor.instrument(name, new FileInputStream(findClassFile(name)))
 			if (bytes != null)
 				defineClass(name, bytes, 0, bytes.length)
 			else

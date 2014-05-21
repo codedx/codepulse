@@ -19,6 +19,7 @@
 
 package com.secdec.bytefrog.agent.bytefrog;
 
+import java.io.InputStream;
 import java.io.IOException;
 
 import org.objectweb.asm.ClassReader;
@@ -55,6 +56,18 @@ public class Instrumentor
 	public static byte[] instrument(String name, byte[] buffer)
 	{
 		return instrument(name, new ClassReader(buffer));
+	}
+
+	/**
+	 * Instruments the class contained in the given InputStream.
+	 * 
+	 * @param is the InputStream containing the class to instrument
+	 * @param name the name of the class being instrumented
+	 * @return the instrumented version of the class
+	 */
+	public static byte[] instrument(String name, InputStream is) throws IOException
+	{
+		return instrument(name, new ClassReader(is));
 	}
 
 	/**
