@@ -30,7 +30,7 @@ import com.secdec.bytefrog.common.message.AgentOperationMode;
  */
 public class StateManager
 {
-	private static final LinkedList<ModeChangeListener> listeners = new LinkedList<>();
+	private static final LinkedList<ModeChangeListener> listeners = new LinkedList<ModeChangeListener>();
 	private final StateManagerControlMessageHandler messageHandler = new StateManagerControlMessageHandler();
 	private AgentOperationMode currentMode = AgentOperationMode.Initializing;
 

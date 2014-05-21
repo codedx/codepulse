@@ -343,7 +343,7 @@ public class MessageDealer
 	private class MethodId
 	{
 		private final AtomicInteger idGen = new AtomicInteger(1);
-		private final ConcurrentMap<String, Integer> ids = new ConcurrentHashMap<>();
+		private final ConcurrentMap<String, Integer> ids = new ConcurrentHashMap<String, Integer>();
 
 		public int getId(String methodSignature) throws IOException, FailedToObtainBufferException,
 				FailedToSendBufferException
@@ -364,7 +364,7 @@ public class MessageDealer
 	private class ExceptionId
 	{
 		private final AtomicInteger idGen = new AtomicInteger(1);
-		private final ConcurrentMap<String, Integer> ids = new ConcurrentHashMap<>();
+		private final ConcurrentMap<String, Integer> ids = new ConcurrentHashMap<String, Integer>();
 
 		public int getId(String exception) throws IOException, FailedToObtainBufferException,
 				FailedToSendBufferException

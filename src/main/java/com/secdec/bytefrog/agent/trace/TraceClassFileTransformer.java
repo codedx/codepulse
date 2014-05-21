@@ -40,8 +40,8 @@ public class TraceClassFileTransformer implements ClassFileTransformer
 	private final List<Pattern> exclusions;
 	private final List<Pattern> inclusions;
 
-	private final Set<ClassLoader> knownClassLoaders = new HashSet<>();
-	private final Set<ClassLoader> failedClassLoaders = new HashSet<>();
+	private final Set<ClassLoader> knownClassLoaders = new HashSet<ClassLoader>();
+	private final Set<ClassLoader> failedClassLoaders = new HashSet<ClassLoader>();
 
 	private final ClassTransformationListener classTransformationListener;
 

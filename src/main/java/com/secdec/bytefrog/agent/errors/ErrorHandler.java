@@ -27,7 +27,7 @@ import java.util.LinkedList;
  */
 public final class ErrorHandler
 {
-	private static final LinkedList<ErrorListener> listeners = new LinkedList<>();
+	private static final LinkedList<ErrorListener> listeners = new LinkedList<ErrorListener>();
 
 	public static void addListener(ErrorListener listener)
 	{
