@@ -80,7 +80,7 @@
 
 		/** checks `release`, firing off the appropriate events as necessary */
 		function checkRelease(release) {
-			getVersion(function (ourVersion) { 
+			getVersion(function (ourVersion) {
 				var releaseVersion = release.tag_name.replace(/^v/, '')
 				self.releaseVersion = releaseVersion
 

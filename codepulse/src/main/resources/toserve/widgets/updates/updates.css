@@ -1,0 +1,26 @@
+.update-message {
+	display: none;
+	float: right;
+	background: rgb(255, 133, 0);
+	padding: 1px 6px;
+	margin-right: -1px;
+	height: 100%;
+}
+
+.update-message .version-message {
+	color: #333;
+	font-weight: bold;
+}
+
+.update-message a {
+	margin-left: 2px;
+	padding: 2px 4px;
+	background: #333;
+	color: white;
+	border-radius: 2px;
+}
+
+.update-message a:hover {
+	background: #555;
+	text-decoration: none;
+}
