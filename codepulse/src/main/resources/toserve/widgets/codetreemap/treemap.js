@@ -721,7 +721,7 @@
 	
 	function labelStyle(){ this
 		.style('font-size', '10px')
-		.style('fill', 'white')
+		.style('fill', '#333')
 		.style('pointer-events', 'none')
 	}
 	

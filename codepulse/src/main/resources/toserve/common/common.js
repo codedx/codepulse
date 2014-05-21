@@ -52,3 +52,21 @@ Bacon.laterWithRender = function(delay, value){
 		})
 	})
 }
+
+// provides `$(...).openInBrowser` to force links to open in the default browser
+// in embedded mode
+$.fn.extend({
+	openInBrowser: function() {
+		var $this = $(this)
+		if (CodePulse.isEmbedded) {
+			// open with native browser
+			$this.click(function(e) {
+				e.preventDefault()
+				require('nw.gui').Shell.openExternal($this.attr('href'))
+			})
+		} else {
+			// open in a new tab
+			$this.attr('target', '_blank')
+		}
+	}
+})

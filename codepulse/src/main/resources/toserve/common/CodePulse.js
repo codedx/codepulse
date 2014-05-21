@@ -55,8 +55,7 @@
 	}
 
 	// Handle external links via the "external-href" attribute
-	CodePulse.handleExternalHrefs = function($container) {
-		$container = $container || $(document)
+	$(document).ready(function(){
 
 		$('[external-href]', $container).each(function(){
 			var $this = $(this),
@@ -65,20 +64,8 @@
 				.removeAttr('external-href')
 				.attr('href', href)
 
-			if(CodePulse.isEmbedded){
-				// open with native browser
-				$this.click(function(e){
-					e.preventDefault()
-					require('nw.gui').Shell.openExternal(href)
-				})
-			} else {
-				// open in a new tab
-				$this.attr('target', '_blank')
-			}
+			$this.openInBrowser()
 		})
-	}
-	$(document).ready(function(){
-		CodePulse.handleExternalHrefs($(this))
 	})
 
 })(this.CodePulse || (this.CodePulse = {}));

@@ -22,6 +22,12 @@
 	white-space: pre;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
+
+	/* allow for up to 3 lines before adding a VScroll bar */
+	height: 75px;
+	max-height: 75px;
+	box-sizing: border-box;
+	overflow-y: auto;
 }
 
 .connection-help-form .control {

@@ -151,7 +151,7 @@ $(document).ready(function(){
 			}
 
 			var base = function(node){
-				if(ignoredKinds.has(node.kind)) return 'grey'
+				if(ignoredKinds.has(node.kind)) return '#ccc'
 
 
 				var coverage = Trace.getCoverageSet(node.id),
@@ -163,7 +163,7 @@ $(document).ready(function(){
 						if(activeRecordingIds.empty()) return allActivityColor
 						else return allActivityColorFaded
 					} else {
-						return 'lightgrey'
+						return '#eee'
 					}
 				}
 				if(numCovered > 1) return colorLegend['multi']

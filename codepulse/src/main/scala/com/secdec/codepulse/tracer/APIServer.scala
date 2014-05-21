@@ -47,6 +47,7 @@ import java.util.Locale
 import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 import DCJson._
+import com.secdec.codepulse.version
 
 class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -277,6 +278,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	}
 
 	serve {
+
+		// GET the Code Pulse version
+		case List("api", "version") Get req =>
+			JsonResponse("appVersion" -> version.number)
 
 		// GET a list of projects
 		case List("api", "projects") Get req =>
