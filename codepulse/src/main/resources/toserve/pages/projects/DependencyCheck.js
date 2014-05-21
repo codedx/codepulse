@@ -33,12 +33,14 @@
 		var reportShownBus = new Bacon.Bus
 		this.reportShown = reportShownBus.toProperty(false)
 
-		;(function() {
+		$(function() {
 			var $closeButton = $('.report-header .close-button', $container)
 			$closeButton.click(function() {
 				self.closeReport()
 			})
-		})()
+
+			$('#full-report-link', $container).openInBrowser()
+		})
 
 		function generateReport(report, isFullReport, container) {
 			var jars = d3.select(container).select('.vuln-list').selectAll('li.jar')
@@ -58,18 +60,19 @@
 
 			cveHeaders.append('a')
 				.classed('cve-name', true)
-				.attr('external-href', function(d) { return d.url })
+				.attr('href', function(d) { return d.url })
 				.text(function(d) { return d.name })
+				.each(function() { $(this).openInBrowser() })
 			cveHeaders.append('a')
 				.classed('cwe-name', true)
 				.attr('title', function(d) { return d.cwe.name })
-				.attr('external-href', function(d) { return d.cwe.url })
+				.attr('href', function(d) { return d.cwe.url })
 				.text(function(d) { return d.cwe.name })
+				.each(function() { $(this).openInBrowser() })
 			cveNodes.append('p').classed('cve-description', true)
 				.text(function(d) { return d.description })
 
-			$('#full-report-link', container).attr('external-href', report.report)
-			CodePulse.handleExternalHrefs($(container))
+			$('#full-report-link', container).attr('href', report.report)
 		}
 
 		this.showReport = function(node, isFullReport) {
