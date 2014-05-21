@@ -89,7 +89,7 @@ public class StringUtil
 				sb.append(between);
 			}
 			int item = items[i] & 0xFF;
-			if (Character.isAlphabetic(item))
+			if (Character.isLetter(item))
 			{
 				sb.append("'" + (char) item + "'");
 			}
