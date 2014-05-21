@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ConcurrentLinkedBlockingQueue<E> implements BlockingQueue<E>
 {
 	private final AtomicInteger size = new AtomicInteger(0);
-	private final ConcurrentLinkedQueue<E> inner = new ConcurrentLinkedQueue<>();
+	private final ConcurrentLinkedQueue<E> inner = new ConcurrentLinkedQueue<E>();
 
 	/**
 	 * Inner helper for initially spinning, then sleeping.

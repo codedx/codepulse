@@ -86,9 +86,9 @@ public class BufferPool
 		partialSem = new Semaphore(0);
 		fullSem = new Semaphore(0);
 
-		emptyBuffers = new ConcurrentLinkedQueue<>();
-		partialBuffers = new ConcurrentLinkedQueue<>();
-		fullBuffers = new ConcurrentLinkedQueue<>();
+		emptyBuffers = new ConcurrentLinkedQueue<DataBufferOutputStream>();
+		partialBuffers = new ConcurrentLinkedQueue<DataBufferOutputStream>();
+		fullBuffers = new ConcurrentLinkedQueue<DataBufferOutputStream>();
 
 		for (int i = 0; i < numBuffers; i++)
 		{
