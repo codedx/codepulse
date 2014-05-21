@@ -1,8 +1,8 @@
 /* Variables as a guideline:
 
 headerHeight = 60px
-headerWidth = min(500px, 70%)
-settingsHeight = 300px
+headerWidth = 500px
+settingsHeight = 200px
 edgeWidth = 25px
 
 */
@@ -20,7 +20,6 @@ edgeWidth = 25px
 	right: 0;
 	height: 60px;
 	width: 500px;
-	max-width: 70%;
 
 	pointer-events: none;
 }
@@ -32,9 +31,8 @@ edgeWidth = 25px
 	position: absolute;
 	top: 60px;
 	right: 0;
-	height: 300px;
+	height: 200px;
 	width: 500px;
-	max-width: 70%;
 
 	pointer-events: none;
 }
@@ -72,7 +70,7 @@ edgeWidth = 25px
 	 * the settings slide in, so the delay here is 0.
 	 */
 	transition-delay: 0s;
-	height: calc(100% + 300px); /* header height + settings height */
+	height: calc(100% + 200px); /* header height + settings height */
 }
 
 .TraceConnectorUI .main-container .gear-button .gear {
