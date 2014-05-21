@@ -53,7 +53,7 @@ Bacon.laterWithRender = function(delay, value){
 	})
 }
 
-// provides `$.externalHref` to force links to open in the default browser
+// provides `$(...).openInBrowser` to force links to open in the default browser
 // in embedded mode
 $.fn.extend({
 	openInBrowser: function() {
