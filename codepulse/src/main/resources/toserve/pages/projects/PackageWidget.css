@@ -184,6 +184,40 @@
  	background-color: #2C9494;
  }
  
+ .widget-label .vuln-badge {
+ 	float: right;
+ 	line-height: 22px;
+ 	margin: 0 4px;
+ 	color: lightcoral;
+ 	cursor: pointer;
+ }
+
+ .widget-label .vuln-badge.bubbled {
+ 	opacity: 0.6;
+ }
+
+ .widget-label .dependencycheck-badge {
+ 	float: right;
+ 	background: firebrick;
+ 	border-radius: 2px;
+ 	padding: 0 4px;
+ 	margin: 0 4px;
+ 	font-size: 80%;
+ 	color: whitesmoke;
+ 	cursor: pointer;
+ 	transition: background 0.25s ease;
+ }
+
+ .widget-label .dependencycheck-badge.clean {
+ 	background: rgb(43, 177, 43);
+ 	cursor: default;
+ }
+
+ .widget-label .dependencycheck-badge.pending {
+ 	background: rgb(70, 70, 70);
+ 	cursor: default;
+ }
+
  /* The actual text inside the label */
  .widget-label .label-text {
  	line-height: 20px;

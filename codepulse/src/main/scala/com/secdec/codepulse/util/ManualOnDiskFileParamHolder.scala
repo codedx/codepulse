@@ -17,16 +17,27 @@
  * limitations under the License.
  */
 
-import sbt._
-import Keys._
+package com.secdec.codepulse.util
 
-object BuildKeys {
+import java.io.File
+import net.liftweb.util.Helpers.tryo
+import net.liftweb.http.OnDiskFileParamHolder
 
-	val releaseDate = SettingKey[String]("release-date")
+/** An extended version of OnDiskFileParamHolder that is less eager to delete
+  * the temporary file.
+  *
+  * @author robertf
+  */
+class ManualOnDiskFileParamHolder(name: String, mimeType: String, fileName: String, localFile: File)
+	extends OnDiskFileParamHolder(name, mimeType, fileName, localFile) {
 
-	val packageEmbeddedWin32 = TaskKey[File]("package-embedded-win32", "Creates a ZIP distribution of the node-webkit embedded version of the current project for Windows (32-bit)")
-	val packageEmbeddedOsx = TaskKey[File]("package-embedded-osx", "Creates a ZIP distribution of the node-webkit embedded version of the current project for OS X (32/64-bit)")
-	val packageEmbeddedLinuxX86 = TaskKey[File]("package-embedded-linux-x86", "Creates a ZIP distribution of the node-webkit embedded version of the current project for Linux (x86)")
+		localFile.deleteOnExit
 
-	val fetchPackageDependencies = TaskKey[Unit]("fetch-package-dependencies")
+	protected override def finalize {
+		// no-op
+	}
+
+	def delete() {
+		tryo(localFile.delete)
+	}
 }

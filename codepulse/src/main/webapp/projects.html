@@ -81,6 +81,8 @@
 	<!-- Provides the base HTML for the PackageWidget (see PackageWidget.js) -->
 	<lift:embed what="package-widget-template"></lift:embed>
 
+	<lift:comet type="DependencyCheck"></lift:comet>
+
 		
 	<div class="projects-scope">
 			
@@ -141,6 +143,22 @@
 				<div class="no-selection-message">
 					Select packages from the list on the left to display them in more detail here
 				</div>
+			</div>
+		</div>
+
+		<div class="middle-column-alt no-tab" id="dependency-check-report">
+			<div class="report-header">
+				<div class="close-button"><i class="fa fa-times"></i></div>
+				<div class="header-text">Dependency Check Result</div>
+			</div>
+
+			<div class="report-container">
+				<p class="well summary clearfix">
+					<span class="credits">Data provided by <a external-href="http://jeremylong.github.io/DependencyCheck/">Dependency Check</a>.</span>
+					<a id="full-report-link" external-href="#"><i class="fa fa-file-text-o"></i> Full report</a>
+				</p>
+				<ul class="vuln-list">
+				</ul>
 			</div>
 		</div>
 		

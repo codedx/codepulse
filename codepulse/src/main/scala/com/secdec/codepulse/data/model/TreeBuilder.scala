@@ -27,6 +27,13 @@ case class TreeNode(data: TreeNodeData, children: List[TreeNode])(treeNodeData: 
 	import treeNodeData.ExtendedTreeNodeData
 
 	def traced = data.traced
+
+	def vulnerable = {
+		if (data.kind == CodeTreeNodeKind.Grp)
+			Some(data.flags contains TreeNodeFlag.HasVulnerability)
+		else
+			None
+	}
 }
 
 case class PackageTreeNode(
@@ -36,9 +43,11 @@ case class PackageTreeNode(
 	methodCount: Int,
 	otherDescendantIds: List[Int],
 	children: List[PackageTreeNode])(
-	tracedLookup: () => Option[Boolean]) {
+	tracedLookup: => Option[Boolean],
+	vulnLookup: => Option[Boolean]) {
 	
-	def traced = tracedLookup()
+	def traced = tracedLookup
+	def vulnerable = vulnLookup
 }
 
 /** Builds/projects treemap and package tree data as JSON for client.
@@ -129,10 +138,10 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 				}
 
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, otherDescendants, Nil)(() => node.data.traced)
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), Nil, selfNode :: filterChildren(children).map(transform(false)))(() => node.data.traced)
+				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, otherDescendants, Nil)(node.traced, node.vulnerable)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), Nil, selfNode :: filterChildren(children).map(transform(false)))(node.traced, node.vulnerable)
 			} else {
-				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), otherDescendants, filterChildren(node.children).map(transform(false)))(() => node.data.traced)
+				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), otherDescendants, filterChildren(node.children).map(transform(false)))(node.traced, node.vulnerable)
 			}
 		}
 

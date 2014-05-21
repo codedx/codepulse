@@ -41,7 +41,10 @@ object Dependencies {
 		"org.ow2.asm" % "asm" % "4.1",
 		"org.ow2.asm" % "asm-commons" % "4.1"
 	)
-	lazy val jna = "net.java.dev.jna" % "jna" % "3.5.2"
+	lazy val jna = Seq(
+		"net.java.dev.jna" % "jna" % "4.1.0",
+		"net.java.dev.jna" % "jna-platform" % "4.1.0"
+	)
 	lazy val jackson = Seq(
 		"com.fasterxml.jackson.core" % "jackson-core" % "2.3.2",
 		"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.2"
@@ -50,17 +53,13 @@ object Dependencies {
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
-	lazy val h2 = "com.h2database" % "h2" % "1.3.170"
+	lazy val h2 = "com.h2database" % "h2" % "1.3.172"
 	
 	// apache commons dependencies
 	object commons {
 		lazy val io = "commons-io" % "commons-io" % "2.1"
 	}
-	
-	lazy val dependencyResolvers = Seq(
-		"apache.repo" at "https://repository.apache.org/content/repositories/snapshots/",
-		"sonatype.repo" at "https://oss.sonatype.org/content/repositories/snapshots/",
-		"Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-		"Typesafe IDE-2.10" at "http://repo.typesafe.com/typesafe/ide-2.10/"
-	)
+
+	// dependency-check
+	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.0"
 }

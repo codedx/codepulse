@@ -26,15 +26,17 @@ import scala.util.control.Exception.catching
 
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
 
 import net.liftweb.common.Loggable
 import net.liftweb.http.JsonResponse
 import net.liftweb.http.LiftRules
 import net.liftweb.http.LiftRulesMocker.toLiftRules
-import net.liftweb.http.OnDiskFileParamHolder
 import net.liftweb.json.JsonDSL.pair2jvalue
 import net.liftweb.json.JsonDSL.string2jvalue
+
+import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
 
 object FileUploadSetup extends Loggable {
 
@@ -46,8 +48,8 @@ object FileUploadSetup extends Loggable {
 		// FileUtils.forceMkdir(tempFileDir)
 	}
 
-	def createTempUpload: File = {
-		val tempFile = File.createTempFile("upload", ".data")
+	def createTempUpload(extension: String): File = {
+		val tempFile = File.createTempFile("upload", s".$extension")
 		tempFile.deleteOnExit
 		tempFile
 	}
@@ -71,7 +73,7 @@ object FileUploadSetup extends Loggable {
 			val uploadFile = {
 				import scala.util.control.Exception._
 				//copy the stream to a local temp file:
-				val tempFile = createTempUpload
+				val tempFile = createTempUpload(Option(FilenameUtils getExtension fileName) getOrElse "data")
 				val output = catching(classOf[java.io.IOException]) opt { FileUtils.openOutputStream(tempFile) }
 				for (o <- output) {
 					try {
@@ -87,7 +89,7 @@ object FileUploadSetup extends Loggable {
 			}
 
 			logger.debug("handleMimeFile(%s, %s, %s)".format(fieldName, contentType, fileName))
-			val result = new OnDiskFileParamHolder(fieldName, contentType, fileName, uploadFile)
+			val result = new ManualOnDiskFileParamHolder(fieldName, contentType, fileName, uploadFile)
 			/** The OnDiskFile.. goes to a temp file in your temp folder.
 			  */
 

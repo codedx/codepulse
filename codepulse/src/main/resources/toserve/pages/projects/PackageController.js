@@ -66,7 +66,7 @@
 		}
 	}
 
-	function PackageController(treeData, $container, $totalsContainer, $clearSelectionButton){
+	function PackageController(treeData, depCheckController, $container, $totalsContainer, $clearSelectionButton){
 
 		// build this into a Map[packageId -> packageWidget.selectedProp]
 		var selectedWidgetsSP = new SetProp(
@@ -195,6 +195,36 @@
 
 		})(undefined, treeData.root)
 
+		// wire up the dependency area to listen for dependency check status
+		var depRoot = false
+		treeData.root.children.forEach(function (subroot) {
+			if (subroot.kind == 'group' && subroot.label == 'JARs') {
+				depRoot = widgets[subroot.id]
+			}
+		})
+
+		if (depRoot) {
+			depCheckController.status.onValue(depRoot.addDependencyCheckBadge)
+			depCheckController.vulnerableNodes.onValue(function(vulnNodes) {
+				vulnNodes.forEach(function (nid) {
+					// mark any vulnerable nodes as vulnerable.
+					// this will NOT unmark any previously marked nodes, we're not
+					// expecting nodes to become not-vulnerable
+					var node = treeData.getNode(nid)
+					if (node) {
+						var pw = widgets[node.id]
+						pw.addVulnerableBadge(true)
+
+						;(function bubbleUp(n) {
+							if (!n) return
+							if (widgets[n.id]) widgets[n.id].addVulnerableBadge(false)
+							bubbleUp(n.parent)
+						})(node.parent)
+					}
+				})
+			})
+		}
+
 		console.log('created', widgetCount, 'PackageWidgets')
 
 		function forEachWidget(f){
@@ -212,6 +242,9 @@
 			})
 			pw.instrumentationSelectedClicks.onValue(function(){
 				handleInstrumentationSelectionClick(node, pw)
+			})
+			pw.vulnerableBadgeClicks.onValue(function() {
+				depCheckController.showReport(node, pw == depRoot)
 			})
 		})
 

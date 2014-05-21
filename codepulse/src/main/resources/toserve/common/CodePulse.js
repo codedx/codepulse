@@ -57,7 +57,7 @@
 	// Handle external links via the "external-href" attribute
 	$(document).ready(function(){
 
-		$('[external-href]').each(function(){
+		$('[external-href]', $container).each(function(){
 			var $this = $(this),
 				href = $this.attr('external-href')
 			$this

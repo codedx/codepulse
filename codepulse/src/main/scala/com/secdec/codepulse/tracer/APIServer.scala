@@ -28,6 +28,7 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
+import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.tracer.snippet.ConnectionHelp
 import akka.actor.Cancellable
@@ -45,6 +46,7 @@ import java.net.BindException
 import java.util.Locale
 import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
+import DCJson._
 import com.secdec.codepulse.version
 
 class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
@@ -201,6 +203,12 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/<target.id>/status */
 		val Status = simpleTargetPath("status")
 
+		/** /api/<target.id>/dcstatus */
+		val DepCheckStatus = simpleTargetPath("dcstatus")
+
+		/** /api/<target.id>/dcreport */
+		val DepCheckReport = simpleTargetPath("dcreport")
+
 		/** /api/<target.id>/export */
 		val Export = simpleTargetPath("export")
 
@@ -209,6 +217,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		/** /api/<target.id>/packageTree */
 		val PackageTree = simpleTargetPath("packageTree")
+
+		/** /api/<target.id>/vulnerableNodes */
+		val VulnerableNodes = simpleTargetPath("vulnerableNodes")
 
 		/** /api/<target.id>/treemap */
 		val Treemap = simpleTargetPath("treemap")
@@ -291,7 +302,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					("href" -> href) ~
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
-					("state" -> traceState.name)
+					("state" -> traceState.name) ~
+					("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
 			}
 
 			Future.sequence(projectJsonFutures) map { JsonResponse(_) }
@@ -385,6 +397,34 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// GET the current status of the trace
 		case Paths.Status(target) Get req =>
 			target.getState map { state => PlainTextResponse(state.name) }
+
+		// GET the current dependency check status for the trace
+		case Paths.DepCheckStatus(target) Get req =>
+			JsonResponse(target.projectData.metadata.dependencyCheckStatus.json)
+
+		// GET a dependency check report for the trace
+		// query: nodes=<comma separated node IDs>
+		case Paths.DepCheckReport(target) Get req =>
+			req.param("nodes") match {
+				case Full(nodes) =>
+					JsonResponse {
+						DependencyCheckReporter.buildReport(target.projectData, nodes.split(',').flatMap(AsInt.unapply))
+					}
+				case _ => BadResponse()
+			}
+
+		// GET the vulnerable nodes
+		case Paths.VulnerableNodes(target) Get req =>
+			def collectVulnNodes(node: PackageTreeNode): List[Int] = {
+				val children = node.children.flatMap(collectVulnNodes)
+
+				node.id match {
+					case Some(id) if node.vulnerable getOrElse false => id :: children
+					case _ => children
+				}
+			}
+			val vulnNodes = treeBuilderManager.get(target.id).packageTree.flatMap(collectVulnNodes)
+			JsonResponse(vulnNodes)
 
 		// GET a project data export (as a .pulse file)
 		case Paths.Export(target) Get req =>

@@ -25,7 +25,6 @@ import net.liftweb.http.LiftResponse
 import net.liftweb.http.LiftRules
 import net.liftweb.http.NotFoundResponse
 import net.liftweb.http.OkResponse
-import net.liftweb.http.OnDiskFileParamHolder
 import net.liftweb.http.Req
 import net.liftweb.http.rest.RestHelper
 import net.liftweb.common.Full
@@ -37,6 +36,7 @@ import net.liftweb.json.JsonDSL._
 import net.liftweb.common.Box
 import com.secdec.codepulse.data.model.ProjectId
 import net.liftweb.http.PlainTextResponse
+import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
 
 class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelper {
 
@@ -55,13 +55,13 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 	serve {
 		case UploadPath("create") Post req => fallbackResponse {
 			for {
-				inputFile <- getReqFile(req) ?~! "Creating a new project requires a file"
+				(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
 				_ <- ProjectUploadData.checkForBinaryZip(inputFile) ?~ {
 					s"The file you picked doesn't have any compiled Java files."
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
-				val projectId = ProjectUploadData.handleBinaryZip(inputFile)
+				val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName, { cleanup() })
 
 				// set the new trace's name
 				projectManager.getProject(projectId) foreach {
@@ -74,25 +74,25 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 
 		case UploadPath("import") Post req => fallbackResponse {
 			for {
-				inputFile <- getReqFile(req) ?~! "Importing a project requires a file"
+				(inputFile, _, cleanup) <- getReqFile(req) ?~! "Importing a project requires a file"
 				_ <- ProjectUploadData.checkForProjectExport(inputFile) ?~ {
 					s"The file you picked isn't an exported project file."
 				}
 			} yield {
-				val projectId = ProjectUploadData.handleProjectExport(inputFile)
+				val projectId = ProjectUploadData.handleProjectExport(inputFile, { cleanup() })
 
 				hrefResponse(projectId)
 			}
 		}
 	}
 
-	def getReqFile(req: Req): Box[File] = req.uploadedFiles match {
-		case List(upfile: OnDiskFileParamHolder) =>
-			Full(upfile.localFile)
+	def getReqFile(req: Req): Box[(File, String, () => Unit)] = req.uploadedFiles match {
+		case List(upfile: ManualOnDiskFileParamHolder) =>
+			Full((upfile.localFile, upfile.fileName, upfile.delete))
 
 		case Nil => req.param("path") flatMap { path =>
 			val file = new File(path)
-			if (file.canRead) Some(file) else None
+			if (file.canRead) Some((file, file.getName, () => ())) else None
 		}
 
 		case _ => Empty

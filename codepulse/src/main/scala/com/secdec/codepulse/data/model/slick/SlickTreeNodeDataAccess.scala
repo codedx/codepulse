@@ -20,7 +20,7 @@
 package com.secdec.codepulse.data.model.slick
 
 import scala.slick.jdbc.JdbcBackend.Database
-import com.secdec.codepulse.data.model.{ TreeNodeData, TreeNodeDataAccess }
+import com.secdec.codepulse.data.model.{ TreeNodeData, TreeNodeDataAccess, TreeNodeFlag }
 
 /** Slick-based TreeNodeDataAccess implementation.
   *
@@ -39,6 +39,10 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 
 	def getNode(id: Int): Option[TreeNodeData] = db withSession { implicit session =>
 		dao get id
+	}
+
+	def getNode(label: String): Option[TreeNodeData] = db withSession { implicit session =>
+		dao get label
 	}
 
 	def getNodeForSignature(sig: String): Option[TreeNodeData] = db withSession { implicit session =>
@@ -118,6 +122,26 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		traced match {
 			case Some(traced) => tracedCache += id -> traced
 			case None => tracedCache -= id
+		}
+	}
+
+	private lazy val flagCache = collection.mutable.Map.empty[Int, List[TreeNodeFlag]]
+
+	def getFlags(id: Int): List[TreeNodeFlag] = flagCache.getOrElse(id, { db withSession { implicit session =>
+		dao.getFlags(id)
+	}})
+
+	def setFlag(id: Int, flag: TreeNodeFlag) {
+		db withTransaction { implicit transaction =>
+			dao.setFlag(id, flag)
+			flagCache remove id
+		}
+	}
+
+	def clearFlag(id: Int, flag: TreeNodeFlag) {
+		db withTransaction { implicit transaction =>
+			dao.clearFlag(id, flag)
+			flagCache remove id
 		}
 	}
 }

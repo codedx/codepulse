@@ -31,7 +31,10 @@ $(document).ready(function(){
 		packagesContainer = $('#packages'),
 
 		// initialize a treemap widget
-		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count')
+		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
+
+		// initialize dependency check controller
+		depCheckController = new DependencyCheckController($('#dependency-check-report'))
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
@@ -191,6 +194,11 @@ $(document).ready(function(){
 		$('#treemap').toggleClass('in-view', show)
 	})
 
+	// show the dependency check report, when applicable
+	depCheckController.reportShown.onValue(function(shown) {
+		$('#dependency-check-report').toggleClass('in-view', shown)
+	})
+
 	var treemapMaximizer = $('#treemap .maximizer')
 
 	var treemapMaximized = treemapMaximizer.asEventStream('click').map('toggle')
@@ -207,7 +215,6 @@ $(document).ready(function(){
 		treemapMaximizer.attr('title', maxed ? 'collapse' : 'expand')
 	})
 
-
 	/*
 	 * Request the treemap data from the server. Note that coverage lists
 	 * are only specified for the most specific element; for the sake of 
@@ -221,7 +228,7 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, packagesContainer, $('#totals'), $('#clear-selections-button'))
+		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#clear-selections-button'))
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
@@ -276,8 +283,9 @@ $(document).ready(function(){
 			return Bacon.fromCallback(API.projectTreeMap, selectedIds)
 		})
 
-		// Match the 'compactMode' with the 'showTreemap' state.
-		showTreemap.onValue(function(show){
+		// Match the 'compactMode' with the 'showTreemap' and 'reportShown' states.
+		var compactMode = showTreemap.or(depCheckController.reportShown)
+		compactMode.onValue(function(show){
 			controller.compactMode(show)
 			$('.packages-header').toggleClass('compact', show)
 		})

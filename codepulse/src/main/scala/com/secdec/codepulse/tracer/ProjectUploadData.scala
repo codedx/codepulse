@@ -26,12 +26,14 @@ import scala.concurrent.Future
 
 import org.apache.commons.io.FilenameUtils
 
+import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.jsp.JasperJspAdapter
 import com.secdec.codepulse.data.jsp.JspAnalyzer
-import com.secdec.codepulse.data.model.{ ProjectData, ProjectId, TreeNodeImporter }
+import com.secdec.codepulse.data.model.{ ProjectData, ProjectId, TreeNodeFlag, TreeNodeImporter }
+import com.secdec.codepulse.dependencycheck
 import com.secdec.codepulse.tracer.export.ProjectImporter
 import com.secdec.codepulse.util.SmartLoader
 import com.secdec.codepulse.util.ZipEntryChecker
@@ -40,15 +42,21 @@ import net.liftweb.common.Box
 import net.liftweb.common.Failure
 import net.liftweb.common.Full
 
+import akka.actor.ActorSystem
+
 object ProjectUploadData {
 
-	def handleProjectExport(file: File): ProjectId = createAndLoadProjectData { projectData =>
+	def handleProjectExport(file: File, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
 
 		// Note: the `creationDate` should have been filled in by the importer.
 		//The `importDate` is now.
 		projectData.metadata.importDate = Some(System.currentTimeMillis)
 
-		ProjectImporter.importFrom(file, projectData)
+		try {
+			ProjectImporter.importFrom(file, projectData)
+		} finally {
+			cleanup
+		}
 	}
 
 	/** A naive check on a File that checks if it is a .zip file
@@ -109,11 +117,14 @@ object ProjectUploadData {
 		projectId
 	}
 
-	def handleBinaryZip(file: File): ProjectId = createAndLoadProjectData { projectData =>
+	def handleBinaryZip(file: File, originalName: String, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
 		val RootGroupName = "Classes"
 		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
+
+		// mark the dependency check scan as 'queued' immediately
+		projectData.metadata.dependencyCheckStatus = dependencycheck.DependencyCheckStatus.Queued
 
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
@@ -171,15 +182,65 @@ object ProjectUploadData {
 			// since this is not an import of a .pulse file.
 			projectData.metadata.creationDate = System.currentTimeMillis
 		}
-	}
 
-	def handleUpload(file: File): Box[ProjectId] = {
-		if (checkForProjectExport(file)) {
-			Full(handleProjectExport(file))
-		} else if (checkForBinaryZip(file)) {
-			Full(handleBinaryZip(file))
-		} else {
-			Failure("Invalid upload file")
+		{
+			import dependencycheck._
+
+			def updateStatus(status: DependencyCheckStatus, vulnNodes: Seq[Int] = Nil) {
+				projectData.metadata.dependencyCheckStatus = status
+				DependencyCheckUpdates.pushUpdate(projectData.id, projectData.metadata.dependencyCheckStatus, vulnNodes)
+			}
+
+			updateStatus(DependencyCheckStatus.Queued)
+
+			val treeNodeData = projectData.treeNodeData
+			val scanSettings = ScanSettings(file, originalName, projectData.id)
+
+			dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) {
+				// before running, set status to running
+				updateStatus(DependencyCheckStatus.Running)
+			} { reportDir =>
+				try {
+					// on successful run, process the results
+					import scala.xml._
+					import com.secdec.codepulse.util.RichFile._
+					import treeNodeData.ExtendedTreeNodeData
+
+					val x = XML loadFile reportDir / "dependency-check-report.xml"
+
+					var deps = 0
+					var vulnDeps = 0
+					val vulnNodes = List.newBuilder[Int]
+
+					for {
+						dep <- x \\ "dependency"
+						vulns = dep \\ "vulnerability"
+					} {
+						deps += 1
+						if (!vulns.isEmpty) {
+							vulnDeps += 1
+							val f = new File((dep \ "filePath").text)
+							val jarLabel = f.pathSegments.drop(file.pathSegments.length).mkString("JARs / ", " / ", "")
+							for (node <- treeNodeData getNode jarLabel) {
+								node.flags += TreeNodeFlag.HasVulnerability
+								vulnNodes += node.id
+							}
+						}
+					}
+
+					updateStatus(DependencyCheckStatus.Finished(deps, vulnDeps), vulnNodes.result)
+				} finally {
+					cleanup
+				}
+			} { exception =>
+				try {
+					// on error, set status to failed
+					println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
+					updateStatus(DependencyCheckStatus.Failed)
+				} finally {
+					cleanup
+				}
+			}
 		}
 	}
 

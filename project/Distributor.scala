@@ -37,6 +37,8 @@ import com.avi.sbt.betterzip.BetterZip.{ Entry => ZipEntry, _ }
   */
 object Distributor extends BuildExtra {
 
+	import DependencyFetcher.Keys._
+
 	object Keys {
 		val Distribution = config("distribution")
 
@@ -44,7 +46,6 @@ object Distributor extends BuildExtra {
 		val webappFolder = SettingKey[String]("webapp-folder")
 		
 		val distCommon = SettingKey[File]("dist-common")
-		val distDeps = SettingKey[File]("dist-deps")
 		val distJettyConf = SettingKey[File]("dist-jetty-conf")
 
 		val warContents = TaskKey[Seq[(File, String)]]("webapp-war-contents")
@@ -99,9 +100,7 @@ object Distributor extends BuildExtra {
 			})
 		}
 
-		def jetty(platform: String): FileMappingTask = (distDeps in Distribution, distJettyConf in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { ( depsDir, confDir, rootZipFolder, webappFolder) => 
-			val jetty = depsDir / "common" / "jetty"
-
+		def jettyDist(platform: String): FileMappingTask = (jetty in Dependencies, distJettyConf in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { (jetty, confDir, rootZipFolder, webappFolder) => 
 			if (!jetty.exists)
 				sys.error("Missing jetty. Please run `fetch-package-dependencies` or download and place in " + jetty + ".")
 
@@ -126,9 +125,7 @@ object Distributor extends BuildExtra {
 			appResource(platform, rootZipFolder, appFolder.*** x rebase(appFolder, rootZipFolder))
 		}
 
-		def nodeWebkitRuntime(platform: String): FileMappingTask = (distDeps in Distribution, rootZipFolder in Distribution, distCommon in Distribution, target, version) map { (deps, rootZipFolder, appFolder, target, version) =>
-			val nwk = deps / platform / "node-webkit"
-
+		def nodeWebkitRuntime(platform: String, nwkKey: SettingKey[File]): FileMappingTask = (nwkKey in Dependencies, resourcer in Dependencies, rootZipFolder in Distribution, distCommon in Distribution, target, version) map { (nwk, resourcer, rootZipFolder, appFolder, target, version) =>
 			if (!nwk.exists)
 				sys.error("Missing node-webkit for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + nwk + ".")
 
@@ -156,9 +153,8 @@ object Distributor extends BuildExtra {
 
 								val ico = appFolder / "app" / "icon.ico"
 
-								val resourcerExe = deps / "tools" / "resourcer" / "Resourcer.exe"
 								val args = List(
-									resourcerExe.getCanonicalPath,
+									resourcer.getCanonicalPath,
 									"-op:upd",
 									"-src:" + customizedFile.getCanonicalPath,
 									"-type:14",
@@ -238,8 +234,7 @@ object Distributor extends BuildExtra {
 			}
 		}
 
-		def javaRuntime(platform: String): FileMappingTask = (distDeps in Distribution, rootZipFolder in Distribution) map { (deps, rootZipFolder) =>
-			val jre = deps / platform / "jre"
+		def javaRuntime(platform: String, jreKey: SettingKey[File]): FileMappingTask = (jreKey in Dependencies, rootZipFolder in Distribution) map { (jre, rootZipFolder) =>
 			val jreDest = rootZipFolder + "jre/"
 
 			if (!jre.exists)
@@ -353,13 +348,13 @@ object Distributor extends BuildExtra {
 
 	import Settings._
 
-	def packageEmbeddedSettingsIn(platform: String, task: TaskKey[File])(config: Configuration) =
+	def packageEmbeddedSettingsIn(platform: String, nwkKey: SettingKey[File], jreKey: SettingKey[File], task: TaskKey[File])(config: Configuration) =
 		Seq(packageMappings in (config, task) <<= embeddedWebApp(config, platform)) ++
 		inConfig(config) { Seq(
-			packageMappings in task <++= jetty(platform),
+			packageMappings in task <++= jettyDist(platform),
 			packageMappings in task <++= embeddedAppFiles(platform),
-			packageMappings in task <++= nodeWebkitRuntime(platform),
-			packageMappings in task <++= javaRuntime(platform),
+			packageMappings in task <++= nodeWebkitRuntime(platform, nwkKey),
+			packageMappings in task <++= javaRuntime(platform, jreKey),
 			packageMappings in task <++= agentJar(platform),
 			task <<= (packageMappings in task, crossTarget, version, streams) map { (mappings, crossTarget, ver, streams) =>
 				val name = "CodePulse-" + ver + "-" + platform + ".zip"
@@ -377,14 +372,13 @@ object Distributor extends BuildExtra {
 			webappFolder in Distribution <<= (rootZipFolder in Distribution) { _ + "backend/" },
 			
 			distCommon in Distribution := file("distrib/common"),
-			distDeps in Distribution := file("distrib/dependencies"),
 			distJettyConf in Distribution := file("distrib/jetty-conf"),
 			
 			webappClasses in Distribution <<= webappClassesTask,
 			webappClassesJar in Distribution <<= buildJarTask
 		) ++ 
 		inConfig(DefaultConf) { warContents in Distribution <<= com.earldouglas.xsbtwebplugin.WarPlugin.packageWarTask(DefaultClasspathConf) } ++
-		packageEmbeddedSettingsIn("win32", packageEmbeddedWin32)(Compile) ++
-		packageEmbeddedSettingsIn("osx", packageEmbeddedOsx)(Compile) ++
-		packageEmbeddedSettingsIn("linux-x86", packageEmbeddedLinuxX86)(Compile)
+		packageEmbeddedSettingsIn("win32", nwkWindows, jreWindows, packageEmbeddedWin32)(Compile) ++
+		packageEmbeddedSettingsIn("osx", nwkOsx, jreOsx, packageEmbeddedOsx)(Compile) ++
+		packageEmbeddedSettingsIn("linux-x86", nwkLinux, jreLinux, packageEmbeddedLinuxX86)(Compile)
 }

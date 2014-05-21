@@ -34,6 +34,7 @@ import net.liftweb.http.Req
 import net.liftweb.util.Helpers.intToTimeSpanBuilder
 import net.liftweb.util.Vendor.valToVender
 
+import com.secdec.codepulse.dependencycheck
 import com.secdec.codepulse.tracer
 
 /** A class that's instantiated early and run.  It allows the application
@@ -52,6 +53,7 @@ class Boot extends Loggable {
 		ExceptionHandler.init(LiftRules)
 
 		tracer.boot
+		dependencycheck boot tracer.actorSystem()
 
 		/* Register all Comet actors and Snippet renderers, for use by
 		 * Lift's templating system. Without this, all of our snippets
