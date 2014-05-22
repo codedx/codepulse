@@ -41,17 +41,55 @@
 		return 'hsl(' + (i*60) + ', 50%, 70%)'
 	})
 
-	function nextTemplateColor(){
-		var id = nextTemplateColor.nextId || 0,
-			c = nextTemplateColor.palette || d3.scale.ordinal().range(colorScheme)
-		nextTemplateColor.nextId = id + 1
-		nextTemplateColor.palette = c
-		return c(id)
-	}
 
-	nextTemplateColor.reset = function(){
-		nextTemplateColor.nextId = 0
-	}
+	var colorTemplate = (function(){
+		// counter increments every time `nextColor` is called, and acts
+		// as the index into the `colors` array
+		var counter = 0,
+
+			// Generating a 'pastel' color theme using HSL colors
+			// fixed at SAT = .5, LUM = .7, and rotating over hues.
+			// We start at green (2) and skip pink (5) because it
+			// looks so similar to red (0).
+			colors = [2,3,4,0,1].map(function(i){
+				var s = 'hsl(' + (i*60) + ', 50%, 70%)'
+
+				// Note: d3.rgb parses css style strings, even if not in RGB format
+				return d3.rgb(s).toString()
+			})
+
+		function nextColor(){
+			var idx = counter++ % colors.length
+			return colors[idx]
+		}
+
+		/*
+		Reset the template. If `existingColors` is passed in, it tries
+		to be smart so that the next `nextColor` call looks like it picks
+		up where existinColors left off
+		*/
+		function reset(existingColors){
+			counter = 0
+			if(existingColors && existingColors.forEach){
+				// find the last color in existingColors that is
+				// also in `colors`, and assign counter to that
+				// color's index in `colors`, plus one.
+				existingColors.forEach(function(rawColor){
+					var color = d3.rgb(rawColor).toString()
+					var foundIdx = colors.indexOf(color)
+					if(foundIdx >= 0) counter = foundIdx + 1
+				})
+			}
+			return counter
+		}
+
+		// the actual colorTemplate object
+		return {
+			next: nextColor,
+			reset: reset
+		}
+
+	})()
 
 	function LocalStorageColors(){
 		function storageKey(rawKey){
@@ -144,7 +182,7 @@
 
 		recording
 			.setDataKey('recording/' + recordingId)
-			.setColor(recordingData.color || nextTemplateColor())
+			.setColor(recordingData.color || colorTemplate.next())
 			.setRunning(recordingData.running)
 
 		function generateMenu(setMenu){
@@ -436,11 +474,11 @@
 
 		// handle color resets
 		recordingColorResets.onValue(function(){
-			nextTemplateColor.reset()
+			colorTemplate.reset()
 			Trace.getManagedRecordingIds().forEach(function(id){
 				if(addedRecordings.has(id)){
 					var rec = Trace.getRecording(id)
-					rec && rec.setColor(nextTemplateColor())
+					rec && rec.setColor(colorTemplate.next())
 				}
 			})
 		})
@@ -491,6 +529,11 @@
 			API.requestRecordings(function(recordings, error){
 				if(error){ console.error('failed to load recordings') }
 				else {
+					// reset the colorTemplate based on the loaded recordings' colors.
+					var loadedRecordingColors = recordings.map(function(recordingJson){ 
+						return recordingJson['color']
+					})
+					colorTemplate.reset(loadedRecordingColors)
 					recordings.forEach(function(rec){ customRecordingAdder.addNewRecording(rec, false) })
 				}
 			})
