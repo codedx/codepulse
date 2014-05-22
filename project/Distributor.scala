@@ -154,7 +154,7 @@ object Distributor extends BuildExtra {
 								val ico = appFolder / "app" / "icon.ico"
 
 								val args = List(
-									resourcer.getCanonicalPath,
+									(resourcer / "Resourcer.exe").getCanonicalPath,
 									"-op:upd",
 									"-src:" + customizedFile.getCanonicalPath,
 									"-type:14",
