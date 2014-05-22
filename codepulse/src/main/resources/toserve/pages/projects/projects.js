@@ -186,10 +186,20 @@ $(document).ready(function(){
 		return coloringFunc
 	}
 
-	var showTreemap = $('#show-treemap-button').asEventStream('click').scan(false, function(b){ return !b })
+	// this Bus can have boolean values or the string "toggle" pushed to it, to control
+	// the value of the `isTreemapDrawerOpen` Property.
+	var treemapDrawerOpen = new Bacon.Bus(),
+		isTreemapDrawerOpen = treemapDrawerOpen.scan(false, function(open, cmd){
+			if(cmd == 'toggle') return !open
+			else return !!cmd
+		})
+
+
+	// When the 'show-treemap-button' is clicked, toggle the treemap drawer
+	$('#show-treemap-button').asEventStream('click').map('toggle').assign(treemapDrawerOpen, 'push')
 
 	// update some container classes when the treemap drawer goes in and out of view
-	showTreemap.onValue(function(show){
+	isTreemapDrawerOpen.onValue(function(show){
 		$('#show-treemap-button').toggleClass('expanded', show)
 		$('#treemap').toggleClass('in-view', show)
 	})
@@ -203,7 +213,7 @@ $(document).ready(function(){
 
 	var treemapMaximized = treemapMaximizer.asEventStream('click').map('toggle')
 		.merge(
-			showTreemap.changes().filter(function(show){ return !show }).map('hide')
+			isTreemapDrawerOpen.changes().filter(function(show){ return !show }).map('hide')
 		)
 		.scan(false, function(state, command){
 			if(command == 'toggle') return !state
@@ -276,6 +286,11 @@ $(document).ready(function(){
 			treemapContainer.toggleClass('no-selection', !arr.length)
 		})
 
+		// When a non-empty node selection is made, force-open the treemap drawer
+		selectedNodeIds.onValue(function(selection){
+			if(selection.length) treemapDrawerOpen.push(true)
+		})
+
 		// As the package selection changes, ask the backend for a new tree
 		// based on the selected packages. This tree will be used to populate
 		// the treemap viz.
@@ -283,8 +298,8 @@ $(document).ready(function(){
 			return Bacon.fromCallback(API.projectTreeMap, selectedIds)
 		})
 
-		// Match the 'compactMode' with the 'showTreemap' and 'reportShown' states.
-		var compactMode = showTreemap.or(depCheckController.reportShown)
+		// Match the 'compactMode' with the 'isTreemapDrawerOpen' and 'reportShown' states.
+		var compactMode = isTreemapDrawerOpen.or(depCheckController.reportShown)
 		compactMode.onValue(function(show){
 			controller.compactMode(show)
 			$('.packages-header').toggleClass('compact', show)
