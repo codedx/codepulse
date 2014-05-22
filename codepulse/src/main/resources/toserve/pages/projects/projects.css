@@ -295,7 +295,7 @@ body > .overlay:before {
 	line-height: 40px;
 	width: 40px;
 	text-align: center;
-
+	color: white;
 	cursor: pointer;
  }
  .treemap-header .maximizer:hover {
