@@ -53,6 +53,28 @@
 		nextTemplateColor.nextId = 0
 	}
 
+	function LocalStorageColors(){
+		function storageKey(rawKey){
+			return 'codepulse.recordingcolors.' + rawKey
+		}
+
+		this.getOrElseUpdate = function(rawKey, defaultValue){
+			var key = storageKey(rawKey)
+				entry = localStorage.getItem(key)
+			if(!entry) {
+				entry = defaultValue
+				localStorage.setItem(key, entry)
+			}
+			return entry
+		}
+
+		this.update = function(rawKey, newValue){
+			var key = storageKey(rawKey)
+			localStorage.setItem(key, newValue)
+		}
+	}
+	var localStorageColors = new LocalStorageColors()
+
 	RecordingController.nextId = 0
 
 	function RecordingController(recording, widget, generateMenu){
@@ -82,7 +104,7 @@
 
 		recording
 			.setLabel('overlaps')
-			.setColor(defaultColor)
+			.setColor(localStorageColors.getOrElseUpdate('overlaps', defaultColor))
 			.setDataKey('overlaps')
 
 		recordingColorResets.onValue(function(){
@@ -94,6 +116,7 @@
 		// Watch the recording for coloring changes, sending the events
 		// to the treemapColoringStateChanges stream.
 		recording.color.onValue(function(color){
+			localStorageColors.update('overlaps', color)
 			var msg = 'Recording Update: color(overlaps) -> ' + color
 			Trace.treemapColoringStateChanges.push(msg)
 		})
@@ -233,7 +256,10 @@
 			defaultColor = '#666'
 
 		// set the initial and reset color
-		recording.setColor(defaultColor)
+		recording.setColor(localStorageColors.getOrElseUpdate('ticker',defaultColor))
+		recording.color.onValue(function(color){
+			localStorageColors.update('ticker', color)
+		})
 		recordingColorResets.onValue(function(){
 			recording.setColor(defaultColor)
 		})
