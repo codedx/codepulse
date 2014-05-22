@@ -299,8 +299,8 @@ $(document).ready(function(){
 		})
 
 		// Match the 'compactMode' with the 'isTreemapDrawerOpen' and 'reportShown' states.
-		var compactMode = isTreemapDrawerOpen.or(depCheckController.reportShown)
-		compactMode.onValue(function(show){
+		// var compactMode = isTreemapDrawerOpen.or(depCheckController.reportShown)
+		isTreemapDrawerOpen.onValue(function(show){
 			controller.compactMode(show)
 			$('.packages-header').toggleClass('compact', show)
 		})

@@ -62,11 +62,7 @@ body > .overlay:before {
  	border-left: 1px solid black;
  }
 
- .middle-column-alt.no-tab:not(.in-view) {
- 	display: none;
- }
- 
- .middle-column-alt:not(.in-view):not(.no-tab):not(.maximized):hover {
+ .middle-column-alt:not(.in-view):not(.maximized):hover {
  	left: calc(100% - 260px);
  }
  
@@ -389,29 +385,44 @@ body > .overlay:before {
  \*************************/
 
  #dependency-check-report {
- 	z-order: 3;
+ 	z-index: 3;
  	position: fixed;
- 	top: 60px;
- 	bottom: 25px;
+ 	top: 120px;
+ 	bottom: 60px;
+ 	left: 210px;
+ 	right: 260px;
+
+ 	box-shadow: -2px 2px 10px 2px;
+ }
+
+ #dependency-check-report:not(.in-view) {
+ 	display: none;
  }
 
  .report-header {
  	height: 40px;
  	border-bottom: 2px solid black;
- 	padding: 0 4px;
+ 	background-color: #9C9C9C;
+ 	color: white;
  }
 
  .report-header > * {
  	line-height: 40px;
  }
 
- .report-header .header-text, .report-header .close-button {
- 	color: white;
+ .report-header .header-text {
+ 	margin-left: 5px;
  }
 
  .report-header .close-button {
  	float: right;
  	cursor: pointer;
+ 	width: 40px;
+ 	text-align: center;
+ }
+
+ .report-header .close-button:hover {
+ 	background-color: rgba(255, 255, 255, 0.1);
  }
 
  .report-container {
