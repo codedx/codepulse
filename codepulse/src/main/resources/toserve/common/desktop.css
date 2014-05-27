@@ -19,7 +19,6 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	padding: 0 1px;
 
 	z-index: 3;
 
@@ -58,10 +57,11 @@
 	cursor: pointer;
 	color: #9C9C9C;
 	opacity: 0.8;
-	background-color: transparent;
-	padding: 3px;
+	background-color: rgba(255,255,255,0.05);
 	text-decoration: none;
-
+	display: inline-block;
+	width: 25px;
+	text-align: center;
 }
 
 #refresh-link:hover {
@@ -76,14 +76,9 @@
 	color: rgb(219, 175, 0);
 }
 
-.vr {
-	border-left: 1px solid;
-	display: inline;
-	margin-right: 5px;
-}
-
 #status-bar {
 	display: inline-block;
+	padding-left: 5px;
 }
 
 #status-bar .status { display: none; }
