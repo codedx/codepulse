@@ -188,8 +188,14 @@
  	float: right;
  	line-height: 22px;
  	margin: 0 4px;
- 	color: lightcoral;
+ 	color: coral;
  	cursor: pointer;
+ 	padding: 0 2px;
+ }
+
+ .widget-label .vuln-badge:hover {
+ 	background: coral;
+ 	color: black;
  }
 
  .widget-label .vuln-badge.bubbled {
