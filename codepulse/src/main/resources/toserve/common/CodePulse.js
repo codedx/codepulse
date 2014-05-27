@@ -54,6 +54,11 @@
 		return CodePulse.pathPrefix + '/api/' + endpoint
 	}
 
+	if (CodePulse.isEmbedded)
+		CodePulse.storage = process.mainModule.exports.storage;
+	else
+		CodePulse.storage = window.localStorage;
+
 	// Handle external links via the "external-href" attribute
 	$(document).ready(function(){
 

@@ -98,17 +98,17 @@
 
 		this.getOrElseUpdate = function(rawKey, defaultValue){
 			var key = storageKey(rawKey)
-				entry = localStorage.getItem(key)
+				entry = CodePulse.storage.getItem(key)
 			if(!entry) {
 				entry = defaultValue
-				localStorage.setItem(key, entry)
+				CodePulse.storage.setItem(key, entry)
 			}
 			return entry
 		}
 
 		this.update = function(rawKey, newValue){
 			var key = storageKey(rawKey)
-			localStorage.setItem(key, newValue)
+			CodePulse.storage.setItem(key, newValue)
 		}
 	}
 	var localStorageColors = new LocalStorageColors()

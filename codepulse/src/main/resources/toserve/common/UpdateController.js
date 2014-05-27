@@ -73,10 +73,10 @@
 
 		/** returns true if the user has ignored this version */
 		function isUpdateIgnored(version) {
-			return localStorage.getItem('updater.ignoredVersion') == version
+			return CodePulse.storage.getItem('updater.ignoredVersion') == version
 		}
 
-		this.ignoreCurrentRelease = function() { localStorage.setItem('updater.ignoredVersion', self.releaseVersion) }
+		this.ignoreCurrentRelease = function() { CodePulse.storage.setItem('updater.ignoredVersion', self.releaseVersion) }
 
 		/** checks `release`, firing off the appropriate events as necessary */
 		function checkRelease(release) {
@@ -97,15 +97,15 @@
 			getLatestRelease(function(latestRelease) {
 				checkRelease(latestRelease)
 
-				localStorage.setItem('updater.latestReleaseCache', JSON.stringify(latestRelease))
-				localStorage.setItem('updater.lastCheck', Date.now())
+				CodePulse.storage.setItem('updater.latestReleaseCache', JSON.stringify(latestRelease))
+				CodePulse.storage.setItem('updater.lastCheck', Date.now())
 				setTimeout(runUpdateCheck, CheckInterval)
 			})
 		}
 
 		/** schedule an update check (or run one immediately), based on the last check time */
 		function scheduleUpdateCheck() {
-			var lastCheck = parseInt(localStorage.getItem('updater.lastCheck'))
+			var lastCheck = parseInt(CodePulse.storage.getItem('updater.lastCheck'))
 			var curTime = Date.now()
 
 			if (!lastCheck || curTime > (lastCheck + CheckInterval))
@@ -115,7 +115,7 @@
 				setTimeout(runUpdateCheck, lastCheck + CheckInterval - curTime)
 
 				// for now, check what's cached, if we can
-				var cachedRelease = JSON.parse(localStorage.getItem('updater.latestReleaseCache'))
+				var cachedRelease = JSON.parse(CodePulse.storage.getItem('updater.latestReleaseCache'))
 				if (cachedRelease)
 					checkRelease(cachedRelease)
 			}

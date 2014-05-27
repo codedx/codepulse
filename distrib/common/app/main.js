@@ -221,11 +221,14 @@ function checkWindowClose(window, cb) {
 	} else cb();
 }
 
-var gotMainWindow = false;
+var mainWindow = false;
 
 exports.registerMainWindow = function(window) {
-	if (!gotMainWindow) {
+	if (!mainWindow) {
 		writeLog('Registering main window...\n');
+		mainWindow = window;
+
+		initStorage();
 
 		window.gui.on('close', function() {
 			checkWindowClose(window.window, function() {
@@ -246,4 +249,59 @@ exports.registerMainWindow = function(window) {
 	} else {
 		writeLog('Attempt to re-register main window ignored...\n');
 	}
+}
+
+// an alternate implementation of localStorage for the embedded version
+// (since port number changes, so we're on a different origin every time, and therefore receive a
+// different localStorage)
+function initStorage() {
+	var gui = global.window.nwDispatcher.requireNwGui(),
+		path = require('path'), fs = require('fs');
+
+	var storage = {},
+		storeFile = path.join(gui.App.dataPath, 'storage.json');
+
+	function loadStorage() {
+		try {
+			if (fs.existsSync(storeFile))
+				storage = JSON.parse(fs.readFileSync(storeFile, 'utf8'));
+		} catch (e) {
+			writeLog('Error loading storage.json: ' + e + '\n');
+		}
+	}
+
+	function writeStorage() {
+		fs.writeFileSync(storeFile, JSON.stringify(storage));
+	}
+
+	function getItem(key) {
+		return storage[key];
+	}
+
+	function setItem(key, value) {
+		if (typeof value !== 'string')
+			value = value.toString();
+
+		storage[key] = value;
+		writeStorage();
+	}
+
+	function removeItem(key) {
+		delete storage[key];
+		writeStorage();
+	}
+
+	function clear() {
+		storage = {};
+		writeStorage();
+	}
+
+	loadStorage();
+
+	exports.storage = {
+		getItem: function(key) { return getItem(key); },
+		setItem: function(key, value) { setItem(key, value); },
+		removeItem: function(key) { removeItem(key); },
+		clear: function() { clear(); }
+	};
 }
