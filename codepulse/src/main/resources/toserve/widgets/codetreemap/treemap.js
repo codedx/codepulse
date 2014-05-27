@@ -734,7 +734,7 @@
 		var clips = [name]
 		var parts = name.split(sep)
 		for(var i=0; i<parts.length; i++) clips.push( parts.slice(i).join(sep) )
-		clips.push("*")
+		clips.push("\u2026")
 		return clips
 	}
 	
