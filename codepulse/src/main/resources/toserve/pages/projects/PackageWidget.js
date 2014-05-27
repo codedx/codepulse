@@ -245,10 +245,11 @@
 				$status = $('#dependencycheck-status', badge),
 				$summary = $('#dependencycheck-summary', badge)
 
-			function setStatus(status) {
+			function setStatus(status, title) {
 				$badge.addClass('pending')
 				$summary.hide()
 				$status.show()
+				$status.attr('title', title);
 				$status.text(status)
 				self.badgeClickEnabled = false
 			}
@@ -266,19 +267,19 @@
 
 			switch (status.state) {
 				case 'queued':
-					setStatus('[queued]')
+					setStatus('[queued]', 'This project has been queued for a Dependency Check scan.')
 					break
 
 				case 'running':
-					setStatus('[scanning]')
+					setStatus('[scanning]', 'Dependency Check is currently scanning dependencies for known vulnerabilities.')
 					break
 
 				case 'failed':
-					setStatus('[failed]')
+					setStatus('[failed]', 'Dependency Check has failed; please consult the logs for more information.')
 					break
 
 				case 'unknown':
-					setStatus('[unknown]')
+					setStatus('[unknown]', 'Dependency Check is in an unknown state; please consult the logs for more information.')
 					break
 
 				case 'finished':
