@@ -56,12 +56,6 @@
 
 		this.openLabelEditor = ( function(){
 
-
-			// flag that gets when the save button is clicked,
-			// and checked by the closeEditor function to make
-			// it skip the normal close actions.
-			var saveClicked = false
-
 			// switch into our out of editing mode
 			function setEditing(isEditing) {
 				label.toggleClass('editing', isEditing)
@@ -71,19 +65,14 @@
 			// use the text in the editor as the new title
 			function saveEditor() {
 				var txt = labelTextEdit.val()
-				//setTitle(txt)
 				labelEdits.push(txt)
 				setEditing(false)
 			}
 			
 			// leave editing mode without saving
 			function closeEditor() {
-				if(saveClicked){
-					saveClicked = false
-				} else {
-					labelTextEdit.val(_label)
-					setEditing(false)
-				}
+				labelTextEdit.val(_label)
+				setEditing(false)
 			}
 
 			// Keypresses that leave the editor
@@ -95,15 +84,9 @@
 				if(e.which == 13) saveEditor()
 			})
 
-			labelTextSave.click(function(){
-				saveClicked = true
-				saveEditor()
-			})
-			
-			// Un-focusing the editor causes it to close
-			labelTextEdit.focusout(function(){
-				setTimeout(closeEditor, 100)
-			})
+			// save when the 'save' button is clicked or the user leaves the input box
+			labelTextSave.click(saveEditor)
+			labelTextEdit.focusout(saveEditor)
 
 			return function(){ setEditing(true) }
 		})();

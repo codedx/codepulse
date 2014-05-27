@@ -31,8 +31,7 @@ place.
 	function Editable($elem){
 		var $input = $elem.find('.editor input[type=text]'),
 			$save = $elem.find('.editor .editor-save'),
-			$content = $elem.find('.edit-content'),
-			saveClicked = false
+			$content = $elem.find('.edit-content')
 
 		function setEditing(isEditing){
 			$elem.toggleClass('editing', isEditing)
@@ -56,11 +55,7 @@ place.
 		}
 
 		function closeEditor(){
-			if(saveClicked){
-				saveClicked = false
-			} else {
-				setEditing(false)
-			}
+			setEditing(false)
 			$elem.trigger('editable.cancel')
 		}
 
@@ -72,16 +67,9 @@ place.
 			if(e.which == 13) saveEditor()
 		})
 
-		$save.click(function(){
-			saveClicked = true
-			saveEditor()
-			// clicking the save button also triggers an unfocus on the $input
-		})
-
-		$input.focusout(function(){
-			if($elem.hasClass('editing'))
-				setTimeout(closeEditor, 100)
-		})
+		// save when the 'save' button is clicked or the user leaves the input box
+		$save.click(saveEditor)
+		$input.focusout(saveEditor)
 
 		this.open = function(){ setEditing(true) }
 
