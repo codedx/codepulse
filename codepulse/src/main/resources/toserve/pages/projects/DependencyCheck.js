@@ -63,7 +63,7 @@
 				.attr('href', function(d) { return d.url })
 				.text(function(d) { return d.name })
 				.each(function() { $(this).openInBrowser() })
-			cveHeaders.append('a')
+			cveHeaders.select(function(d) { return !!d.cwe ? this : null; }).append('a')
 				.classed('cwe-name', true)
 				.attr('title', function(d) { return d.cwe.name })
 				.attr('href', function(d) { return d.cwe.url })
