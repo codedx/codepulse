@@ -66,7 +66,7 @@ object DependencyCheck {
 				src.update
 			}
 		} finally {
-			DepCheckSettings.cleanup
+			DepCheckSettings.cleanup(true)
 		}
 	}
 
@@ -85,7 +85,7 @@ object DependencyCheck {
 			scanSettings.reportDir
 		} finally {
 			scanner.cleanup
-			DepCheckSettings.cleanup
+			DepCheckSettings.cleanup(true)
 		}
 	}
 }
