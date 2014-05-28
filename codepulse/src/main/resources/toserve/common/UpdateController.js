@@ -63,11 +63,16 @@
 
 		/** returns true if `releaseVersion` is newer than `ourVersion` */
 		function compareVersions(ourVersion, releaseVersion) {
-			var ourParts = ourVersion.split('.'), currentParts = releaseVersion.split('.')
-			for (var i = 0, l = Math.max(ourParts.length, currentParts.length); i < l; i++) {
-				var our = ourParts[i], current = currentParts[i]
-				if (!our || our < current) return true
+			// strip off any suffix (like -RC1)
+			var ourParts = ourVersion.split('-')[0].split('.'), releaseParts = releaseVersion.split('-')[0].split('.')
+			for (var i = 0, l = Math.max(ourParts.length, releaseParts.length); i < l; i++) {
+				var our = parseInt(ourParts[i]) || 0,
+					current = parseInt(releaseParts[i]) || 0
+
+				if (our < current) return true
+				else if (our > current) break
 			}
+
 			return false
 		}
 
