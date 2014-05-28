@@ -23,30 +23,6 @@
 #recording-controls .controls-menu {
 	position: absolute;
 	bottom: 0;
-	height: 24px;
-	width: 100%;
-	padding: 2px;
-	box-sizing: border-box;
-}
-
-/***********************\
-| Controls menu buttons |
-\***********************/
-
-.controls-menu .menu-button {
-	font-size: 14px;
-	color: steelblue;
-	background: #C7C7C7;
-	vertical-align: top;
-	cursor: pointer;
-
-	width: 100px;
-	margin: 0 auto;
-	text-align: center;
-}
-
-.controls-menu .menu-button:hover {
-	background: #BEBEBE;
 }
 
 /*************************\

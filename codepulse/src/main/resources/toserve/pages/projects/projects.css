@@ -89,6 +89,19 @@ body > .overlay:before {
  .projectSwitcher .slideDownSidebar { z-index: 4; }
  .projectSwitcher .slideOutForm { z-index: 3; }
 
+ #packages { margin-bottom: 26px; }
+
+ /* Position the controls toolbar at the bottom left of the area */
+ #packages-controls-menu {
+ 	position: fixed;
+	bottom: 25px;
+	z-index: 1;
+ }
+
+#packages-controls-menu.hidden {
+	visibility: hidden;
+}
+
 /***********************************************\
 | Subheader Styles (breadcrumbs + options menu) |
 \***********************************************/

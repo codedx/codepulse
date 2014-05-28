@@ -390,3 +390,27 @@ a.to-login:hover { border-bottom-style: solid; }
 .button-bar .item.button:hover {
 	background-color: #CCC;
 }
+
+/************************\
+| Controls menu toolbars |
+\************************/
+.controls-menu {
+	box-sizing: border-box;
+	background: #C7C7C7;
+	padding-left: 20px;
+}
+
+.controls-menu .menu-button {
+	font-size: 14px;
+	color: steelblue;
+	background: #C7C7C7;
+	vertical-align: top;
+	cursor: pointer;
+	padding: 0 4px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.controls-menu .menu-button:hover {
+	background: #BEBEBE;
+}

@@ -82,30 +82,6 @@
  }
 
 /*****************************\
-| Clear All Selections Button |
-\*****************************/
-
-#clear-selections-button {
-	margin-bottom: 3px;
-	width: 200px;
-	color: white;
-	font-size: small;
-	padding: 0px 4px;
-	box-sizing: border-box;
-	cursor: pointer;
-
-	background-color: #66B6B6;
-}
-
-#clear-selections-button:hover {
-	background-color: #2C9494;
-}
-
-#clear-selections-button.hidden {
-	visibility: hidden;
-}
-
-/*****************************\
 | Package Widget Label Styles |
 \*****************************/
 

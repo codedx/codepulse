@@ -238,7 +238,7 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#clear-selections-button'))
+		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
