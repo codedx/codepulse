@@ -61,5 +61,5 @@ object Dependencies {
 	}
 
 	// dependency-check
-	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.1"
+	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.3"
 }
