@@ -22,12 +22,12 @@ package com.secdec.bytefrog.agent.bytefrog;
 import java.io.InputStream;
 import java.io.IOException;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
+import com.secdec.bytefrog.asm.ClassReader;
+import com.secdec.bytefrog.asm.ClassWriter;
 
 /**
  * Main entry point for instrumenting classes via bytefrog
- * 
+ *
  * @author RobertF
  */
 public class Instrumentor
@@ -48,7 +48,7 @@ public class Instrumentor
 
 	/**
 	 * Instruments the class contained in the given buffer.
-	 * 
+	 *
 	 * @param buffer the buffer of bytes representing the class to instrument
 	 * @param name the name of the class being instrumented
 	 * @return the instrumented version of the class
@@ -60,7 +60,7 @@ public class Instrumentor
 
 	/**
 	 * Instruments the class contained in the given InputStream.
-	 * 
+	 *
 	 * @param is the InputStream containing the class to instrument
 	 * @param name the name of the class being instrumented
 	 * @return the instrumented version of the class
@@ -72,7 +72,7 @@ public class Instrumentor
 
 	/**
 	 * Instruments the class named.
-	 * 
+	 *
 	 * @param name the binary name of the class to instrument
 	 * @return the instrumented version of the class
 	 */

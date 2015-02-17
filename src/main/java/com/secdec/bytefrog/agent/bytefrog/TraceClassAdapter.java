@@ -19,9 +19,9 @@
 
 package com.secdec.bytefrog.agent.bytefrog;
 
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import com.secdec.bytefrog.asm.ClassVisitor;
+import com.secdec.bytefrog.asm.MethodVisitor;
+import com.secdec.bytefrog.asm.Opcodes;
 
 /**
  * Adapter for instrumenting methods within a class with trace calls.

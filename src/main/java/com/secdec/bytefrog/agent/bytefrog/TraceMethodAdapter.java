@@ -19,14 +19,14 @@
 
 package com.secdec.bytefrog.agent.bytefrog;
 
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.commons.AdviceAdapter;
+import com.secdec.bytefrog.asm.Label;
+import com.secdec.bytefrog.asm.MethodVisitor;
+import com.secdec.bytefrog.asm.Opcodes;
+import com.secdec.bytefrog.asm.commons.AdviceAdapter;
 
 /**
  * Adapter for instrumenting methods with trace calls.
- * 
+ *
  * @author RobertF
  */
 public class TraceMethodAdapter extends AdviceAdapter implements Opcodes
