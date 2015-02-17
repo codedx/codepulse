@@ -32,7 +32,7 @@ object Dependencies {
 	lazy val junit = "junit" % "junit" % "4.5" % "test->default"
 	lazy val specs = "org.scala-tools.testing" % "specs_2.9.0" % "1.6.8" % "test"
 	lazy val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
-	
+
 	// extra libraries
 	lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
 	lazy val reactive = "cc.co.scala-reactive" %% "reactive-core"	% "0.3.2.1"
@@ -54,12 +54,12 @@ object Dependencies {
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
 	lazy val h2 = "com.h2database" % "h2" % "1.3.172"
-	
+
 	// apache commons dependencies
 	object commons {
 		lazy val io = "commons-io" % "commons-io" % "2.1"
 	}
 
 	// dependency-check
-	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.3"
+	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "1.2.8"
 }
