@@ -23,6 +23,8 @@ import sbt.ErrorHandling.translate
 import sbt.Using._
 
 import scala.annotation.tailrec
+import scala.language.implicitConversions
+
 import java.io.File
 
 import org.apache.commons.compress.archivers.zip.{ AsiExtraField, ZipArchiveEntry, ZipArchiveOutputStream }

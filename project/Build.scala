@@ -29,8 +29,8 @@ import com.earldouglas.xsbtwebplugin._
 	import WebappPlugin._
 import Distributor.{ Keys => DistribKeys, distribSettings }
 import DependencyFetcher.dependencyFetcherSettings
-import sbtassembly.Plugin._
-	import AssemblyKeys._
+import sbtassembly.AssemblyPlugin._
+import sbtassembly.AssemblyKeys._
 
 object BuildDef extends Build with VersionSystem {
 
@@ -38,7 +38,7 @@ object BuildDef extends Build with VersionSystem {
 	lazy val testDependencies = Seq(junit, specs, scalatest)
 	lazy val libDependencies = Seq(akka, reactive, commons.io, concLinkedHashMap, juniversalchardet, dependencyCheckCore) ++ asm ++ jackson ++ jna
 	lazy val dbDependencies = Seq(slick, h2)
-	
+
 	val baseCompilerSettings = Seq(
 		scalacOptions := List("-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
 		scalaVersion := "2.10.4"
@@ -49,7 +49,7 @@ object BuildDef extends Build with VersionSystem {
 		version := "1.1.1",
 		releaseDate := "5/28/2014"
 	)
-	
+
 	val webappProjectSettings = WebPlugin.webSettings ++ Seq (
 		libraryDependencies ++= Seq(jettyWebapp, jettyOrbit)
 	)
@@ -57,8 +57,8 @@ object BuildDef extends Build with VersionSystem {
 	val Bytefrog = file("bytefrog")
 	lazy val BytefrogAgent = ProjectRef(Bytefrog, "Agent")
 	lazy val BytefrogHQ = ProjectRef(Bytefrog, "HQ")
-	
-	/* This project contains the main application's source code (Lift App). 
+
+	/* This project contains the main application's source code (Lift App).
 	 */
 	lazy val Core = Project("CodePulse", file("codepulse"))
 		.dependsOn(BytefrogHQ)
@@ -75,4 +75,6 @@ object BuildDef extends Build with VersionSystem {
 			libraryDependencies ++= libDependencies,
 			libraryDependencies ++= dbDependencies
 		)
+
+	lazy val root = Project("root", file(".")).aggregate(Core)
 }

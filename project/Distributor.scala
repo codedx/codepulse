@@ -25,14 +25,14 @@ import com.earldouglas.xsbtwebplugin.PluginKeys._
 import sbt.classpath.ClasspathUtilities
 import Project.Initialize
 
-import sbtassembly.Plugin.AssemblyKeys.assembly
+import sbtassembly.AssemblyKeys.assembly
 
 import java.nio.file.{ Files, StandardCopyOption }
 
 import com.avi.sbt.betterzip.BetterZip.{ Entry => ZipEntry, _ }
 
 /** In charge of packaging up the node-webkit packages for distribution.
-  * 
+  *
   * @author robertf
   */
 object Distributor extends BuildExtra {
@@ -44,7 +44,7 @@ object Distributor extends BuildExtra {
 
 		val rootZipFolder = SettingKey[String]("root-zip-folder")
 		val webappFolder = SettingKey[String]("webapp-folder")
-		
+
 		val distCommon = SettingKey[File]("dist-common")
 		val distJettyConf = SettingKey[File]("dist-jetty-conf")
 
@@ -57,20 +57,20 @@ object Distributor extends BuildExtra {
 	}
 
 	import Keys._
-	
+
 	object Settings {
 
 		/** Each task of this type generates a listing of File->Path, where the File is
 		  * a file in the filesystem that will be packaged in a zip/war/jar, and the Path
 		  * is that file's path once it is packaged.
 		  */
-		type FileMappingTask = Initialize[Task[Seq[(ZipEntry)]]]
+		type FileMappingTask = Def.Initialize[Task[Seq[(ZipEntry)]]]
 
 		def embeddedWar(conf: Configuration): FileMappingTask = (packageWar in conf, webappFolder in Distribution) map { (war, path) =>
 			Seq(war -> (path + "webapps/root.war"))
 		}
 
-		def webappClassesTask: Initialize[Task[Seq[(File, String)]]] = (warContents in Distribution) map { (contents) =>
+		def webappClassesTask: Def.Initialize[Task[Seq[(File, String)]]] = (warContents in Distribution) map { (contents) =>
 			val classPath = """WEB-INF[\\/]classes[\\/](.*)""".r
 
 			contents flatMap {
@@ -82,7 +82,7 @@ object Distributor extends BuildExtra {
 			}
 		}
 
-		def buildJarTask: Initialize[Task[File]] = (webappClasses in Distribution, crossTarget, name, version) map { (classes, ct, name, version) =>
+		def buildJarTask: Def.Initialize[Task[File]] = (webappClasses in Distribution, crossTarget, name, version) map { (classes, ct, name, version) =>
 			val jarToMake = ct / (name + '-' + version + "-webapp-classes.jar")
 			IO.jar(classes, jarToMake, new java.util.jar.Manifest)
 			jarToMake
@@ -100,7 +100,7 @@ object Distributor extends BuildExtra {
 			})
 		}
 
-		def jettyDist(platform: String): FileMappingTask = (jetty in Dependencies, distJettyConf in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { (jetty, confDir, rootZipFolder, webappFolder) => 
+		def jettyDist(platform: String): FileMappingTask = (jetty in Dependencies, distJettyConf in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { (jetty, confDir, rootZipFolder, webappFolder) =>
 			if (!jetty.exists)
 				sys.error("Missing jetty. Please run `fetch-package-dependencies` or download and place in " + jetty + ".")
 
@@ -108,7 +108,7 @@ object Distributor extends BuildExtra {
 				"demo-base/", "etc/", "start.d/", "start.ini"
 			).map(webappFolder + _)
 
-			val jettyFiles = jetty.*** x rebase(jetty, webappFolder) map {
+			val jettyFiles = jetty.*** pair rebase(jetty, webappFolder) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			} filter {
@@ -116,20 +116,20 @@ object Distributor extends BuildExtra {
 				case _ => true
 			}
 
-			val jettyConf = confDir.*** x rebase(confDir, webappFolder)
+			val jettyConf = confDir.*** pair rebase(confDir, webappFolder)
 
 			appResource(platform, rootZipFolder, jettyFiles ++ jettyConf)
 		}
 
 		def embeddedAppFiles(platform: String): FileMappingTask = (distCommon in Distribution, rootZipFolder in Distribution) map { (appFolder, rootZipFolder) =>
-			appResource(platform, rootZipFolder, appFolder.*** x rebase(appFolder, rootZipFolder))
+			appResource(platform, rootZipFolder, appFolder.*** pair rebase(appFolder, rootZipFolder))
 		}
 
 		def nodeWebkitRuntime(platform: String, nwkKey: SettingKey[File]): FileMappingTask = (nwkKey in Dependencies, resourcer in Dependencies, rootZipFolder in Distribution, distCommon in Distribution, target, version) map { (nwk, resourcer, rootZipFolder, appFolder, target, version) =>
 			if (!nwk.exists)
 				sys.error("Missing node-webkit for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + nwk + ".")
 
-			val nwkFiles: Seq[ZipEntry] = nwk.*** x rebase(nwk, rootZipFolder) map {
+			val nwkFiles: Seq[ZipEntry] = nwk.*** pair rebase(nwk, rootZipFolder) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			}
@@ -169,7 +169,7 @@ object Distributor extends BuildExtra {
 							Some(ZipEntry(customizedFile, "codepulse/codepulse.exe", mode))
 
 						case e @ ZipEntry(_, path, _) if inclusions contains path => Some(e)
-						
+
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => println("Excluding " + path); None
 					}
@@ -217,7 +217,7 @@ object Distributor extends BuildExtra {
 
 						case ZipEntry(file, path, mode) if path startsWith "codepulse/node-webkit.app" =>
 							Some(ZipEntry(file, rewritePath(path), mode))
-						
+
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => println("Excluding " + path); None
 					}
@@ -240,7 +240,7 @@ object Distributor extends BuildExtra {
 			if (!jre.exists)
 				sys.error("Missing JRE for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + jre + ".")
 
-			val jreFiles: Seq[ZipEntry] = appResource(platform, rootZipFolder, jre.*** x rebase(jre, jreDest)) map {
+			val jreFiles: Seq[ZipEntry] = appResource(platform, rootZipFolder, jre.*** pair rebase(jre, jreDest)) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			}
@@ -296,7 +296,7 @@ object Distributor extends BuildExtra {
 
 						case e @ ZipEntry(_, path, _) if !(exclusions contains path) && !exclusionDirs.exists(path.startsWith) =>
 							Some(e)
-						
+
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => println("Excluding " + path); None
 					}
@@ -308,7 +308,7 @@ object Distributor extends BuildExtra {
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
 						"bin/ControlPanel", "bin/javaws",
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
-						"lib/i386/fxavcodecplugin-52.so", "lib/i386/fxavcodecplugin-53.so", "lib/i386/fxplugins.so", "lib/i386/libglass.so", "lib/i386/libgstplugins-lite.so", "lib/i386/libgstreamer-lite.so", "lib/i386/libjavafx-font.so", "lib/i386/libjavafx-iio.so", "lib/i386/libjfxmedia.so", "lib/i386/libjfxwebkit.so", "lib/i386/libprism-es2.so", 
+						"lib/i386/fxavcodecplugin-52.so", "lib/i386/fxavcodecplugin-53.so", "lib/i386/fxplugins.so", "lib/i386/libglass.so", "lib/i386/libgstplugins-lite.so", "lib/i386/libgstreamer-lite.so", "lib/i386/libjavafx-font.so", "lib/i386/libjavafx-iio.so", "lib/i386/libjfxmedia.so", "lib/i386/libjfxwebkit.so", "lib/i386/libprism-es2.so",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
 					).map(base + _).toSet
 
@@ -322,7 +322,7 @@ object Distributor extends BuildExtra {
 
 						case e @ ZipEntry(_, path, _) if !(exclusions contains path) && !exclusionDirs.exists(path.startsWith) =>
 							Some(e)
-						
+
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => println("Excluding " + path); None
 					}
@@ -365,18 +365,18 @@ object Distributor extends BuildExtra {
 				out
 			}
 		)}
-	
-	lazy val distribSettings: Seq[Setting[_]] = 
+
+	lazy val distribSettings: Seq[Setting[_]] =
 		Seq(
 			rootZipFolder in Distribution := "codepulse/",
 			webappFolder in Distribution <<= (rootZipFolder in Distribution) { _ + "backend/" },
-			
+
 			distCommon in Distribution := file("distrib/common"),
 			distJettyConf in Distribution := file("distrib/jetty-conf"),
-			
+
 			webappClasses in Distribution <<= webappClassesTask,
 			webappClassesJar in Distribution <<= buildJarTask
-		) ++ 
+		) ++
 		inConfig(DefaultConf) { warContents in Distribution <<= com.earldouglas.xsbtwebplugin.WarPlugin.packageWarTask(DefaultClasspathConf) } ++
 		packageEmbeddedSettingsIn("win32", nwkWindows, jreWindows, packageEmbeddedWin32)(Compile) ++
 		packageEmbeddedSettingsIn("osx", nwkOsx, jreOsx, packageEmbeddedOsx)(Compile) ++

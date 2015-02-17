@@ -26,5 +26,5 @@ object PluginDef extends Build {
 		sbt.Keys.libraryDependencies += "org.apache.commons" % "commons-compress" % "1.6",
 		sbt.Keys.libraryDependencies += "commons-io" % "commons-io" % "2.1"
 	)
-	lazy val betterzipPlugin = file("sbt-betterzip")
+	lazy val betterzipPlugin = RootProject(file("sbt-betterzip"))
 }

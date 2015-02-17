@@ -249,7 +249,7 @@ object DependencyFetcher extends BuildExtra {
 	}
 
 	object Settings {
-		def fetchDependenciesTask(dependencyList: TaskKey[Seq[Dependency]]): Initialize[Task[Unit]] = (dependencyList in Dependencies, streams) map { (deps, streams) =>
+		def fetchDependenciesTask(dependencyList: TaskKey[Seq[Dependency]]): Def.Initialize[Task[Unit]] = (dependencyList in Dependencies, streams) map { (deps, streams) =>
 			val log = streams.log
 
 			deps foreach {
