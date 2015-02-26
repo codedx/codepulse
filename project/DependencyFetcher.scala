@@ -290,16 +290,16 @@ object DependencyFetcher extends BuildExtra {
 
 		packageDependencyList in Dependencies := Nil,
 
-		jreWindowsUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-windows-i586.tar.gz",
+		jreWindowsUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jre-7u75-windows-i586.tar.gz",
 		jreWindows in Dependencies <<= (dependencyFolder in Dependencies) { _ / "win32" / "jre" },
-		jreLinuxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-linux-i586.tar.gz",
+		jreLinuxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jre-7u75-linux-i586.tar.gz",
 		jreLinux in Dependencies <<= (dependencyFolder in Dependencies) { _ / "linux-x86" / "jre" },
-		jreOsxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jre-7u55-macosx-x64.tar.gz",
+		jreOsxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/7u75-b13/jre-7u75-macosx-x64.tar.gz",
 		jreOsx in Dependencies <<= (dependencyFolder in Dependencies) { _ / "osx" / "jre" },
 
 		packageDependencyList in Dependencies <+= (jreWindowsUrl in Dependencies, jreWindows in Dependencies, jreLinuxUrl in Dependencies, jreLinux in Dependencies, jreOsxUrl in Dependencies, jreOsx in Dependencies) map { (jreWinUrl, jreWin, jreLinUrl, jreLin, jreOsxUrl, jreOsx) =>
 			JreDependency(
-				name = "jre 7u55", rawPath = "jre1.7.0_55",
+				name = "jre 7u75", rawPath = "jre1.7.0_75",
 				files = List(
 					DependencyFile(Platform.Windows, jreWinUrl, jreWin, FileFormat.TarGz),
 					DependencyFile(Platform.Linux, jreLinUrl, jreLin, FileFormat.TarGz),
@@ -333,13 +333,13 @@ object DependencyFetcher extends BuildExtra {
 		},
 
 		jetty in Dependencies <<= (dependencyFolder in Dependencies) { _ / "common" / "jetty" },
-		jettyUrl in Dependencies := "http://mirrors.xmission.com/eclipse/jetty/9.1.4.v20140401/dist/jetty-distribution-9.1.4.v20140401.zip",
+		jettyUrl in Dependencies := "http://mirrors.xmission.com/eclipse/jetty/stable-9/dist/jetty-distribution-9.2.9.v20150224.zip",
 		resourcer in Dependencies <<= (dependencyFolder in Dependencies) { _ / "tools" / "resourcer" },
 		resourcerUrl in Dependencies := "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1", // http://anolis.codeplex.com/downloads/get/81545
 
 		packageDependencyList in Dependencies <++= (jettyUrl in Dependencies, jetty in Dependencies, resourcerUrl in Dependencies, resourcer in Dependencies) map { (jettyUrl, jetty, resourcerUrl, resourcer) =>
-			val jettyDep = new CommonDependency("Jetty 9.1.4 v20140401", DependencyFile(Platform.Unspecified, jettyUrl, jetty, FileFormat.Zip)) with PackageHelper {
-				private val trimPathRegex = ("^\\Qjetty-distribution-9.1.4.v20140401\\E/").r
+			val jettyDep = new CommonDependency("Jetty 9.2.9 v20150224", DependencyFile(Platform.Unspecified, jettyUrl, jetty, FileFormat.Zip)) with PackageHelper {
+				private val trimPathRegex = ("^\\Qjetty-distribution-9.2.9.v20150224\\E/").r
 				def trimPath(platform: Platform)(path: String) = {
 					trimPathRegex.replaceFirstIn(path, "")
 				}
