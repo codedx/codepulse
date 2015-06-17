@@ -102,7 +102,7 @@ function startCodePulse() {
 			},
 
 			function(data) {
-				var m = data.match(/Started ServerConnector@\w+\{HTTP\/1.1\}\{([^\}]+)\}/)
+				var m = data.match(/Started ServerConnector@\w+\{[^\}]+}\{([^\}]+)\}/)
 				if (m) {
 					writeLog('Code Pulse running on ' + m[1] + '\n');
 					cpUrl = 'http://' + m[1] + '/';

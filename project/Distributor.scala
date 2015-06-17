@@ -138,7 +138,7 @@ object Distributor extends BuildExtra {
 				case "win32" =>
 					// on windows, we need nw.pak, icudt.dll, rename nw.exe -> codepulse.exe, libEGL/libGLES and the d3d DLLs
 					val inclusions = List(
-						"icudt.dll", "libEGL.dll", "libGLESv2.dll", "nw.pak"
+						"d3dcompiler_47.dll", "icudtl.dat", "libEGL.dll", "libGLESv2.dll", "nw.pak"
 					).map(rootZipFolder + _).toSet
 
 					nwkFiles flatMap {
@@ -176,15 +176,15 @@ object Distributor extends BuildExtra {
 
 				case "osx" =>
 					// on osx, rename node-webkit.app to Code Pulse.app
-					def rewritePath(path: String) = "codepulse/Code Pulse.app" + path.stripPrefix("codepulse/node-webkit.app")
+					def rewritePath(path: String) = "codepulse/Code Pulse.app" + path.stripPrefix("codepulse/nwjs.app")
 
 					nwkFiles flatMap {
-						case ZipEntry(_, path, mode) if path == "codepulse/node-webkit.app/Contents/Resources/nw.icns" =>
+						case ZipEntry(_, path, mode) if path == "codepulse/nwjs.app/Contents/Resources/nw.icns" =>
 							// swap in our icon
 							val icns = appFolder / "app" / "icon.icns"
 							Some(ZipEntry(icns, rewritePath(path), mode))
 
-						case ZipEntry(file, path, mode) if path == "codepulse/node-webkit.app/Contents/Info.plist" =>
+						case ZipEntry(file, path, mode) if path == "codepulse/nwjs.app/Contents/Info.plist" =>
 							// prepare our own Info.plist
 							// pretty crappy using regular expressions for this, but plist files are absolutely awful to work with
 
@@ -215,7 +215,7 @@ object Distributor extends BuildExtra {
 
 							Some(ZipEntry(customizedInfo, rewritePath(path), mode))
 
-						case ZipEntry(file, path, mode) if path startsWith "codepulse/node-webkit.app" =>
+						case ZipEntry(file, path, mode) if path startsWith "codepulse/nwjs.app" =>
 							Some(ZipEntry(file, rewritePath(path), mode))
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
@@ -223,10 +223,10 @@ object Distributor extends BuildExtra {
 					}
 
 				case "linux-x86" =>
-					// on linux, just keep nw and nw.pak. we don't need media features, so we can skip libffmpeg.so
+					// on linux, just keep nw and nw.pak. we don't need media features, so we can skip libffmpegsumo.so
 					nwkFiles flatMap {
 						case ZipEntry(file, path, _) if path == "codepulse/nw" => Some(ZipEntry(file, "codepulse/codepulse", Some(755))) // executable
-						case e @ ZipEntry(_, path, _) if path == "codepulse/nw.pak" => Some(e)
+						case e @ ZipEntry(_, path, _) if path == "codepulse/nw.pak" || path == "codepulse/icudtl.dat" => Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => println("Excluding " + path); None
@@ -248,6 +248,7 @@ object Distributor extends BuildExtra {
 			// exclude unnecessary files. this is platform dependant
 			// I referenced <http://www.oracle.com/technetwork/java/javase/jdk-7-readme-429198.html#redistribution>
 			// and <http://www.oracle.com/technetwork/java/javase/jre-7-readme-430162.html>
+			// For Java 8: <http://www.oracle.com/technetwork/java/javase/jre-8-readme-2095710.html>
 			platform match {
 				case "win32" =>
 					val base = rootZipFolder + "jre/"
@@ -262,13 +263,14 @@ object Distributor extends BuildExtra {
 						"bin/jpiexp32.dll", "bin/jpinscp.dll", "bin/jpioji.dll",
 						"lib/deploy.jar", "lib/plugin.jar", "lib/javaws.jar",
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
+						"lib/jfr", "lib/jfr.jar",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
 					).map(base + _).toSet
 
 					val exclusionPatterns = List(
 						"bin/dtplugin/", "bin/plugin2/", "bin/server/",
 						"bin/npjpi", // <bin/npjpi*.dll>
-						"lib/deploy/"
+						"lib/deploy/", "lib/oblique-fonts/", "lib/desktop/", "plugin/"
 					).map(base + _)
 
 					jreFiles filter {
@@ -282,12 +284,15 @@ object Distributor extends BuildExtra {
 					val exclusions = List(
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
-						"lib/fxplugins.dylib", "lib/libdecora-sse.dylib","lib/libglass.dylib","lib/libglib-2.0.0.dylib","lib/libgstplugins-lite.dylib","lib/libgstreamer-lite.dylib","lib/libjavafx-font.dylib","lib/libjavafx-iio.dylib","lib/libjfxmedia.dylib","lib/libjfxwebkit.dylib","lib/libprism-es2.dylib",
+						"lib/fxplugins.dylib", "lib/libdecora-sse.dylib", "lib/libglass.dylib", "lib/libglib-2.0.0.dylib"," lib/libgstplugins-lite.dylib", "lib/libgstreamer-lite.dylib",
+						"lib/libjavafx-font.dylib", "lib/libjavafx-iio.dylib", "lib/libjfxmedia.dylib", "lib/libjfxwebkit.dylib", "lib/libprism-es2.dylib",
+						"lib/jfr", "lib/jfr.jar",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
 					).map(base + _).toSet
 
 					val exclusionDirs = List(
-						"man/"
+						"man/",
+						"lib/oblique-fonts/", "lib/desktop/", "plugin/"
 					).map(base + _)
 
 					jreFiles flatMap {
@@ -308,12 +313,15 @@ object Distributor extends BuildExtra {
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
 						"bin/ControlPanel", "bin/javaws",
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
-						"lib/i386/fxavcodecplugin-52.so", "lib/i386/fxavcodecplugin-53.so", "lib/i386/fxplugins.so", "lib/i386/libglass.so", "lib/i386/libgstplugins-lite.so", "lib/i386/libgstreamer-lite.so", "lib/i386/libjavafx-font.so", "lib/i386/libjavafx-iio.so", "lib/i386/libjfxmedia.so", "lib/i386/libjfxwebkit.so", "lib/i386/libprism-es2.so",
+						"lib/i386/fxavcodecplugin-52.so", "lib/i386/fxavcodecplugin-53.so", "lib/i386/fxplugins.so", "lib/i386/libglass.so", "lib/i386/libgstplugins-lite.so",
+						"lib/i386/libgstreamer-lite.so", "lib/i386/libjavafx-font.so", "lib/i386/libjavafx-iio.so", "lib/i386/libjfxmedia.so", "lib/i386/libjfxwebkit.so", "lib/i386/libprism-es2.so",
+						"lib/jfr", "lib/jfr.jar",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
 					).map(base + _).toSet
 
 					val exclusionDirs = List(
-						"man/", "lib/deploy/"
+						"man/", "lib/deploy/",
+						"lib/oblique-fonts/", "lib/desktop/", "plugin/"
 					).map(base + _)
 
 					jreFiles flatMap {
