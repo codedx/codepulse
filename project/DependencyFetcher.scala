@@ -20,92 +20,113 @@
 import sbt._
 import Keys._
 import BuildKeys._
-import Project.Initialize
+import Def.Initialize
 
 import scala.collection.JavaConversions._
+import scala.language.implicitConversions
 
 import java.io.{ BufferedInputStream, InputStream, File, FileInputStream, FileOutputStream }
-import java.net.{ HttpURLConnection, URL, URLConnection }
+import java.net.{ HttpURLConnection, URL }
+import java.util.Properties
 
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 
-/** Helper for fetching various Code Pulse dependencies from the web.
+/** Helper for fetching various dependencies from the web.
+  * This object provides a DSL for creating SBT Tasks that download files from the web.
+  * Example usage:
+  * {{{
+  * import DependencyFetcher._
+  * val downloadMyFile = TaskKey[File]("downloadMyFile")
   *
-  * @author robertf
+  * downloadMyFile <<= Dependency("myfile", "v1.0.3", "http://my.coolfiles.com/myfile.txt")
+  *   .downloadRaw
+  *   .to { _ / "myfiles" / "myfile.txt" }
+  * }}}
+  *
+  * Options are available to add a pre-connection side effect step (e.g. to set cookies on
+  * the request), and for treating a downloaded file as a .zip or .tar.gz.
+  *
+  * @author robertf, dylanh
   */
-object DependencyFetcher extends BuildExtra {
+object DependencyFetcher extends BuildExtra with SBinaryFormats {
 
-	sealed trait Platform
-	object Platform {
-		case object Unspecified extends Platform
-		case object Windows extends Platform
-		case object Linux extends Platform
-		case object OSX extends Platform
+	// type alias to effectively auto-import URLConnection when you import DependencyFetcher._
+	type URLConnection = java.net.URLConnection
+
+	/** Describes a file on the internet that we want to download.
+	  * @param name The internal name to call the dependency.
+	  * @param version The version of the file.
+	  * @param url The location of the file
+	  */
+	case class Dependency(name: String, version: String, url: String) {
+
+		/** Creates a DependencyConnector out of this Dependency with
+		  * the given `preConnect` step.
+		  */
+		def withConnectionStep(preConnect: URLConnection => Unit) = DependencyConnector(this, preConnect)
 	}
 
-	sealed trait FileFormat
-	object FileFormat {
-		case object Raw extends FileFormat
-		case object Zip extends FileFormat
-		case object TarGz extends FileFormat
+	/** Implicit upgrade from a Dependency to a DependencyConnector that
+	  * uses a *no-op* `preConnect` step. This can be used to bypass the
+	  * `withConnectionStep` call in the Dependency setup DSL.
+	  */
+	implicit def addNoopDepPreConnect(dep: Dependency): DependencyConnector = DependencyConnector(dep, _ => ())
+
+	/** Intermediate class in the DependencyDownloader DSL. This class adds a
+	  * 'preConnect' step that will be called as a connection to the `url`
+	  * is established.
+	  * @param dep a Dependency
+	  * @param preConnect The side-effect step
+	  */
+	case class DependencyConnector(dep: Dependency, preConnect: URLConnection => Unit) {
+		def downloadRaw = PreDepDownloader(this, RawDownloadHandler)
+		def extractAsZip(fixPaths: String => String = identity) = PreDepDownloader(this, new ZipDownloadHandler(fixPaths))
+		def extractAsTarGz(fixPaths: String => String = identity) = PreDepDownloader(this, new TarGzDownloadHandler(fixPaths))
 	}
 
-	case class DependencyFile(platform: Platform, url: String, destPath: File, format: FileFormat)
-
-	sealed trait Dependency { def name: String }
-	sealed trait PackageHelper { def trimPath(platform: Platform)(path: String): String }
-	case class JreDependency(name: String, rawPath: String, files: List[DependencyFile]) extends Dependency with PackageHelper {
-		private val trimPathRegex = ("^\\Q" + rawPath + "\\E(?:\\.jre)?/").r
-		def trimPath(platform: Platform)(path: String) = trimPathRegex.replaceFirstIn(path, "")
+	/** An object that handles data downloaded from a stream, sending it
+	  * (potentially after some transformation or manipulation) to the
+	  * `destination` file or folder.
+	  */
+	trait DownloadHandler {
+		def handleDownload(stream: InputStream, destination: File)
 	}
-	case class PlatformDependency(name: String, files: List[DependencyFile]) extends Dependency
-	case class CommonDependency(name: String, file: DependencyFile) extends Dependency
-	case class ToolDependency(name: String, file: DependencyFile) extends Dependency
+
+	/** Intermediate class in the DependencyDownloader DSL. This class holds
+	  * a DependencyConnector and a DownloadHandler. From here, just call the
+	  * `to` method, supplying a `destination` in order to create the end
+	  * result, which is an SBT `Task[File]`.
+	  */
+	case class PreDepDownloader(connector: DependencyConnector, handler: DownloadHandler) {
+
+		/** Creates an SBT `Task` that will, when called, download the given dependency, using
+		  * the given `connector` and `handler`, and funnel the data to the given `destination`.
+		  * It will cache previous downloads to avoid duplicated effort, using the name+version+url
+		  * of the dependency as the cache key.
+		  *
+		  * @param relativeDestination A function that takes a 'root' folder (which should be assumed
+		  * to be the download cache root), and creates a new file path which will be used as the actual
+		  * destination for the download.
+		  */
+		def to(relativeDestination: File => File): Initialize[Task[File]] = dependencyDownloaderTask(connector, handler, relativeDestination)
+	}
 
 	val BufferLen = 4096
 
-	object Keys {
-		val Dependencies = config("dependencies")
-
-		val dependencyFolder = SettingKey[File]("deps-folder")
-
-		val jreWindows = SettingKey[File]("jre-windows")
-		val jreLinux = SettingKey[File]("jre-linux")
-		val jreOsx = SettingKey[File]("jre-osx")
-
-		val jreWindowsUrl = SettingKey[String]("jre-windows-url")
-		val jreLinuxUrl = SettingKey[String]("jre-linux-url")
-		val jreOsxUrl = SettingKey[String]("jre-osx-url")
-
-		val nwkWindows = SettingKey[File]("nwk-windows")
-		val nwkLinux = SettingKey[File]("nwk-linux")
-		val nwkOsx = SettingKey[File]("nwk-osx")
-
-		val nwkWindowsUrl = SettingKey[String]("nwk-windows-url")
-		val nwkLinuxUrl = SettingKey[String]("nwk-linux-url")
-		val nwkOsxUrl = SettingKey[String]("nwk-osx-url")
-
-		val jetty = SettingKey[File]("jetty")
-		val dependencyCheck = SettingKey[File]("dependency-check")
-		val resourcer = SettingKey[File]("resourcer")
-
-		val jettyUrl = SettingKey[String]("jetty-url")
-		val resourcerUrl = SettingKey[String]("resourcer-url")
-
-		val packageDependencyList = TaskKey[Seq[Dependency]]("package-dependencies")
-	}
-
-	import Keys._
-
-	private class ProgressInputStream(underlying: InputStream, message: String, size: Long) extends InputStream {
+	private class ProgressInputStream(underlying: InputStream, message: String, size: Long, reportInterval: Int) extends InputStream {
 		private var bytesRead = 0L
+		private var nextReport = 0
 		private def progress(chunk: Int) {
 			bytesRead += chunk
 			val pct = 100 * bytesRead / size
-			print(message + "... " + pct + "% complete\r")
+			if (pct >= nextReport) {
+				println(s"$message... $pct% complete")
+				nextReport += reportInterval
+			}
 		}
 
 		override def read() = {
@@ -134,7 +155,16 @@ object DependencyFetcher extends BuildExtra {
 		override def skip(n: Long) = underlying.skip(n)
 	}
 
-	private def doDownload(label: String, log: Logger, dep: Dependency, file: DependencyFile, dest: File, preConnect: URLConnection => Unit = _ => ()) {
+	private def doDownload(log: Logger, connector: DependencyConnector, handler: DownloadHandler, dest: File) {
+		val DependencyConnector(dep, preConnect) = connector
+		val label = s"${dep.name} v${dep.version}"
+
+		if (dest.exists) {
+			log info "Deleting " + dest + "..."
+			if(dest.isDirectory) FileUtils deleteDirectory dest
+			else dest.delete
+		}
+
 		val conn = {
 			def connect(url: URL): HttpURLConnection = {
 				val conn = url.openConnection.asInstanceOf[HttpURLConnection]
@@ -155,24 +185,15 @@ object DependencyFetcher extends BuildExtra {
 				}
 			}
 
-			connect(new URL(file.url))
+			connect(new URL(dep.url))
 		}
 
 		val stream = new BufferedInputStream(
-			new ProgressInputStream(conn.getInputStream, "Downloading " + label, conn.getContentLengthLong)
+			new ProgressInputStream(conn.getInputStream, "Downloading " + label, conn.getContentLengthLong, 25)
 		)
 
 		try {
-			lazy val pathTrimmer: String => String = dep match {
-				case ph: PackageHelper => ph.trimPath(file.platform)
-				case _ => identity
-			}
-
-			file.format match {
-				case FileFormat.Raw => processRaw(stream, dest)
-				case FileFormat.Zip => processZip(stream, dest, pathTrimmer)
-				case FileFormat.TarGz => processTarGz(stream, dest, pathTrimmer)
-			}
+			handler.handleDownload(stream, dest)
 		} finally {
 			IOUtils closeQuietly stream
 		}
@@ -181,172 +202,126 @@ object DependencyFetcher extends BuildExtra {
 		log.info("Downloaded " + label + "                  ")
 	}
 
-	private def processRaw(stream: InputStream, destFile: File) {
-		val fos = new FileOutputStream(destFile)
-		try {
-			IOUtils.copyLarge(stream, fos)
-		} finally {
-			IOUtils closeQuietly fos
+	/** A DownloadHandler implementation that simply copies the contents of the
+	  * download stream directly to the `destination` file.
+	  */
+	object RawDownloadHandler extends DownloadHandler {
+		def handleDownload(stream: InputStream, destFile: File) {
+			destFile.getParentFile.mkdirs
+
+			val fos = new FileOutputStream(destFile)
+			try {
+				IOUtils.copyLarge(stream, fos)
+			} finally {
+				IOUtils closeQuietly fos
+			}
 		}
 	}
 
-	private def processZip(stream: InputStream, destFolder: File, pathTrim: String => String) {
-		destFolder.mkdirs
+	/** A DownloadHandler implementation that treats the download as a Zip file, extracting
+	  * each entry out under the given `destination` folder after 'trimming' the entry path
+	  * according to the `pathTrim` function.
+	  */
+	class ZipDownloadHandler(pathTrim: String => String) extends DownloadHandler {
+		def handleDownload(stream: InputStream, destFolder: File) {
+			destFolder.mkdirs
 
-		val zin = new ZipArchiveInputStream(stream)
+			val zin = new ZipArchiveInputStream(stream)
 
-		try {
-			val entries = Iterator.continually { zin.getNextZipEntry }.takeWhile { _ != null }
-			val buffer = new Array[Byte](BufferLen)
+			try {
+				val entries = Iterator.continually { zin.getNextZipEntry }.takeWhile { _ != null }
+				val buffer = new Array[Byte](BufferLen)
 
-			for (entry <- entries if !entry.isDirectory) {
-				val out = destFolder / pathTrim(entry.getName)
-				out.getParentFile.mkdirs
+				for (entry <- entries if !entry.isDirectory) {
+					val out = destFolder / pathTrim(entry.getName)
+					out.getParentFile.mkdirs
 
-				val fos = new FileOutputStream(out)
-				try {
-					val reads = Iterator.continually { zin.read(buffer, 0, BufferLen) }.takeWhile { _ > 0 }
-					for (read <- reads) fos.write(buffer, 0, read)
-				} finally {
-					IOUtils closeQuietly fos
+					val fos = new FileOutputStream(out)
+					try {
+						val reads = Iterator.continually { zin.read(buffer, 0, BufferLen) }.takeWhile { _ > 0 }
+						for (read <- reads) fos.write(buffer, 0, read)
+					} finally {
+						IOUtils closeQuietly fos
+					}
+
+					out setLastModified entry.getLastModifiedDate.getTime
 				}
-
-				out setLastModified entry.getLastModifiedDate.getTime
+			} finally {
+				IOUtils closeQuietly zin
 			}
-		} finally {
-			IOUtils closeQuietly zin
 		}
 	}
 
-	private def processTarGz(stream: InputStream, destFolder: File, pathTrim: String => String) {
-		destFolder.mkdirs
+	/** A DownloadHandler implementation that treats the download as a tar.gz file,
+	  * expanding each entry out under the given `destination` folder after 'trimming'
+	  * the entry path according to the `pathTrim` function.
+	  */
+	class TarGzDownloadHandler(pathTrim: String => String) extends DownloadHandler {
+		def handleDownload(stream: InputStream, destFolder: File) {
+		// private def processTarGz(stream: InputStream, destFolder: File, pathTrim: String => String) {
+			destFolder.mkdirs
 
-		val gzin = new GzipCompressorInputStream(stream)
-		val tarin = new TarArchiveInputStream(gzin)
+			val gzin = new GzipCompressorInputStream(stream)
+			val tarin = new TarArchiveInputStream(gzin)
 
-		try {
-			val entries = Iterator.continually { tarin.getNextTarEntry }.takeWhile { _ != null }
-			val buffer = new Array[Byte](BufferLen)
+			try {
+				val entries = Iterator.continually { tarin.getNextTarEntry }.takeWhile { _ != null }
+				val buffer = new Array[Byte](BufferLen)
 
-			for (entry <- entries if !entry.isDirectory) {
-				val out = destFolder / pathTrim(entry.getName)
-				out.getParentFile.mkdirs
+				for (entry <- entries if !entry.isDirectory) {
+					val out = destFolder / pathTrim(entry.getName)
+					out.getParentFile.mkdirs
 
-				val fos = new FileOutputStream(out)
-				try {
-					val reads = Iterator.continually { tarin.read(buffer, 0, BufferLen) }.takeWhile { _ > 0 }
-					for (read <- reads) fos.write(buffer, 0, read)
-				} finally {
-					IOUtils closeQuietly fos
+					val fos = new FileOutputStream(out)
+					try {
+						val reads = Iterator.continually { tarin.read(buffer, 0, BufferLen) }.takeWhile { _ > 0 }
+						for (read <- reads) fos.write(buffer, 0, read)
+					} finally {
+						IOUtils closeQuietly fos
+					}
+
+					out setLastModified entry.getLastModifiedDate.getTime
 				}
-
-				out setLastModified entry.getLastModifiedDate.getTime
-			}
-		} finally {
-			IOUtils closeQuietly tarin
-			IOUtils closeQuietly gzin
-		}
-	}
-
-	object Settings {
-		def fetchDependenciesTask(dependencyList: TaskKey[Seq[Dependency]]): Def.Initialize[Task[Unit]] = (dependencyList in Dependencies, streams) map { (deps, streams) =>
-			val log = streams.log
-
-			deps foreach {
-				case dep @ JreDependency(name, _, files) =>
-					for (file @ DependencyFile(platform, _, destPath, _) <- files)
-						doDownload(
-							name + " [" + platform + "]", log,
-							dep, file, destPath,
-							{ _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-						)
-
-				case dep @ PlatformDependency(name, files) =>
-					for (file @ DependencyFile(platform, _, destPath, _) <- files)
-						doDownload(
-							name + " [" + platform + "]", log,
-							dep, file, destPath
-						)
-
-				case dep @ CommonDependency(name, file @ DependencyFile(_, _, destPath, _)) =>
-					doDownload(
-						name + " [common]", log,
-						dep, file, destPath
-					)
-
-				case dep @ ToolDependency(name, file @ DependencyFile(_, _, destPath, _)) =>
-					doDownload(
-						name + " [tool]", log,
-						dep, file, destPath
-					)
+			} finally {
+				IOUtils closeQuietly tarin
+				IOUtils closeQuietly gzin
 			}
 		}
 	}
 
-	import Settings._
+	/*
+	 * Dependency Cache File
+	 */
+	private val depCacheLock = new Object
+	type DepMap = Map[String, (String, String)]
+	private def checkDepCache(cacheFile: File, dep: Dependency): Boolean = depCacheLock.synchronized {
+		val stored = CacheIO.fromFile[DepMap](cacheFile) getOrElse Map.empty
+		stored get dep.name match {
+			case Some((dep.version, dep.url)) => true
+			case _ => false
+		}
+	}
+	private def updateDepCache(cacheFile: File, dep: Dependency): Unit = depCacheLock.synchronized {
+		val stored = CacheIO.fromFile[DepMap](cacheFile) getOrElse Map.empty
+		val updated = stored + (dep.name -> (dep.version -> dep.url))
+		CacheIO.toFile(updated)(cacheFile)
+	}
 
-	lazy val dependencyFetcherSettings: Seq[Setting[_]] = Seq(
-		dependencyFolder in Dependencies := file("distrib/dependencies"),
+	def dependencyDownloaderTask(connector: DependencyConnector, handler: DownloadHandler, relativeDestination: File => File) = Def.task[File] {
+		val log = streams.value.log
+		val downloadRoot = FetchCache.fetchCacheDir.value
+		val cacheFile = downloadRoot / "dependencyFetcher.cache"
+		val dest = relativeDestination(downloadRoot)
+		val dep = connector.dep
 
-		packageDependencyList in Dependencies := Nil,
+		if(checkDepCache(cacheFile, dep)){
+			log debug s"Dependency already up-to-date [${dep.name}]"
+		} else {
+			doDownload(log, connector, handler, dest)
+			updateDepCache(cacheFile, dep)
+		}
 
-		jreWindowsUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/8u45-b15/jre-8u45-windows-i586.tar.gz",
-		jreWindows in Dependencies <<= (dependencyFolder in Dependencies) { _ / "win32" / "jre" },
-		jreLinuxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-linux-i586.tar.gz",
-		jreLinux in Dependencies <<= (dependencyFolder in Dependencies) { _ / "linux-x86" / "jre" },
-		jreOsxUrl in Dependencies := "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-macosx-x64.tar.gz",
-		jreOsx in Dependencies <<= (dependencyFolder in Dependencies) { _ / "osx" / "jre" },
+		dest
+	}
 
-		packageDependencyList in Dependencies <+= (jreWindowsUrl in Dependencies, jreWindows in Dependencies, jreLinuxUrl in Dependencies, jreLinux in Dependencies, jreOsxUrl in Dependencies, jreOsx in Dependencies) map { (jreWinUrl, jreWin, jreLinUrl, jreLin, jreOsxUrl, jreOsx) =>
-			JreDependency(
-				name = "jre 8u45", rawPath = "jre1.8.0_45",
-				files = List(
-					DependencyFile(Platform.Windows, jreWinUrl, jreWin, FileFormat.TarGz),
-					DependencyFile(Platform.Linux, jreLinUrl, jreLin, FileFormat.TarGz),
-					DependencyFile(Platform.OSX, jreOsxUrl, jreOsx, FileFormat.TarGz)
-				)
-			)
-		},
-
-		nwkWindows in Dependencies <<= (dependencyFolder in Dependencies) { _ / "win32" / "nwjs" },
-		nwkWindowsUrl in Dependencies := "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-win-ia32.zip",
-		nwkLinux in Dependencies <<= (dependencyFolder in Dependencies) { _ / "linux-x86" / "nwjs" },
-		nwkLinuxUrl in Dependencies := "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-linux-ia32.tar.gz",
-		nwkOsx in Dependencies <<= (dependencyFolder in Dependencies) { _ / "osx" / "nwjs" },
-		nwkOsxUrl in Dependencies := "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-osx-ia32.zip",
-
-		packageDependencyList in Dependencies <+= (nwkWindowsUrl in Dependencies, nwkWindows in Dependencies, nwkLinuxUrl in Dependencies, nwkLinux in Dependencies, nwkOsxUrl in Dependencies, nwkOsx in Dependencies) map { (nwkWinUrl, nwkWin, nwkLinUrl, nwkLin, nwkOsxUrl, nwkOsx) =>
-			new PlatformDependency(
-				name = "node-webkit v0.9.2",
-				files = List(
-					DependencyFile(Platform.Windows, nwkWinUrl, nwkWin, FileFormat.Zip),
-					DependencyFile(Platform.Linux, nwkLinUrl, nwkLin, FileFormat.TarGz),
-					DependencyFile(Platform.OSX, nwkOsxUrl, nwkOsx, FileFormat.Zip)
-				)
-			) with PackageHelper {
-				private val trimPathRegex = (raw"^nwjs-[^/]+/").r
-				def trimPath(platform: Platform)(path: String) = trimPathRegex.replaceFirstIn(path, "")
-			}
-		},
-
-		jetty in Dependencies <<= (dependencyFolder in Dependencies) { _ / "common" / "jetty" },
-		jettyUrl in Dependencies := "http://mirrors.xmission.com/eclipse/jetty/stable-9/dist/jetty-distribution-9.3.0.v20150612.zip",
-		resourcer in Dependencies <<= (dependencyFolder in Dependencies) { _ / "tools" / "resourcer" },
-		resourcerUrl in Dependencies := "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1", // http://anolis.codeplex.com/downloads/get/81545
-
-		packageDependencyList in Dependencies <++= (jettyUrl in Dependencies, jetty in Dependencies, resourcerUrl in Dependencies, resourcer in Dependencies) map { (jettyUrl, jetty, resourcerUrl, resourcer) =>
-			val jettyDep = new CommonDependency("Jetty 9.3.0 v20150612", DependencyFile(Platform.Unspecified, jettyUrl, jetty, FileFormat.Zip)) with PackageHelper {
-				private val trimPathRegex = ("^\\Qjetty-distribution-9.3.0.v20150612\\E/").r
-				def trimPath(platform: Platform)(path: String) = {
-					trimPathRegex.replaceFirstIn(path, "")
-				}
-			}
-
-			val resourcerDep = ToolDependency("Resourcer", DependencyFile(Platform.Unspecified, resourcerUrl, resourcer, FileFormat.Zip))
-
-			jettyDep :: resourcerDep :: Nil
-		},
-
-		fetchPackageDependencies <<= fetchDependenciesTask(packageDependencyList)
-	)
 }

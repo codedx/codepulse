@@ -10,5 +10,6 @@ target/
 outputs/
 
 distrib/dependencies/
+/fetch-cache
 
 *.log

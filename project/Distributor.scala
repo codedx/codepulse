@@ -20,6 +20,7 @@
 import sbt._
 import Keys._
 import BuildKeys._
+import DependencyFetcher._
 
 import com.earldouglas.xsbtwebplugin.PluginKeys._
 import sbt.classpath.ClasspathUtilities
@@ -37,23 +38,97 @@ import com.avi.sbt.betterzip.BetterZip.{ Entry => ZipEntry, _ }
   */
 object Distributor extends BuildExtra {
 
-	import DependencyFetcher.Keys._
-
 	object Keys {
 		val Distribution = config("distribution")
 
-		val rootZipFolder = SettingKey[String]("root-zip-folder")
-		val webappFolder = SettingKey[String]("webapp-folder")
+		val rootZipFolder = settingKey[String]("Root zip folder for distributions")
+		val webappFolder = settingKey[String]("Webapp folder within zip")
 
-		val distCommon = SettingKey[File]("dist-common")
-		val distJettyConf = SettingKey[File]("dist-jetty-conf")
+		val distCommon = settingKey[File]("Common distribution files")
+		val distJettyConf = settingKey[File]("Jetty configuration for distributions")
 
-		val warContents = TaskKey[Seq[(File, String)]]("webapp-war-contents")
+		val warContents = taskKey[Seq[(File, String)]]("Webapp war file contents")
 
-		val webappClasses = TaskKey[Seq[(File, String)]]("webapp-classes", "Find all .class files in the generated webapp classes folder")
-		val webappClassesJar = TaskKey[File]("webapp-war-jar", "Create a .jar file containing all of the webapp classes")
+		val webappClasses = taskKey[Seq[(File, String)]]("Find all .class files in the generated webapp classes folder")
+		val webappClassesJar = taskKey[File]("Create a .jar file containing all of the webapp classes")
 
-		val packageMappings = TaskKey[Seq[ZipEntry]]("package-zip-mappings")
+		val packageMappings = taskKey[Seq[ZipEntry]]("Generate zip file mappings for package.")
+
+		val packageEmbeddedWin32 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (32-bit)")
+		val packageEmbeddedWin64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (64-bit)")
+		val packageEmbeddedOsx = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for OS X (32/64-bit)")
+		val packageEmbeddedLinuxX86 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x86)")
+		val packageEmbeddedLinuxX64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x64)")
+	}
+
+	type DependencyTask = Def.Initialize[Task[File]]
+
+	object dependencies {
+		object java {
+			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
+			private val trimPathRegex = raw"^\Qjre1.8.0_45\E(?:\.jre)?/".r
+			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
+
+			val win32 = Dependency("jre.win32", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b15/jre-8u45-windows-i586.tar.gz")
+				.withConnectionStep(setOracleCookie)
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "win32" / "jre" }
+
+			val win64 = Dependency("jre.win64", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b15/jre-8u45-windows-x64.tar.gz")
+				.withConnectionStep(setOracleCookie)
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "win64" / "jre" }
+
+			val linuxX86 = Dependency("jre.linux-x86", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-linux-i586.tar.gz")
+				.withConnectionStep(setOracleCookie)
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "linux-x86" / "jre" }
+
+			val linuxX64 = Dependency("jre.linux-x64", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-linux-x64.tar.gz")
+				.withConnectionStep(setOracleCookie)
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "linux-x64" / "jre" }
+
+			val osx = Dependency("jre.osx", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-macosx-x64.tar.gz")
+				.withConnectionStep(setOracleCookie)
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "osx" / "jre" }
+		}
+
+		object nwjs {
+			private val trimPathRegex = raw"^nwjs-[^/]+/".r
+			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
+
+			val win32 = Dependency("nwjs.win32", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-win-ia32.zip")
+				.extractAsZip { trimPath }
+				.to { _ / "distrib-dependencies" / "win32" / "nwjs" }
+
+			val win64 = Dependency("nwjs.win64", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-win-x64.zip")
+				.extractAsZip { trimPath }
+				.to { _ / "distrib-dependencies" / "win64" / "nwjs" }
+
+			val linuxX86 = Dependency("nwjs.linux-x86", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-linux-ia32.tar.gz")
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "linux-x86" / "nwjs" }
+
+			val linuxX64 = Dependency("nwjs.linux-x64", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-linux-x64.tar.gz")
+				.extractAsTarGz { trimPath }
+				.to { _ / "distrib-dependencies" / "linux-x64" / "nwjs" }
+
+			val osx = Dependency("nwjs.osx", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-osx-x64.zip")
+				.extractAsZip { trimPath }
+				.to { _ / "distrib-dependencies" / "osx" / "nwjs" }
+		}
+
+		val jetty = Dependency("jetty", "9.3.0-v20150612", "http://mirrors.xmission.com/eclipse/jetty/stable-9/dist/jetty-distribution-9.3.0.v20150612.zip")
+			.extractAsZip { raw"^\Qjetty-distribution-9.3.0.v20150612\E/".r.replaceFirstIn(_, "") }
+			.to { _ / "distrib-dependencies" / "common" / "jetty" }
+
+		object tools {
+			val resourcer = Dependency("resourcer", "0.9", "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1") // http://anolis.codeplex.com/downloads/get/81545
+				.extractAsZip { identity }
+				.to { _ / "tools" / "resourcer" }
+		}
 	}
 
 	import Keys._
@@ -66,14 +141,10 @@ object Distributor extends BuildExtra {
 		  */
 		type FileMappingTask = Def.Initialize[Task[Seq[(ZipEntry)]]]
 
-		def embeddedWar(conf: Configuration): FileMappingTask = (packageWar in conf, webappFolder in Distribution) map { (war, path) =>
-			Seq(war -> (path + "webapps/root.war"))
-		}
+		val webappClassesTask = Def.task {
+			val classPath = raw"WEB-INF[\\/]classes[\\/](.*)".r
 
-		def webappClassesTask: Def.Initialize[Task[Seq[(File, String)]]] = (warContents in Distribution) map { (contents) =>
-			val classPath = """WEB-INF[\\/]classes[\\/](.*)""".r
-
-			contents flatMap {
+			(warContents in Distribution).value flatMap {
 				case (f, p) =>
 					p match {
 						case classPath(relPath) => Some((f, relPath))
@@ -82,79 +153,91 @@ object Distributor extends BuildExtra {
 			}
 		}
 
-		def buildJarTask: Def.Initialize[Task[File]] = (webappClasses in Distribution, crossTarget, name, version) map { (classes, ct, name, version) =>
-			val jarToMake = ct / (name + '-' + version + "-webapp-classes.jar")
-			IO.jar(classes, jarToMake, new java.util.jar.Manifest)
+		val buildJarTask = Def.task {
+			val jarToMake = crossTarget.value / (name.value + '-' + version.value + "-webapp-classes.jar")
+			IO.jar((webappClasses in Distribution).value, jarToMake, new java.util.jar.Manifest)
 			jarToMake
 		}
 
-		def embeddedWebApp(conf: Configuration, platform: String): FileMappingTask = (warContents in Distribution, rootZipFolder in Distribution, webappFolder in Distribution, webappClasses in Distribution, webappClassesJar in Distribution) map { (warContents, rootZipFolder, path, classes, jar) =>
-			val appFolder = path + "webapps/root/"
+		def embeddedWebApp(conf: Configuration, platform: String): FileMappingTask = Def.task {
+			val path = (webappFolder in Distribution).value
+			val appFolder = s"$path/webapps/root/"
 
-			val classSet = classes.map(_._1).toSet
-			val filteredContents = warContents.filterNot { case (file, _) => classSet contains file }
-			var jarRec = (jar, ("WEB-INF/lib/" + jar.getName))
+			val jar = (webappClassesJar in Distribution).value
+			val classSet = (webappClasses in Distribution).value.map(_._1).toSet
+			val filteredContents = (warContents in Distribution).value.filterNot { case (file, _) => classSet contains file }
+			var jarRec = (jar, (s"WEB-INF/lib/${jar.getName}"))
 
-			appResource(platform, rootZipFolder, (filteredContents ++ Seq(jarRec)) map {
+			appResource(platform, (rootZipFolder in Distribution).value,
+			 (filteredContents ++ Seq(jarRec)) map {
 				case (file, path) => (file, (appFolder + path.replace('\\', '/')))
 			})
 		}
 
-		def jettyDist(platform: String): FileMappingTask = (jetty in Dependencies, distJettyConf in Distribution, rootZipFolder in Distribution, webappFolder in Distribution) map { (jetty, confDir, rootZipFolder, webappFolder) =>
-			if (!jetty.exists)
-				sys.error("Missing jetty. Please run `fetch-package-dependencies` or download and place in " + jetty + ".")
+		def jettyDist(platform: String): FileMappingTask = Def.task {
+			val log = streams.value.log
 
-			val jettyExclusions = List(
+			val webapp = (webappFolder in Distribution).value
+
+			val jettyExclusions = Set(
 				"demo-base/", "etc/", "start.d/", "start.ini"
-			).map(webappFolder + _)
+			).map { exc => s"$webapp/$exc" }
 
-			val jettyFiles = jetty.*** pair rebase(jetty, webappFolder) map {
+			val jetty = dependencies.jetty.value
+			val jettyFiles = jetty.*** pair rebase(jetty, webapp) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			} filter {
-				case (_, path) if jettyExclusions exists { path startsWith _ } => println("Excluding " + path); false
+				case (_, path) if jettyExclusions exists { path startsWith _ } => log.info(s"Excluding $path"); false
 				case _ => true
 			}
 
-			val jettyConf = confDir.*** pair rebase(confDir, webappFolder)
+			val confDir = (distJettyConf in Distribution).value
+			val jettyConf = confDir.*** pair rebase(confDir, webapp)
 
-			appResource(platform, rootZipFolder, jettyFiles ++ jettyConf)
+			appResource(platform, (rootZipFolder in Distribution).value, jettyFiles ++ jettyConf)
 		}
 
-		def embeddedAppFiles(platform: String): FileMappingTask = (distCommon in Distribution, rootZipFolder in Distribution) map { (appFolder, rootZipFolder) =>
-			appResource(platform, rootZipFolder, appFolder.*** pair rebase(appFolder, rootZipFolder))
+		def embeddedAppFiles(platform: String): FileMappingTask = Def.task {
+			val app = (distCommon in Distribution).value
+			val root = (rootZipFolder in Distribution).value
+			appResource(platform, root, app.*** pair rebase(app, root))
 		}
 
-		def nodeWebkitRuntime(platform: String, nwkKey: SettingKey[File]): FileMappingTask = (nwkKey in Dependencies, resourcer in Dependencies, rootZipFolder in Distribution, distCommon in Distribution, target, version) map { (nwk, resourcer, rootZipFolder, appFolder, target, version) =>
-			if (!nwk.exists)
-				sys.error("Missing node-webkit for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + nwk + ".")
+		def nwjsRuntime(platform: String, nwjsDep: DependencyTask): FileMappingTask = Def.task {
+			val log = streams.value.log
 
-			val nwkFiles: Seq[ZipEntry] = nwk.*** pair rebase(nwk, rootZipFolder) map {
+			val nwjs = nwjsDep.value
+
+			val app = (distCommon in Distribution).value
+			val root = (rootZipFolder in Distribution).value
+
+			val nwkFiles: Seq[ZipEntry] = nwjs.*** pair rebase(nwjs, root) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			}
 
 			platform match {
-				case "win32" =>
+				case "win32" | "win64" =>
 					// on windows, we need nw.pak, icudt.dll, rename nw.exe -> codepulse.exe, libEGL/libGLES and the d3d DLLs
-					val inclusions = List(
+					val inclusions = Set(
 						"d3dcompiler_47.dll", "icudtl.dat", "libEGL.dll", "libGLESv2.dll", "nw.pak"
-					).map(rootZipFolder + _).toSet
+					).map { inc => s"$root/$inc" }
 
 					nwkFiles flatMap {
-						case ZipEntry(file, path, mode) if path == "codepulse/nw.exe" =>
+						case ZipEntry(file, path, mode) if path == s"$root/nw.exe" =>
 							// prepare our own copy of nw.exe with appropriately modified icon
-							val customizedFile = target / "node-webkit" / "win32" / "codepulse.exe"
+							val customizedFile = target.value / "node-webkit" / platform / "codepulse.exe"
 							customizedFile.getParentFile.mkdirs
 							Files.copy(file.toPath, customizedFile.toPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES)
 
 							{
 								import scala.sys.process._
 
-								val ico = appFolder / "app" / "icon.ico"
+								val ico = app / "app" / "icon.ico"
 
 								val args = List(
-									(resourcer / "Resourcer.exe").getCanonicalPath,
+									(dependencies.tools.resourcer.value / "Resourcer.exe").getCanonicalPath,
 									"-op:upd",
 									"-src:" + customizedFile.getCanonicalPath,
 									"-type:14",
@@ -166,33 +249,33 @@ object Distributor extends BuildExtra {
 									sys.error("Error running resourcer to update icon resource.")
 							}
 
-							Some(ZipEntry(customizedFile, "codepulse/codepulse.exe", mode))
+							Some(ZipEntry(customizedFile, s"$root/codepulse.exe", mode))
 
 						case e @ ZipEntry(_, path, _) if inclusions contains path => Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
-						case ZipEntry(_, path, _) => println("Excluding " + path); None
+						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 
 				case "osx" =>
 					// on osx, rename node-webkit.app to Code Pulse.app
-					def rewritePath(path: String) = "codepulse/Code Pulse.app" + path.stripPrefix("codepulse/nwjs.app")
+					def rewritePath(path: String) = s"$root/Code Pulse.app" + path.stripPrefix(s"$root/nwjs.app")
 
 					nwkFiles flatMap {
-						case ZipEntry(_, path, mode) if path == "codepulse/nwjs.app/Contents/Resources/nw.icns" =>
+						case ZipEntry(_, path, mode) if path == s"$root/nwjs.app/Contents/Resources/nw.icns" =>
 							// swap in our icon
-							val icns = appFolder / "app" / "icon.icns"
+							val icns = app / "app" / "icon.icns"
 							Some(ZipEntry(icns, rewritePath(path), mode))
 
-						case ZipEntry(file, path, mode) if path == "codepulse/nwjs.app/Contents/Info.plist" =>
+						case ZipEntry(file, path, mode) if path == s"$root/nwjs.app/Contents/Info.plist" =>
 							// prepare our own Info.plist
 							// pretty crappy using regular expressions for this, but plist files are absolutely awful to work with
 
 							val replacements = List(
 								"CFBundleName" -> "Code Pulse",
 								"CFBundleDisplayName" -> "Code Pulse",
-								"CFBundleVersion" -> version,
-								"CFBundleShortVersionString" -> version
+								"CFBundleVersion" -> version.value,
+								"CFBundleShortVersionString" -> version.value
 							)
 
 							val plist = io.Source.fromFile(file).getLines.mkString("\n")
@@ -203,7 +286,7 @@ object Distributor extends BuildExtra {
 									r.replaceAllIn(last, "<string>" + newVal + "</string>")
 							}
 
-							val customizedInfo = target / "node-webkit" / "osx" / "Info.plist"
+							val customizedInfo = target.value / "node-webkit" / "osx" / "Info.plist"
 							customizedInfo.getParentFile.mkdirs
 
 							{
@@ -215,32 +298,33 @@ object Distributor extends BuildExtra {
 
 							Some(ZipEntry(customizedInfo, rewritePath(path), mode))
 
-						case ZipEntry(file, path, mode) if path startsWith "codepulse/nwjs.app" =>
+						case ZipEntry(file, path, mode) if path startsWith s"$root/nwjs.app" =>
 							Some(ZipEntry(file, rewritePath(path), mode))
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
-						case ZipEntry(_, path, _) => println("Excluding " + path); None
+						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 
-				case "linux-x86" =>
+				case "linux-x86" | "linux-x64" =>
 					// on linux, just keep nw and nw.pak. we don't need media features, so we can skip libffmpegsumo.so
 					nwkFiles flatMap {
-						case ZipEntry(file, path, _) if path == "codepulse/nw" => Some(ZipEntry(file, "codepulse/codepulse", Some(755))) // executable
-						case e @ ZipEntry(_, path, _) if path == "codepulse/nw.pak" || path == "codepulse/icudtl.dat" => Some(e)
+						case ZipEntry(file, path, _) if path == s"$root/nw" => Some(ZipEntry(file, s"$root/codepulse", ExecutableType.Unix.mode)) // executable
+						case e @ ZipEntry(_, path, _) if path == s"$root/nw.pak" || path == s"$root/icudtl.dat" => Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
-						case ZipEntry(_, path, _) => println("Excluding " + path); None
+						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 			}
 		}
 
-		def javaRuntime(platform: String, jreKey: SettingKey[File]): FileMappingTask = (jreKey in Dependencies, rootZipFolder in Distribution) map { (jre, rootZipFolder) =>
-			val jreDest = rootZipFolder + "jre/"
+		def javaRuntime(platform: String, jreDep: DependencyTask): FileMappingTask = Def.task {
+			val log = streams.value.log
 
-			if (!jre.exists)
-				sys.error("Missing JRE for " + platform + ". Please run `fetch-package-dependencies` or download and place in " + jre + ".")
+			val root = (rootZipFolder in Distribution).value
+			val jreDest = s"$root/jre/"
 
-			val jreFiles: Seq[ZipEntry] = appResource(platform, rootZipFolder, jre.*** pair rebase(jre, jreDest)) map {
+			val jre = jreDep.value
+			val jreFiles: Seq[ZipEntry] = appResource(platform, root, jre.*** pair rebase(jre, jreDest)) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			}
@@ -250,10 +334,10 @@ object Distributor extends BuildExtra {
 			// and <http://www.oracle.com/technetwork/java/javase/jre-7-readme-430162.html>
 			// For Java 8: <http://www.oracle.com/technetwork/java/javase/jre-8-readme-2095710.html>
 			platform match {
-				case "win32" =>
-					val base = rootZipFolder + "jre/"
+				case "win32" | "win64" =>
+					val base = s"$root/jre/"
 
-					val exclusions = List(
+					val exclusions = Set(
 						"bin/rmid.exe", "bin/rmiregistry.exe", "bin/tnameserv.exe", "bin/keytool.exe", "bin/policytool.exe", "bin/orbd.exe", "bin/servertool.exe",
 						"bin/kinit.exe", "bin/klist.exe", "bin/ktab.exe",
 						"bin/javaws.exe", "lib/javaws.jar",
@@ -265,51 +349,51 @@ object Distributor extends BuildExtra {
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
 						"lib/jfr", "lib/jfr.jar",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
-					).map(base + _).toSet
+					).map { exc => s"$base/$exc" }
 
-					val exclusionPatterns = List(
+					val exclusionPatterns = Set(
 						"bin/dtplugin/", "bin/plugin2/", "bin/server/",
 						"bin/npjpi", // <bin/npjpi*.dll>
 						"lib/deploy/", "lib/oblique-fonts/", "lib/desktop/", "plugin/"
-					).map(base + _)
+					).map { exc => s"$base/$exc" }
 
 					jreFiles filter {
-						case ZipEntry(_, path, _) if (exclusions contains path) || exclusionPatterns.exists(path.startsWith) => println("Excluding " + path); false
+						case ZipEntry(_, path, _) if (exclusions contains path) || exclusionPatterns.exists(path.startsWith) => log.info(s"Excluding $path"); false
 						case _ => true
 					}
 
 				case "osx" =>
-					val base = rootZipFolder + "Code Pulse.app/Contents/Resources/app.nw/jre/Contents/Home/"
+					val base = s"$root/Code Pulse.app/Contents/Resources/app.nw/jre/Contents/Home/"
 
-					val exclusions = List(
+					val exclusions = Set(
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
 						"lib/fxplugins.dylib", "lib/libdecora-sse.dylib", "lib/libglass.dylib", "lib/libglib-2.0.0.dylib"," lib/libgstplugins-lite.dylib", "lib/libgstreamer-lite.dylib",
 						"lib/libjavafx-font.dylib", "lib/libjavafx-iio.dylib", "lib/libjfxmedia.dylib", "lib/libjfxwebkit.dylib", "lib/libprism-es2.dylib",
 						"lib/jfr", "lib/jfr.jar",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
-					).map(base + _).toSet
+					).map { exc => s"$base/$exc" }
 
-					val exclusionDirs = List(
+					val exclusionDirs = Set(
 						"man/",
 						"lib/oblique-fonts/", "lib/desktop/", "plugin/"
-					).map(base + _)
+					).map { exc => s"$base/$exc" }
 
 					jreFiles flatMap {
-						case ZipEntry(file, path, _) if path == (base + "Contents/Home/bin/java") =>
-							Some(ZipEntry(file, path, Some(755))) // executable
+						case ZipEntry(file, path, _) if path == (s"$base/Contents/Home/bin/java") =>
+							Some(ZipEntry(file, path, ExecutableType.Mac.mode)) // executable
 
 						case e @ ZipEntry(_, path, _) if !(exclusions contains path) && !exclusionDirs.exists(path.startsWith) =>
 							Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
-						case ZipEntry(_, path, _) => println("Excluding " + path); None
+						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 
-				case "linux-x86" =>
-					val base = rootZipFolder + "jre/"
+				case "linux-x86" | "linux-x64" =>
+					val base = s"$root/jre/"
 
-					val exclusions = List(
+					val exclusions = Set(
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
 						"bin/ControlPanel", "bin/javaws",
 						"lib/javafx.properties", "lib/jfxrt.jar", "lib/security/javafx.policy",
@@ -317,36 +401,37 @@ object Distributor extends BuildExtra {
 						"lib/i386/libgstreamer-lite.so", "lib/i386/libjavafx-font.so", "lib/i386/libjavafx-iio.so", "lib/i386/libjfxmedia.so", "lib/i386/libjfxwebkit.so", "lib/i386/libprism-es2.so",
 						"lib/jfr", "lib/jfr.jar",
 						"THIRDPARTYLICENSEREADME-JAVAFX.txt", "Welcome.html"
-					).map(base + _).toSet
+					).map { exc => s"$base/$exc" }
 
-					val exclusionDirs = List(
+					val exclusionDirs = Set(
 						"man/", "lib/deploy/",
 						"lib/oblique-fonts/", "lib/desktop/", "plugin/"
-					).map(base + _)
+					).map { exc => s"$base/$exc" }
 
 					jreFiles flatMap {
 						case ZipEntry(file, path, _) if path == (base + "bin/java") =>
-							Some(ZipEntry(file, path, Some(755))) // executable
+							Some(ZipEntry(file, path, ExecutableType.Unix.mode)) // executable
 
 						case e @ ZipEntry(_, path, _) if !(exclusions contains path) && !exclusionDirs.exists(path.startsWith) =>
 							Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
-						case ZipEntry(_, path, _) => println("Excluding " + path); None
+						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 			}
 		}
 
-		def agentJar(platform: String): FileMappingTask = (assembly in BuildDef.BytefrogAgent, rootZipFolder in Distribution) map { (agentJar, rootZipFolder) =>
-			appResource(platform, rootZipFolder, List((agentJar, rootZipFolder + "agent.jar")))
+		def agentJar(platform: String): FileMappingTask = Def.task {
+			val root = (rootZipFolder in Distribution).value
+			appResource(platform, root, List(((assembly in BuildDef.BytefrogAgent).value, s"$root/agent.jar")))
 		}
 
-		def appResource(platform: String, rootZipFolder: String, mappings: Seq[(File, String)]) = platform match {
+		def appResource(platform: String, root: String, mappings: Seq[(File, String)]) = platform match {
 			case "osx" =>
 				// on osx, move things to be within the .app
 				mappings map {
 					case (file, path) =>
-						val newPath = rootZipFolder + "Code Pulse.app/Contents/Resources/app.nw/" + path.stripPrefix(rootZipFolder)
+						val newPath = s"$root/Code Pulse.app/Contents/Resources/app.nw${path.stripPrefix(root)}"
 						(file, newPath)
 				}
 
@@ -356,37 +441,40 @@ object Distributor extends BuildExtra {
 
 	import Settings._
 
-	def packageEmbeddedSettingsIn(platform: String, nwkKey: SettingKey[File], jreKey: SettingKey[File], task: TaskKey[File])(config: Configuration) =
-		Seq(packageMappings in (config, task) <<= embeddedWebApp(config, platform)) ++
+	def distribution(platform: String, nwjs: DependencyTask, jre: DependencyTask, task: TaskKey[File])(config: Configuration) =
+		Seq(packageMappings in (config, task) := embeddedWebApp(config, platform).value) ++
 		inConfig(config) { Seq(
 			packageMappings in task <++= jettyDist(platform),
 			packageMappings in task <++= embeddedAppFiles(platform),
-			packageMappings in task <++= nodeWebkitRuntime(platform, nwkKey),
-			packageMappings in task <++= javaRuntime(platform, jreKey),
+			packageMappings in task <++= nwjsRuntime(platform, nwjs),
+			packageMappings in task <++= javaRuntime(platform, jre),
 			packageMappings in task <++= agentJar(platform),
-			task <<= (packageMappings in task, crossTarget, version, streams) map { (mappings, crossTarget, ver, streams) =>
-				val name = "CodePulse-" + ver + "-" + platform + ".zip"
-				val out = crossTarget / name
-				streams.log.info("Packaging " + name + "...")
-				zip(mappings, out)
-				streams.log.info("Finished packaging " + out)
+			task := {
+				val log = streams.value.log
+				val name = s"CodePulse-${version.value}-$platform.zip"
+				val out = crossTarget.value / name
+				log.info(s"Packaging $name...")
+				zip((packageMappings in task).value, out)
+				log.info(s"Finished packaging $out")
 				out
 			}
 		)}
 
 	lazy val distribSettings: Seq[Setting[_]] =
 		Seq(
-			rootZipFolder in Distribution := "codepulse/",
-			webappFolder in Distribution <<= (rootZipFolder in Distribution) { _ + "backend/" },
+			rootZipFolder in Distribution := "codepulse",
+			webappFolder in Distribution := s"${(rootZipFolder in Distribution).value}/backend",
 
 			distCommon in Distribution := file("distrib/common"),
 			distJettyConf in Distribution := file("distrib/jetty-conf"),
 
-			webappClasses in Distribution <<= webappClassesTask,
-			webappClassesJar in Distribution <<= buildJarTask
+			webappClasses in Distribution := webappClassesTask.value,
+			webappClassesJar in Distribution := buildJarTask.value
 		) ++
 		inConfig(DefaultConf) { warContents in Distribution <<= com.earldouglas.xsbtwebplugin.WarPlugin.packageWarTask(DefaultClasspathConf) } ++
-		packageEmbeddedSettingsIn("win32", nwkWindows, jreWindows, packageEmbeddedWin32)(Compile) ++
-		packageEmbeddedSettingsIn("osx", nwkOsx, jreOsx, packageEmbeddedOsx)(Compile) ++
-		packageEmbeddedSettingsIn("linux-x86", nwkLinux, jreLinux, packageEmbeddedLinuxX86)(Compile)
+		distribution("win32", dependencies.nwjs.win32, dependencies.java.win32, packageEmbeddedWin32)(Compile) ++
+		distribution("win64", dependencies.nwjs.win64, dependencies.java.win64, packageEmbeddedWin64)(Compile) ++
+		distribution("osx", dependencies.nwjs.osx, dependencies.java.osx, packageEmbeddedOsx)(Compile) ++
+		distribution("linux-x86", dependencies.nwjs.linuxX86, dependencies.java.linuxX86, packageEmbeddedLinuxX86)(Compile) ++
+		distribution("linux-x64", dependencies.nwjs.linuxX64, dependencies.java.linuxX64, packageEmbeddedLinuxX64)(Compile)
 }

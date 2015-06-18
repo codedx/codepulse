@@ -23,10 +23,4 @@ import Keys._
 object BuildKeys {
 
 	val releaseDate = SettingKey[String]("release-date")
-
-	val packageEmbeddedWin32 = TaskKey[File]("package-embedded-win32", "Creates a ZIP distribution of the node-webkit embedded version of the current project for Windows (32-bit)")
-	val packageEmbeddedOsx = TaskKey[File]("package-embedded-osx", "Creates a ZIP distribution of the node-webkit embedded version of the current project for OS X (32/64-bit)")
-	val packageEmbeddedLinuxX86 = TaskKey[File]("package-embedded-linux-x86", "Creates a ZIP distribution of the node-webkit embedded version of the current project for Linux (x86)")
-
-	val fetchPackageDependencies = TaskKey[Unit]("fetch-package-dependencies")
 }
