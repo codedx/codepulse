@@ -6,10 +6,11 @@
 .project
 .idea
 .idea_modules
+*.sublime-workspace
 target/
 outputs/
 
-distrib/dependencies/
+/distrib/dependencies/
 /fetch-cache
 
 *.log
