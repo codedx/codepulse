@@ -8,7 +8,7 @@ Code Pulse is a code coverage tool that works on running programs in real time. 
 
 **codepulse/** Contains the web app source.
 
-**distrib/** Contains files that are used to package up the entirity of Code Pulse into a native app, using [node-webkit](https://github.com/rogerwang/node-webkit) in place of a browser, and [jetty](http://www.eclipse.org/jetty/) to run the server. *Note: many of the necessary files are not included in this repository, and must be added manually. instructions for this are 'TODO'. If possible, there might eventually be a script to take care of that for you.*
+**distrib/** Contains files that are used to package up the entirity of Code Pulse into a native app, using [node-webkit](https://github.com/rogerwang/node-webkit) in place of a browser, and [jetty](http://www.eclipse.org/jetty/) to run the server. All third party dependencies are downloaded automatically within SBT at package time.
 
 **project/** Contains the SBT build definition.
 
