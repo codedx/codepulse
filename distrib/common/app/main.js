@@ -66,7 +66,7 @@ function startCodePulse() {
 		// make sure java is executable...
 		chmodSync(java, 0755);
 
-		var args = [ '-XX:MaxPermSize=128M', '-Xmx1024M', '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
+		var args = [ '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
 
 		writeLog('Starting Code Pulse...\n');
 		writeLog('Using Java: ' + java + '\n');
