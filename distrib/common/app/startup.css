@@ -44,13 +44,17 @@ footer {
 	height: 17em;
 
 	transition: height .5s;
-	
+
 	display: flex;
 	flex-direction: column;
 }
 
 #log.hidden {
 	height: 1em;
+}
+
+#log.hidden #log-content {
+	overflow: hidden;
 }
 
 #log a {
