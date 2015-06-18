@@ -4,6 +4,13 @@ scala:
 jdk:
   - oraclejdk7
   - openjdk7
+  - oraclejdk8
+  - openjdk8
+sudo: false
+cache:
+  directories:
+  - $HOME/.ivy2/cache
+  - $HOME/.sbt/boot/scala-$TRAVIS_SCALA_VERSION
 notifications:
   email:
     - secure: "aDwZadE/ASndUUzim4Dfd4M8Jhymj9u1Gau+XDTckPRTp79a/gpuwwxvDWDDuZzz3/Gr9d7MCZI+nB55jog+B3jZAWsW5qfdhqanRj9EtlYmhsSQAGmxu91a/8QbzPEgNV/ttQkZFz0jVnfvyGbRF+aEXV2tVyqRADzSrdX6+mE="
