@@ -54,6 +54,9 @@ function redirect(cpUrl) {
 }
 
 window.onload = function() {
+	// fire up the backend
+	codepulse.start();
+
 	// get the log all wired up
 	updateLog(log.getContents());
 	log.on('log', updateLog);

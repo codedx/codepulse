@@ -56,7 +56,12 @@ function getJava() {
 	}
 }
 
+var started = false;
+
 function startCodePulse() {
+	if (started) return;
+	started = true;
+
 	var spawn = require('child_process').spawn,
 	    chmodSync = require('fs').chmodSync;
 
@@ -177,14 +182,13 @@ function checkNewCPEvent(event, listener) {
 }
 
 exports.codepulse = {
+	start: startCodePulse,
 	kill: killCodePulse,
 	addListener: cpEvent.addListener,
 	on: function(event, listener) { checkNewCPEvent(event, listener); cpEvent.on(event, listener); return exports.codepulse; },
 	once: function(event, listener) { if (checkNewCPEvent(event, listener)) cpEvent.once(event, listener); return exports.codepulse; },
 	removeListener: function(event, listener) { cpEvent.removeListener(event, listener); return exports.codepulse; }
 };
-
-startCodePulse();
 
 function checkWindowClose(window, cb) {
 	if (cpUrl) {
