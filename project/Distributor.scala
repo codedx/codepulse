@@ -26,7 +26,7 @@ import com.earldouglas.xsbtwebplugin.PluginKeys._
 import sbt.classpath.ClasspathUtilities
 import Project.Initialize
 
-import sbtassembly.AssemblyKeys.assembly
+import sbtassembly.AssemblyPlugin.autoImport.assembly
 
 import java.nio.file.{ Files, StandardCopyOption }
 

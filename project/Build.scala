@@ -29,7 +29,7 @@ import com.earldouglas.xsbtwebplugin._
 	import WebappPlugin._
 import Distributor.{ Keys => DistribKeys, distribSettings }
 import sbtassembly.AssemblyPlugin._
-import sbtassembly.AssemblyKeys._
+import sbtassembly.AssemblyPlugin.autoImport._
 
 object BuildDef extends Build with VersionSystem {
 
