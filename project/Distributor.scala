@@ -120,8 +120,8 @@ object Distributor extends BuildExtra {
 				.to { _ / "distrib-dependencies" / "osx" / "nwjs" }
 		}
 
-		val jetty = Dependency("jetty", "9.3.0-v20150612", "http://mirrors.xmission.com/eclipse/jetty/stable-9/dist/jetty-distribution-9.3.3.v20150827.zip")
-			.extractAsZip { raw"^\Qjetty-distribution-9.3.0.v20150612\E/".r.replaceFirstIn(_, "") }
+		val jetty = Dependency("jetty", "9.3.3.v20150827", "http://mirrors.xmission.com/eclipse/jetty/stable-9/dist/jetty-distribution-9.3.3.v20150827.zip")
+			.extractAsZip { raw"^\Qjetty-distribution-9.3.3.v20150827\E/".r.replaceFirstIn(_, "") }
 			.to { _ / "distrib-dependencies" / "common" / "jetty" }
 
 		object tools {
