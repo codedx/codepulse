@@ -13,3 +13,7 @@ cache:
 notifications:
   email:
     - secure: "aDwZadE/ASndUUzim4Dfd4M8Jhymj9u1Gau+XDTckPRTp79a/gpuwwxvDWDDuZzz3/Gr9d7MCZI+nB55jog+B3jZAWsW5qfdhqanRj9EtlYmhsSQAGmxu91a/8QbzPEgNV/ttQkZFz0jVnfvyGbRF+aEXV2tVyqRADzSrdX6+mE="
+  slack:
+    rooms:
+      - secure: "P5cOUwnidKIPYLGUEHW3SZC7oNsdUWwGYV8ELwHOs2sNWjPwUDXsGYEW5IVMJWXHJwqyKvwZ2Ik8Z3vu2zdJj7H4SW6tNxw4Q48Z51qX5h5oce3/5VW78DumRjay/1WwBW0IUOdpgvA6RtPWvt7EmaHY2dvlYZ9wRe4URV2e1j0="
+    on_success: change
