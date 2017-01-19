@@ -220,9 +220,9 @@ object Distributor extends BuildExtra {
 
 			platform match {
 				case "win32" | "win64" =>
-					// on windows, we need nw.pak, icudt.dll, rename nw.exe -> codepulse.exe, libEGL/libGLES and the d3d DLLs
 					val inclusions = Set(
-						"d3dcompiler_47.dll", "icudtl.dat", "libEGL.dll", "libGLESv2.dll", "nw.pak"
+						"d3dcompiler_47.dll", "ffmpeg.dll", "icudtl.dat", "libEGL.dll", "libGLESv2.dll", "natives_blob.bin",
+						"node.dll", "nw_100_percent.pak", "nw_200_percent.pak", "nw_elf.dll", "nw.dll", "resources.pak"
 					).map { inc => s"$root/$inc" }
 
 					nwkFiles flatMap {
@@ -253,6 +253,7 @@ object Distributor extends BuildExtra {
 							Some(ZipEntry(customizedFile, s"$root/codepulse.exe", mode))
 
 						case e @ ZipEntry(_, path, _) if inclusions contains path => Some(e)
+						case e @ ZipEntry(_, path, _) if path startsWith s"$root/locales/" => Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
@@ -309,10 +310,15 @@ object Distributor extends BuildExtra {
 					}
 
 				case "linux-x86" | "linux-x64" =>
-					// on linux, just keep nw and nw.pak. we don't need media features, so we can skip libffmpegsumo.so
+					val inclusions = Set(
+						"lib/libffmpeg.so", "lib/libnode.so", "lib/libnw.so",
+						"icudtl.dat", "natives_blob.bin", "nw_100_percent.pak", "nw_200_percent.pak", "resources.pak"
+					).map { inc => s"$root/$inc" }
+
 					nwkFiles flatMap {
 						case ZipEntry(file, path, _) if path == s"$root/nw" => Some(ZipEntry(file, s"$root/codepulse", ExecutableType.Unix.mode)) // executable
-						case e @ ZipEntry(_, path, _) if path == s"$root/nw.pak" || path == s"$root/icudtl.dat" => Some(e)
+						case e @ ZipEntry(_, path, _) if inclusions contains path => Some(e)
+						case e @ ZipEntry(_, path, _) if path startsWith s"$root/locales/" => Some(e)
 
 						case ZipEntry(_, path, _) if path endsWith "/" => None // silent
 						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
