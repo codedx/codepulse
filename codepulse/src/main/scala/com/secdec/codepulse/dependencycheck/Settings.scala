@@ -23,7 +23,7 @@ import java.io.File
 
 import org.apache.commons.io.IOUtils
 import org.owasp.dependencycheck.reporting.ReportGenerator.{ Format => DCReportFormat }
-import org.owasp.dependencycheck.utils.{ LogUtils, Settings => DepCheckSettings }
+import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.paths
@@ -50,7 +50,7 @@ case class Settings(
 		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_JAR_ENABLED, true)
 		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_ARCHIVE_ENABLED, true)
 		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_ENABLED, true)
-		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_PROXY, false)
+		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_USES_PROXY, false)
 	}
 }
 

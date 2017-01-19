@@ -28,7 +28,7 @@ import org.owasp.dependencycheck.data.nvdcve._
 import org.owasp.dependencycheck.data.update.UpdateService
 import org.owasp.dependencycheck.dependency.Dependency
 import org.owasp.dependencycheck.reporting.ReportGenerator
-import org.owasp.dependencycheck.utils.{ LogUtils, Settings => DepCheckSettings }
+import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 sealed trait DependencyCheckStatus
 sealed trait TransientDependencyCheckStatus extends DependencyCheckStatus

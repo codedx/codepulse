@@ -66,30 +66,30 @@ object Distributor extends BuildExtra {
 	object dependencies {
 		object java {
 			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-			private val trimPathRegex = raw"^\Qjre1.8.0_45\E(?:\.jre)?/".r
+			private val trimPathRegex = raw"^\Qjre1.8.0_121\E(?:\.jre)?/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win32 = Dependency("jre.win32", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b15/jre-8u45-windows-i586.tar.gz")
+			val win32 = Dependency("jre.win32", "8u121", "http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-windows-i586.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "win32" / "jre" }
 
-			val win64 = Dependency("jre.win64", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b15/jre-8u45-windows-x64.tar.gz")
+			val win64 = Dependency("jre.win64", "8u121", "http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-windows-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "win64" / "jre" }
 
-			val linuxX86 = Dependency("jre.linux-x86", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-linux-i586.tar.gz")
+			val linuxX86 = Dependency("jre.linux-x86", "8u121", "http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-linux-i586.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x86" / "jre" }
 
-			val linuxX64 = Dependency("jre.linux-x64", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-linux-x64.tar.gz")
+			val linuxX64 = Dependency("jre.linux-x64", "8u121", "http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-linux-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x64" / "jre" }
 
-			val osx = Dependency("jre.osx", "8u45", "http://download.oracle.com/otn-pub/java/jdk/8u45-b14/jre-8u45-macosx-x64.tar.gz")
+			val osx = Dependency("jre.osx", "8u121", "http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jre-8u121-macosx-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "osx" / "jre" }
@@ -99,29 +99,30 @@ object Distributor extends BuildExtra {
 			private val trimPathRegex = raw"^nwjs-[^/]+/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win32 = Dependency("nwjs.win32", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-win-ia32.zip")
+			val win32 = Dependency("nwjs.win32", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-win-ia32.zip")
 				.extractAsZip { trimPath }
 				.to { _ / "distrib-dependencies" / "win32" / "nwjs" }
 
-			val win64 = Dependency("nwjs.win64", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-win-x64.zip")
+			val win64 = Dependency("nwjs.win64", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-win-x64.zip")
 				.extractAsZip { trimPath }
 				.to { _ / "distrib-dependencies" / "win64" / "nwjs" }
 
-			val linuxX86 = Dependency("nwjs.linux-x86", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-linux-ia32.tar.gz")
+			val linuxX86 = Dependency("nwjs.linux-x86", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-linux-ia32.tar.gz")
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x86" / "nwjs" }
 
-			val linuxX64 = Dependency("nwjs.linux-x64", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-linux-x64.tar.gz")
+			val linuxX64 = Dependency("nwjs.linux-x64", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-linux-x64.tar.gz")
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x64" / "nwjs" }
 
-			val osx = Dependency("nwjs.osx", "v0.12.2", "http://dl.nwjs.io/v0.12.2/nwjs-v0.12.2-osx-x64.zip")
+			val osx = Dependency("nwjs.osx", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-osx-x64.zip")
 				.extractAsZip { trimPath }
 				.to { _ / "distrib-dependencies" / "osx" / "nwjs" }
 		}
 
-		val jetty = Dependency("jetty", "9.3.3.v20150827", "http://mirrors.xmission.com/eclipse/jetty/stable-9/dist/jetty-distribution-9.3.3.v20150827.zip")
-			.extractAsZip { raw"^\Qjetty-distribution-9.3.3.v20150827\E/".r.replaceFirstIn(_, "") }
+
+		val jetty = Dependency("jetty", "9.3.15.v20161220", "http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.3.15.v20161220/jetty-distribution-9.3.15.v20161220.zip")
+			.extractAsZip { raw"^\Qjetty-distribution-9.3.15.v20161220\E/".r.replaceFirstIn(_, "") }
 			.to { _ / "distrib-dependencies" / "common" / "jetty" }
 
 		object tools {
@@ -262,7 +263,7 @@ object Distributor extends BuildExtra {
 					def rewritePath(path: String) = s"$root/Code Pulse.app" + path.stripPrefix(s"$root/nwjs.app")
 
 					nwkFiles flatMap {
-						case ZipEntry(_, path, mode) if path == s"$root/nwjs.app/Contents/Resources/nw.icns" =>
+						case ZipEntry(_, path, mode) if path == s"$root/nwjs.app/Contents/Resources/app.icns" =>
 							// swap in our icon
 							val icns = app / "app" / "icon.icns"
 							Some(ZipEntry(icns, rewritePath(path), mode))
@@ -297,6 +298,8 @@ object Distributor extends BuildExtra {
 							}
 
 							Some(ZipEntry(customizedInfo, rewritePath(path), mode))
+
+						case ZipEntry(_, path, _) if path matches raw"$root/nwjs\.app/Contents/Resources/\w+\.lproj(?:/.*|$$)" => log.info(s"Excluding localization: $path"); None
 
 						case ZipEntry(file, path, mode) if path startsWith s"$root/nwjs.app" =>
 							Some(ZipEntry(file, rewritePath(path), mode))

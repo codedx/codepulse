@@ -259,11 +259,10 @@ exports.registerMainWindow = function(window) {
 // (since port number changes, so we're on a different origin every time, and therefore receive a
 // different localStorage)
 function initStorage() {
-	var gui = global.window.nwDispatcher.requireNwGui(),
-		path = require('path'), fs = require('fs');
+	var path = require('path'), fs = require('fs');
 
 	var storage = {},
-		storeFile = path.join(gui.App.dataPath, 'storage.json');
+		storeFile = path.join(nw.App.dataPath, 'storage.json');
 
 	function loadStorage() {
 		try {
