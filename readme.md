@@ -4,7 +4,7 @@ Code Pulse is a code coverage tool that works on running programs in real time. 
 
 <sub>[![Build Status](https://travis-ci.org/secdec/codepulse.svg?branch=master)](https://travis-ci.org/secdec/codepulse)</sub> (master branch)
 
-##Layout
+## Layout
 
 **codepulse/** Contains the web app source.
 
@@ -12,13 +12,13 @@ Code Pulse is a code coverage tool that works on running programs in real time. 
 
 **project/** Contains the SBT build definition.
 
-##Setup
+## Setup
 
  - Run SBT from this directory. Run `container:start` to start the webserver on [localhost:8080](http://localhost:8080)
  - Eclipse Users:
   - Within SBT, run `eclipse` to generate Eclipse project files.
   - In Eclipse, import the generated projects to your workspace.
 
-##License
+## License
 
 Code Pulse is made available under the terms of the Apache License 2.0. See the LICENSE file that accompanies this distribution for the full text of the license.
