@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.message;
+package com.codedx.codepulse.agent.common.message;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -25,9 +25,9 @@ import java.io.IOException;
 /**
  * Defines the behavior of an object that can write messages to a
  * {@link DataOutputStream} according to the Message Protocol Specification.
- * 
+ *
  * @author dylanh
- * 
+ *
  */
 public interface MessageProtocol
 {

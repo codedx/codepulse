@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.queue;
+package com.codedx.codepulse.agent.common.queue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -28,7 +28,7 @@ import java.io.OutputStream;
  * OutputStream decorator for ByteArrayOutputStream. It provides all of the
  * conveniences of a DataOutputStream, along with the ability to reset the
  * buffer and dump it to another stream.
- * 
+ *
  * @author dylanh
  */
 public class DataBufferOutputStream extends DataOutputStream
@@ -38,7 +38,7 @@ public class DataBufferOutputStream extends DataOutputStream
 
 	/**
 	 * Initialize this DataBuffer with an underlying ByteArrayOutputStream.
-	 * 
+	 *
 	 * @param underlying
 	 */
 	public DataBufferOutputStream(ByteArrayOutputStream underlying)
@@ -54,7 +54,7 @@ public class DataBufferOutputStream extends DataOutputStream
 
 	/**
 	 * Delegates to <code>underlying.writeTo(...)</code>
-	 * 
+	 *
 	 * @param out
 	 * @throws IOException
 	 */

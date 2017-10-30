@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.message;
+package com.codedx.codepulse.agent.common.message;
 
 /**
  * Defines the byte constants for message headers for message protocol version
  * 1.
- * 
+ *
  * @author dylanh
  */
 public class MessageConstantsV1

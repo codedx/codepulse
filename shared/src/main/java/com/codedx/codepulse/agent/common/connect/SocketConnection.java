@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.connect;
+package com.codedx.codepulse.agent.common.connect;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

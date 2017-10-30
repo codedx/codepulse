@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.queue;
+package com.codedx.codepulse.agent.common.queue;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A BlockingQueue implementation backed by ConcurrentLinkedQueue.
  * @author RobertF
- * 
+ *
  * @param <E>
  */
 public class ConcurrentLinkedBlockingQueue<E> implements BlockingQueue<E>

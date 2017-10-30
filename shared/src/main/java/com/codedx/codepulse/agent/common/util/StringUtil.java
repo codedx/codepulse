@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.util;
+package com.codedx.codepulse.agent.common.util;
 
 import java.util.Iterator;
 
@@ -29,7 +29,7 @@ public class StringUtil
 
 	/**
 	 * Just like mkString in Scala.
-	 * 
+	 *
 	 * @param items
 	 * @param start
 	 * @param between
@@ -65,7 +65,7 @@ public class StringUtil
 
 	/**
 	 * Just like mkString in Scala.
-	 * 
+	 *
 	 * @param items
 	 * @param between
 	 * @return

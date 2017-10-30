@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.queue;
+package com.codedx.codepulse.agent.common.queue;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
@@ -29,7 +29,7 @@ import java.util.concurrent.Semaphore;
  * a buffer for reading will have different internal behavior than acquiring a
  * buffer for writing, but each operation will block until a buffer is
  * available, or until the current thread is interrupted.
- * 
+ *
  * Internally, a BufferPool uses three {@link ConcurrentLinkedQueue}s, with a
  * {@link Semaphore} to control access. Using this approach, the pool achieves
  * high availability, even for a large number of producer and consumer threads.
@@ -53,7 +53,7 @@ public class BufferPool
 	/**
 	 * Constructs a new BufferPool with the given number of initially-empty
 	 * buffers, where each buffer has a specified length.
-	 * 
+	 *
 	 * In terms of memory consumption, a soft-limit is set on the number of
 	 * bytes allocated by this BufferPool, equal to
 	 * <code>numBuffers * bufferLengthHint</code>. Once any given buffer reaches
@@ -64,7 +64,7 @@ public class BufferPool
 	 * thread adds a large number of bytes to that buffer before releasing it.
 	 * Because of this, client code is encouraged to write data in relatively
 	 * small chunks of less than 10% of the bufferLength at a time.
-	 * 
+	 *
 	 * @param numBuffers The number of initially-empty buffers. Note that the
 	 *            number of buffers given will directly limit the number of
 	 *            threads that may access the pool concurrently.
@@ -103,7 +103,7 @@ public class BufferPool
 	 * <code>bufferLengthHint</code> that was given at constructor time. If no
 	 * buffers are currently available, this method will continue retrying until
 	 * one becomes available, or the thread is interrupted.
-	 * 
+	 *
 	 * @return A new Buffer from the pool, ready to have new data written to it.
 	 *         If writes are disabled, this method will return null.
 	 * @throws InterruptedException if the thread is interrupted while waiting

@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.config;
+package com.codedx.codepulse.agent.common.config;
 
 import java.util.Properties;
 
 /**
  * Static configuration for Agent.
- * 
+ *
  * @author RobertF
  */
 public class StaticAgentConfiguration
@@ -34,10 +34,10 @@ public class StaticAgentConfiguration
 	 * Parses an options string, expected to be in the form
 	 * <code>host:port;key=value;key2=value2;...</code> or
 	 * <code>host:port;logfile</code> (provided for backward compatibility).
-	 * 
+	 *
 	 * Recognized configuration keys are log (for the agent log file) and
 	 * connectTimeout (to control the timeout when attempting to connect to HQ).
-	 * 
+	 *
 	 * @param options
 	 * @return A new configuration instance on success. <code>null</code> on
 	 *         failure.

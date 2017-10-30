@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.config;
+package com.codedx.codepulse.agent.common.config;
 
 import java.io.Serializable;
 import java.util.List;
 
-import com.secdec.bytefrog.common.util.StringUtil;
+import com.codedx.codepulse.agent.common.util.StringUtil;
 
 public class RuntimeAgentConfigurationV1 implements Serializable
 {

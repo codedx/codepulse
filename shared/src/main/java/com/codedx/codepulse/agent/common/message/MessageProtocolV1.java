@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.common.message;
+package com.codedx.codepulse.agent.common.message;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
