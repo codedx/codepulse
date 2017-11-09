@@ -19,18 +19,9 @@
 
 package com.secdec.codepulse.util
 
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
-
-import scala.collection.JavaConversions._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import java.io.{ BufferedInputStream, File, FileInputStream, InputStream }
+import java.util.zip.{ ZipEntry, ZipFile, ZipInputStream }
+import scala.util.{ Failure, Success, Try }
 
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.input.CloseShieldInputStream
@@ -61,7 +52,7 @@ trait ZipEntryChecker {
 	}
 
 	def isZip(name: String): Boolean = FilenameUtils.getExtension(name) match {
-		case "zip" | "jar" | "war" => true
+		case "zip" | "ear" | "jar" | "war" => true
 		case _ => false
 	}
 
@@ -93,6 +84,35 @@ trait ZipEntryChecker {
 			forEachEntry(file.getName, stream, recursive)(callback)
 		} finally {
 			stream.close
+		}
+	}
+
+	def findFirstEntry(file: File, recursive: Boolean = true)(callback: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+		val stream = new BufferedInputStream(new FileInputStream(file))
+
+		try {
+			findFirstEntry(file.getName, stream, recursive)(callback)
+		} finally {
+			stream.close
+		}
+	}
+
+	def findFirstEntry(filename: String, stream: InputStream, recursive: Boolean)(callback: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+		val zipStream = new ZipInputStream(stream)
+
+		try {
+			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
+				.map(_.toOption.flatMap { Option(_) })
+		    	.takeWhile(_.isDefined)
+			    .flatten
+		    	.filterNot(ZipCleaner.shouldFilter)
+
+			entryStream.exists(entry =>
+				callback(filename, entry, zipStream)
+				||(recursive && isZip(entry.getName) && findFirstEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(callback))
+			)
+		} finally {
+			zipStream.close
 		}
 	}
 }
