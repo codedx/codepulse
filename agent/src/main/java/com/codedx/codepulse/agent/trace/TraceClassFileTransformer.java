@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.codedx.bytefrog.thirdparty.minlog.Log;
+
 /**
  * Transformer for instrumenting class files with trace calls.
  * @author RobertF
@@ -106,20 +108,22 @@ public class TraceClassFileTransformer implements ClassFileTransformer
 			ProtectionDomain protectionDomain, byte[] classfileBuffer)
 			throws IllegalClassFormatException
 	{
+		boolean enableTracing = true;
+
 		// Any excluded classes should not be transformed.
 		if (shouldExclude(className))
 		{
 			classTransformationListener.classIgnored(className, loader);
-			return null; // no transformation
+			enableTracing = false; // no transformation
 		}
 
 		// If loader is null, the class was loaded by the bootstrap class
 		// loader, which means it probably isn't a class we'll want to rewrite
 		// (java/javax/etc)
-		if (loader == null)
+		else if (loader == null)
 		{
 			classTransformationListener.classIgnored(className, loader);
-			return null;
+			enableTracing = false;
 		}
 
 		// Keep track of all known ClassLoaders.
@@ -128,35 +132,36 @@ public class TraceClassFileTransformer implements ClassFileTransformer
 		// cannot find Trace, then that Class can't be instrumented.
 
 		// If this is the first time we've seen this loader, do checks...
-		if (!knownClassLoaders.contains(loader))
+		if (enableTracing && !knownClassLoaders.contains(loader))
 		{
 			knownClassLoaders.add(loader);
 
-			if (!instrumentor.isAvailable(loader))
+			if (!instrumentor.isTracingAvailable(loader))
 				failedClassLoaders.add(loader);
 		}
 
 		// If the current class belongs to a "failed" loader, we can't
 		// instrument it.
-		if (failedClassLoaders.contains(loader))
+		if (enableTracing && failedClassLoaders.contains(loader))
 		{
 			classTransformationListener.classTransformFailed(className, loader, null,
 					"Cannot instrument class. Cannot access Trace class.");
-			return null;
+			enableTracing = false;
 		}
 
 		try
 		{
-			byte[] bytes = instrumentor.instrument(loader, className, classfileBuffer);
+			byte[] bytes = instrumentor.instrument(loader, className, classfileBuffer, enableTracing);
 
-			classTransformationListener.classTransformed(className, loader);
+			if (enableTracing) classTransformationListener.classTransformed(className, loader);
 
 			return bytes;
 		}
 		catch (Throwable t)
 		{
+			Log.error("trace class transformer", "error instrumenting class", t);
 			t.printStackTrace();
-			classTransformationListener.classTransformFailed(className, loader, t,
+			if (enableTracing) classTransformationListener.classTransformFailed(className, loader, t,
 					"Error during bytecode instrumentation");
 			return null;
 		}

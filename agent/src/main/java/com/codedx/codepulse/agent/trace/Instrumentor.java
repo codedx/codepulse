@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.codedx.bytefrog.filterinjector.FilterInjector;
+import com.codedx.bytefrog.filterinjector.adapters.Adapter;
+import com.codedx.bytefrog.filterinjector.filter.ParameterlessFilter;
+
 import com.codedx.bytefrog.instrumentation.*;
 import com.codedx.bytefrog.instrumentation.id.*;
 import com.codedx.bytefrog.instrumentation.handler.*;
@@ -17,7 +21,8 @@ import com.codedx.bytefrog.thirdparty.asm.Type;
 
 import com.codedx.bytefrog.thirdparty.minlog.Log;
 
-/** The main glue for instrumenting a class.
+/** The main glue for instrumentation (including tracing and servlet container filter injection).
+  *
   * @author robertf
   */
 public class Instrumentor {
@@ -26,6 +31,14 @@ public class Instrumentor {
 	private final ClassIdentifier classIdentifier;
 	private final MethodIdentifier methodIdentifier;
 	private final File instrumentedDumpTarget;
+
+	private final FilterInjector filterInjector = new FilterInjector(
+		new ParameterlessFilter(
+			Type.getObjectType("com/codedx/codepulse/agent/trace/TraceFilter"),
+			"com.codedx.codepulse-TraceFilter",
+			"Code Pulse Trace Filter"
+		)
+	);
 
 	private final TraceHandler handler = new StandardTraceHandler(
 		TRACE_CLASS
@@ -45,28 +58,42 @@ public class Instrumentor {
 	/** Checks whether or not trace data can be collected within a given classloader (i.e., if the
 	  * trace collector class exists in the class loader).
 	  */
-	public boolean isAvailable(ClassLoader loader) {
+	public boolean isTracingAvailable(ClassLoader loader) {
 		return ClassLoaderUtil.isAvailable(loader, TRACE_CLASS.getClassName());
 	}
 
-	/** Instrument a class for tracing.
+	/** Instrument a class.
 	  * @param loader the ClassLoader being used to load the class
 	  * @param className the name of the class being instrumented
 	  * @param cr the ClassReader to read the class to be instrumented
+	  * @param enableTracing if true, the class will be instrumented for tracing, otherwise, only
+	  * 	filter injection will be applied
 	  * @returns a byte array containing the instrumented version of the class
 	  */
-	public byte[] instrument(final ClassLoader classLoader, final String className, final ClassReader cr) {
-		final ClassInspector inspector = new ClassInspector();
-		cr.accept(inspector, 0);
-
-		final ClassInspector.Result inspection = inspector.getResult();
-		final int classId = classIdentifier.record(className, inspection.getFileName());
+	public byte[] instrument(final ClassLoader classLoader, final String className, final ClassReader cr, boolean enableTracing) {
+		final Adapter filterInjectorAdapter = filterInjector.getAdapter(classLoader, cr);
 
 		final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		final ClassVisitor cv = cw;
+		final ClassVisitor filterInjectorVisitor = filterInjectorAdapter != null ? filterInjectorAdapter.getClassVisitor(classLoader, cw) : null;
 
-		final ClassInstrumentor ci = new ClassInstrumentor(cv, methodIdentifier, classId, inspection, handler);
-		cr.accept(ci, ClassReader.EXPAND_FRAMES);
+		if (enableTracing)
+		{
+			final ClassInspector inspector = new ClassInspector();
+			cr.accept(inspector, 0);
+
+			final ClassInspector.Result inspection = inspector.getResult();
+			final int classId = classIdentifier.record(className, inspection.getFileName());
+
+			final ClassInstrumentor ci = new ClassInstrumentor(filterInjectorVisitor != null ? filterInjectorVisitor : cw, methodIdentifier, classId, inspection, handler);
+			cr.accept(ci, ClassReader.EXPAND_FRAMES);
+		}
+		else
+		{
+			if (filterInjectorVisitor != null)
+				cr.accept(filterInjectorVisitor, 0);
+			else
+				return null;
+		}
 
 		if (instrumentedDumpTarget != null) {
 			Log.trace("instrumentor", String.format("dumping class %s to %s", className, instrumentedDumpTarget.getPath()));
@@ -84,12 +111,14 @@ public class Instrumentor {
 		return cw.toByteArray();
 	}
 
-	/** Instrument a class for tracing.
+	/** Instrument a class.
 	  * @param className the name of the class being instrumented
 	  * @param buffer the byte array containing the class to be instrumented
+	  * @param enableTracing if true, the class will be instrumented for tracing, otherwise, only
+	  * 	filter injection will be applied
 	  * @returns a byte array containing the instrumented version of the class
 	  */
-	public byte[] instrument(final ClassLoader classLoader, final String className, final byte[] buffer) {
-		return instrument(classLoader, className, new ClassReader(buffer));
+	public byte[] instrument(final ClassLoader classLoader, final String className, final byte[] buffer, boolean enableTracing) {
+		return instrument(classLoader, className, new ClassReader(buffer), enableTracing);
 	}
 }
