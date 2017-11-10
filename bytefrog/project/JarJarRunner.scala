@@ -27,7 +27,7 @@ object JarJarRunner {
 	val jarjar = settingKey[File]("The location of jarjar.jar")
 
 	def globalSettings = Seq(
-		jarjar in Global := file("./project/utils/jarjar.jar")
+		jarjar in Global := baseDirectory.value / "project" / "utils" / "jarjar.jar"
 	)
 
 	def asTask(javaHome: SettingKey[Option[File]]): Def.Initialize[Task[JarJarRunner]] = Def.task {
