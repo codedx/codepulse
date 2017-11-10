@@ -1,8 +1,7 @@
-/*
- * bytefrog: a tracing framework for the JVM. For more information
- * see http://code-pulse.com/bytefrog
+/* bytefrog: a tracing instrumentation toolset for the JVM. For more information, see
+ * <https://github.com/codedx/bytefrog>
  *
- * Copyright (C) 2014 Applied Visions - http://securedecisions.avi.com
+ * Copyright (C) 2014-2017 Code Dx, Inc. <https://codedx.com/>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

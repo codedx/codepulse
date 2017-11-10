@@ -1,8 +1,6 @@
-/*
- * bytefrog: a tracing framework for the JVM. For more information
- * see http://code-pulse.com/bytefrog
+/* Code Pulse: a real-time code coverage tool, for more information, see <http://code-pulse.com/>
  *
- * Copyright (C) 2014 Applied Visions - http://securedecisions.avi.com
+ * Copyright (C) 2014-2017 Code Dx, Inc. <https://codedx.com/>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +24,10 @@ import java.io.IOException;
  * here is that we never see the child constructor call, as we cannot wrap the
  * super call. We won't see the exception throw or bubble either, unless the
  * super class is also traced.
- * 
+ *
  * See 'Lost exceptions in constructor super calls' at
  * https://trello.com/c/qy9QuivT for more explanation
- * 
+ *
  * @author RobertF
  */
 public class SuperConstructorThrowTest
