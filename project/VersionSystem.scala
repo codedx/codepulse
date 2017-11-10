@@ -22,18 +22,17 @@ import Keys._
 import sbt.Defaults.forDependencies
 import BuildKeys._
 
-trait VersionSystem {
+object VersionSystem {
 	/** Add these settings to a project to generate EditionVersion.scala */
 	def versionSettings: Seq[Setting[_]] = Seq(versionGeneratorSetting)
 
 	private val versionGeneratorSetting = {
-		resourceGenerators in Compile <+= (resourceManaged in Compile, version, releaseDate) map { (resources, version, date) =>
-			val versionFile = resources / "version.properties"
+		(resourceGenerators in Compile) += Def.task {
+			val versionFile = (resourceManaged in Compile).value / "version.properties"
 
 			val versionFileContents =
-			"""|version=%s
-			   |releaseDate=%s
-			""".stripMargin.format(version, date)
+			s"""|version=${version.value}
+			    |releaseDate=${releaseDate.value}""".stripMargin
 
 			IO.write(versionFile, versionFileContents)
 

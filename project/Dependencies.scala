@@ -28,10 +28,10 @@ object Dependencies {
 	lazy val logback = "ch.qos.logback" % "logback-classic" % "0.9.26" % "compile->default"
 	lazy val slf4j = "org.slf4j" % "jcl-over-slf4j" % "1.6.4"
 
-	// testing
-	lazy val junit = "junit" % "junit" % "4.5" % "test->default"
-	lazy val specs = "org.scala-tools.testing" % "specs_2.9.0" % "1.6.8" % "test"
-	lazy val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+	// for testing
+	lazy val scalactic = "org.scalactic" %% "scalactic" % "3.0.4" % Test
+	lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
+	lazy val scalaMock = "org.scalamock" %% "scalamock" % "4.0.0" % Test
 
 	// extra libraries
 	lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.2.3"

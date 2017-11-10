@@ -57,7 +57,8 @@ package object codepulse {
 		}
 
 		lazy val number = versionInfo.version
-		lazy val date = new SimpleDateFormat("M/d/yyyy").parse(versionInfo.releaseDate)
+		lazy val date = Try { new SimpleDateFormat("M/d/yyyy").parse(versionInfo.releaseDate) }.toOption
+		lazy val dateRaw = versionInfo.releaseDate
 	}
 
 	object paths {
