@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.config
+package com.codedx.codepulse.hq.config
 
-import com.secdec.bytefrog.hq.util.NumberUnits._
+import com.codedx.codepulse.hq.util.NumberUnits._
 
 case class MonitorConfiguration(
 	dumpSizeWarning: Long = 4.gigabytes,

@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.DataInputStream
 import java.io.EOFException
 import java.io.IOException
 
-import com.secdec.bytefrog.common.message.MessageConstantsV1._
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1._
 import IO.{ Input, Data, EOF, Error }
 
 /** Convenient singleton version of the DataMessageParserV1 class */

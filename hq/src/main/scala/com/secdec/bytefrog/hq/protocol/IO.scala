@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 /** Container for some IO-related data types.
   */

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.DataInputStream
 

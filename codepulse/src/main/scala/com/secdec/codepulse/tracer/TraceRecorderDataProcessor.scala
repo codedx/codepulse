@@ -19,8 +19,8 @@
 
 package com.secdec.codepulse.tracer
 
-import com.secdec.bytefrog.hq.data.processing.DataProcessor
-import com.secdec.bytefrog.hq.protocol.DataMessageContent
+import com.codedx.codepulse.hq.data.processing.DataProcessor
+import com.codedx.codepulse.hq.protocol.DataMessageContent
 import com.secdec.codepulse.data.MethodSignature
 import com.secdec.codepulse.data.MethodSignatureParser
 import com.secdec.codepulse.data.model.ProjectData

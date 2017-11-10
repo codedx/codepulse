@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.trace
+package com.codedx.codepulse.hq.trace
 
-import com.secdec.bytefrog.hq.data.processing.DataRouter
+import com.codedx.codepulse.hq.data.processing.DataRouter
 
 /** Indirectly tells the trace where to put its data. Segments go through
   * a different code path than regular data, so there are two setup methods.

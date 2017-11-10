@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.util
+package com.codedx.codepulse.hq.util
 
 /** Mixin for creating threads that run a semi-infinite loop. Implementors can choose to
   * override `preLoop` and `postLoop`. Implement `doLoop` to perform a single iteration

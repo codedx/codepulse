@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.DataInputStream
 import java.io.EOFException
 import java.io.IOException
 import java.net.SocketException
 
-import com.secdec.bytefrog.common.message.AgentOperationMode
-import com.secdec.bytefrog.common.message.MessageConstantsV1
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1
 
 /** Convenient singleton instance of the ControlMessageReaderV1 class.
   * This is okay to do because the ControlMessageReaderV1 class doesn't

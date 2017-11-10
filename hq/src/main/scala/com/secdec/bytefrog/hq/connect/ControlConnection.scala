@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect
+package com.codedx.codepulse.hq.connect
 
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.hq.protocol._
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.hq.protocol._
 
 /** Represents a connection between HQ and an Agent, to be used for sending
   * and receiving control messages. The underlying connection and control

@@ -19,16 +19,16 @@
 
 package com.secdec.codepulse.tracer
 
-import com.secdec.bytefrog.hq.connect.SocketServer
-import com.secdec.bytefrog.hq.config.AgentConfiguration
-import com.secdec.bytefrog.hq.config.HQConfiguration
-import com.secdec.bytefrog.hq.config.MonitorConfiguration
-import com.secdec.bytefrog.hq.trace.Trace
+import com.codedx.codepulse.hq.connect.SocketServer
+import com.codedx.codepulse.hq.config.AgentConfiguration
+import com.codedx.codepulse.hq.config.HQConfiguration
+import com.codedx.codepulse.hq.config.MonitorConfiguration
+import com.codedx.codepulse.hq.trace.Trace
 import net.liftweb.http.LiftRules
 import bootstrap.liftweb.AppCleanup
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
-import com.secdec.bytefrog.hq.config.TraceSettings
+import com.codedx.codepulse.hq.config.TraceSettings
 
 object TraceServer {
 

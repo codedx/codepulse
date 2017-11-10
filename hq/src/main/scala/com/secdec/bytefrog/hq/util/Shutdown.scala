@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.util
+package com.codedx.codepulse.hq.util
 
 trait Shutdown {
 	def shutdown: Unit

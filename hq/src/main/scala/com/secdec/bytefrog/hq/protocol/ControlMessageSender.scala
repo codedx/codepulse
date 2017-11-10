@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.DataOutputStream
 
-import com.secdec.bytefrog.common.connect.Connection
+import com.codedx.codepulse.agent.common.connect.Connection
 
 /** A Trait that describes an object that can send ControlMessages to a connection.
   *

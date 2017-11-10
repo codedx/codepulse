@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.monitor
+package com.codedx.codepulse.hq.monitor
 
-import com.secdec.bytefrog.hq.data.processing.DataRouter
+import com.codedx.codepulse.hq.data.processing.DataRouter
 
 /** Gives the current number of processed events and processing event rate */
 case class DataRouterMonitorData(eventsProcessed: Long, currentRate: Integer, timestamp: Long)

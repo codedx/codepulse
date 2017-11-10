@@ -17,19 +17,19 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.agent.test
+package com.codedx.codepulse.hq.agent.test
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.FunSpec
 import org.scalatest.matchers.ShouldMatchers
 
 import com.secdec.bytefrog.common.message.AgentOperationMode
-import com.secdec.bytefrog.hq.agent.AgentState
-import com.secdec.bytefrog.hq.agent.AgentStateCommand
-import com.secdec.bytefrog.hq.agent.AgentStateManager
-import com.secdec.bytefrog.hq.errors.TraceErrorController
-import com.secdec.bytefrog.hq.protocol.ControlMessage
-import com.secdec.bytefrog.hq.testutil.MockedSendingHelpers
+import com.codedx.codepulse.hq.agent.AgentState
+import com.codedx.codepulse.hq.agent.AgentStateCommand
+import com.codedx.codepulse.hq.agent.AgentStateManager
+import com.codedx.codepulse.hq.errors.TraceErrorController
+import com.codedx.codepulse.hq.protocol.ControlMessage
+import com.codedx.codepulse.hq.testutil.MockedSendingHelpers
 
 class AgentStateManagerSpec extends FunSpec with MockFactory with ShouldMatchers with MockedSendingHelpers {
 

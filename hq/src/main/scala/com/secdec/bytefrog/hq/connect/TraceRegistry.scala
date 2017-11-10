@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect
+package com.codedx.codepulse.hq.connect
 
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.ref.WeakReference
 
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
-import com.secdec.bytefrog.hq.trace.Trace
-import com.secdec.bytefrog.hq.util.WeakMap
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.hq.trace.Trace
+import com.codedx.codepulse.hq.util.WeakMap
 
 object TraceRegistry extends TraceRegistry
 

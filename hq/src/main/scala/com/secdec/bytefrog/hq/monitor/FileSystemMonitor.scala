@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.monitor
+package com.codedx.codepulse.hq.monitor
 
 import java.io.File
 import java.nio.file.FileSystems

@@ -17,16 +17,16 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect
+package com.codedx.codepulse.hq.connect
 
 import java.util.concurrent.LinkedBlockingQueue
 
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.hq.protocol.ControlMessage
-import com.secdec.bytefrog.hq.protocol.ControlMessageSender
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.hq.protocol.ControlMessage
+import com.codedx.codepulse.hq.protocol.ControlMessageSender
 
 object TraceControlConnector extends TraceControlConnector
 
@@ -46,7 +46,7 @@ trait TraceControlConnector {
 	}
 
 	def addControlConnection(cc: ControlConnection): Option[ControlMessage.Configuration[_]] = {
-		// check the connections callback queue. 
+		// check the connections callback queue.
 		// `.poll` will return null immediately if nothing is available
 		Option { awaitingConnectionsQueue.poll } match {
 

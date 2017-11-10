@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -26,7 +26,7 @@ import java.io.IOException
 import java.net.SocketException
 import scala.annotation.tailrec
 
-import com.secdec.bytefrog.common.message.MessageConstantsV1
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1
 
 class DataEventReaderV1 extends DataEventReader {
 

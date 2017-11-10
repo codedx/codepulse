@@ -17,18 +17,18 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.trace
+package com.codedx.codepulse.hq.trace
 
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 import scala.collection.mutable.HashMap
 
-import com.secdec.bytefrog.hq.monitor.HealthMonitor
-import com.secdec.bytefrog.hq.monitor.TraceComponent
-import com.secdec.bytefrog.hq.monitor.TraceComponentHealth
-import com.secdec.bytefrog.hq.monitor.TraceComponentMonitorData
-import com.secdec.bytefrog.hq.util.DaemonThreadFactory
+import com.codedx.codepulse.hq.monitor.HealthMonitor
+import com.codedx.codepulse.hq.monitor.TraceComponent
+import com.codedx.codepulse.hq.monitor.TraceComponentHealth
+import com.codedx.codepulse.hq.monitor.TraceComponentMonitorData
+import com.codedx.codepulse.hq.util.DaemonThreadFactory
 
 import reactive.EventSource
 import reactive.EventStream

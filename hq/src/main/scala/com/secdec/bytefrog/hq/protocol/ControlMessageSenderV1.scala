@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.DataOutputStream
 
-import com.secdec.bytefrog.common.message.MessageProtocolV1
+import com.codedx.codepulse.agent.common.message.MessageProtocolV1
 import ControlMessage._
 
 /** A convenient singleton instance of the `ControlMessageSenderV1` class.

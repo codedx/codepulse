@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.data.collection
+package com.codedx.codepulse.hq.data.collection
 
 import java.util.Comparator
 
-import com.secdec.bytefrog.hq.protocol.DataMessage.SequencedData
+import com.codedx.codepulse.hq.protocol.DataMessage.SequencedData
 
 /** A comparator that can sort sequenced data based on timestamp and sequence ID. There is special logic
   * at play to handle the fact that sequence ID can and will overflow at some point; after the overflow,

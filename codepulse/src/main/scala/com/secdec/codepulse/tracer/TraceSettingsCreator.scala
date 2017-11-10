@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.tracer
 
-import com.secdec.bytefrog.hq.config.TraceSettings
+import com.codedx.codepulse.hq.config.TraceSettings
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData

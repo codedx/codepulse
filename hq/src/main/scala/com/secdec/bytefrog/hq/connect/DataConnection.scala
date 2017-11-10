@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect
+package com.codedx.codepulse.hq.connect
 
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.hq.protocol.DataMessageHandler
-import com.secdec.bytefrog.hq.protocol.DataMessageParser
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.hq.protocol.DataMessageHandler
+import com.codedx.codepulse.hq.protocol.DataMessageParser
 
 /** Represents a connection to an Agent that will be used for receiving
   * incoming data messages from that Agent. The underlying connection

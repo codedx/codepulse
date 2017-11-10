@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
 
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
-import com.secdec.bytefrog.common.message.AgentOperationMode
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
 
 /** Common base trait for objects/classes that represent a "control" message.
   * Control messages are ones that are sent between HQ and the Agent; essentially

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 /** Signifies the <em>type</em> of a data event that can
   * be read by a [[DataEventReader]].

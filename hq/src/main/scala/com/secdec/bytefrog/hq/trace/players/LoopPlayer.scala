@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.trace.players
+package com.codedx.codepulse.hq.trace.players
 
-import com.secdec.bytefrog.hq.trace.Cleanup
-import com.secdec.bytefrog.hq.trace.StopControl
-import com.secdec.bytefrog.hq.trace.StopMethod
-import com.secdec.bytefrog.hq.util.LoopingThread
+import com.codedx.codepulse.hq.trace.Cleanup
+import com.codedx.codepulse.hq.trace.StopControl
+import com.codedx.codepulse.hq.trace.StopMethod
+import com.codedx.codepulse.hq.util.LoopingThread
 
 /** Mixin for creating trace players that consist of a looping thread. See `LoopingThread` for more */
 trait LoopPlayer extends LoopingThread with StopControl with Cleanup {

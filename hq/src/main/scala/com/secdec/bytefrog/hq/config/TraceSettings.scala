@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.config
+package com.codedx.codepulse.hq.config
 
 case class TraceSettings(
 	exclusions: List[String] = Nil,

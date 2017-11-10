@@ -17,17 +17,17 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect
+package com.codedx.codepulse.hq.connect
 
 import java.util.concurrent.TimeoutException
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.common.message.MessageConstantsV1
-import com.secdec.bytefrog.hq.protocol.ControlMessage._
-import com.secdec.bytefrog.hq.protocol._
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1
+import com.codedx.codepulse.hq.protocol.ControlMessage._
+import com.codedx.codepulse.hq.protocol._
 
 /** A Runnable that accepts a client connection and attempts to perform either the
   * "Control Handshake" or "Data Handshake". Depending on which handshake is performed,

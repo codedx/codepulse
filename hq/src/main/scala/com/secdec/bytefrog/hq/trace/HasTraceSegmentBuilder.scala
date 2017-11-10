@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.trace
+package com.codedx.codepulse.hq.trace
 
-import com.secdec.bytefrog.hq.data.TraceSegmentEvent
+import com.codedx.codepulse.hq.data.TraceSegmentEvent
 
 import reactive.EventSource
 import reactive.EventStream

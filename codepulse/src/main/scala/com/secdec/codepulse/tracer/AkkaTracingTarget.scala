@@ -26,8 +26,8 @@ import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
 import scala.util.Failure
 import scala.util.Success
-import com.secdec.bytefrog.hq.trace.Trace
-import com.secdec.bytefrog.hq.trace.TraceEndReason
+import com.codedx.codepulse.hq.trace.Trace
+import com.codedx.codepulse.hq.trace.TraceEndReason
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.model.ProjectId
@@ -36,7 +36,7 @@ import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
-import com.secdec.bytefrog.hq.config.AgentConfiguration
+import com.codedx.codepulse.hq.config.AgentConfiguration
 
 sealed abstract class TracingTargetState(val name: String)
 object TracingTargetState {

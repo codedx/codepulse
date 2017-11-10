@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.trace
+package com.codedx.codepulse.hq.trace
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import com.secdec.bytefrog.hq.data.TraceSegmentEvent
+import com.codedx.codepulse.hq.data.TraceSegmentEvent
 
 /** Defines an interface for saving segments.
   */

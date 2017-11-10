@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect
+package com.codedx.codepulse.hq.connect
 
 import java.net.ServerSocket
 import java.net.SocketException
@@ -26,9 +26,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-import com.secdec.bytefrog.common.connect.SocketConnection
-import com.secdec.bytefrog.hq.util.LoopingThread
-import com.secdec.bytefrog.hq.util.DaemonThreadFactory
+import com.codedx.codepulse.agent.common.connect.SocketConnection
+import com.codedx.codepulse.hq.util.LoopingThread
+import com.codedx.codepulse.hq.util.DaemonThreadFactory
 
 object SocketServer {
 	/** Creates a SocketServer on the given `port` that uses the singleton trace connector and registry

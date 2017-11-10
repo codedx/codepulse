@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
-import com.secdec.bytefrog.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.message.MessageProtocol
 
 trait ProtocolHelper {
 

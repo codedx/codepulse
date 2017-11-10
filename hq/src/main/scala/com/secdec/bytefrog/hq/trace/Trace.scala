@@ -17,24 +17,24 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.trace
+package com.codedx.codepulse.hq.trace
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import com.secdec.bytefrog.hq.agent.AgentController
-import com.secdec.bytefrog.hq.config._
-import com.secdec.bytefrog.hq.connect._
-import com.secdec.bytefrog.hq.data.DataConnectionController
-import com.secdec.bytefrog.hq.data.collection.DataCollector
-import com.secdec.bytefrog.hq.data.processing.DataRouter
-import com.secdec.bytefrog.hq.errors.TraceErrorController
-import com.secdec.bytefrog.hq.monitor._
-import com.secdec.bytefrog.hq.protocol.ControlMessage
-import com.secdec.bytefrog.hq.util.Completable
-import com.secdec.bytefrog.hq.util.DoOnce
-import com.secdec.bytefrog.hq.util.Startable
+import com.codedx.codepulse.hq.agent.AgentController
+import com.codedx.codepulse.hq.config._
+import com.codedx.codepulse.hq.connect._
+import com.codedx.codepulse.hq.data.DataConnectionController
+import com.codedx.codepulse.hq.data.collection.DataCollector
+import com.codedx.codepulse.hq.data.processing.DataRouter
+import com.codedx.codepulse.hq.errors.TraceErrorController
+import com.codedx.codepulse.hq.monitor._
+import com.codedx.codepulse.hq.protocol.ControlMessage
+import com.codedx.codepulse.hq.util.Completable
+import com.codedx.codepulse.hq.util.DoOnce
+import com.codedx.codepulse.hq.util.Startable
 
 import reactive.EventStream
 import reactive.Observing

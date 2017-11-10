@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.monitor
+package com.codedx.codepulse.hq.monitor
 
-import com.secdec.bytefrog.hq.agent.AgentController
-import com.secdec.bytefrog.hq.agent.AgentState
+import com.codedx.codepulse.hq.agent.AgentController
+import com.codedx.codepulse.hq.agent.AgentState
 
 case class AgentHealthMonitorData(agentState: AgentState) extends TraceComponentMonitorData
 
@@ -71,7 +71,7 @@ class AgentHealthMonitor(
 			val timeSinceHeartbeat = time - controller.lastHeartbeatTime
 			val missedHeartbeats = timeSinceHeartbeat / heartbeatInterval
 
-			// If there haven't been any heartbeats in a while, the Agent is likely dead. 
+			// If there haven't been any heartbeats in a while, the Agent is likely dead.
 			if (missedHeartbeats > maxMissedHeartbeats) {
 				health = unhealthy(s"No heartbeat received for ${missedHeartbeats * heartbeatInterval} ms.", data)
 			}

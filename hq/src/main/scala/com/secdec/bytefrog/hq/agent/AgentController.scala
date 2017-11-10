@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.agent
+package com.codedx.codepulse.hq.agent
 
-import com.secdec.bytefrog.common.message.AgentOperationMode
-import com.secdec.bytefrog.hq.connect.ControlConnection
-import com.secdec.bytefrog.hq.errors._
-import com.secdec.bytefrog.hq.protocol.ControlMessage._
-import com.secdec.bytefrog.hq.trace.StopMethod
-import com.secdec.bytefrog.hq.trace.players.LoopPlayer
-import com.secdec.bytefrog.hq.util.CompletionHooks
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
+import com.codedx.codepulse.hq.connect.ControlConnection
+import com.codedx.codepulse.hq.errors._
+import com.codedx.codepulse.hq.protocol.ControlMessage._
+import com.codedx.codepulse.hq.trace.StopMethod
+import com.codedx.codepulse.hq.trace.players.LoopPlayer
+import com.codedx.codepulse.hq.util.CompletionHooks
 
 import reactive.EventSource
 import reactive.EventStream

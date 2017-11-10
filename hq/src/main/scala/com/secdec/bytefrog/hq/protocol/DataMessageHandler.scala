@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
 /** Describes a collection of callback methods to be used by a `DataMessageParser`
   * while parsing a stream of data messages.

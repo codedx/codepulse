@@ -17,18 +17,18 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol.test
+package com.codedx.codepulse.hq.protocol.test
 
 import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
 
-import com.secdec.bytefrog.hq.protocol.DataMessage
-import com.secdec.bytefrog.hq.protocol.DataMessageContent
-import com.secdec.bytefrog.hq.protocol.DataMessageReaderV1
-import com.secdec.bytefrog.hq.protocol.DataMessageParserV1
-import com.secdec.bytefrog.hq.protocol.DefaultDataMessageHandler
-import com.secdec.bytefrog.hq.protocol.IO
+import com.codedx.codepulse.hq.protocol.DataMessage
+import com.codedx.codepulse.hq.protocol.DataMessageContent
+import com.codedx.codepulse.hq.protocol.DataMessageReaderV1
+import com.codedx.codepulse.hq.protocol.DataMessageParserV1
+import com.codedx.codepulse.hq.protocol.DefaultDataMessageHandler
+import com.codedx.codepulse.hq.protocol.IO
 
 object DataMessageTiming {
 

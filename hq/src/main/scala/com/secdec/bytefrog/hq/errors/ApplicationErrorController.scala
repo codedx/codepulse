@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.errors
+package com.codedx.codepulse.hq.errors
 
 import reactive.EventSource
 import reactive.EventStream

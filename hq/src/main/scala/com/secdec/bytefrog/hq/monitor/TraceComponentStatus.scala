@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.monitor
+package com.codedx.codepulse.hq.monitor
 
 /** Describes the health state of a TraceComponent. Can be one of
   * `Healthy`, `Concerned`, `Unhealthy`, or `Unknown`, and will be

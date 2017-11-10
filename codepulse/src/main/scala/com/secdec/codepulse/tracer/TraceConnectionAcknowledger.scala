@@ -22,7 +22,7 @@ package com.secdec.codepulse.tracer
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.actor.Stash
-import com.secdec.bytefrog.hq.trace.Trace
+import com.codedx.codepulse.hq.trace.Trace
 import net.liftweb.common.Loggable
 import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.notifications.NotificationMessage

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol.test
+package com.codedx.codepulse.hq.protocol.test
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -30,8 +30,8 @@ import org.scalamock.scalatest.MockFactory
 
 import com.secdec.bytefrog.common.message.AgentOperationMode
 import com.secdec.bytefrog.common.message.MessageProtocolV1
-import com.secdec.bytefrog.hq.protocol.ControlMessage._
-import com.secdec.bytefrog.hq.protocol.ControlMessageReaderV1
+import com.codedx.codepulse.hq.protocol.ControlMessage._
+import com.codedx.codepulse.hq.protocol.ControlMessageReaderV1
 
 class ControlMessageReaderV1Spec extends FunSpec with ShouldMatchers with MockFactory {
 

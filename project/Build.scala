@@ -39,14 +39,20 @@ object BuildDef extends Build with VersionSystem {
 	lazy val dbDependencies = Seq(slick, h2)
 
 	val baseCompilerSettings = Seq(
-		scalacOptions := List("-deprecation", "-unchecked", "-feature", "-target:jvm-1.6"),
+		scalacOptions := List("-deprecation", "-unchecked", "-feature", "-target:jvm-1.7"),
 		scalaVersion := "2.10.4"
 	)
 
 	val baseProjectSettings = net.virtualvoid.sbt.graph.Plugin.graphSettings ++ baseCompilerSettings ++ Seq(
-		organization := "com.avi",
+		organization := "com.codedx",
 		version := "1.1.4",
 		releaseDate := "1/19/2017"
+	)
+
+	val javaProjectSettings = Seq(
+		javacOptions := List("-source", "1.7", "-target", "1.7", "-Xlint:-options"),
+		autoScalaLibrary := false,
+		crossPaths := false
 	)
 
 	val webappProjectSettings = WebPlugin.webSettings ++ Seq (
@@ -54,13 +60,59 @@ object BuildDef extends Build with VersionSystem {
 	)
 
 	val Bytefrog = file("bytefrog")
-	lazy val BytefrogAgent = ProjectRef(Bytefrog, "Agent")
-	lazy val BytefrogHQ = ProjectRef(Bytefrog, "HQ")
+	lazy val BytefrogFilterInjector = ProjectRef(Bytefrog, "FilterInjector")
+	lazy val BytefrogInstrumentation = ProjectRef(Bytefrog, "Instrumentation")
+	lazy val BytefrogUtil = ProjectRef(Bytefrog, "Util")
+
+	lazy val BytefrogAsm = ProjectRef(Bytefrog, "RepackagedAsm")
+	lazy val BytefrogMinlog = ProjectRef(Bytefrog, "RepackagedMinlog")
+
+	lazy val Shared = Project("Shared", file("shared"))
+		.settings(
+			baseProjectSettings,
+			javaProjectSettings
+		)
+
+
+	lazy val Agent = Project("Agent", file("agent"))
+		.dependsOn(BytefrogFilterInjector, BytefrogInstrumentation, BytefrogUtil, Shared, BytefrogAsm, BytefrogMinlog)
+		.settings(
+			baseProjectSettings,
+			assemblySettings,
+			javaProjectSettings,
+
+			Keys.test in assembly := {},
+
+			// put the servlet API in the provided scope; we'll deal with resolving references
+			// later, and we don't want to conflict with any containers we're injecting ourselves
+			// into...
+			libraryDependencies += Dependencies.servletApi % "provided",
+
+			// assembly settings for agent jar
+			version := "2.0",
+			assemblyJarName in assembly := "agent.jar",
+			packageOptions in assembly += {
+				Package.ManifestAttributes(
+					"Premain-Class" -> "com.codedx.codepulse.agent.javaagent.JavaAgent",
+					"Agent-Class" -> "com.codedx.codepulse.agent.javaagent.JavaAgent",
+					"Boot-Class-Path" -> (assemblyJarName in assembly).value,
+					"Can-Redefine-Classes" -> "true",
+					"Can-Retransform-Classes" -> "true"
+				)
+			}
+		)
+
+	lazy val HQ = Project("HQ", file("hq"))
+		.dependsOn(Shared)
+		.settings(
+			baseProjectSettings,
+			libraryDependencies += reactive
+		)
 
 	/* This project contains the main application's source code (Lift App).
 	 */
 	lazy val Core = Project("CodePulse", file("codepulse"))
-		.dependsOn(BytefrogHQ)
+		.dependsOn(Shared, HQ)
 		.settings(baseProjectSettings: _*)
 		.settings(versionSettings: _*)
 		.settings(webappProjectSettings: _*)
@@ -74,6 +126,4 @@ object BuildDef extends Build with VersionSystem {
 			libraryDependencies ++= libDependencies,
 			libraryDependencies ++= dbDependencies
 		)
-
-	lazy val root = Project("root", file(".")).aggregate(Core)
 }

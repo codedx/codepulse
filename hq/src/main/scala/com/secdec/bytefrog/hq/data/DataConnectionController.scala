@@ -17,14 +17,14 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.data
+package com.codedx.codepulse.hq.data
 
-import com.secdec.bytefrog.hq.connect.DataConnection
-import com.secdec.bytefrog.hq.data.collection.DataCollector
-import com.secdec.bytefrog.hq.protocol.DataMessage
-import com.secdec.bytefrog.hq.protocol.DataMessageContent
-import com.secdec.bytefrog.hq.protocol.DefaultDataMessageHandler
-import com.secdec.bytefrog.hq.trace.players.LoopPlayer
+import com.codedx.codepulse.hq.connect.DataConnection
+import com.codedx.codepulse.hq.data.collection.DataCollector
+import com.codedx.codepulse.hq.protocol.DataMessage
+import com.codedx.codepulse.hq.protocol.DataMessageContent
+import com.codedx.codepulse.hq.protocol.DefaultDataMessageHandler
+import com.codedx.codepulse.hq.trace.players.LoopPlayer
 
 class DataConnectionController(dataConnection: DataConnection, dataCollector: DataCollector)
 	extends LoopPlayer {
@@ -38,7 +38,7 @@ class DataConnectionController(dataConnection: DataConnection, dataCollector: Da
 		dataCollector.registerDataConnection(this)
 	}
 
-	// this loop will likely only ever run once, since readEvents will block until the end 
+	// this loop will likely only ever run once, since readEvents will block until the end
 	def doLoop = dataConnection.readEvents(new DefaultDataMessageHandler {
 		import DataMessage._
 		import DataMessageContent._

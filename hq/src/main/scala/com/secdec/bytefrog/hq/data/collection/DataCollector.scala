@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.data.collection
+package com.codedx.codepulse.hq.data.collection
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.PriorityBlockingQueue
@@ -26,12 +26,12 @@ import java.util.concurrent.Semaphore
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Queue
 
-import com.secdec.bytefrog.hq.data.DataConnectionController
-import com.secdec.bytefrog.hq.data.processing.DataRouter
-import com.secdec.bytefrog.hq.errors.TraceErrorController
-import com.secdec.bytefrog.hq.errors.UnexpectedError
-import com.secdec.bytefrog.hq.protocol.DataMessage
-import com.secdec.bytefrog.hq.trace.players.LoopPlayer
+import com.codedx.codepulse.hq.data.DataConnectionController
+import com.codedx.codepulse.hq.data.processing.DataRouter
+import com.codedx.codepulse.hq.errors.TraceErrorController
+import com.codedx.codepulse.hq.errors.UnexpectedError
+import com.codedx.codepulse.hq.protocol.DataMessage
+import com.codedx.codepulse.hq.trace.players.LoopPlayer
 
 /** DataCollector is responsible for collecting semi-sorted data fed into it, and feeding it back out in
   * the proper order.

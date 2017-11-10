@@ -17,15 +17,15 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.data.processing
+package com.codedx.codepulse.hq.data.processing
 
 import scala.collection.mutable.ArrayBuffer
 
-import com.secdec.bytefrog.hq.errors.TraceErrorController
-import com.secdec.bytefrog.hq.errors.UnexpectedError
-import com.secdec.bytefrog.hq.protocol.DataMessageContent
-import com.secdec.bytefrog.hq.trace.Cleanup
-import com.secdec.bytefrog.hq.util.CompletionHooks
+import com.codedx.codepulse.hq.errors.TraceErrorController
+import com.codedx.codepulse.hq.errors.UnexpectedError
+import com.codedx.codepulse.hq.protocol.DataMessageContent
+import com.codedx.codepulse.hq.trace.Cleanup
+import com.codedx.codepulse.hq.util.CompletionHooks
 
 /** DataRouter is responsible for receiving all data as it comes off the DataCollector and relaying it
   * back out to whatever DataProcessors are registered.

@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.protocol
+package com.codedx.codepulse.hq.protocol
 
-import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.common.message.MessageProtocolV1
+import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.message.MessageProtocolV1
 
 object DefaultProtocolHelper extends ProtocolHelper {
 

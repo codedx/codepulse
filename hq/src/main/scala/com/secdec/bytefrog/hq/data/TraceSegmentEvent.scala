@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.data
+package com.codedx.codepulse.hq.data
 
 trait TraceSegmentEvent
 

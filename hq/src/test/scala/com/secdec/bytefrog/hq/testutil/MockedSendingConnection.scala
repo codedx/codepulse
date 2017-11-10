@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.testutil
+package com.codedx.codepulse.hq.testutil
 
 import java.io.DataOutputStream
 
@@ -26,8 +26,8 @@ import org.scalamock.scalatest.MockFactory
 
 import com.secdec.bytefrog.common.connect.Connection
 import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.hq.connect.ControlConnection
-import com.secdec.bytefrog.hq.protocol._
+import com.codedx.codepulse.hq.connect.ControlConnection
+import com.codedx.codepulse.hq.protocol._
 
 trait MockedSendingHelpers { self: MockFactory =>
 

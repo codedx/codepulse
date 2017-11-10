@@ -17,10 +17,10 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.data.processing
+package com.codedx.codepulse.hq.data.processing
 
-import com.secdec.bytefrog.hq.protocol.DataMessageContent
-import com.secdec.bytefrog.hq.trace.Cleanup
+import com.codedx.codepulse.hq.protocol.DataMessageContent
+import com.codedx.codepulse.hq.trace.Cleanup
 
 /** DataProcessor is a basic trait for any process that needs to be applied to the data. A DataProcessor
   * is, quite simply, sent a stream of data messages.

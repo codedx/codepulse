@@ -432,7 +432,7 @@ object Distributor extends BuildExtra {
 
 		def agentJar(platform: String): FileMappingTask = Def.task {
 			val root = (rootZipFolder in Distribution).value
-			appResource(platform, root, List(((assembly in BuildDef.BytefrogAgent).value, s"$root/agent.jar")))
+			appResource(platform, root, List(((assembly in BuildDef.Agent).value, s"$root/agent.jar")))
 		}
 
 		def appResource(platform: String, root: String, mappings: Seq[(File, String)]) = platform match {

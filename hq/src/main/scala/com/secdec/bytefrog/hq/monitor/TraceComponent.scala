@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.monitor
+package com.codedx.codepulse.hq.monitor
 
 /** Describes an aspect of the trace by providing the name of a component.
   * This data object is part of a [[TraceComponentHealth]] used by the HealthMonitors.

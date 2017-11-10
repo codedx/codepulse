@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.agent
+package com.codedx.codepulse.hq.agent
 
-import com.secdec.bytefrog.common.message.AgentOperationMode
-import com.secdec.bytefrog.hq.connect.ControlConnection
-import com.secdec.bytefrog.hq.errors.TraceErrorController
-import com.secdec.bytefrog.hq.protocol.ControlMessage
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
+import com.codedx.codepulse.hq.connect.ControlConnection
+import com.codedx.codepulse.hq.errors.TraceErrorController
+import com.codedx.codepulse.hq.protocol.ControlMessage
 
 import reactive.EventSource
 import reactive.EventStream

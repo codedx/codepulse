@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.connect.test
+package com.codedx.codepulse.hq.connect.test
 
 import java.io.ByteArrayInputStream
 import java.io.DataInputStream
@@ -36,11 +36,11 @@ import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
 import com.secdec.bytefrog.common.connect.Connection
 import com.secdec.bytefrog.common.message.MessageConstantsV1
 import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.hq.connect._
-import com.secdec.bytefrog.hq.protocol._
-import com.secdec.bytefrog.hq.config._
-import com.secdec.bytefrog.hq.trace.Trace
-import com.secdec.bytefrog.hq.testutil.MockedSendingHelpers
+import com.codedx.codepulse.hq.connect._
+import com.codedx.codepulse.hq.protocol._
+import com.codedx.codepulse.hq.config._
+import com.codedx.codepulse.hq.trace.Trace
+import com.codedx.codepulse.hq.testutil.MockedSendingHelpers
 
 class ClientGreeterSpec extends FunSpec with ShouldMatchers with MockFactory with MockedSendingHelpers {
 

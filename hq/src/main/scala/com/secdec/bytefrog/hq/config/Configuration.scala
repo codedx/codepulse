@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-package com.secdec.bytefrog.hq.config
+package com.codedx.codepulse.hq.config
 
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
 
 /** Builds a RuntimeAgentConfiguration with a given trace configuration and agent
   * configuration.
