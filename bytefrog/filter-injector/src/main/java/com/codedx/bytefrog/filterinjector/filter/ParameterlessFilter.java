@@ -24,9 +24,7 @@ public class ParameterlessFilter implements InjectableFilter {
 	}
 
 	public boolean isAvailable(final ClassLoader cl) {
-		return
-			ClassLoaderUtil.isAvailable(cl, filterType.getClassName()) ||
-			ClassLoaderUtil.injectClass(cl, filterType);
+		return ClassLoaderUtil.injectClass(cl, filterType);
 	}
 
 	public void constructFilter(final MethodVisitor mv) {
