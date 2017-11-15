@@ -87,30 +87,29 @@ trait ZipEntryChecker {
 		}
 	}
 
-	def findFirstEntry(file: File, recursive: Boolean = true)(callback: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+	def findFirstEntry(file: File, recursive: Boolean = true)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean = {
 		val stream = new BufferedInputStream(new FileInputStream(file))
 
-		try {
-			findFirstEntry(file.getName, stream, recursive)(callback)
-		} finally {
-			stream.close
-		}
+		try findFirstEntry(file.getName, stream, recursive)(predicate) finally stream.close
 	}
 
-	def findFirstEntry(filename: String, stream: InputStream, recursive: Boolean)(callback: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+	def findFirstEntry(filename: String, stream: InputStream, recursive: Boolean)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean = {
 		val zipStream = new ZipInputStream(stream)
 
 		try {
 			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
 				.map(_.toOption.flatMap { Option(_) })
-		    	.takeWhile(_.isDefined)
-			    .flatten
-		    	.filterNot(ZipCleaner.shouldFilter)
+				.takeWhile(_.isDefined)
+				.flatten
+				.filterNot(ZipCleaner.shouldFilter)
 
-			entryStream.exists(entry =>
-				callback(filename, entry, zipStream)
-				||(recursive && isZip(entry.getName) && findFirstEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(callback))
-			)
+			entryStream.exists { entry =>
+				lazy val recurse = recursive &&
+					isZip(entry.getName) &&
+					findFirstEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(predicate)
+
+				predicate(filename, entry, zipStream) || recurse
+			}
 		} finally {
 			zipStream.close
 		}

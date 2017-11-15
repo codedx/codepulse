@@ -71,14 +71,7 @@ object ProjectUploadData {
 
 	def checkForClassesInNestedArchive(file: File): Boolean = {
 		ZipEntryChecker.findFirstEntry(file) { (filename, entry, contents) =>
-			if (!entry.isDirectory) {
-				FilenameUtils.getExtension(entry.getName) match {
-					case "class" => true
-					case _ => false
-				}
-			} else {
-				false
-			}
+			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
 		}
 	}
 
