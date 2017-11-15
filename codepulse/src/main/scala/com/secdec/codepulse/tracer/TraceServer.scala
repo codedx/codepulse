@@ -36,7 +36,7 @@ object TraceServer {
 	private implicit lazy val socketServer = {
 		val ss = SocketServer.default(com.secdec.codepulse.userSettings.tracePort)
 		ss.start()
-		AppCleanup.add { () =>
+		AppCleanup.addPreShutdownHook { () =>
 			ss.shutdown
 			println("Shutdown TracerServer's socketServer")
 		}

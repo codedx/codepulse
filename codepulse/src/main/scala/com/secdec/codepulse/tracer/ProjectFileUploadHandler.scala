@@ -56,7 +56,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 		case UploadPath("create") Post req => fallbackResponse {
 			for {
 				(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
-				_ <- ProjectUploadData.checkForBinaryZip(inputFile) ?~ {
+				_ <- ProjectUploadData.checkForClassesInNestedArchive(inputFile) ?~ {
 					s"The file you picked doesn't have any compiled Java files."
 				}
 				name <- req.param("name") ?~ "You must specify a name"

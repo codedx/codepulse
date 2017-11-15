@@ -69,6 +69,12 @@ object ProjectUploadData {
 		}
 	}
 
+	def checkForClassesInNestedArchive(file: File): Boolean = {
+		ZipEntryChecker.findFirstEntry(file) { (filename, entry, contents) =>
+			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
+		}
+	}
+
 	/** A preliminary check on a File to see if it looks like an
 	  * exported .pulse file.
 	  */

@@ -20,11 +20,23 @@
 package bootstrap.liftweb
 
 object AppCleanup {
-	private var hooks: List[() => Unit] = Nil
+	private var preShutdownHooks: List[() => Unit] = Nil
 
-	def add(cleanup: () => Unit) = hooks ::= cleanup
+	private var shutdownHooks: List[() => Unit] = Nil
+
+	def addPreShutdownHook(cleanup: () => Unit) = preShutdownHooks ::= cleanup
+
+	def addShutdownHook(cleanup: () => Unit) = shutdownHooks ::= cleanup
 
 	def runCleanup() = {
-		hooks.reverseIterator.foreach { _() }
+		try {
+			println("Running PreShutdownHooks")
+			preShutdownHooks.reverseIterator.foreach { _() }
+
+			println("Running ShutdownHooks")
+			shutdownHooks.reverseIterator.foreach { _() }
+		} catch {
+			case e: Throwable => e.printStackTrace
+		}
 	}
 }
