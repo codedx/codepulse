@@ -1,4 +1,5 @@
 .DS_Store
+.java-version
 .scala_dependencies
 .settings/
 .classpath
