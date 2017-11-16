@@ -46,10 +46,9 @@ object DependencyCheckStatus {
   * @author robertf
   */
 object DependencyCheck {
-	private lazy val cveDbProps = {
-		val cveDb = new CveDB
+	private def cveDbProps(implicit settings: Settings) = {
+		val cveDb = new CveDB(settings.settings)
 		try {
-			cveDb.open
 			cveDb.getDatabaseProperties
 		} finally {
 			cveDb.close
@@ -57,35 +56,22 @@ object DependencyCheck {
 	}
 
 	def doUpdates()(implicit settings: Settings): Try[Unit] = Try {
-		DepCheckSettings.initialize
-		settings.applySettings
-
-		try {
+		settings.withEngine { engine =>
 			val svc = new UpdateService(Thread.currentThread.getContextClassLoader)
 			for (src <- svc.getDataSources) {
-				src.update
+				src.update(engine)
 			}
-		} finally {
-			DepCheckSettings.cleanup(true)
 		}
 	}
 
 	def runScan(scanSettings: ScanSettings)(implicit settings: Settings): File = {
-		DepCheckSettings.initialize
-		settings.applySettings
+		settings.withEngine { engine =>
+			engine scan scanSettings.app
+			engine.analyzeDependencies
 
-		val scanner = new Engine
-		try {
-			scanner scan scanSettings.app
-			scanner.analyzeDependencies
-
-			val report = new ReportGenerator(scanSettings.appName, scanner.getDependencies, scanner.getAnalyzers, cveDbProps)
-			report.generateReports(scanSettings.reportDir.getCanonicalPath, scanSettings.reportFormat.value)
+			engine.writeReports(scanSettings.appName, scanSettings.reportDir, scanSettings.reportFormat.value)
 
 			scanSettings.reportDir
-		} finally {
-			scanner.cleanup
-			DepCheckSettings.cleanup(true)
 		}
 	}
 }
