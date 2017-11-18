@@ -56,19 +56,38 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 		case UploadPath("create") Post req => fallbackResponse {
 			for {
 				(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
-				_ <- ProjectUploadData.checkForClassesInNestedArchive(inputFile) ?~ {
-					s"The file you picked doesn't have any compiled Java files."
+				isJava = ProjectUploadData.checkForClassesInNestedArchive(inputFile)
+				isDotNet = ProjectUploadData.checkForDotNetInNestedArchive(inputFile)
+				_ <- (isJava || isDotNet) ?~ {
+					s"The file you picked contains neither compiled Java files or dotNET assembly and symbol files."
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
-				val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName, { cleanup() })
+				if(isJava) {
+					val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName, { cleanup() })
 
-				// set the new trace's name
-				projectManager.getProject(projectId) foreach {
-					_.projectData.metadata.name = name
+					// set the new trace's name
+					projectManager.getProject(projectId) foreach {
+						_.projectData.metadata.name = name
+					}
+
+					hrefResponse(projectId)
 				}
+				// Extract project handling would allow us to combine handling of java and dotnet.
+				// More of an edge case where a user uploads a file with both, but, it'd be an interesting win.
+				// No idea if the tracing aspect would work though.
+				else if(isDotNet) {
+					val projectId = ProjectUploadData.handleDotNetArchive(inputFile, originalName, { cleanup() })
 
-				hrefResponse(projectId)
+					// set the new trace's name
+					projectManager.getProject(projectId) foreach {
+						_.projectData.metadata.name = name
+					}
+					hrefResponse(projectId)
+				}
+				else {
+					???
+				}
 			}
 		}
 
