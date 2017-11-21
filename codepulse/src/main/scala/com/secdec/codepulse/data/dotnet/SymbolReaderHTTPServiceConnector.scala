@@ -35,7 +35,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 	override def Methods: List[(MethodSignature, Int)] = {
 		implicit val formats = DefaultFormats
 
-		val request = symbolService.POST.addBodyPart(new FilePart("Assembly", assembly)).addBodyPart(new FilePart("Symbols", symbols))
+		val request = symbolService.POST.addBodyPart(new FilePart("assemblyFile", assembly)).addBodyPart(new FilePart("symbolsFile", symbols))
 
 		val result = Await.result(Http(request).option, 10 second).head.getResponseBody
 		parse(result).children.map(child => child.extract[MethodInfo]).map(methodInfo => {
