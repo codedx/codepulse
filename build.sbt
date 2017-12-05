@@ -85,7 +85,7 @@ lazy val HQ = Project("HQ", file("hq"))
 		scalaSettings,
 		withTesting,
 
-		libraryDependencies += Dependencies.reactive
+		libraryDependencies ++= Seq(Dependencies.reactive, Dependencies.dispatch)
 	)
 
 lazy val CodePulse = Project("CodePulse", file("codepulse"))
