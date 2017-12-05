@@ -121,8 +121,8 @@ object Distributor extends BuildExtra {
 		}
 
 
-		val jetty = Dependency("jetty", "9.3.15.v20161220", "http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.3.15.v20161220/jetty-distribution-9.3.15.v20161220.zip")
-			.extractAsZip { raw"^\Qjetty-distribution-9.3.15.v20161220\E/".r.replaceFirstIn(_, "") }
+		val jetty = Dependency("jetty", "9.4.7.v20170914", "http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.7.v20170914/jetty-distribution-9.4.7.v20170914.zip")
+			.extractAsZip { raw"^\Qjetty-distribution-9.4.7.v20170914\E/".r.replaceFirstIn(_, "") }
 			.to { _ / "distrib-dependencies" / "common" / "jetty" }
 
 		object tools {

@@ -44,7 +44,11 @@ import reactive.Observing
 object ProjectManager {
 	lazy val defaultActorSystem = {
 		val sys = ActorSystem("ProjectManagerSystem")
-		AppCleanup.add { () => sys.shutdown() }
+		AppCleanup.addShutdownHook { () =>
+			sys.shutdown()
+			sys.awaitTermination()
+			println("Shutdown ProjectManager's ActorSystem")
+		}
 		sys
 	}
 }
@@ -196,6 +200,9 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 	}
 
 	// Also make sure any dirty projects are saved when exiting
-	AppCleanup.add { () => flushProjects }
+	AppCleanup.addPreShutdownHook { () =>
+		flushProjects
+		println("Flushed ProjectManager projects")
+	}
 
 }

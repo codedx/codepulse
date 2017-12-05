@@ -22,36 +22,47 @@ package com.secdec.codepulse.dependencycheck
 import java.io.File
 
 import org.apache.commons.io.IOUtils
-import org.owasp.dependencycheck.reporting.ReportGenerator.{ Format => DCReportFormat }
+import org.owasp.dependencycheck.Engine
 import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.paths
 import com.secdec.codepulse.util.RichFile._
 
-sealed abstract class ReportFormat(val value: DCReportFormat)
+sealed abstract class ReportFormat(val value: String)
 object ReportFormat {
-	case object Xml extends ReportFormat(DCReportFormat.XML)
-	case object Html extends ReportFormat(DCReportFormat.HTML)
-	case object Vuln extends ReportFormat(DCReportFormat.VULN)
-	case object All extends ReportFormat(DCReportFormat.ALL)
+	case object Xml extends ReportFormat("XML")
+	case object Html extends ReportFormat("HTML")
+	case object Vuln extends ReportFormat("VULN")
+	case object Json extends ReportFormat("JSON")
+	case object Csv extends ReportFormat("CSV")
+	case object All extends ReportFormat("ALL")
 }
 
 sealed trait ApplicableSettings {
-	def applySettings(): Unit
+	def settings: DepCheckSettings
+
+	def withEngine[T](f: Engine => T): T = {
+		val engine = new Engine(settings)
+		try {
+			f(engine)
+		} finally {
+			engine.close()
+		}
+	}
 }
 
 case class Settings(
 	dataDir: File
 ) extends ApplicableSettings {
 
-	def applySettings() {
-		DepCheckSettings.setString(DepCheckSettings.KEYS.DATA_DIRECTORY, dataDir.getAbsolutePath)
-		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_JAR_ENABLED, true)
-		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_ARCHIVE_ENABLED, true)
-		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_ENABLED, true)
-		DepCheckSettings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_USES_PROXY, false)
-	}
+	val settings = new DepCheckSettings
+
+	settings.setString(DepCheckSettings.KEYS.DATA_DIRECTORY, dataDir.getAbsolutePath)
+	settings.setBoolean(DepCheckSettings.KEYS.ANALYZER_JAR_ENABLED, true)
+	settings.setBoolean(DepCheckSettings.KEYS.ANALYZER_ARCHIVE_ENABLED, true)
+	settings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_ENABLED, true)
+	settings.setBoolean(DepCheckSettings.KEYS.ANALYZER_NEXUS_USES_PROXY, false)
 }
 
 object Settings {

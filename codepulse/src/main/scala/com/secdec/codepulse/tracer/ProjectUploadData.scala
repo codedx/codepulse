@@ -20,12 +20,10 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import org.apache.commons.io.FilenameUtils
-
 import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
 import com.secdec.codepulse.data.bytecode.AsmVisitors
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
@@ -37,12 +35,11 @@ import com.secdec.codepulse.dependencycheck
 import com.secdec.codepulse.tracer.export.ProjectImporter
 import com.secdec.codepulse.util.SmartLoader
 import com.secdec.codepulse.util.ZipEntryChecker
-
 import net.liftweb.common.Box
 import net.liftweb.common.Failure
 import net.liftweb.common.Full
-
 import akka.actor.ActorSystem
+import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector, SymbolReaderMockService }
 
 object ProjectUploadData {
 
@@ -66,6 +63,19 @@ object ProjectUploadData {
 	def checkForBinaryZip(file: File): Boolean = {
 		ZipEntryChecker.checkForZipEntries(file) { entry =>
 			!entry.isDirectory && entry.getName.endsWith(".class")
+		}
+	}
+
+	def checkForClassesInNestedArchive(file: File): Boolean = {
+		ZipEntryChecker.findFirstEntry(file) { (filename, entry, contents) =>
+			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
+		}
+	}
+
+	def checkForDotNetInNestedArchive(file: File): Boolean = {
+		ZipEntryChecker.findFirstEntry(file) { (filename, entry, contents) =>
+			val extension = FilenameUtils.getExtension(entry.getName)
+			!entry.isDirectory && (extension == "exe" || extension == "dll")
 		}
 	}
 
@@ -244,5 +254,57 @@ object ProjectUploadData {
 		}
 	}
 
+	def handleDotNetArchive(file: File, originalName: String, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
+		val RootGroupName = "dotNET"
+		val tracedGroups = (RootGroupName :: Nil).toSet
+		val builder = new CodeForestBuilder
+		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
+		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(file) _
+
+		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
+			val groupName = if (filename == file.getName) RootGroupName else s"Assemblies/${filename substring file.getName.length + 1}"
+
+			if (!entry.isDirectory) {
+				dotNETAssemblyFinder(entry) match {
+					case Some((assembly, symbols)) => {
+						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
+						for {
+							(sig, size) <- methods
+							treeNode <- Option(builder.getOrAddMethod(groupName, sig, size))
+						} methodCorrelationsBuilder += (sig.name -> treeNode.id)
+					}
+
+					case _ => // nothing
+				}
+			}
+		}
+
+		val treemapNodes = builder.condensePathNodes().result
+		val methodCorrelations = methodCorrelationsBuilder.result
+
+		if (treemapNodes.isEmpty) {
+			throw new NoSuchElementException("No method data found in analyzed upload file.")
+		} else {
+			val importer = TreeNodeImporter(projectData.treeNodeData)
+
+			importer ++= treemapNodes.toIterable map {
+				case (root, node) =>
+					node -> (node.kind match {
+						case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
+						case _ => None
+					})
+			}
+
+			importer.flush
+
+			projectData.treeNodeData.mapMethodSignatures(methodCorrelations)
+
+			// The `creationDate` for project data detected in this manner
+			// should use its default value ('now'), as this is when the data
+			// was actually 'created'. The `importDate` should remain blank,
+			// since this is not an import of a .pulse file.
+			projectData.metadata.creationDate = System.currentTimeMillis
+		}
+	}
 }
 
