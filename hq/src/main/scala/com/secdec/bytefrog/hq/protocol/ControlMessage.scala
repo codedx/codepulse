@@ -19,6 +19,7 @@ package com.codedx.codepulse.hq.protocol
 
 import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
+import javax.json.bind.spi.JsonbProvider
 
 import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
 import com.codedx.codepulse.agent.common.message.AgentOperationMode
@@ -56,25 +57,27 @@ object ControlMessage {
 	case object EOF extends ControlMessage
 
 	/** Since we designed to potentially have multiple Configuration types in the long run,
-	  * the common point between different versions is that they will be serialized to an
-	  * array of bytes when sent across the wire (to the Agent, from HQ). This trait makes
-	  * that requirement explicit, and an instance of this trait will be required in order
-	  * to create a [[Configuration]] message as part of the [[ControlMessageSender]] API.
+	  * the common point between different versions is that they will be serialized when sent
+		* across the wire (to the Agent, from HQ). This trait makes that requirement explicit,
+		* and an instance of this trait will be required in order to create a [[Configuration]]
+		* message as part of the [[ControlMessageSender]] API.
 	  *
 	  * @tparam A The type of the Configuration object, e.g. `RuntimeAgentConfigurationV1`
 	  */
 	trait ConfigurationSerializer[A] {
-		/** Convert `config` to an array of bytes */
-		def serialize(config: A): Array[Byte]
+		/** Convert `config` to a JSON string */
+		def serializeJson(config: A): String
+		def serializeByteArray(config: A): Array[Byte]
 	}
 
-	/** Represents an Agent Configuration, which needs to be serialized to a Byte Array before
+	/** Represents an Agent Configuration, which needs to be serialized before
 	  * being sent to the Agent. Since future versions may not conform to a common API, instead
 	  * of attempting to create a common `AgentConfiguration` interface, we simply rely on a
-	  * `serializer` to transform the `config` parameter into an array of bytes for us.
+	  * `serializer` to transform the `config` parameter into a serialized version.
 	  */
 	case class Configuration[A](config: A)(implicit val serializer: ConfigurationSerializer[A]) extends ControlMessage {
-		def toByteArray = serializer.serialize(config)
+		def toJson = serializer.serializeJson(config)
+		def toByteArray = serializer.serializeByteArray(config);
 	}
 
 	/** A ConfigurationSerializer implementation that works on instances of [[RuntimeAgentConfigurationV1]].
@@ -82,7 +85,8 @@ object ControlMessage {
 	  * `Configuration(new RuntimeAgentConfigurationV1(...))` instance.
 	  */
 	implicit object RuntimeAgentConfigurationV1Serializer extends ConfigurationSerializer[RuntimeAgentConfigurationV1] {
-		def serialize(config: RuntimeAgentConfigurationV1): Array[Byte] = {
+		def serializeJson(config: RuntimeAgentConfigurationV1) = JsonbProvider.provider.create.build.toJson(config)
+		def serializeByteArray(config: RuntimeAgentConfigurationV1): Array[Byte] = {
 			// use Java's built-in serialization:
 			// write the object to a ByteArrayOutputStream
 			val buffer = new ByteArrayOutputStream

@@ -38,7 +38,9 @@ lazy val Shared = Project("Shared", file("shared"))
 		baseSettings,
 		scalaSettings,
 		javaSettings,
-		javaOnly
+		javaOnly,
+
+		libraryDependencies ++= Dependencies.jsonb
 	)
 
 lazy val Agent = Project("Agent", file("agent"))
@@ -57,13 +59,22 @@ lazy val Agent = Project("Agent", file("agent"))
 		javaOnly,
 		withTesting,
 
-		// temporarily disable tests
-		Keys.test in assembly := {},
-
 		// put the servlet API in the provided scope; we'll deal with resolving references
 		// later, and we don't want to conflict with any containers we're injecting ourselves
 		// into...
-		libraryDependencies += Dependencies.servletApi % "provided",
+		libraryDependencies ++= Seq(
+			Dependencies.servletApi % "provided"
+		) ++ Dependencies.jsonb,
+
+		// temporarily disable tests
+		Keys.test in assembly := {},
+
+		assemblyMergeStrategy in assembly := {
+			case "module-info.class" => MergeStrategy.discard
+			case x =>
+				val oldStrategy = (assemblyMergeStrategy in assembly).value
+				oldStrategy(x)
+		},
 
 		// assembly settings for agent jar
 		assemblyJarName in assembly := "agent.jar",
@@ -85,7 +96,7 @@ lazy val HQ = Project("HQ", file("hq"))
 		scalaSettings,
 		withTesting,
 
-		libraryDependencies ++= Seq(Dependencies.reactive, Dependencies.dispatch)
+		libraryDependencies ++= Seq(Dependencies.reactive, Dependencies.dispatch) ++ Dependencies.jsonb
 	)
 
 lazy val CodePulse = Project("CodePulse", file("codepulse"))

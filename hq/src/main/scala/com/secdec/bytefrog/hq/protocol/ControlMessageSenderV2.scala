@@ -19,21 +19,21 @@ package com.codedx.codepulse.hq.protocol
 
 import java.io.DataOutputStream
 
-import com.codedx.codepulse.agent.common.message.{MessageProtocol, MessageProtocolV1}
+import com.codedx.codepulse.agent.common.message.{MessageProtocol, MessageProtocolV2}
 import com.codedx.codepulse.hq.protocol.ControlMessage.Configuration
 
-/** A convenient singleton instance of the `ControlMessageSenderV1` class.
+/** A convenient singleton instance of the `ControlMessageSenderV2` class.
   * Using this object will help avoid creating new instances of the class
   * that would otherwise be needed.
   */
-object ControlMessageSenderV1 extends ControlMessageSenderV1
+object ControlMessageSenderV2 extends ControlMessageSenderV2
 
-/** A [[ControlMessageSender]] implementation that uses MessageProtocol version 1
+/** A [[ControlMessageSender]] implementation that uses MessageProtocol version 2
   * to send messages.
   */
-class ControlMessageSenderV1 extends ControlMessageSenderBase {
+class ControlMessageSenderV2 extends ControlMessageSenderBase {
 
-	var protocol: MessageProtocol = new MessageProtocolV1
+	var protocol: MessageProtocol = new MessageProtocolV2
 
-	def writeConfigurationMessage(out: DataOutputStream, cfg: Configuration[_]) { protocol.writeConfiguration(out, cfg.toByteArray) }
+	def writeConfigurationMessage(out: DataOutputStream, cfg: Configuration[_]) { protocol.writeConfiguration(out, cfg.toJson) }
 }

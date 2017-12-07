@@ -22,6 +22,9 @@ import java.util.List;
 
 import com.codedx.codepulse.agent.common.util.StringUtil;
 
+import javax.json.bind.annotation.JsonbCreator;
+import javax.json.bind.annotation.JsonbProperty;
+
 public class RuntimeAgentConfigurationV1 implements Serializable
 {
 	/**
@@ -37,8 +40,14 @@ public class RuntimeAgentConfigurationV1 implements Serializable
 	private final int queueRetryCount;
 	private final int numDataSenders;
 
-	public RuntimeAgentConfigurationV1(byte runId, int heartbeatInterval, List<String> exclusions,
-			List<String> inclusions, int bufferMemoryBudget, int queueRetryCount, int numDataSenders)
+	@JsonbCreator
+	public RuntimeAgentConfigurationV1(@JsonbProperty("runId") byte runId,
+									   @JsonbProperty("heartbeatInterval") int heartbeatInterval,
+									   @JsonbProperty("exclusions") List<String> exclusions,
+									   @JsonbProperty("inclusions") List<String> inclusions,
+									   @JsonbProperty("bufferMemoryBudget") int bufferMemoryBudget,
+									   @JsonbProperty("queueRetryCount") int queueRetryCount,
+									   @JsonbProperty("numDataSenders") int numDataSenders)
 	{
 		this.runId = runId;
 		this.heartbeatInterval = heartbeatInterval;

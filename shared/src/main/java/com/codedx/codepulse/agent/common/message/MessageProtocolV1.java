@@ -244,4 +244,10 @@ public class MessageProtocolV1 implements MessageProtocol
 		out.writeUTF(key);
 		out.writeUTF(value);
 	}
+
+	@Override
+	public void writeConfiguration(DataOutputStream out, String configJson) throws IOException, NotSupportedException
+	{
+		throw new NotSupportedException();
+	}
 }

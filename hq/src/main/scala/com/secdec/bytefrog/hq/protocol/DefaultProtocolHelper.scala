@@ -17,12 +17,11 @@
 
 package com.codedx.codepulse.hq.protocol
 
-import com.codedx.codepulse.agent.common.message.MessageProtocol
-import com.codedx.codepulse.agent.common.message.MessageProtocolV1
+import com.codedx.codepulse.agent.common.message.{MessageProtocol, MessageProtocolV1, MessageProtocolV2}
 
 object DefaultProtocolHelper extends ProtocolHelper {
 
-	def latestProtocolVersion = 1
+	def latestProtocolVersion = 2
 
 	/** Returns a `MessageProtocol` instance associated with the given `version`, as
 	  * an option.
@@ -32,6 +31,7 @@ object DefaultProtocolHelper extends ProtocolHelper {
 	  */
 	def getMessageProtocol(version: Int): Option[MessageProtocol] = version match {
 		case 1 => Some(new MessageProtocolV1)
+		case 2 => Some(new MessageProtocolV2)
 		case _ => None
 	}
 
@@ -43,27 +43,32 @@ object DefaultProtocolHelper extends ProtocolHelper {
 	  */
 	def getControlMessageSender(version: Int): Option[ControlMessageSender] = version match {
 		case 1 => Some(ControlMessageSenderV1)
+		case 2 => Some(ControlMessageSenderV2)
 		case _ => None
 	}
 
 	def getControlMessageReader(version: Int): Option[ControlMessageReader] = version match {
 		case 1 => Some(ControlMessageReaderV1)
+		case 2 => Some(ControlMessageReaderV1)
 		case _ => None
 	}
 
 	def getDataEventReader(version: Int): Option[DataEventReader] = version match {
 		//event reader V1 isn't thread safe, so return a new instance each time
 		case 1 => Some(new DataEventReaderV1)
+		case 2 => Some(new DataEventReaderV1)
 		case _ => None
 	}
 
 	def getDataMessageReader(version: Int): Option[DataMessageReader] = version match {
 		case 1 => Some(DataMessageReaderV1)
+		case 2 => Some(DataMessageReaderV1)
 		case _ => None
 	}
 
 	def getDataMessageParser(version: Int): Option[DataMessageParser] = version match {
 		case 1 => Some(DataMessageParserV1)
+		case 2 => Some(DataMessageParserV1)
 		case _ => None
 	}
 }

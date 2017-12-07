@@ -17,22 +17,26 @@
 
 package com.codedx.codepulse.agent.protocol;
 
-import com.codedx.codepulse.agent.common.message.MessageProtocolV1;
-import com.codedx.codepulse.agent.control.ConfigurationReaderV1;
+import com.codedx.codepulse.agent.common.message.MessageProtocolV2;
+import com.codedx.codepulse.agent.control.*;
+import com.codedx.codepulse.agent.init.ControlConnectionHandshake;
 import com.codedx.codepulse.agent.init.ControlConnectionHandshakeV1;
+import com.codedx.codepulse.agent.init.DataConnectionHandshake;
 import com.codedx.codepulse.agent.init.DataConnectionHandshakeV1;
+import com.codedx.codepulse.agent.common.message.MessageProtocol;
+import com.codedx.codepulse.agent.common.message.MessageProtocolV1;
 
 /**
- * ProtocolVersion implementation for version 1.
- * @author RobertF
+ * ProtocolVersion implementation for version 2.
+ * @author ssalas
  */
-public class ProtocolVersion1 extends ProtocolVersionBase
+public class ProtocolVersion2 extends ProtocolVersionBase
 {
-	public ProtocolVersion1()
-	{
-		messageProtocol = new MessageProtocolV1();
-		configurationReader = new ConfigurationReaderV1();
-		controlConnectionHandshake = new ControlConnectionHandshakeV1(messageProtocol, configurationReader);
-		dataConnectionHandshake = new DataConnectionHandshakeV1(messageProtocol);
-	}
+    public ProtocolVersion2()
+    {
+        messageProtocol = new MessageProtocolV2();
+        configurationReader = new ConfigurationReaderV2();
+        controlConnectionHandshake = new ControlConnectionHandshakeV1(messageProtocol, configurationReader);
+        dataConnectionHandshake = new DataConnectionHandshakeV1(messageProtocol);
+    }
 }

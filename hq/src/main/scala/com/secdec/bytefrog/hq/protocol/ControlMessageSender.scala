@@ -20,6 +20,7 @@ package com.codedx.codepulse.hq.protocol
 import java.io.DataOutputStream
 
 import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.agent.common.message.MessageProtocol
 
 /** A Trait that describes an object that can send ControlMessages to a connection.
   *

@@ -41,6 +41,12 @@ object Dependencies {
 		"org.ow2.asm" % "asm" % "5.1",
 		"org.ow2.asm" % "asm-commons" % "5.1"
 	)
+	lazy val jsonb = Seq(
+		"javax.json" % "javax.json-api" % "1.1",
+		"javax.json.bind" % "javax.json.bind-api" % "1.0",
+		"org.glassfish" % "javax.json" % "1.1",
+		"org.eclipse" % "yasson" % "1.0"
+	)
 	lazy val jna = Seq(
 		"net.java.dev.jna" % "jna" % "4.1.0",
 		"net.java.dev.jna" % "jna-platform" % "4.1.0"

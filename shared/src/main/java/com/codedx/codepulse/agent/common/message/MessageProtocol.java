@@ -88,4 +88,6 @@ public interface MessageProtocol
 
 	public void writeMarker(DataOutputStream out, String key, String value, int relTime, int seq)
 			throws IOException;
+
+	public void writeConfiguration(DataOutputStream out, String configJson) throws IOException, NotSupportedException;
 }
