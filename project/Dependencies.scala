@@ -53,7 +53,7 @@ object Dependencies {
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
-	lazy val h2 = "com.h2database" % "h2" % "1.3.172"
+	lazy val h2 = "com.h2database" % "h2" % "1.4.196"
 
 	// apache commons dependencies
 	object commons {
