@@ -271,7 +271,7 @@ object ProjectUploadData {
 						for {
 							(sig, size) <- methods
 							treeNode <- Option(builder.getOrAddMethod(groupName, sig, size))
-						} methodCorrelationsBuilder += (sig.name -> treeNode.id)
+						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 
 					case _ => // nothing
