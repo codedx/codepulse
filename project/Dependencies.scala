@@ -38,8 +38,8 @@ object Dependencies {
 	lazy val reactive = "cc.co.scala-reactive" %% "reactive-core"	% "0.3.2.1"
 	lazy val concLinkedHashMap = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.2_jdk5"
 	lazy val asm = Seq(
-		"org.ow2.asm" % "asm" % "4.1",
-		"org.ow2.asm" % "asm-commons" % "4.1"
+		"org.ow2.asm" % "asm" % "5.1",
+		"org.ow2.asm" % "asm-commons" % "5.1"
 	)
 	lazy val jna = Seq(
 		"net.java.dev.jna" % "jna" % "4.1.0",
