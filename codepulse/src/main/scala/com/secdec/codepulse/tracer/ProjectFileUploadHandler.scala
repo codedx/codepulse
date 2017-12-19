@@ -22,6 +22,8 @@ package com.secdec.codepulse.tracer
 import java.io.File
 import net.liftweb.http.BadResponse
 import net.liftweb.http.LiftResponse
+import net.liftweb.http.RedirectWithState
+import net.liftweb.http.RedirectState
 import net.liftweb.http.LiftRules
 import net.liftweb.http.NotFoundResponse
 import net.liftweb.http.OkResponse
@@ -68,7 +70,13 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 					_.projectData.metadata.name = name
 				}
 
-				hrefResponse(projectId)
+				projectManager.getProject(projectId) match {
+					case None =>
+						// failed processing for some reason
+						NotFoundResponse("There was an unknown error processing your data.")
+					case Some(_) =>
+						hrefResponse(projectId)
+				}
 			}
 		}
 
@@ -124,7 +132,10 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 
 	def fallbackResponse(box: Box[LiftResponse]) = box match {
 		case Full(resp) => resp
-		case Empty => NotFoundResponse("an unknown error occurred")
-		case Failure(msg, _, _) => NotFoundResponse(msg)
+		case _ => {
+			RedirectWithState("/", RedirectState(() => NotFoundResponse("An error occurred while processing data.")))
+		}
+//		case Empty => NotFoundResponse("an unknown error occurred")
+//		case Failure(msg, _, _) => {NotFoundResponse(msg)
 	}
 }
