@@ -132,10 +132,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 
 	def fallbackResponse(box: Box[LiftResponse]) = box match {
 		case Full(resp) => resp
-		case _ => {
-			RedirectWithState("/", RedirectState(() => NotFoundResponse("An error occurred while processing data.")))
-		}
-//		case Empty => NotFoundResponse("an unknown error occurred")
-//		case Failure(msg, _, _) => {NotFoundResponse(msg)
+		case Empty => NotFoundResponse("an unknown error occurred")
+		case Failure(msg, _, _) => NotFoundResponse(msg)
 	}
 }
