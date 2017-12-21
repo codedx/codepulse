@@ -31,7 +31,7 @@ object Dependencies {
 	// testing
 	lazy val junit = "junit" % "junit" % "4.5" % "test->default"
 	lazy val specs = "org.scala-tools.testing" % "specs_2.9.0" % "1.6.8" % "test"
-	lazy val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+	lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 
 	// extra libraries
 	lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
