@@ -22,8 +22,6 @@ package com.secdec.codepulse.tracer
 import java.io.File
 import net.liftweb.http.BadResponse
 import net.liftweb.http.LiftResponse
-import net.liftweb.http.RedirectWithState
-import net.liftweb.http.RedirectState
 import net.liftweb.http.LiftRules
 import net.liftweb.http.NotFoundResponse
 import net.liftweb.http.OkResponse
