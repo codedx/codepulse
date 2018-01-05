@@ -39,7 +39,7 @@ object AsmVisitors {
 	}
 }
 
-class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends MethodVisitor(Opcodes.ASM4) {
+class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends MethodVisitor(Opcodes.ASM5) {
 	private var instructionCounter = 0
 
 	def inc() = instructionCounter += 1
@@ -61,7 +61,7 @@ class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends
 	override def visitVarInsn(opcode: Int, v: Int): Unit = inc()
 }
 
-class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends ClassVisitor(Opcodes.ASM4) {
+class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends ClassVisitor(Opcodes.ASM5) {
 	private var classSignature = ""
 
 	override def visit(version: Int, access: Int, name: String, signature: String, superName: String, interfaces: Array[String]) = {

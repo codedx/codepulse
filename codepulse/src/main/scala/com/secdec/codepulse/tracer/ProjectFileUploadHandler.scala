@@ -68,7 +68,13 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 					_.projectData.metadata.name = name
 				}
 
-				hrefResponse(projectId)
+				projectManager.getProject(projectId) match {
+					case None =>
+						// failed processing for some reason
+						NotFoundResponse("There was an unknown error processing your data.")
+					case Some(_) =>
+						hrefResponse(projectId)
+				}
 			}
 		}
 

@@ -31,15 +31,15 @@ object Dependencies {
 	// testing
 	lazy val junit = "junit" % "junit" % "4.5" % "test->default"
 	lazy val specs = "org.scala-tools.testing" % "specs_2.9.0" % "1.6.8" % "test"
-	lazy val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+	lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
 
 	// extra libraries
 	lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
 	lazy val reactive = "cc.co.scala-reactive" %% "reactive-core"	% "0.3.2.1"
 	lazy val concLinkedHashMap = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.2_jdk5"
 	lazy val asm = Seq(
-		"org.ow2.asm" % "asm" % "4.1",
-		"org.ow2.asm" % "asm-commons" % "4.1"
+		"org.ow2.asm" % "asm" % "5.1",
+		"org.ow2.asm" % "asm-commons" % "5.1"
 	)
 	lazy val jna = Seq(
 		"net.java.dev.jna" % "jna" % "4.1.0",
@@ -53,7 +53,7 @@ object Dependencies {
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
-	lazy val h2 = "com.h2database" % "h2" % "1.3.172"
+	lazy val h2 = "com.h2database" % "h2" % "1.4.196"
 
 	// apache commons dependencies
 	object commons {
