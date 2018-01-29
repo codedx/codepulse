@@ -20,6 +20,7 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
+
 import net.liftweb.http.BadResponse
 import net.liftweb.http.LiftResponse
 import net.liftweb.http.LiftRules
@@ -35,6 +36,10 @@ import net.liftweb.http.JsonResponse
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.Box
 import com.secdec.codepulse.data.model.ProjectId
+import com.secdec.codepulse.input.ProjectStarter
+import com.secdec.codepulse.input.bytecode.BuilderFromByteCodeArchive
+import com.secdec.codepulse.input.dependencycheck.DependencyCheck
+import com.secdec.codepulse.input.dotnet.BuilderFromDotNETArchive
 import net.liftweb.http.PlainTextResponse
 import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
 
@@ -56,34 +61,42 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 		case UploadPath("create") Post req => fallbackResponse {
 			for {
 				(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
-				isJava = ProjectUploadData.checkForClassesInNestedArchive(inputFile)
-				isDotNet = ProjectUploadData.checkForDotNetInNestedArchive(inputFile)
+				javaProcessor = new BuilderFromByteCodeArchive(inputFile, originalName, cleanup) with DependencyCheck with ProjectStarter
+				dotNETProcessor = new BuilderFromDotNETArchive(inputFile, originalName, cleanup) with DependencyCheck with ProjectStarter
+				isJava = javaProcessor.passesQuickCheck(inputFile)//ProjectUploadData.checkForClassesInNestedArchive(inputFile)
+				isDotNet = dotNETProcessor.passesQuickCheck(inputFile)//ProjectUploadData.checkForDotNetInNestedArchive(inputFile)
 				_ <- (isJava || isDotNet) ?~ {
 					s"The file you picked contains neither compiled Java files or dotNET assembly and symbol files."
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
 				if(isJava) {
-					val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName, { cleanup() })
-
-					// set the new trace's name
-					projectManager.getProject(projectId) foreach {
-						_.projectData.metadata.name = name
-					}
-
-					hrefResponse(projectId)
+					val projectData = javaProcessor.process()
+					projectData.metadata.name = name
+					hrefResponse(projectData.id)
+//					val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName, { cleanup() })
+//
+//					// set the new trace's name
+//					projectManager.getProject(projectId) foreach {
+//						_.projectData.metadata.name = name
+//					}
+//
+//					hrefResponse(projectId)
 				}
 				// Extract project handling would allow us to combine handling of java and dotnet.
 				// More of an edge case where a user uploads a file with both, but, it'd be an interesting win.
 				// No idea if the tracing aspect would work though.
 				else if(isDotNet) {
-					val projectId = ProjectUploadData.handleDotNetArchive(inputFile, originalName, { cleanup() })
-
-					// set the new trace's name
-					projectManager.getProject(projectId) foreach {
-						_.projectData.metadata.name = name
-					}
-					hrefResponse(projectId)
+					val projectData = dotNETProcessor.process()
+					projectData.metadata.name = name
+					hrefResponse(projectData.id)
+//					val projectId = ProjectUploadData.handleDotNetArchive(inputFile, originalName, { cleanup() })
+//
+//					// set the new trace's name
+//					projectManager.getProject(projectId) foreach {
+//						_.projectData.metadata.name = name
+//					}
+//					hrefResponse(projectId)
 				}
 				else {
 					???
