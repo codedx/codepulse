@@ -53,7 +53,7 @@ class Boot extends Loggable {
 		ExceptionHandler.init(LiftRules)
 
 		tracer.boot
-		dependencycheck boot tracer.actorSystem()
+		dependencycheck boot(tracer.actorSystem(), tracer.generalEventBus())
 
 		/* Register all Comet actors and Snippet renderers, for use by
 		 * Lift's templating system. Without this, all of our snippets

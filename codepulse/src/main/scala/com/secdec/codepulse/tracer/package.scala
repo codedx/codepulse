@@ -20,17 +20,27 @@
 package com.secdec.codepulse
 
 import language.implicitConversions
+
 import com.secdec.codepulse.data.model.ProjectDataProvider
 import com.secdec.codepulse.data.model.slick.SlickH2ProjectDataProvider
 import com.secdec.codepulse.tracer.TransientTraceDataProvider
-import akka.actor.ActorSystem
+import akka.actor.{ ActorRef, ActorSystem, Props }
+import com.secdec.codepulse.dependencycheck.ScanSettings
+import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.input.LanguageProcessor
+import com.secdec.codepulse.input.bytecode.ByteCodeProcessor
+import com.secdec.codepulse.input.dependencycheck.DependencyCheckPostProcessor
+import com.secdec.codepulse.input.dotnet.DotNETProcessor
+import com.secdec.codepulse.input.project.{ ProjectInputActor, ProjectLoader }
+import com.secdec.codepulse.processing.ProcessStatus.DataInputAvailable
+import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 
 package object tracer {
 
 	class BootVar[T] {
 		private var _value: Option[T] = None
 		def apply() = _value getOrElse {
-			throw new IllegalStateException("Code Pulse has not booted yet")
+			throw new IllegalStateException("pack Code Pulse has not booted yet")
 		}
 		private[tracer] def set(value: T) = {
 			_value = Some(value)
@@ -48,6 +58,10 @@ package object tracer {
 	val apiServer = new BootVar[APIServer]
 	val traceConnectionLooper = new BootVar[TraceConnectionLooper.API]
 	val traceConnectionAcknowledger = new BootVar[TraceConnectionAcknowledger]
+	val generalEventBus = new BootVar[GeneralEventBus]
+	val projectInput = new BootVar[ActorRef]
+	val byteCodeProcessor = new BootVar[ActorRef]
+	val dotNETProcessor = new BootVar[ActorRef]
 
 	def boot() {
 		val as = ProjectManager.defaultActorSystem
@@ -68,8 +82,24 @@ package object tracer {
 		traceConnectionLooper set looper
 
 		actorSystem set as
+		generalEventBus set new GeneralEventBus
 		projectManager set tm
-		projectFileUploadServer set new ProjectFileUploadHandler(tm).initializeServer
+		projectFileUploadServer set new ProjectFileUploadHandler(tm, generalEventBus).initializeServer
 		apiServer set new APIServer(tm, tbm).initializeServer
+
+		val projectInputActor = actorSystem actorOf Props[ProjectInputActor]
+		projectInput set projectInputActor
+
+		val byteCodeProcessorActor = actorSystem actorOf Props(new ByteCodeProcessor(generalEventBus))
+		generalEventBus.subscribe(byteCodeProcessorActor, "DataInputAvailable")
+		byteCodeProcessor set byteCodeProcessorActor
+
+		val dotNETProcessorActor = actorSystem actorOf Props(new DotNETProcessor(generalEventBus))
+		generalEventBus.subscribe(dotNETProcessorActor, "DataInputAvailable")
+		dotNETProcessor set dotNETProcessorActor
+
+		val dependencyCheckPostProcessorActor = actorSystem actorOf Props(new DependencyCheckPostProcessor(generalEventBus, ScanSettings.createFromProject))
+		generalEventBus.subscribe(dependencyCheckPostProcessorActor, "ProcessDataAvailable")
+
 	}
 }

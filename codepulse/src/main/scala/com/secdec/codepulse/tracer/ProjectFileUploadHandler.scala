@@ -20,7 +20,12 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.Properties
 
+import akka.pattern.{ ask, pipe }
+import akka.util.Timeout
 import net.liftweb.http.BadResponse
 import net.liftweb.http.LiftResponse
 import net.liftweb.http.LiftRules
@@ -35,15 +40,19 @@ import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import net.liftweb.http.JsonResponse
 import net.liftweb.json.JsonDSL._
 import net.liftweb.common.Box
-import com.secdec.codepulse.data.model.ProjectId
-import com.secdec.codepulse.input.ProjectStarter
-import com.secdec.codepulse.input.bytecode.BuilderFromByteCodeArchive
-import com.secdec.codepulse.input.dependencycheck.DependencyCheck
-import com.secdec.codepulse.input.dotnet.BuilderFromDotNETArchive
+import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
+import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.input.CanProcessFile
+import com.secdec.codepulse.input.project.CreateProject
+//import com.secdec.codepulse.input.ProjectStarter
+import com.secdec.codepulse.input.bytecode.ByteCodeProcessor
+import com.secdec.codepulse.input.dotnet.DotNETProcessor
+import com.secdec.codepulse.input.project.ProjectInputActor
+import com.secdec.codepulse.processing.ProcessStatus
 import net.liftweb.http.PlainTextResponse
 import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
 
-class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelper {
+class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: GeneralEventBus) extends RestHelper {
 
 	def initializeServer() = {
 		LiftRules.statelessDispatch.append(this)
@@ -57,50 +66,42 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 		}
 	}
 
+//	var javaProcessor = new ByteCodeProcessor(eventBus)//new BuilderFromByteCodeArchive(eventBus) with DependencyCheck with ProjectStarter
+//	var dotNETProcessor = new DotNETProcessor(eventBus)//new BuilderFromDotNETArchive(eventBus) with DependencyCheck with ProjectStarter
+
+	var languageProcessors = List(byteCodeProcessor, dotNETProcessor)
+
+	var supportedInputTypeDescriptions = Map(
+		byteCodeProcessor -> "Compiled Java (.class) files",
+		dotNETProcessor -> ".NET assembly (.exe, .dll) and symbol (.pdb, .mdb(mono debug)) files"
+	)
+
+	implicit val timeout: Timeout = 3 seconds
+
 	serve {
 		case UploadPath("create") Post req => fallbackResponse {
 			for {
 				(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
-				javaProcessor = new BuilderFromByteCodeArchive(inputFile, originalName, cleanup) with DependencyCheck with ProjectStarter
-				dotNETProcessor = new BuilderFromDotNETArchive(inputFile, originalName, cleanup) with DependencyCheck with ProjectStarter
-				isJava = javaProcessor.passesQuickCheck(inputFile)//ProjectUploadData.checkForClassesInNestedArchive(inputFile)
-				isDotNet = dotNETProcessor.passesQuickCheck(inputFile)//ProjectUploadData.checkForDotNetInNestedArchive(inputFile)
-				_ <- (isJava || isDotNet) ?~ {
-					s"The file you picked contains neither compiled Java files or dotNET assembly and symbol files."
+				processors = languageProcessors.filter((proc) => Await.result(((proc() ? CanProcessFile(inputFile))).mapTo[Boolean], Duration.Inf))
+				_ <- (processors.length > 0) ?~ {
+					var inputErrorStatement = s"The file you picked does not contain any of the following supported input data:"
+					var inputRequirements = supportedInputTypeDescriptions.values.map("\t-" + _).mkString(Properties.lineSeparator)
+					inputErrorStatement + Properties.lineSeparator + inputRequirements
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
-				if(isJava) {
-					val projectData = javaProcessor.process()
-					projectData.metadata.name = name
-					hrefResponse(projectData.id)
-//					val projectId = ProjectUploadData.handleBinaryZip(inputFile, originalName, { cleanup() })
-//
-//					// set the new trace's name
-//					projectManager.getProject(projectId) foreach {
-//						_.projectData.metadata.name = name
-//					}
-//
-//					hrefResponse(projectId)
-				}
-				// Extract project handling would allow us to combine handling of java and dotnet.
-				// More of an edge case where a user uploads a file with both, but, it'd be an interesting win.
-				// No idea if the tracing aspect would work though.
-				else if(isDotNet) {
-					val projectData = dotNETProcessor.process()
-					projectData.metadata.name = name
-					hrefResponse(projectData.id)
-//					val projectId = ProjectUploadData.handleDotNetArchive(inputFile, originalName, { cleanup() })
-//
-//					// set the new trace's name
-//					projectManager.getProject(projectId) foreach {
-//						_.projectData.metadata.name = name
-//					}
-//					hrefResponse(projectId)
-				}
-				else {
-					???
-				}
+				// TODO: multi-language ingestion support
+				// At the moment, we don't support multiple languages on the same codebase.
+				// This is a potential spot to expand upon in the future and likely is not too difficult to add.
+
+				val project = Await.result((projectInput() ? CreateProject((projectData, eventBus) => {
+						projectData.metadata.name = name
+						projectData.metadata.creationDate = System.currentTimeMillis
+//						processors.head.process(inputFile, projectData.treeNodeData)
+						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData))
+					})).mapTo[ProjectData], Duration.Inf)
+
+				hrefResponse(project.id)
 			}
 		}
 

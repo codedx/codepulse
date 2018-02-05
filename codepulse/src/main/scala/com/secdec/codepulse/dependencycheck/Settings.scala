@@ -24,10 +24,11 @@ import java.io.File
 import org.apache.commons.io.IOUtils
 import org.owasp.dependencycheck.Engine
 import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
-
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.paths
+import com.secdec.codepulse.tracer.projectDataProvider
 import com.secdec.codepulse.util.RichFile._
+import net.liftweb.util.Helpers.AsInt
 
 sealed abstract class ReportFormat(val value: String)
 object ReportFormat {
@@ -77,5 +78,10 @@ case class ScanSettings(
 )
 
 object ScanSettings {
-	def apply(app: File, appName: String, projectId: ProjectId, reportFormat: ReportFormat = ReportFormat.All): ScanSettings = ScanSettings(app, appName, paths.appData / "dependency-check" / "projects" / projectId.num.toString, reportFormat)
+	def apply(app: File, appName: String, identifier: String, reportFormat: ReportFormat = ReportFormat.All): ScanSettings = ScanSettings(app, appName, paths.appData / "dependency-check" / "projects" / identifier, reportFormat)
+	def createFromProject(identifier: String, app: File): ScanSettings = {
+		val project = projectDataProvider getProject ProjectId(identifier.toInt)
+		val name = project.metadata.name
+		ScanSettings(app, name, identifier)
+	}
 }

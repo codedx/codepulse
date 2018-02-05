@@ -26,18 +26,80 @@ import JsCmds.jsExpToJsCmd
 import net.liftweb.http.js.jquery.JqJE._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
-
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.dependencycheck._
 import com.secdec.codepulse.util.comet.PublicCometInit
 import JsonHelpers._
+import akka.actor.Actor
+import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
+
+class Updates extends Actor {
+	def receive = {
+		case ProcessEnvelope(_, ProcessStatus.Queued(identifier)) => {
+			println("Recieved Queued")
+			Updates.pushUpdate(identifier, ("state" -> "queued"))
+		}
+		case ProcessEnvelope(_, ProcessStatus.Running(identifier)) => {
+			println("Recieved Running")
+			Updates.pushUpdate(identifier, ("state" -> "running"))
+		}
+		case ProcessEnvelope(_, ProcessStatus.Finished(identifier, Some((dependencies: Int, vulnerableDependencies: Int, vulnerableNodes: Seq[Int])))) => {
+			println("Received Finished")
+			Updates.pushUpdate(identifier, ("state" -> "finished") ~ ("numDeps" -> dependencies) ~ ("numFlaggedDeps" -> vulnerableDependencies),
+				vulnerableNodes)
+		}
+		case ProcessEnvelope(_, ProcessStatus.Failed(identifier, _, _)) => {
+			println("Received Failed")
+			Updates.pushUpdate(identifier, ("state" -> "failed"))
+		}
+		case ProcessEnvelope(_, ProcessStatus.NotRun(identifier)) => {
+			println("Received NotRun")
+			Updates.pushUpdate(identifier, ("state" -> "none"))
+		}
+
+		case ProcessEnvelope(_, ProcessStatus.Unknown(identifier)) => {
+			println("Received Unknown")
+			Updates.pushUpdate(identifier, ("state" -> "unknown"))
+		}
+
+		case _ =>
+	}
+}
 
 object Updates extends CometActor with PublicCometInit {
-	def pushUpdate(projectId: ProjectId, status: DependencyCheckStatus, vulnerableNodes: Seq[Int]) {
+//	def pushUpdate(projectId: ProjectId, status: DependencyCheckStatus, vulnerableNodes: Seq[Int]) {
+//		val update = ("project" -> projectId.num) ~
+//			("summary" -> status.json) ~ ("vulnerableNodes" -> vulnerableNodes)
+//		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
+//		partialUpdate { cmd }
+//	}
+
+	def pushUpdate(projectId: ProjectId, status: JObject, vulnerableNodes: Seq[Int]) {
 		val update = ("project" -> projectId.num) ~
-			("summary" -> status.json) ~ ("vulnerableNodes" -> vulnerableNodes)
+			("summary" -> status) ~ ("vulnerableNodes" -> vulnerableNodes)
 		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
-		partialUpdate { cmd }
+		partialUpdate {cmd}
+	}
+
+	def pushUpdate(projectId: ProjectId, status: JObject) {
+		val update = ("project" -> projectId.num) ~
+			("summary" -> status)
+		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
+		partialUpdate {cmd}
+	}
+
+	def pushUpdate(projectId: String, status: JObject, vulnerableNodes: Seq[Int]) {
+		val update = ("project" -> projectId) ~
+			("summary" -> status) ~ ("vulnerableNodes" -> vulnerableNodes)
+		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
+		partialUpdate {cmd}
+	}
+
+	def pushUpdate(projectId: String, status: JObject) {
+		val update = ("project" -> projectId) ~
+			("summary" -> status)
+		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
+		partialUpdate {cmd}
 	}
 
 	def render = Nil
