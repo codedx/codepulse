@@ -37,12 +37,13 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 	val traceGroups = (group :: Nil).toSet
 
 	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData)) => {
+		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
 			try {
 				if(canProcess(file)) {
-					eventBus.publish(ProcessStatus.Running(identifier))
+//					eventBus.publish(ProcessStatus.Running(identifier))
 //					var builder =
 					process(file, treeNodeData)
+					post()
 					println("dotNET Processor is making data available")
 					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
 				}

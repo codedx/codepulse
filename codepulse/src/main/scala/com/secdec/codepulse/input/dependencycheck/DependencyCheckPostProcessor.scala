@@ -40,7 +40,7 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 			}
 
 			try {
-				eventBus.publish(ProcessStatus.Running(identifier))
+//				eventBus.publish(ProcessStatus.Running(identifier))
 				process(identifier, scanSettings(identifier, file), treeNodeData, status)
 				eventBus.publish(PostProcessDataAvailable(identifier, None))
 			} catch {

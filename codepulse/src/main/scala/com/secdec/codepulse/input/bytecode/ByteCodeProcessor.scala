@@ -37,12 +37,13 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 
 	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData)) => {
+		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
 			try {
 				if(canProcess(file)) {
-					eventBus.publish(ProcessStatus.Running(identifier))
+//					eventBus.publish(ProcessStatus.Running(identifier))
 					//var builder =
 					process(file, treeNodeData)
+					post()
 					println("ByteCode Processor is making data available")
 					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
 				}
@@ -73,54 +74,50 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 
 		val loader = new SmartLoader
 
-		try {
-			ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-				val groupName = if (filename == file.getName) RootGroupName else s"JARs/${filename substring file.getName.length + 1}"
-				if (!entry.isDirectory) {
-					FilenameUtils.getExtension(entry.getName) match {
-						case "class" =>
-							val methods = AsmVisitors.parseMethodsFromClass(contents)
-							for {
-								(name, size) <- methods
-								treeNode <- builder.getOrAddMethod(groupName, name, size)
-							} methodCorrelationsBuilder += (name -> treeNode.id)
+		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
+			val groupName = if (filename == file.getName) RootGroupName else s"JARs/${filename substring file.getName.length + 1}"
+			if (!entry.isDirectory) {
+				FilenameUtils.getExtension(entry.getName) match {
+					case "class" =>
+						val methods = AsmVisitors.parseMethodsFromClass(contents)
+						for {
+							(name, size) <- methods
+							treeNode <- builder.getOrAddMethod(groupName, name, size)
+						} methodCorrelationsBuilder += (name -> treeNode.id)
 
-						case "jsp" =>
-							val jspContents = loader loadStream contents
-							val jspSize = JspAnalyzer analyze jspContents
-							jspAdapter.addJsp(entry.getName, jspSize)
+					case "jsp" =>
+						val jspContents = loader loadStream contents
+						val jspSize = JspAnalyzer analyze jspContents
+						jspAdapter.addJsp(entry.getName, jspSize)
 
-						case _ => // nothing
-					}
-				} else if (entry.getName.endsWith("WEB-INF/")) {
-					jspAdapter addWebinf entry.getName
+					case _ => // nothing
 				}
+			} else if (entry.getName.endsWith("WEB-INF/")) {
+				jspAdapter addWebinf entry.getName
+			}
+		}
+
+		val jspCorrelations = jspAdapter build builder
+		val treemapNodes = builder.condensePathNodes().result
+		val methodCorrelations = methodCorrelationsBuilder.result
+
+		if (treemapNodes.isEmpty) {
+			throw new NoSuchElementException("No method data found in analyzed upload file.")
+		} else {
+			val importer = TreeNodeImporter(treeNodeData)
+
+			importer ++= treemapNodes.toIterable map {
+				case (root, node) =>
+					node -> (node.kind match {
+						case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
+						case _ => None
+					})
 			}
 
-			val jspCorrelations = jspAdapter build builder
-			val treemapNodes = builder.condensePathNodes().result
-			val methodCorrelations = methodCorrelationsBuilder.result
+			importer.flush
 
-			if (treemapNodes.isEmpty) {
-				throw new NoSuchElementException("No method data found in analyzed upload file.")
-			} else {
-				val importer = TreeNodeImporter(treeNodeData)
-
-				importer ++= treemapNodes.toIterable map {
-					case (root, node) =>
-						node -> (node.kind match {
-							case CodeTreeNodeKind.Grp | CodeTreeNodeKind.Pkg => Some(tracedGroups contains root.name)
-							case _ => None
-						})
-				}
-
-				importer.flush
-
-				treeNodeData.mapJsps(jspCorrelations)
-				treeNodeData.mapMethodSignatures(methodCorrelations)
-			}
-		} catch {
-			case exception: Exception => println(exception.getMessage)
+			treeNodeData.mapJsps(jspCorrelations)
+			treeNodeData.mapMethodSignatures(methodCorrelations)
 		}
 
 //		builder

@@ -88,6 +88,7 @@ package object tracer {
 		apiServer set new APIServer(tm, tbm).initializeServer
 
 		val projectInputActor = actorSystem actorOf Props[ProjectInputActor]
+		generalEventBus.subscribe(projectInputActor, "ProcessDataAvailable")
 		projectInput set projectInputActor
 
 		val byteCodeProcessorActor = actorSystem actorOf Props(new ByteCodeProcessor(generalEventBus))

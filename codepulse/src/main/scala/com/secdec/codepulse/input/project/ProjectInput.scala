@@ -23,8 +23,9 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.{ Actor, Stash }
-import com.secdec.codepulse.data.model.ProjectData
+import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
 import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.processing.ProcessEnvelope
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, PostProcessDataAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.tracer.{ generalEventBus, projectDataProvider, projectManager }
 
@@ -39,7 +40,12 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 	// TODO: handle data input by creating a project and broadcasting with 'DataInputAvailable' with project payload
 
 	def receive = {
-		case ProcessDataAvailable => { } // TODO: notify page that it can redirect to the project page now
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
+			println("data processing complete - notify UI")
+			for (target <- projectManager getProject ProjectId(identifier.toInt)) {
+				target.notifyLoadingFinished()
+			}
+		} // TODO: notify page that it can redirect to the project page now
 		case PostProcessDataAvailable => { } // TODO: update page with tool status
 		case CreateProject(load) => {
 			val projectData = createAndLoadProjectData(load)
@@ -51,21 +57,21 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 		val projectId = projectManager.createProject
 		val projectData = projectDataProvider getProject projectId
 
-		val futureLoad = Future {
+//		val futureLoad = Future {
 			doLoad(projectData, generalEventBus)
-		}
+//		}
 
-		futureLoad onComplete {
-			case util.Failure(exception) =>
-				println(s"Error importing file: $exception")
-				exception.printStackTrace()
-				projectManager.removeUnloadedProject(projectId)
-
-			case util.Success(_) =>
-				for (target <- projectManager getProject projectId) {
-					target.notifyLoadingFinished()
-				}
-		}
+//		futureLoad onComplete {
+//			case util.Failure(exception) =>
+//				println(s"Error importing file: $exception")
+//				exception.printStackTrace()
+//				projectManager.removeUnloadedProject(projectId)
+//
+//			case util.Success(_) =>
+//				for (target <- projectManager getProject projectId) {
+//					target.notifyLoadingFinished()
+//				}
+//		}
 
 		projectData
 	}

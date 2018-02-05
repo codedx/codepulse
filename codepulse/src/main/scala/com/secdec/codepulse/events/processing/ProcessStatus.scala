@@ -39,7 +39,7 @@ object ProcessStatus {
 	case class NotRun(identifier: String) extends ProcessStatus
 	case class Unknown(identifier: String) extends ProcessStatus
 
-	case class DataInputAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess) extends ProcessStatus
+	case class DataInputAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess, post: () => Unit) extends ProcessStatus
 	case class ProcessDataAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess) extends ProcessStatus
 	case class PostProcessDataAvailable(identifier: String, payload: Option[AnyRef]) extends ProcessStatus
 

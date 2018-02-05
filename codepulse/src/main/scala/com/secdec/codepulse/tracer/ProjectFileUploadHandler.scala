@@ -97,8 +97,17 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 				val project = Await.result((projectInput() ? CreateProject((projectData, eventBus) => {
 						projectData.metadata.name = name
 						projectData.metadata.creationDate = System.currentTimeMillis
+
+					def post(): Unit = {
+						val date = projectData.metadata.creationDate
+						val createDate = System.currentTimeMillis
+
+						if(createDate > date) {
+							projectData.metadata.creationDate = createDate
+						}
+					}
 //						processors.head.process(inputFile, projectData.treeNodeData)
-						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData))
+						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, post))
 					})).mapTo[ProjectData], Duration.Inf)
 
 				hrefResponse(project.id)
