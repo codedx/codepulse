@@ -47,19 +47,19 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 
 	private object ProjectFilename {
 		def apply(folder: File, projectId: ProjectId) = {
-        val dbName = getDbName(projectId)
+			val dbName = getDbName(projectId)
 
-        // The current H2 database driver reads existing PageStore db files
-        // but will create new db files using MVStore.
-        val dbPageStoreFilename = s"$dbName$PageStoreFileSuffix"
-        if ((folder / dbPageStoreFilename).exists)
-            dbPageStoreFilename
-        else
-            s"$dbName$MultiVersionStoreFileSuffix"
-    }
+			// The current H2 database driver reads existing PageStore db files
+			// but will create new db files using MVStore.
+			val dbPageStoreFilename = s"$dbName$PageStoreFileSuffix"
+			if ((folder / dbPageStoreFilename).exists)
+				dbPageStoreFilename
+			else
+				s"$dbName$MultiVersionStoreFileSuffix"
+		}
 		def getDbName(projectId: ProjectId) = s"project-${projectId.num}"
 
-    val NameRegex = raw"project-(\d+)\.(?:h2|mv)\.db".r
+		val NameRegex = raw"project-(\d+)\.(?:h2|mv)\.db".r
 
 		def unapply(filename: String): Option[ProjectId] = filename match {
 			case NameRegex(ProjectId(id)) => Some(id)
@@ -68,9 +68,9 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 	}
 
 	private val masterData = {
-    val needsInit = !((folder / s"$MasterDbName$MultiVersionStoreFileSuffix").exists || (folder / s"$MasterDbName$PageStoreFileSuffix").exists)
+		val needsInit = !((folder / s"$MasterDbName$MultiVersionStoreFileSuffix").exists || (folder / s"$MasterDbName$PageStoreFileSuffix").exists)
 
-    val db = Database.forURL(s"jdbc:h2:file:${(folder / MasterDbName).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
+		val db = Database.forURL(s"jdbc:h2:file:${(folder / MasterDbName).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
 		val data = new SlickMasterData(db, H2Driver)
 
 		if (needsInit) data.init
@@ -81,7 +81,7 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 	def getProject(id: ProjectId): ProjectData = getProjectInternal(id)
 
 	private def getProjectInternal(id: ProjectId, suppressInit: Boolean = false) = cache.getOrElseUpdate(id, {
-    val needsInit = !(folder / ProjectFilename(folder, id)).exists
+		val needsInit = !(folder / ProjectFilename(folder, id)).exists
 
 		val db = Database.forURL(s"jdbc:h2:file:${(folder / ProjectFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
 		val data = new SlickProjectData(id, db, H2Driver, masterData.metadataMaster get id.num, EncountersBufferSize, EncountersFlushInterval, actorSystem)

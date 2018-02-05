@@ -71,7 +71,13 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 						_.projectData.metadata.name = name
 					}
 
-					hrefResponse(projectId)
+					projectManager.getProject(projectId) match {
+						case None =>
+							// failed processing for some reason
+							NotFoundResponse("There was an unknown error processing your data.")
+						case Some(_) =>
+							hrefResponse(projectId)
+					}
 				}
 				// Extract project handling would allow us to combine handling of java and dotnet.
 				// More of an edge case where a user uploads a file with both, but, it'd be an interesting win.
@@ -83,7 +89,14 @@ class ProjectFileUploadHandler(projectManager: ProjectManager) extends RestHelpe
 					projectManager.getProject(projectId) foreach {
 						_.projectData.metadata.name = name
 					}
-					hrefResponse(projectId)
+
+					projectManager.getProject(projectId) match {
+						case None =>
+							// failed processing for some reason
+							NotFoundResponse("There was an unknown error processing your data.")
+						case Some(_) =>
+							hrefResponse(projectId)
+					}
 				}
 				else {
 					???
