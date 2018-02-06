@@ -47,7 +47,6 @@ object DotNet {
 			case Failure(_) => None
 
 			case Success(zipFile) => {
-				println("A dotNET archive was found")
 				val entryExtension = FilenameUtils.getExtension(zipEntry.getName)
 				entryExtension match {
 					case "exe" | "dll" => {

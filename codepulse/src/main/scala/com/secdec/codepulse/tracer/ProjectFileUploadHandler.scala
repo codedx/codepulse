@@ -59,7 +59,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 		dotNETProcessor -> ".NET assembly (.exe, .dll) and symbol (.pdb, .mdb(mono debug)) files"
 	)
 
-	implicit val timeout: Timeout = 3 seconds
+	implicit val timeout: Timeout = 1 minute
 
 	serve {
 		case UploadPath("create") Post req => fallbackResponse {
