@@ -88,7 +88,10 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, post))
 				})).mapTo[ProjectData], Duration.Inf)
 
-				hrefResponse(project.id)
+				val failure = NotFoundResponse("Failed to process data input")
+				val response = projectManager.getProject(project.id).map(p => hrefResponse(p.id)).getOrElse(failure)
+
+				response
 			}
 		}
 

@@ -25,7 +25,7 @@ import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.processing.ProcessEnvelope
-import com.secdec.codepulse.processing.ProcessStatus.{ PostProcessDataAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.processing.ProcessStatus.{ Failed, PostProcessDataAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.tracer.{ generalEventBus, projectDataProvider, projectManager }
 
 trait ProjectLoader {
@@ -40,16 +40,17 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 	// TODO: capture failed state to cause a failed message and redirect (as necessary) for the user
 
 	def receive = {
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
-			println("data processing complete - notify UI")
-			for (target <- projectManager getProject ProjectId(identifier.toInt)) {
-				target.notifyLoadingFinished()
-			}
-		} // TODO: notify page that it can redirect to the project page now
-		case PostProcessDataAvailable => { } // TODO: update page with tool status
 		case CreateProject(load) => {
 			val projectData = createAndLoadProjectData(load)
 			sender ! projectData
+		}
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
+			for (target <- projectManager getProject ProjectId(identifier.toInt)) {
+				target.notifyLoadingFinished()
+			}
+		}
+		case ProcessEnvelope(_, Failed(identifier, action, Some(excepetion))) => {
+			projectManager.removeUnloadedProject(ProjectId(identifier.toInt))
 		}
 	}
 

@@ -42,7 +42,6 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 				if(canProcess(file)) {
 					process(file, treeNodeData)
 					post()
-					println("ByteCode Processor is making data available")
 					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
 				}
 			} catch {
