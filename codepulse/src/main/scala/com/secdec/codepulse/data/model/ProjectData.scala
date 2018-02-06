@@ -19,9 +19,6 @@
 
 package com.secdec.codepulse.data.model
 
-import scala.concurrent.duration._
-import akka.actor.ActorSystem
-
 /** Main entry point for getting a `ProjectData` for a certain trace ID.
   *
   * @author robertf

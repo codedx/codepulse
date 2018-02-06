@@ -19,9 +19,8 @@
 
 package com.secdec.codepulse.events
 
-import akka.actor.ActorRef
-import akka.event.{ ActorClassifier, ActorEventBus, EventBus, LookupClassification }
-import com.secdec.codepulse.processing.{ ProcessStatus, ProcessEnvelope }
+import akka.event.{ ActorEventBus, LookupClassification }
+import com.secdec.codepulse.processing.ProcessEnvelope
 
 class GeneralEventBus extends ActorEventBus with LookupClassification {
 	type Event = ProcessEnvelope

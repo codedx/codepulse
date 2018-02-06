@@ -40,8 +40,6 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
 			try {
 				if(canProcess(file)) {
-//					eventBus.publish(ProcessStatus.Running(identifier))
-					//var builder =
 					process(file, treeNodeData)
 					post()
 					println("ByteCode Processor is making data available")
@@ -119,7 +117,5 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			treeNodeData.mapJsps(jspCorrelations)
 			treeNodeData.mapMethodSignatures(methodCorrelations)
 		}
-
-//		builder
 	}
 }

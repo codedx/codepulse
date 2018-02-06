@@ -19,14 +19,13 @@
 
 package com.secdec.codepulse.input.project
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.processing.ProcessEnvelope
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, PostProcessDataAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.processing.ProcessStatus.{ PostProcessDataAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.tracer.{ generalEventBus, projectDataProvider, projectManager }
 
 trait ProjectLoader {
@@ -38,6 +37,7 @@ case class CreateProject(load: (ProjectData, GeneralEventBus) => Unit)
 class ProjectInputActor extends Actor with Stash with ProjectLoader {
 
 	// TODO: handle data input by creating a project and broadcasting with 'DataInputAvailable' with project payload
+	// TODO: capture failed state to cause a failed message and redirect (as necessary) for the user
 
 	def receive = {
 		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
@@ -57,21 +57,7 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 		val projectId = projectManager.createProject
 		val projectData = projectDataProvider getProject projectId
 
-//		val futureLoad = Future {
-			doLoad(projectData, generalEventBus)
-//		}
-
-//		futureLoad onComplete {
-//			case util.Failure(exception) =>
-//				println(s"Error importing file: $exception")
-//				exception.printStackTrace()
-//				projectManager.removeUnloadedProject(projectId)
-//
-//			case util.Success(_) =>
-//				for (target <- projectManager getProject projectId) {
-//					target.notifyLoadingFinished()
-//				}
-//		}
+		doLoad(projectData, generalEventBus)
 
 		projectData
 	}

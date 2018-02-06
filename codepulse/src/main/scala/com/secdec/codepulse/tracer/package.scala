@@ -19,21 +19,17 @@
 
 package com.secdec.codepulse
 
-import language.implicitConversions
+import scala.language.implicitConversions
 
+import akka.actor.{ ActorRef, ActorSystem, Props }
 import com.secdec.codepulse.data.model.ProjectDataProvider
 import com.secdec.codepulse.data.model.slick.SlickH2ProjectDataProvider
-import com.secdec.codepulse.tracer.TransientTraceDataProvider
-import akka.actor.{ ActorRef, ActorSystem, Props }
 import com.secdec.codepulse.dependencycheck.ScanSettings
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.input.bytecode.ByteCodeProcessor
 import com.secdec.codepulse.input.dependencycheck.DependencyCheckPostProcessor
 import com.secdec.codepulse.input.dotnet.DotNETProcessor
-import com.secdec.codepulse.input.project.{ ProjectInputActor, ProjectLoader }
-import com.secdec.codepulse.processing.ProcessStatus.DataInputAvailable
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
+import com.secdec.codepulse.input.project.ProjectInputActor
 
 package object tracer {
 
@@ -101,6 +97,5 @@ package object tracer {
 
 		val dependencyCheckPostProcessorActor = actorSystem actorOf Props(new DependencyCheckPostProcessor(generalEventBus, ScanSettings.createFromProject))
 		generalEventBus.subscribe(dependencyCheckPostProcessorActor, "ProcessDataAvailable")
-
 	}
 }

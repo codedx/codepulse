@@ -40,11 +40,8 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
 			try {
 				if(canProcess(file)) {
-//					eventBus.publish(ProcessStatus.Running(identifier))
-//					var builder =
 					process(file, treeNodeData)
 					post()
-					println("dotNET Processor is making data available")
 					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
 				}
 			} catch {
@@ -65,8 +62,6 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 	}
 
 	def process(file: File, treeNodeData: TreeNodeDataAccess): Unit = {
-//		val RootGroupName = "dotNET"
-//		val tracedGroups = (RootGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(file) _
@@ -109,7 +104,5 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 
 			treeNodeData.mapMethodSignatures(methodCorrelations)
 		}
-
-//		builder
 	}
 }

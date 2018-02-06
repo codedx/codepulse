@@ -21,7 +21,6 @@ package com.secdec.codepulse.input
 
 import java.io.File
 
-import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.model.TreeNodeDataAccess
 
 case class CanProcessFile(file: File)

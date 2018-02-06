@@ -23,16 +23,13 @@ import java.io.File
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeFlag }
-import com.secdec.codepulse.dependencycheck
-import com.secdec.codepulse.dependencycheck.{ DependencyCheck, DependencyCheckActor, ScanSettings, Settings }
+import com.secdec.codepulse.dependencycheck.{ DependencyCheck, ScanSettings }
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.LanguageProcessor
+import com.secdec.codepulse.processing.ProcessStatus.{ PostProcessDataAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, PostProcessDataAvailable, ProcessDataAvailable }
 import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (String, File) => ScanSettings) extends Actor with Stash {
-	// TODO: "can process" capability for post-process tools
 	def receive = {
 		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
 			def status(processStatus: ProcessStatus): Unit = {
@@ -40,7 +37,6 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 			}
 
 			try {
-//				eventBus.publish(ProcessStatus.Running(identifier))
 				process(identifier, scanSettings(identifier, file), treeNodeData, status)
 				eventBus.publish(PostProcessDataAvailable(identifier, None))
 			} catch {
@@ -52,19 +48,11 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 	}
 
 	def process(identifier: String, scanSettings: ScanSettings, treeNodeData: TreeNodeDataAccess, status: ProcessStatus => Unit): Unit = {
-		//		updateStatus(projectData, DependencyCheckStatus.Queued)
 		status(ProcessStatus.Queued(identifier))
-
-		//val scanSettings = ScanSettings(file, name, identifier)
-
-//		dependencycheck.dependencyCheckActor() ! DependencyCheckActor.Run(scanSettings) {
-//			// before running, set status to running
-//			//			updateStatus(projectData, DependencyCheckStatus.Running)
-			status(ProcessStatus.Running(identifier))
-//		} { reportDir =>
-				// on successful run, process the results
+		status(ProcessStatus.Running(identifier))
 		try {
 			import scala.xml._
+
 			import com.secdec.codepulse.util.RichFile._
 			import treeNodeData.ExtendedTreeNodeData
 
@@ -91,13 +79,9 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 				}
 			}
 
-			//				updateStatus(projectData, DependencyCheckStatus.Finished(deps, vulnDeps), vulnNodes.result)
 			status(ProcessStatus.Finished(identifier, Some((deps, vulnDeps, vulnNodes.result))))
 		} catch {
 			case exception: Exception => status(ProcessStatus.Failed(identifier, "Dependency Check", Some(exception)))
-				// on error, set status to failed
-				//				println(s"Dependency Check for project ${projectData.id} failed to run: $exception")
-				//				updateStatus(projectData, DependencyCheckStatus.Failed)
 		}
 	}
 }

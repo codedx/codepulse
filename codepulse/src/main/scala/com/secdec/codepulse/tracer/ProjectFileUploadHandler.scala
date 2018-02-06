@@ -24,33 +24,19 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.Properties
 
-import akka.pattern.{ ask, pipe }
+import akka.pattern.ask
 import akka.util.Timeout
-import net.liftweb.http.BadResponse
-import net.liftweb.http.LiftResponse
-import net.liftweb.http.LiftRules
-import net.liftweb.http.NotFoundResponse
-import net.liftweb.http.OkResponse
-import net.liftweb.http.Req
-import net.liftweb.http.rest.RestHelper
-import net.liftweb.common.Full
-import net.liftweb.common.Empty
-import net.liftweb.common.Failure
-import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import net.liftweb.http.JsonResponse
-import net.liftweb.json.JsonDSL._
-import net.liftweb.common.Box
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.CanProcessFile
 import com.secdec.codepulse.input.project.CreateProject
-//import com.secdec.codepulse.input.ProjectStarter
-import com.secdec.codepulse.input.bytecode.ByteCodeProcessor
-import com.secdec.codepulse.input.dotnet.DotNETProcessor
-import com.secdec.codepulse.input.project.ProjectInputActor
+import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.processing.ProcessStatus
-import net.liftweb.http.PlainTextResponse
 import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
+import net.liftweb.common.{ Box, Empty, Failure, Full }
+import net.liftweb.http._
+import net.liftweb.http.rest.RestHelper
+import net.liftweb.json.JsonDSL._
 
 class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: GeneralEventBus) extends RestHelper {
 
@@ -65,9 +51,6 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 			case _ => None
 		}
 	}
-
-//	var javaProcessor = new ByteCodeProcessor(eventBus)//new BuilderFromByteCodeArchive(eventBus) with DependencyCheck with ProjectStarter
-//	var dotNETProcessor = new DotNETProcessor(eventBus)//new BuilderFromDotNETArchive(eventBus) with DependencyCheck with ProjectStarter
 
 	var languageProcessors = List(byteCodeProcessor, dotNETProcessor)
 
@@ -90,13 +73,9 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
-				// TODO: multi-language ingestion support
-				// At the moment, we don't support multiple languages on the same codebase.
-				// This is a potential spot to expand upon in the future and likely is not too difficult to add.
-
 				val project = Await.result((projectInput() ? CreateProject((projectData, eventBus) => {
-						projectData.metadata.name = name
-						projectData.metadata.creationDate = System.currentTimeMillis
+					projectData.metadata.name = name
+					projectData.metadata.creationDate = System.currentTimeMillis
 
 					def post(): Unit = {
 						val date = projectData.metadata.creationDate
@@ -106,9 +85,8 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 							projectData.metadata.creationDate = createDate
 						}
 					}
-//						processors.head.process(inputFile, projectData.treeNodeData)
-						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, post))
-					})).mapTo[ProjectData], Duration.Inf)
+					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, post))
+				})).mapTo[ProjectData], Duration.Inf)
 
 				hrefResponse(project.id)
 			}

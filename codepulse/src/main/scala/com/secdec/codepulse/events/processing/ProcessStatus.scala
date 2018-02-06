@@ -21,13 +21,9 @@ package com.secdec.codepulse.processing
 
 import java.io.File
 
-import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import com.secdec.codepulse.data.model.TreeNodeDataAccess
 
-sealed trait ProcessStatus {
-//	def payload: Option[AnyRef]
-//	def load(payload: Option[AnyRef]): ProcessStatus
-}
+sealed trait ProcessStatus
 sealed trait TransientProcessStatus extends ProcessStatus
 final case class ProcessEnvelope(topic: String, processStatus: ProcessStatus)
 
@@ -56,28 +52,4 @@ object ProcessStatus {
 			case status: PostProcessDataAvailable => ProcessEnvelope("PostProcessDataAvailable", status)
 		}
 	}
-
-//	case object Queued extends TransientProcessStatus with Payloadable[ProcessStatus.Queued] {
-//		def load(payload: Any) = new ProcessStatus.Queued(payload)
-//	}
-//
-//	case object Running extends TransientProcessStatus with Payloadable[ProcessStatus.Running] {
-//		def load(payload: Any) = new ProcessStatus.Running(payload)
-//	}
-//
-//	case object Finished extends ProcessStatus with Payloadable[ProcessStatus.Finished] {
-//		def load(payload: Any) = new ProcessStatus.Finished(payload)
-//	}
-//
-//	case object Failed extends ProcessStatus with Payloadable[ProcessStatus.Failed] {
-//		def load(payload: Any) = new ProcessStatus.Failed(payload)
-//	}
-//
-//	case object NotRun extends ProcessStatus with Payloadable[ProcessStatus.NotRun] {
-//		def load(payload: Any) = new ProcessStatus.NotRun(payload)
-//	}
-//
-//	case object Unknown extends ProcessStatus with Payloadable[ProcessStatus.Unknown] {
-//		def load(payload: Any) = new ProcessStatus.Unknown(payload)
-//	}
 }

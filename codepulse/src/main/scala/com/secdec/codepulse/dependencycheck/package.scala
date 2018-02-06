@@ -22,7 +22,6 @@ package com.secdec.codepulse
 import akka.actor.{ ActorRef, ActorSystem, Props }
 import com.secdec.codepulse.components.dependencycheck.Updates
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.dependencycheck.DependencyCheckPostProcessor
 import com.secdec.codepulse.processing.ProcessStatus
 
 package object dependencycheck {
@@ -44,8 +43,6 @@ package object dependencycheck {
 		actorSystem.eventStream.subscribe(dca, classOf[ProcessStatus])
 		dca ! DependencyCheckActor.Update
 		dependencyCheckActor set dca
-//		val dependencyCheckPostProcessor = actorSystem actorOf Props[DependencyCheckPostProcessor]
-//		eventBus.subscribe(dependencyCheckPostProcessor, ProcessStatus.ProcessDataAvailable.getClass.getSimpleName)
 
 		val updates = actorSystem actorOf Props[Updates]
 		eventBus.subscribe(updates, "Queued")
