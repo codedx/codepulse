@@ -23,23 +23,15 @@ import scala.collection.mutable.{ Map => MutableMap }
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-
-import com.secdec.codepulse.components.notifications.NotificationMessage
-import com.secdec.codepulse.components.notifications.NotificationSettings
-import com.secdec.codepulse.components.notifications.Notifications
-import com.secdec.codepulse.data.jsp.JasperJspMapper
-import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.model.ProjectData
-import com.secdec.codepulse.data.model.ProjectDataProvider
-import com.secdec.codepulse.data.model.ProjectId
+import scala.util.{ Failure, Success }
 
 import akka.actor.ActorSystem
+import com.secdec.codepulse.components.notifications.{ NotificationMessage, NotificationSettings, Notifications }
+import com.secdec.codepulse.data.jsp.{ JasperJspMapper, JspMapper }
+import com.secdec.codepulse.data.model.{ ProjectData, ProjectDataProvider, ProjectId }
+import reactive.{ EventSource, Observing }
+
 import bootstrap.liftweb.AppCleanup
-import reactive.EventSource
-import reactive.EventStream
-import reactive.Observing
 
 object ProjectManager {
 	lazy val defaultActorSystem = {

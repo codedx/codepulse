@@ -23,11 +23,8 @@ import java.io.File
 import scala.collection.JavaConversions._
 import scala.util.Try
 
-import org.owasp.dependencycheck.Engine
 import org.owasp.dependencycheck.data.nvdcve._
 import org.owasp.dependencycheck.data.update.UpdateService
-import org.owasp.dependencycheck.dependency.Dependency
-import org.owasp.dependencycheck.reporting.ReportGenerator
 import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 sealed trait DependencyCheckStatus
