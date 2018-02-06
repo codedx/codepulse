@@ -197,8 +197,8 @@
 
 		// wire up the dependency area to listen for dependency check status
 		var depRoot = false
-		treeData.root.children.forEach(function (subroot) {
-			if (subroot.kind == 'group' && subroot.label == 'JARs') {
+		treeData.root.children.forEach(function (subroot, idx) {
+			if (subroot.kind == 'group' && (subroot.label == 'JARs' || idx == 0)) {
 				depRoot = widgets[subroot.id]
 			}
 		})

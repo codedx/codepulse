@@ -25,7 +25,7 @@ import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.processing.ProcessEnvelope
-import com.secdec.codepulse.processing.ProcessStatus.{ Failed, PostProcessDataAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.processing.ProcessStatus._
 import com.secdec.codepulse.tracer.{ generalEventBus, projectDataProvider, projectManager }
 
 trait ProjectLoader {

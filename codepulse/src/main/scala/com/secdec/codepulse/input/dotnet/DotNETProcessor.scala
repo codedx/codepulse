@@ -33,7 +33,7 @@ import com.secdec.codepulse.util.ZipEntryChecker
 import org.apache.commons.io.FilenameUtils
 
 class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
-	val group = "dotNet"
+	val group = "Classes"
 	val traceGroups = (group :: Nil).toSet
 
 	def receive = {
