@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<project name="OpenCover" >
+
+	<property name="target.zip" value="" />
+	
+	<target name="extract" unless="${directory::exists(target.folder)}">
+	    <echo message="${target.folder}" />
+		<property name="target.zip" value="${target.folder}.zip" />
+		<echo message="${target.zip}" />
+		<exec program="${tools.folder}/7-Zip/7za.exe">
+			<arg value="x" />
+			<arg value="-o${tools.folder}" />
+			<arg value="${target.zip}" />
+		</exec>
+	</target>
+	
+	<target name="prepare-environment" >
+		<property name="target.folder" value="${tools.folder}/gmock-1.7.0" />
+		<call target="extract" />
+		<property name="target.folder" value="${tools.folder}/atlsvr.9.0.70425" />
+		<call target="extract" />
+	</target>
+	
+</project>
