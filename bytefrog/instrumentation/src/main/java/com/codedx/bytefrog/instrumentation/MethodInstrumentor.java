@@ -18,14 +18,19 @@
 
 package com.codedx.bytefrog.instrumentation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.codedx.bytefrog.instrumentation.handler.TraceHandler;
 
-import com.codedx.bytefrog.thirdparty.asm.Label;
-import com.codedx.bytefrog.thirdparty.asm.Handle;
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
-import com.codedx.bytefrog.thirdparty.asm.Type;
-import com.codedx.bytefrog.thirdparty.asm.commons.AdviceAdapter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Handle;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.AdviceAdapter;
+
+import com.esotericsoftware.minlog.Log;
 
 /** Adapter for instrumenting methods with entry/exit hooks and line-level tracing.
   *
@@ -37,14 +42,27 @@ class MethodInstrumentor extends AdviceAdapter {
 	private final String desc;
 	private final int methodId;
 	private final MethodInspector.Result inspection;
+	private final boolean isConstructor;
 
 	private final TraceHandler handler;
 
 	private final Type bitSetType = Type.getType(java.util.BitSet.class);
 	private final Type throwableType = Type.getType(Throwable.class);
 
-	boolean isPendingLineTrace = false;
-	int currentLine = 0;
+	private boolean hasEntered = false, canInstrument = true;
+	private boolean isPendingLineTrace = false;
+	private int currentLine = 0;
+
+	// for keeping track of moved 'new' instructions (for uninitialized references in stackmap frames)
+	private class NewLocation {
+		public final Label original, replacement;
+
+		public NewLocation(Label original, Label replacement) {
+			this.original = original;
+			this.replacement = replacement;
+		}
+	}
+	private final List<NewLocation> newReplacementLocations = new ArrayList<>();
 
 	public MethodInstrumentor(final ClassInstrumentor ci, final MethodVisitor mv, final int access, final String methodName, final String desc, final int methodId, final MethodInspector.Result inspection, final TraceHandler handler) {
 		super(Opcodes.ASM5, mv, access, methodName, desc);
@@ -54,15 +72,38 @@ class MethodInstrumentor extends AdviceAdapter {
 		this.desc = desc;
 		this.methodId = methodId;
 		this.inspection = inspection;
+		isConstructor = methodName.equals("<init>");
 
 		this.handler = handler;
 	}
 
+	@Override public void visitCode() {
+		super.visitCode();
+
+		if (isConstructor) {
+			initializeLineLevelInstrumentation();
+		}
+	}
+
 	@Override protected void onMethodEnter() {
-		initializeLineLevelInstrumentation();
-		openTryCatchWrap();
-		instrumentEntry();
 		super.onMethodEnter();
+
+		if (!isConstructor) {
+			initializeLineLevelInstrumentation();
+		}
+
+		if (canInstrument && !hasEntered) {
+			openTryCatchWrap();
+			instrumentEntry();
+			hasEntered = true;
+		} else {
+			if (Log.DEBUG) Log.debug("method instrumentation", String.format("cannot instrument method %s.%s:%s; skipping", ci.getName(), inspection.getName(), desc));
+		}
+
+		if (hasEntered && isPendingLineTrace) {
+			instrumentLine();
+			if (Log.DEBUG) Log.debug("method instrumentation", String.format("line level coverage for %s lines %d-%d potentially missing", inspection.getClassInspection().getFileName(), inspection.getStartLine(), currentLine));
+		}
 	}
 
 	@Override public void visitLineNumber(int line, Label label) {
@@ -94,6 +135,13 @@ class MethodInstrumentor extends AdviceAdapter {
 	@Override public void visitJumpInsn(int opcode, Label label) {
 		instrumentLine();
 		super.visitJumpInsn(opcode, label);
+
+		// any jumping in constructors prior to super constructor call is branching, and too
+		// complex for us to instrument currently
+		if (isConstructor && !hasEntered) {
+			canInstrument = false;
+			if (Log.TRACE) Log.trace("method instrumentation", String.format("jump encountered in constructor %s.%s:%s prior to object initialization; unable to instrument", ci.getName(), inspection.getName(), desc));
+		}
 	}
 
 	@Override public void visitLdcInsn(Object cst) {
@@ -104,6 +152,12 @@ class MethodInstrumentor extends AdviceAdapter {
 	@Override public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 		instrumentLine();
 		super.visitLookupSwitchInsn(dflt, keys, labels);
+
+		// this is branching, too complex prior to super constructor call
+		if (isConstructor && !hasEntered) {
+			canInstrument = false;
+			if (Log.TRACE) Log.trace("method instrumentation", String.format("lookup switch encountered in constructor %s.%s:%s prior to object initialization; unable to instrument", ci.getName(), inspection.getName(), desc));
+		}
 	}
 
 	@Override public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
@@ -119,16 +173,52 @@ class MethodInstrumentor extends AdviceAdapter {
 	@Override public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
 		instrumentLine();
 		super.visitTableSwitchInsn(min, max, dflt, labels);
+
+		// this is branching, too complex prior to super constructor call
+		if (isConstructor && !hasEntered) {
+			canInstrument = false;
+			if (Log.TRACE) Log.trace("method instrumentation", String.format("table switch encountered in constructor %s.%s:%s prior to object initialization; unable to instrument", ci.getName(), inspection.getName(), desc));
+		}
 	}
 
 	@Override public void visitTypeInsn(int opcode, String type) {
-		instrumentLine();
-		super.visitTypeInsn(opcode, type);
+		// stackmap frames may refer to 'NEW' instruction offsets when dealing with uninitialized
+		// values. because we're causing the location to change, we need to keep track of this and
+		// later rewrite any affected frames
+
+		if (opcode == Opcodes.NEW) {
+			// label the original location of the new instruction
+			Label original = new Label();
+			mv.visitLabel(original);
+
+			// inject line-level instrumentation
+			instrumentLine();
+
+			// label the replacement location of the new instruction
+			Label replacement = new Label();
+			mv.visitLabel(replacement);
+
+			// continue with the new op
+			super.visitTypeInsn(opcode, type);
+
+			// record the replacement
+			newReplacementLocations.add(new NewLocation(original, replacement));
+		} else {
+			instrumentLine();
+			super.visitTypeInsn(opcode, type);
+		}
 	}
 
 	@Override public void visitVarInsn(int opcode, int var) {
 		instrumentLine();
 		super.visitVarInsn(opcode, var);
+
+		// for constructors, a RET call is a form of branching, so this sort of complexity before
+		// a super constructor call means we can't easily instrument
+		if (isConstructor && !hasEntered && opcode == Opcodes.RET) {
+			canInstrument = false;
+			if (Log.TRACE) Log.trace("method instrumentation", String.format("ret encountered in constructor %s.%s:%s prior to object initialization; unable to instrument", ci.getName(), inspection.getName(), desc));
+		}
 	}
 
 	@Override public void visitIincInsn(int var, int increment) {
@@ -140,17 +230,55 @@ class MethodInstrumentor extends AdviceAdapter {
 		super.onMethodExit(opcode);
 
 		// if we're exiting via a throw, our try/catch will handle it
-		if (opcode != Opcodes.ATHROW) {
+		if (hasEntered && opcode != Opcodes.ATHROW) {
 			instrumentExit(false);
 		}
 	}
 
 	@Override public void visitMaxs(int maxStack, int maxLocals) {
 		// visitMaxs is called after the code is complete, so we close our top level try/catch block here
-		closeTryCatchWrap();
+		if (hasEntered) {
+			closeTryCatchWrap();
+		}
 
 		// COMPUTE_MAXS will take care of figuring out max stack/locals
 		super.visitMaxs(0, 0);
+	}
+
+	@Override public void visitFrame(int type, int nLocal, Object[] local, int nStack, Object[] stack) {
+		// rewrite uninitialized local and stack entries (ASM represents these by using labels)
+		// that have been impacted by line level coverage
+
+		Object[] localReplacement = new Object[nLocal];
+		Object[] stackReplacement = new Object[nStack];
+
+		for (int i = 0; i < nLocal; ++i) {
+			localReplacement[i] = local[i];
+
+			if (local[i] instanceof Label) {
+				int offset = ((Label)local[i]).getOffset();
+
+				for (NewLocation nl : newReplacementLocations) {
+					if (nl.original.getOffset() == offset)
+						localReplacement[i] = nl.replacement;
+				}
+			}
+		}
+
+		for (int i = 0; i < nStack; ++i) {
+			stackReplacement[i] = stack[i];
+
+			if (stack[i] instanceof Label) {
+				int offset = ((Label)stack[i]).getOffset();
+
+				for (NewLocation nl : newReplacementLocations) {
+					if (nl.original.getOffset() == offset)
+						stackReplacement[i] = nl.replacement;
+				}
+			}
+		}
+
+		super.visitFrame(type, nLocal, localReplacement, nStack, stackReplacement);
 	}
 
 
@@ -183,17 +311,26 @@ class MethodInstrumentor extends AdviceAdapter {
 		}
 	}
 
+
+	private boolean catchingExceptions = false;
+
 	/** instrumentation to observe exceptions bubbling out of the method */
 	private void openTryCatchWrap() {
 		// insert start label for the try block
 		mv.visitLabel(methodBegin);
+		catchingExceptions = true;
 	}
 
 	/** instrumentation to observe exceptions bubbling out of the method */
 	private void closeTryCatchWrap() {
+		if (!catchingExceptions) return;
+
 		// wire up our try/catch around the whole method, so we can observe exception bubbling
 		mv.visitTryCatchBlock(methodBegin, methodEnd, methodEnd, null);
 		mv.visitLabel(methodEnd);
+
+		// when catching an exception, we need a full frame for the handler
+		buildCatchFrame();
 
 		instrumentExit(true);
 
@@ -261,19 +398,14 @@ class MethodInstrumentor extends AdviceAdapter {
 	}
 
 	/** instrumentation to track method exits */
-	private void instrumentExit(boolean thrownException) {
-		if (thrownException) {
-			// when catching an exception, we need a full frame for the handler
-			buildCatchFrame();
-		}
-
-		handler.instrumentExit(mv, methodId, inspection, thrownException);
+	private void instrumentExit(boolean inCatchBlock) {
+		handler.instrumentExit(mv, methodId, inspection, inCatchBlock);
 		if (trackingLines) handler.instrumentLineCoverage(mv, methodId, inspection, lineMapVar);
 	}
 
 	/** instrumentation to track line-level execution */
 	private void instrumentLine() {
-		if (trackingLines && isPendingLineTrace) {
+		if (canInstrument && trackingLines && isPendingLineTrace) {
 			// `lineMap`.set(line - startLine)
 			mv.visitVarInsn(Opcodes.ALOAD, lineMapVar);
 			BytecodeUtil.pushInt(mv, currentLine - inspection.getStartLine());

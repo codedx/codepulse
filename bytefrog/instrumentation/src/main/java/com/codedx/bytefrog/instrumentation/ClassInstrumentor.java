@@ -21,9 +21,9 @@ package com.codedx.bytefrog.instrumentation;
 import com.codedx.bytefrog.instrumentation.id.MethodIdentifier;
 import com.codedx.bytefrog.instrumentation.handler.TraceHandler;
 
-import com.codedx.bytefrog.thirdparty.asm.ClassVisitor;
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /** Adapter for instrumenting classes (delegates to MethodInstrumentor).
   *

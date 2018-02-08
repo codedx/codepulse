@@ -19,7 +19,7 @@
 package com.codedx.bytefrog.instrumentation.handler;
 
 import com.codedx.bytefrog.instrumentation.MethodInspector;
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /** TraceHandler is an adapter for building bytecode to inject trace handler calls.
   *
@@ -37,9 +37,9 @@ public interface TraceHandler {
 	  * @param mv the methodVisitor to build the filter in
 	  * @param methodId the id (from `MethodIdentifier`) of the method being exited
 	  * @param method the method inspector result of the method being exited
-	  * @param exceptionThrown whether or not the method exit is due to a thrown exception
+	  * @param inCatchBlock whether or not the method exit is in our injected try/catch block
 	  */
-	void instrumentExit(final MethodVisitor mv, final int methodId, final MethodInspector.Result method, final boolean exceptionThrown);
+	void instrumentExit(final MethodVisitor mv, final int methodId, final MethodInspector.Result method, final boolean inCatchBlock);
 
 	/** Injects method line level reporting for the provided method ID.
 	  * @param mv the methodVisitor to build the filter in

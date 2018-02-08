@@ -18,7 +18,7 @@
 
 package com.codedx.bytefrog.filterinjector.adapters;
 
-import com.codedx.bytefrog.thirdparty.asm.ClassVisitor;
+import org.objectweb.asm.ClassVisitor;
 
 /** Adapters are used for injecting servlet filters into a container at runtime, in a generic/
   * extensible manner. Adapterss are enumerated in FilterInjector such that an instrumentation

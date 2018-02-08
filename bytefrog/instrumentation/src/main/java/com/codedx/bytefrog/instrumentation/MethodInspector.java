@@ -18,9 +18,9 @@
 
 package com.codedx.bytefrog.instrumentation;
 
-import com.codedx.bytefrog.thirdparty.asm.Label;
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /** Simple method visitor that collects source line information for a method (if available).
   *

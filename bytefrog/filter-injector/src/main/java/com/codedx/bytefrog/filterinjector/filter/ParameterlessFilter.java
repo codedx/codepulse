@@ -20,9 +20,9 @@ package com.codedx.bytefrog.filterinjector.filter;
 
 import com.codedx.bytefrog.util.ClassLoaderUtil;
 
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
-import com.codedx.bytefrog.thirdparty.asm.Type;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /** An InjectableFilter adapter for filters with a parameterless constructor.
   *

@@ -24,8 +24,8 @@ import java.lang.reflect.Method;
 import com.codedx.bytefrog.filterinjector.filter.InjectableFilter;
 import com.codedx.bytefrog.util.ClassLoaderUtil;
 
-import com.codedx.bytefrog.thirdparty.asm.*;
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import org.objectweb.asm.*;
+import com.esotericsoftware.minlog.Log;
 
 /** For Tomcat, injects the filter into Tomcat contexts.
   *

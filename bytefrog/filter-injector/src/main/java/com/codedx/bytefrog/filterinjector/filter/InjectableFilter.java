@@ -18,7 +18,7 @@
 
 package com.codedx.bytefrog.filterinjector.filter;
 
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
+import org.objectweb.asm.MethodVisitor;
 
 /** InjectableFilter is an adapter for building bytecode to construct a filter for injection.
   *

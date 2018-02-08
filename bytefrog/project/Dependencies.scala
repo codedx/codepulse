@@ -3,8 +3,8 @@ import sbt._
 object Dependencies {
 	lazy val minlog = "com.esotericsoftware" % "minlog" % "1.3.0"
 	lazy val asm = Seq(
-		"org.ow2.asm" % "asm" % "5.1",
-		"org.ow2.asm" % "asm-commons" % "5.1"
+		"org.ow2.asm" % "asm" % "6.0",
+		"org.ow2.asm" % "asm-commons" % "6.0"
 	)
 
 	// for testing

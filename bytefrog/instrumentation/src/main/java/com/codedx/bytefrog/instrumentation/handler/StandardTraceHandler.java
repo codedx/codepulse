@@ -21,9 +21,9 @@ package com.codedx.bytefrog.instrumentation.handler;
 import com.codedx.bytefrog.instrumentation.BytecodeUtil;
 import com.codedx.bytefrog.instrumentation.MethodInspector;
 
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
-import com.codedx.bytefrog.thirdparty.asm.Type;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /** A basic TraceHandler adapter for injecting calls to implementations of a standard trace
   * collector interface.

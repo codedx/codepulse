@@ -2,7 +2,7 @@ package com.codedx.bytefrog.util
 
 import org.scalatest._
 
-import com.codedx.bytefrog.thirdparty.asm.Type;
+import org.objectweb.asm.Type;
 
 class ClassLoaderUtilSpec extends fixture.FlatSpec {
 	behavior of "ClassLoaderUtil"

@@ -18,8 +18,8 @@
 
 package com.codedx.bytefrog.instrumentation;
 
-import com.codedx.bytefrog.thirdparty.asm.MethodVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /** Some basic bytecode helper utilities
   *

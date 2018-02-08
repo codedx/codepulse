@@ -21,11 +21,11 @@ package com.codedx.bytefrog.filterinjector;
 import com.codedx.bytefrog.filterinjector.adapters.*;
 import com.codedx.bytefrog.filterinjector.filter.InjectableFilter;
 
-import com.codedx.bytefrog.thirdparty.asm.ClassReader;
-import com.codedx.bytefrog.thirdparty.asm.ClassVisitor;
-import com.codedx.bytefrog.thirdparty.asm.Opcodes;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Opcodes;
 
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 /** A helper utility that, via instrumentation, can inject a filter into one of several known
   * servlet containers.
