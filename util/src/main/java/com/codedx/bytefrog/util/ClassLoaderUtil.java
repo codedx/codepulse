@@ -6,8 +6,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
-import com.codedx.bytefrog.thirdparty.asm.Type;
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import org.objectweb.asm.Type;
+import com.esotericsoftware.minlog.Log;
 
 /** Some helper utilities for dealing with class loader operations.
   *

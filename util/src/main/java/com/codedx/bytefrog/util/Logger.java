@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.FileWriter;
 
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 public class Logger extends Log.Logger {
 	private FileWriter out;
