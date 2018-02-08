@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 /**
  * Transformer for instrumenting class files with trace calls.

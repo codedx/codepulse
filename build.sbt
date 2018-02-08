@@ -30,9 +30,6 @@ lazy val BytefrogFilterInjector = ProjectRef(Bytefrog, "FilterInjector")
 lazy val BytefrogInstrumentation = ProjectRef(Bytefrog, "Instrumentation")
 lazy val BytefrogUtil = ProjectRef(Bytefrog, "Util")
 
-lazy val RepackagedAsm = ProjectRef(Bytefrog, "RepackagedAsm")
-lazy val RepackagedMinlog = ProjectRef(Bytefrog, "RepackagedMinlog")
-
 lazy val Shared = Project("Shared", file("shared"))
 	.settings(
 		baseSettings,
@@ -44,13 +41,12 @@ lazy val Shared = Project("Shared", file("shared"))
 	)
 
 lazy val Agent = Project("Agent", file("agent"))
+	.enablePlugins(AssemblyPlugin)
 	.dependsOn(
 		BytefrogFilterInjector,
 		BytefrogInstrumentation,
 		BytefrogUtil,
-		Shared,
-		RepackagedAsm,
-		RepackagedMinlog
+		Shared
 	)
 	.settings(
 		baseSettings,
@@ -64,10 +60,18 @@ lazy val Agent = Project("Agent", file("agent"))
 		// into...
 		libraryDependencies ++= Seq(
 			Dependencies.servletApi % "provided"
-		) ++ Dependencies.jsonb,
+		) ++ Dependencies.jsonb ++ Dependencies.asm,
+
+		libraryDependencies += Dependencies.minlog,
 
 		// temporarily disable tests
 		Keys.test in assembly := {},
+
+		assemblyShadeRules in assembly := Seq(
+			ShadeRule.rename("org.objectweb.asm.**" -> "com.codedx.tracer.thirdparty.@0").inAll,
+			ShadeRule.rename("com.esotericsoftware.minlog.**" -> "com.codedx.tracer.thirdparty.@0").inAll,
+			ShadeRule.rename("fm.ua.ikysil.smap.**" -> "com.codedx.tracer.thirdparty.@0").inAll
+		),
 
 		assemblyMergeStrategy in assembly := {
 			case "module-info.class" => MergeStrategy.discard

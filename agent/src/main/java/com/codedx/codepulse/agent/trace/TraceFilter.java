@@ -22,7 +22,7 @@ import java.io.IOException;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 /** Servlet filter injected dynamically at runtime (if the container is supported).
   *

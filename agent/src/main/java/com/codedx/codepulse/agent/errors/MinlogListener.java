@@ -17,7 +17,7 @@
 
 package com.codedx.codepulse.agent.errors;
 
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 public class MinlogListener implements ErrorListener
 {

@@ -37,6 +37,7 @@ object Dependencies {
 	lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
 	lazy val reactive = "cc.co.scala-reactive" %% "reactive-core"	% "0.3.2.1"
 	lazy val concLinkedHashMap = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.2_jdk5"
+	lazy val minlog = "com.esotericsoftware" % "minlog" % "1.3.0"
 	lazy val asm = Seq(
 		"org.ow2.asm" % "asm" % "5.1",
 		"org.ow2.asm" % "asm-commons" % "5.1"

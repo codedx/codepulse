@@ -31,12 +31,12 @@ import com.codedx.bytefrog.instrumentation.handler.*;
 
 import com.codedx.bytefrog.util.ClassLoaderUtil;
 
-import com.codedx.bytefrog.thirdparty.asm.ClassReader;
-import com.codedx.bytefrog.thirdparty.asm.ClassVisitor;
-import com.codedx.bytefrog.thirdparty.asm.ClassWriter;
-import com.codedx.bytefrog.thirdparty.asm.Type;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 /** The main glue for instrumentation (including tracing and servlet container filter injection).
   *
@@ -99,7 +99,7 @@ public class Instrumentor {
 			cr.accept(inspector, 0);
 
 			final ClassInspector.Result inspection = inspector.getResult();
-			final int classId = classIdentifier.record(className, inspection.getFileName());
+			final int classId = classIdentifier.record(className, inspection.getFileName(), inspection.getLineLevelMapper());
 
 			final ClassInstrumentor ci = new ClassInstrumentor(filterInjectorVisitor != null ? filterInjectorVisitor : cw, methodIdentifier, classId, inspection, handler);
 			cr.accept(ci, ClassReader.EXPAND_FRAMES);

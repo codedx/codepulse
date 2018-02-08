@@ -49,7 +49,7 @@ import com.codedx.codepulse.agent.common.queue.BufferPool;
 
 import com.codedx.bytefrog.instrumentation.id.*;
 import com.codedx.bytefrog.util.Logger;
-import com.codedx.bytefrog.thirdparty.minlog.Log;
+import com.esotericsoftware.minlog.Log;
 
 /**
  * Concrete Agent implementation, manages the entire trace.
