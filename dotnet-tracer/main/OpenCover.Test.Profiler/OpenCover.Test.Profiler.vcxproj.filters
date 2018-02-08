@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Instrumentation">
+      <UniqueIdentifier>{2015087e-0746-4663-b399-a176c17913df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Profiler">
+      <UniqueIdentifier>{875fbc0e-9ba2-4a3c-8f78-b456700629f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Injection">
+      <UniqueIdentifier>{a0bcd134-ad82-43f9-a160-0137dfe9ac4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Context">
+      <UniqueIdentifier>{449387d5-e97a-4922-b342-0a2b988101d8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestProfilerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockProfilerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ComBaseTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockProfilerHook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockICorProfilerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockIMetaDataAssemblyImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockIMetaDataImport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InjectedTypeTestFixture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockIMethodMalloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockIMetaDataAssemblyEmit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InstrumentationTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\ExceptionHandler.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\Instruction.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\Method.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\Operations.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\CoverageInstrumentation.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="RegressionTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerBaseTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerInstantiationTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\Timer.cpp">
+      <Filter>Source Files\Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerInfoBaseTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerInfoTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\ProfilerInfo.cpp">
+      <Filter>Source Files\Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\PublicKeyTokenCreator.cpp">
+      <Filter>Source Files\Injection</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\AssemblyRegistry.cpp">
+      <Filter>Source Files\Injection</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\InjectedType.cpp">
+      <Filter>Source Files\Injection</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\TraceContainerBase.cpp">
+      <Filter>Source Files\Context</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\TraceContainerCallContext.cpp">
+      <Filter>Source Files\Context</Filter>
+    </ClCompile>
+    <ClCompile Include="PublicKeyTokenCreatorTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InjectedTypeTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyRegistryTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TraceContainerBaseTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TraceContainerCallContextTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+</Project>

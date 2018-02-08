@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" >
+  <?include ..\..\build\Version\Version.wxi ?>
+
+  <Product Id="*" Name="OpenCover" Language="1033" Version="$(var.Version)"
+      Manufacturer="OpenCover" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6" >
+
+    <Package InstallerVersion="200" Compressed="yes" />
+
+    <Upgrade Id="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
+      <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND" Minimum="1.0.0.0" IncludeMinimum="yes"
+                            Maximum="$(var.Version)" IncludeMaximum="no" />
+
+      <UpgradeVersion OnlyDetect="yes" Property="NEWERFOUND" Minimum="$(var.Version)"
+                            IncludeMinimum="yes" />
+    </Upgrade>
+
+    <Media Id="1" Cabinet="media1.cab" EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="APPLICATIONFOLDER" Name="[ApplicationFolderName]" ShortName="OpnCover">
+          <Directory Id="DOCS" Name="Docs" />
+          <Directory Id="TRANSFORM_FLDR" Name="Transforms" />
+          <Directory Id="X86" Name="x86" />
+          <Directory Id="X64" Name="x64" />
+          <Directory Id="SAMPLES" Name="Samples">
+            <Directory Id="SAMPLES_X86" Name="x86" />
+            <Directory Id="SAMPLES_X64" Name="x64" />
+          </Directory>
+        </Directory>
+        <Directory Id="MSBUILDEXTENSIONSDIRECTORY" Name="MSBuild">
+          <Directory Id="MSBUILDOPENCOVERDIRECTORY" Name="OpenCover" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="OpenCover"/>
+      </Directory>
+    </Directory>
+
+    <Feature Id="ProductFeature" Title="OpenCover" Level="1" Description="The OpenCover code-coverage tool and supporting binaries. NOTE: This is the main application, to not install this would be pointless.">
+      <ComponentRef Id="MainProduct" />
+      <ComponentRef Id="MainFramework" />
+      <ComponentRef Id="Extensions" />
+      <ComponentRef Id="Autofac_3rdParty" />
+      <ComponentRef Id="MonoCecil_3rdParty" />
+      <ComponentRef Id="Gendarme_Signed_3rdParty" />
+      <ComponentRef Id="CrashReporter_Signed_3rdParty" />
+      <ComponentRef Id="Log4Net_3rdParty" />
+      <ComponentRef Id="X86Profiler" />
+      <ComponentRef Id="X64Profiler" />
+      <ComponentRef Id="MSBuildFiles" />
+      <ComponentRef Id="RegistryEntries" />
+      <ComponentRef Id="Licence" />
+      <ComponentRef Id="Documentation_RelNotes" />
+      <ComponentRef Id="PromptShortcut" />
+      <ComponentRef Id="TransformScript" />
+      <ComponentRef Id="SimpleTransform" />
+      <ComponentRef Id="Documentation" />
+      <ComponentRef Id="DocumentationShortcut"/>
+      <Feature Id="SamplesFeature" Title="Samples" Level="1" Description="Install 32-bit and 64-bit samples. NOTE: Useful for testing the installation.">
+        <ComponentRef Id="X86Samples" />
+        <ComponentRef Id="X64Samples" />
+        <ComponentRef Id="SampleCmds" />
+      </Feature>
+    </Feature>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts Before="InstallInitialize" />
+    </InstallExecuteSequence>
+
+    <WixVariable Id="WixUILicenseRtf" Value="..\..\License.rtf" />
+    <Icon Id="icon.ico" SourceFile="..\icons\icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+    <Property Id="ApplicationFolderName" Value="OpenCover" />
+    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
+
+    <UIRef Id="WixUI_Advanced" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+  </Product>
+
+</Wix>
