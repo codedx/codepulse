@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?define Version = "1.0.0.0" ?>
+  <?define x86OutputFolder = "..\CodePulse.Installer.Win32\bin\Release\" ?>
+  <?define x64OutputFolder = "..\CodePulse.Installer.Win64\bin\Release\" ?>
+  
+	<Bundle Name="CodePulse.Bundle.Windows" Version="1.0.0.0" Manufacturer="Secure Decisions" UpgradeCode="58eef657-cbbc-46f7-85e7-5640e7f20adb">
+		<BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense" />
+
+		<Chain>
+		  <MsiPackage SourceFile="$(var.x86OutputFolder)CodePulse.Win32.msi" DisplayInternalUI="yes"/>
+		  <MsiPackage SourceFile="$(var.x64OutputFolder)CodePulse.Win64.msi" InstallCondition="VersionNT64"/>
+		</Chain>
+	</Bundle>
+</Wix>
