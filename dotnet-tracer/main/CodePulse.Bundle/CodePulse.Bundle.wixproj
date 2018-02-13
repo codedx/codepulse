@@ -35,6 +35,24 @@
     <Content Include="AppIcon.ico" />
     <Content Include="License.rtf" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodePulse.Installer.x64\CodePulse.Installer.x64.wixproj">
+      <Name>CodePulse.Installer.x64</Name>
+      <Project>{f18922e1-bef6-44eb-8d76-b06a0669dcb9}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\CodePulse.Installer\CodePulse.Installer.wixproj">
+      <Name>CodePulse.Installer</Name>
+      <Project>{65367a51-7b99-4cdf-be38-bc9515c597b6}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
   <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
