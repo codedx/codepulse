@@ -49,3 +49,40 @@ object ConnectionHelp extends DispatchSnippet {
 		if (cmd.contains(" ")) '"' + cmd + '"' else cmd
 	}
 }
+
+object DotNETIISHelp extends DispatchSnippet {
+
+	def dispatch = {
+		case "render" => doRender
+	}
+
+	def doRender(template: NodeSeq): NodeSeq = bind("help", template, {
+		"dotnetiisagentcommand" -> { (xml: NodeSeq) => Text(dotNETTraceCommandForIIS) }
+	})
+
+	def dotNETTraceCommandForIIS = {
+		val hqPort = com.secdec.codepulse.userSettings.tracePort
+		val backslash = "\\"
+		val cmd = s"""CodePulse.DotNet.Tracer.exe -IIS "-TargetDir:<targetdir>" "-IISAppPoolIdentity:<domain${backslash}username>" -CodePulsePort:$hqPort"""
+
+		cmd
+	}
+}
+
+object DotNETExecutableHelp extends DispatchSnippet {
+
+	def dispatch = {
+		case "render" => doRender
+	}
+
+	def doRender(template: NodeSeq): NodeSeq = bind("help", template, {
+		"dotnetexecutableagentcommand" -> { (xml: NodeSeq) => Text(dotNETTraceCommandForExecutable) }
+	})
+
+	def dotNETTraceCommandForExecutable = {
+		val hqPort = com.secdec.codepulse.userSettings.tracePort
+		val cmd = s"""CodePulse.DotNet.Tracer.exe "-Target:<target application>" -SendVisitPointsTimerInterval:<milliseconds> -CodePulsePort:$hqPort"""
+
+		cmd
+	}
+}

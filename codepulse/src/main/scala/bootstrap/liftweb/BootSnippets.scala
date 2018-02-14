@@ -41,6 +41,8 @@ private[liftweb] object BootSnippets {
 			case SnippetRequest("VersionSnippet", _) => new VersionSnippet
 			case SnippetRequest("ProjectWidgetry", Full(target: TracingTarget)) => new ProjectWidgetry(projectManager, target)
 			case SnippetRequest("ConnectionHelp", _) => ConnectionHelp
+			case SnippetRequest("DotNETIISHelp", _) => DotNETIISHelp
+			case SnippetRequest("DotNETExecutableHelp", _) => DotNETExecutableHelp
 			case SnippetRequest("Notifications", _) => Notifications
 			case SnippetRequest("TraceConnectorState", _) => TraceConnectorState
 		}
