@@ -401,8 +401,11 @@ Global
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.Build.0 = Debug|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug-Installer|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug-Installer|Any CPU.Build.0 = Debug|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug-Installer|x64.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug-Installer|x64.Build.0 = Debug|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug-Installer|x86.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug-Installer|x86.Build.0 = Debug|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.ActiveCfg = Release|Any CPU
@@ -410,8 +413,11 @@ Global
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.ActiveCfg = Release|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.Build.0 = Release|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release-Installer|Any CPU.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release-Installer|Any CPU.Build.0 = Release|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release-Installer|x64.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release-Installer|x64.Build.0 = Release|Any CPU
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release-Installer|x86.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release-Installer|x86.Build.0 = Release|Any CPU
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -619,7 +625,7 @@ Global
 		{D390F301-798F-4B2D-A740-061AB6941645} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
