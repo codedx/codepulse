@@ -25,12 +25,13 @@ import scala.concurrent.duration.DurationInt
 import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
+
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
 import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import com.secdec.codepulse.tracer.snippet.ConnectionHelp
+import com.secdec.codepulse.tracer.snippet.{ ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp }
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -46,6 +47,7 @@ import java.net.BindException
 import java.util.Locale
 import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
+
 import DCJson._
 import com.secdec.codepulse.version
 
@@ -364,6 +366,12 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// GET the agent string
 		case List("api", "agent-string") Get req =>
 			PlainTextResponse(ConnectionHelp.traceAgentCommand)
+
+		case List("api", "iis-agent-string") Get req =>
+			PlainTextResponse(DotNETIISHelp.dotNETTraceCommandForIIS)
+
+		case List("api", "executable-agent-string") Get req =>
+			PlainTextResponse(DotNETExecutableHelp.dotNETTraceCommandForExecutable)
 
 		// POST an acknowledgment of an agent connection
 		case Paths.Acknowledgment(ack) Post req => ack match {

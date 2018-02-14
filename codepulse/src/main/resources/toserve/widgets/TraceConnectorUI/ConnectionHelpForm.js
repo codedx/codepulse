@@ -26,7 +26,9 @@
 			$portInputParent = $portInput.parent(),
 			$formResult = $formRoot.find('.form-result'),
 			$errorMessage = $formResult.find('.error-message'),
-			$agentString = $formResult.find('.trace-agent-command')
+			$agentString = $formResult.find('.trace-agent-command'),
+			$iisAgentString = $('#iis-agent-command'),
+			$executableAgentString = $('#executable-agent-command')
 
 		// Set the error/success state of the form result.
 		// If `error` is specified, it sets the error state;
@@ -73,6 +75,40 @@
 			})
 		}
 
+		function updateIISAgentCommand() {
+            $iisAgentString.overlay('wait')
+
+            $.ajax('/api/iis-agent-string', {
+                type: 'GET',
+                success: function(str) {
+                    $iisAgentString.text(str)
+                },
+                error: function(xhr, status) {
+                    console.error('failed to get updated iis agent string', xhr.responseText)
+                },
+                complete: function(){
+                    $iisAgentString.overlay('ready')
+                }
+            })
+		}
+
+		function updateExecutableAgentCommand() {
+            $executableAgentString.overlay('wait')
+
+            $.ajax('/api/executable-agent-string', {
+                type: 'GET',
+                success: function(str) {
+                    $executableAgentString.text(str)
+                },
+                error: function(xhr, status) {
+                    console.error('failed to get updated executable agent string', xhr.responseText)
+                },
+                complete: function(){
+                    $executableAgentString.overlay('ready')
+                }
+            })
+		}
+
 		// Based on the current value in the $portInput, this function
 		// sends the new port number to the backend, then updates the
 		// agent string. If errors happen along the way, the appropriate
@@ -89,6 +125,8 @@
 						$portInput.val(portValue)
 						setPortInputState(null)
 						updateTraceAgentCommand()
+						updateIISAgentCommand()
+						updateExecutableAgentCommand()
 					},
 					error: function(xhr, status) {
 						setPortInputState(xhr.responseText)

@@ -13,10 +13,9 @@
 		<div class="settings-slider">
 			<div class="settings-content">
 				<!-- the actual settings form and stuff goes in here -->
-
 				<div class="connection-help-form">
 					<div class="settings-header clearfix">
-						<h3>Settings</h3>
+						<h3>Settings for Java</h3>
 
 						<div class="settings-controls">
 							<a class="control-button current-trace-link" href="#">
@@ -67,6 +66,23 @@
 				</div> <!-- end of connection help form -->
 
 			</div> <!-- end of settings content -->
+			<div class="settings-content">
+				<div class="connection-help-form">
+					<div class="settings-header clearfix space-top">
+						<h3>Settings for .NET</h3>
+					</div>
+
+					<div class="agent-help-text">
+						To make a new trace connection for an IIS-based .NET program, modify this command and run as an Administrator:
+						<code class="lift:DotNETIISHelp" id="iis-agent-command"><help:dotnetiisagentcommand></help:dotnetiisagentcommand></code>
+					</div>
+
+					<div class="agent-help-text space-top">
+						To make a new trace connection for an executable .NET program, modify this command and run:
+						<code class="lift:DotNETExecutableHelp" id="executable-agent-command"><help:dotnetexecutableagentcommand></help:dotnetexecutableagentcommand></code>
+					</div>
+				</div>
+			</div>
 		</div> <!-- end of settings slider -->
 	</div>
 
