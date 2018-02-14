@@ -27,10 +27,13 @@ import com.ning.http.client.multipart.FilePart
 import com.secdec.codepulse.data.{ MethodSignature, MethodTypeParam }
 import dispatch.Defaults._
 import dispatch._
+import com.typesafe.config.ConfigFactory
 import net.liftweb.json._
 
 class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends DotNetBuilder {
-	val symbolService = url("http://localhost:49582/api/methods")
+	val config = ConfigFactory.load()
+	val port = config.getString("cp.symbol-service.port")
+	val symbolService = url(s"http://localhost:$port/api/methods")
 
 	override def Methods: List[(MethodSignature, Int)] = {
 		implicit val formats = DefaultFormats

@@ -23,7 +23,7 @@ import java.io.File
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ CodeForestBuilder, CodeTreeNodeKind }
-import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector }
+import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector, SymbolService }
 import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
@@ -35,6 +35,9 @@ import org.apache.commons.io.FilenameUtils
 class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: Nil).toSet
+
+	val symbolService = new SymbolService
+	symbolService.create
 
 	def receive = {
 		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
