@@ -48,6 +48,7 @@ object ProjectManager {
 class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	private val projects = MutableMap.empty[ProjectId, TracingTarget]
+	private val pendingProjectDeletions = MutableMap.empty[TracingTarget, DeletionKey]
 	private val dataProvider: ProjectDataProvider = projectDataProvider
 	private val transientDataProvider: TransientTraceDataProvider = transientTraceDataProvider
 	val projectListUpdates = new EventSource[Unit]
@@ -129,6 +130,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	def scheduleProjectDeletion(project: TracingTarget) = {
 		val (deletionKey, deletionFuture) = project.setDeletePending()
+		pendingProjectDeletions.put(project, deletionKey)
 
 		// in 10 seconds, actually delete the project
 		val finalizer = actorSystem.scheduler.scheduleOnce(15.seconds) {
@@ -147,12 +149,14 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 				// actually perform the deletion at this point
 				projects remove project.id
 				dataProvider removeProject project.id
+				pendingProjectDeletions.remove(project)
 				projectListUpdates fire ()
 
 			case Failure(e) =>
 				// the deletion was probably canceled
 				println(s"Deletion failed or maybe canceled. Message says '${e.getMessage}'")
 				finalizer.cancel()
+				pendingProjectDeletions.remove(project)
 		}
 
 		deletionFuture
@@ -195,6 +199,15 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 	AppCleanup.addPreShutdownHook { () =>
 		flushProjects
 		println("Flushed ProjectManager projects")
+
+		println("Finalizing project deletions")
+		val deletedProjects = pendingProjectDeletions.size
+		pendingProjectDeletions.foreach {
+			case (project, key) => {
+				project.finalizeDeletion(key)
+			}
+		}
+		println(s"Finalized ${deletedProjects} project deletions")
 	}
 
 }
