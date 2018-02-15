@@ -69,7 +69,7 @@ case class Settings(
 object Settings {
 	lazy val defaultDataDir = paths.localAppData / "dependency-check" / "data"
 
-	implicit val defaultSettings = Settings(dataDir = defaultDataDir)
+	implicit def defaultSettings = Settings(dataDir = defaultDataDir)
 }
 
 case class ScanSettings(
