@@ -500,4 +500,13 @@ $(document).ready(function(){
 		$('h1.editable').editable('open')
 	})
 
+	function requestProject() {
+        API.getProjectData(function(reply, error){
+            if(!error){
+                $('.edit-content').text(reply.name)
+            }
+        })
+	}
+
+    $(document).on('projectUpdated', requestProject)
 })

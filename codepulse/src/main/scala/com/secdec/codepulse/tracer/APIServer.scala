@@ -199,6 +199,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	  */
 	object Paths {
 
+		val Project = simpleTargetPath("project-data")
+
 		/** /api/<target.id>/end */
 		val End = simpleTargetPath("end")
 
@@ -389,6 +391,27 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		case TargetPath(target, Nil) Delete req =>
 			manager.scheduleProjectDeletion(target)
 			OkResponse()
+
+		case Paths.Project(target) Get req =>
+			val localDateFormatPattern = DateTimeFormat.patternForStyle("SS", Locale.getDefault)
+			val dateFormat = DateTimeFormat.forPattern(localDateFormatPattern)
+			def prettyDate(d: Long) = dateFormat.print(d)
+			val data = target.projectData
+			val href = ProjectDetailsPage.projectHref(target.id)
+
+			val project = for (traceState <- target.getState) yield ("id" -> target.id.num) ~
+				("name" -> data.metadata.name) ~
+				("hasCustomName" -> data.metadata.hasCustomName) ~
+				("created" -> prettyDate(data.metadata.creationDate)) ~
+				("imported" -> data.metadata.importDate.map(prettyDate)) ~
+				("href" -> href) ~
+				("exportHref" -> Paths.Export.toHref(target)) ~
+				("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
+				("state" -> traceState.name) ~
+				("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
+
+			project.map(JsonResponse(_))
+
 
 		// UNDO a project deletion (only works within a short time after requesting the delete)
 		case Paths.UndoDelete(target) Post req =>

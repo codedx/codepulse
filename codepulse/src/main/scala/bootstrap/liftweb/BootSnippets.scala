@@ -50,6 +50,7 @@ private[liftweb] object BootSnippets {
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {
 			case CometTracerUI.className => new CometTracerUI
 			case "ProjectListUpdates" => new ProjectListUpdates(projectManager)
+			case "ProjectUpdated" => new ProjectUpdated(projectManager)
 			case "Notifications" => Notifications
 			case "TraceConnectorStateChanges" => new TraceConnectorStateChanges
 			case "DependencyCheck" => DependencyCheckUpdates
