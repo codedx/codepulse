@@ -197,9 +197,6 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	// Also make sure any dirty projects are saved when exiting
 	AppCleanup.addPreShutdownHook { () =>
-		flushProjects
-		println("Flushed ProjectManager projects")
-
 		println("Finalizing project deletions")
 		val deletedProjects = pendingProjectDeletions.size
 		pendingProjectDeletions.foreach {
@@ -208,6 +205,9 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 			}
 		}
 		println(s"Finalized ${deletedProjects} project deletions")
+
+		flushProjects
+		println("Flushed ProjectManager projects")
 	}
 
 }
