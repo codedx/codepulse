@@ -6,7 +6,7 @@
   <?define x64OutputFolder = "$(var.OutputFolder)x64\" ?>
   
 	<Product Id="*" Name="Code Pulse .NET Tracer (x64 Profiler)" Language="1033" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="00bd7e54-e424-49bb-8e3c-151a75affda0">
-	  <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+	  <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
 	  <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
 	  <Property Id="ARPPRODUCTICON" Value="AppIcon" />
