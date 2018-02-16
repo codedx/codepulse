@@ -205,6 +205,12 @@
 			})
 		},
 
+		'getProjectData': function(callback) {
+			getCommand('/project-data', {}, function(data){
+				callback(data)
+			})
+		},
+
 		'renameProject': function(newName, callback){
 			postCommand('/rename', {'name': newName}, callback)
 		},
