@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>58eef657-cbbc-46f7-85e7-5640e7f20adb</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>CodePulse.Bundle</OutputName>
+    <OutputName>CodePulse.Windows</OutputName>
     <OutputType>Bundle</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">

@@ -12,7 +12,7 @@
     </BootstrapperApplicationRef>
 
 		<Chain>
-		  <MsiPackage SourceFile="$(var.x86OutputFolder)CodePulse.Win32.msi"/>
+		  <MsiPackage SourceFile="$(var.x86OutputFolder)CodePulse.Win32.msi" InstallCondition="NOT VersionNT64"/>
 		  <MsiPackage SourceFile="$(var.x64OutputFolder)CodePulse.Win64.msi" InstallCondition="VersionNT64"/>
 		</Chain>
 	</Bundle>
