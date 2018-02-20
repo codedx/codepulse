@@ -58,11 +58,11 @@ $(document).ready(function(){
 			if(status == 'loading-failed'){
 				alert('Processing data failed. You will be redirected to the home screen.')
 				window.location.href = '/'
-			}
-
-			if(status == 'delete-pending'){
+			} else if(status == 'delete-pending'){
 				// just redirect. There will be a notification waiting on the home page
 				window.location.href = '/'
+			} else {
+				console.log("Project received unhandled trace status (this is not necessarily an error)", status)
 			}
 		})
 	})()
@@ -502,7 +502,7 @@ $(document).ready(function(){
 
 	function requestProject() {
         API.getProjectData(function(reply, error){
-            if(!error){
+            if(!error && reply){
                 $('.edit-content').text(reply.name)
             }
         })
