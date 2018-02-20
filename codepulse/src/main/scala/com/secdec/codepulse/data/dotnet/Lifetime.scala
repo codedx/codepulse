@@ -20,8 +20,8 @@
 package com.secdec.codepulse.data.dotnet
 
 import java.nio.file.Paths
-import scala.sys.process._
 
+import scala.sys.process._
 import com.typesafe.config.ConfigFactory
 import net.liftweb.common.Loggable
 
@@ -43,7 +43,10 @@ class SymbolService extends Lifetime with Loggable {
 			val symbolServiceLocation = config.getString("cp.symbol-service.location")
 			val binaryPath = Paths.get(symbolServiceLocation, symbolServiceBinary).toString
 			val port = config.getString("cp.symbol-service.port")
-			process = Some(Process(s"$binaryPath", None, "ASPNETCORE_URLS" -> s"http://*:$port").run())
+			var url = s"http://*:$port"
+			
+			logger.debug(s"attempting to start $binaryPath using $url...")
+			process = Some(Process(s"$binaryPath", new java.io.File(symbolServiceLocation), "ASPNETCORE_URLS" -> url).run())
 			logger.debug(s"created SymbolService from $binaryPath")
 
 			AppCleanup addShutdownHook { () =>
@@ -52,8 +55,8 @@ class SymbolService extends Lifetime with Loggable {
 					destroy
 				} catch {
 					case e: Exception => {
-						logger.debug("failed to destroy process")
-						logger.debug(s"$e")
+						logger.error("failed to destroy process")
+						logger.error(s"$e")
 					}
 				}
 			}
@@ -64,15 +67,15 @@ class SymbolService extends Lifetime with Loggable {
 					destroy
 				} catch {
 					case e: Exception => {
-						logger.debug("failed to destroy process")
-						logger.debug(s"$e")
+						logger.error("failed to destroy process")
+						logger.error(s"$e")
 					}
 				}
 			}
 		} catch {
 			case e: Exception => {
-				logger.debug("could not create SymbolService due to an exception}")
-				logger.debug(s"$e")
+				logger.error("could not create SymbolService due to an exception}")
+				logger.error(s"$e")
 			}
 		}
 	}

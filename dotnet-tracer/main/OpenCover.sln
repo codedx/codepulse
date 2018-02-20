@@ -562,23 +562,27 @@ Global
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Debug-Installer|Any CPU.ActiveCfg = Debug|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Debug-Installer|x64.ActiveCfg = Debug|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Debug-Installer|x86.ActiveCfg = Debug|x86
+		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Debug-Installer|x86.Build.0 = Debug|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release|Any CPU.ActiveCfg = Release|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release|x64.ActiveCfg = Release|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release|x86.ActiveCfg = Release|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release-Installer|Any CPU.ActiveCfg = Release|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release-Installer|x64.ActiveCfg = Release|x86
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release-Installer|x86.ActiveCfg = Release|x86
+		{65367A51-7B99-4CDF-BE38-BC9515C597B6}.Release-Installer|x86.Build.0 = Release|x86
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug|x64.ActiveCfg = Debug|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug|x86.ActiveCfg = Debug|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug-Installer|Any CPU.ActiveCfg = Debug|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug-Installer|x64.ActiveCfg = Debug|x64
+		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug-Installer|x64.Build.0 = Debug|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Debug-Installer|x86.ActiveCfg = Debug|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release|Any CPU.ActiveCfg = Release|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release|x64.ActiveCfg = Release|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release|x86.ActiveCfg = Release|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release-Installer|Any CPU.ActiveCfg = Release|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release-Installer|x64.ActiveCfg = Release|x64
+		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release-Installer|x64.Build.0 = Release|x64
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}.Release-Installer|x86.ActiveCfg = Release|x64
 		{D390F301-798F-4B2D-A740-061AB6941645}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Debug|x64.ActiveCfg = Debug|x86
@@ -586,12 +590,14 @@ Global
 		{D390F301-798F-4B2D-A740-061AB6941645}.Debug-Installer|Any CPU.ActiveCfg = Debug|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Debug-Installer|x64.ActiveCfg = Debug|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Debug-Installer|x86.ActiveCfg = Debug|x86
+		{D390F301-798F-4B2D-A740-061AB6941645}.Debug-Installer|x86.Build.0 = Debug|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release|Any CPU.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release|x64.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release|x86.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|Any CPU.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|x64.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|x86.ActiveCfg = Release|x86
+		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -625,7 +631,7 @@ Global
 		{D390F301-798F-4B2D-A740-061AB6941645} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 	EndGlobalSection
 EndGlobal

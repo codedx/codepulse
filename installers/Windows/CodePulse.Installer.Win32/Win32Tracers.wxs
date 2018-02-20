@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define TracersWin32SourceFolder = "..\Files\Win32\tracers" ?>
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Directory Id="dirC9569A3AA35221BCEE254B19D1874FD5" Name="tracers" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="Tracers">
+            <Component Id="cmpC0ADDE853D5CE7153A18753BFAC66431" Directory="dir7415E8BC643AF6D21E1EB5173B15D68F" Guid="3f887b46-422c-48d9-93a9-091f7aa88f5c">
+                <File Id="filBC539E25E21723161831CD156EC426BD" KeyPath="yes" Source="$(var.TracersWin32SourceFolder)\dotnet\CodePulse.DotNet.Tracer.Bundle.exe" />
+            </Component>
+            <Component Id="cmp79DDE8B86EF01A8CA5C4972287965C4F" Directory="dirBD36B0B3BC81A30E46ED205BA3B8ECD2" Guid="c5c36aaf-5ff3-40f0-a2df-d7d288bb2b38">
+                <File Id="fil4F19EF22B82575CD1093661E44F432A4" KeyPath="yes" Source="$(var.TracersWin32SourceFolder)\java\agent.jar" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirC9569A3AA35221BCEE254B19D1874FD5">
+            <Directory Id="dir7415E8BC643AF6D21E1EB5173B15D68F" Name="dotnet" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirC9569A3AA35221BCEE254B19D1874FD5">
+            <Directory Id="dirBD36B0B3BC81A30E46ED205BA3B8ECD2" Name="java" />
+        </DirectoryRef>
+    </Fragment>
+</Wix>

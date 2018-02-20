@@ -59,8 +59,7 @@
     </Component>
     <Component Id="CodePulseRegistryKey" Directory="INSTALLFOLDER" Guid="{3f52dfaa-7de3-48cc-b185-b6bcdb9d5960}">
       <RegistryKey Root="HKLM"
-                   Key="Software\Secure Decisions\Code Pulse .NET Tracer"
-                   Action="createAndRemoveOnUninstall">
+                   Key="Software\Secure Decisions\Code Pulse .NET Tracer">
         <RegistryValue Type="string" Name="ApplicationPath" Value="[INSTALLFOLDER]" KeyPath="yes"/>
         <RegistryValue Type="string" Value="Default Value"/>
       </RegistryKey>

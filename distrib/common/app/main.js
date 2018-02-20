@@ -62,14 +62,24 @@ function startCodePulse() {
 	if (started) return;
 	started = true;
 
+	var fs = require('fs')
 	var spawn = require('child_process').spawn,
-	    chmodSync = require('fs').chmodSync;
+	    chmodSync = fs.chmodSync;
 
 	try {
 		var java = getJava();
 
 		// make sure java is executable...
-		chmodSync(java, 0755);
+
+		try {
+			var unusedAlways = fs.accessSync(java, fs.constants.R_OK | fs.constants.X_OK);
+		} catch (e) {
+			writeLog('User does not have read & execute permissions on java: ' + e + '...\n');
+			
+			var newPermission = 0755;
+			writeLog('Attempting to change java permission to ' + newPermission.toString(8) + '...\n');
+			chmodSync(java, newPermission);
+		}
 
 		var args = [ '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
 
