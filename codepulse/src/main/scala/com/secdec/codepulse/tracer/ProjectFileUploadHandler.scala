@@ -68,7 +68,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 				processors = languageProcessors.filter((proc) => Await.result(((proc() ? CanProcessFile(inputFile))).mapTo[Boolean], Duration.Inf))
 				_ <- (processors.length > 0) ?~ {
 					var inputErrorStatement = s"The file you picked does not contain any of the following supported input data:"
-					var inputRequirements = supportedInputTypeDescriptions.values.map("\t-" + _).mkString(Properties.lineSeparator)
+					var inputRequirements = supportedInputTypeDescriptions.values.map("-" + _).mkString(Properties.lineSeparator)
 					inputErrorStatement + Properties.lineSeparator + inputRequirements
 				}
 				name <- req.param("name") ?~ "You must specify a name"

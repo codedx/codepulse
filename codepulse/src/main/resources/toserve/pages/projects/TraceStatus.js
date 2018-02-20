@@ -60,6 +60,13 @@
 	Trace.running = runningProp.noLazy()
 
 	Trace.ready = function(f){
+        API.requestStatus(function(status, error){
+            console.log('ready status:', status, error)
+			// if there is an error at this point, we simply want to fail loading
+            if(error) statusBus.error('loading-failed')
+            else statusBus.push(status)
+        })
+
 		$(document).ready(function(){
 			Trace.status
 				.takeWhile(function(status){ return status == 'loading' })

@@ -50,7 +50,9 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 			}
 		}
 		case ProcessEnvelope(_, Failed(identifier, action, Some(excepetion))) => {
-			projectManager.removeUnloadedProject(ProjectId(identifier.toInt))
+			for (target <- projectManager.removeUnloadedProject(ProjectId(identifier.toInt))) {
+				target.notifyLoadingFailed()
+			}
 		}
 	}
 
