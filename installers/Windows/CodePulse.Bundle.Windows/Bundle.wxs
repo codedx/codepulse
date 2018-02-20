@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
 
-  <?define Version = "1.0.0.0" ?>
+  <?define Version = "2.0.0.0" ?>
   <?define x86OutputFolder = "..\CodePulse.Installer.Win32\bin\Release\" ?>
   <?define x64OutputFolder = "..\CodePulse.Installer.Win64\bin\Release\" ?>
   

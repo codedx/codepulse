@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
-  <?define Version = "1.0.0.0" ?>
+  <?define Version = "2.0.0.0" ?>
   
   <Product Id="*" Name="CodePulse.Installer.Win32" Language="1033" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="2a158252-2810-4fcf-98f3-a5a684faf46c">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
