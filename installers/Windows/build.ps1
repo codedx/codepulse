@@ -83,7 +83,7 @@ $dotNetTracerMainPath = join-path $dotNetTracerPath 'main'
 
 Push-Location $codePulsePath
 
-write-verbose "Editing '$applicationConfPath' for packaging..."
+write-verbose "Editing application.conf for packaging..."
 $applicationConfPath = join-path (get-location) 'codepulse\src\main\resources\application.conf'
 $applicationConf = gc $applicationConfPath
 $applicationNewConf = $applicationConf | % { $_ -replace 'dotnet-symbol-service/publish/','../dotnet-symbol-service/' }
