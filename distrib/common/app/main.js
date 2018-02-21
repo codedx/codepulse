@@ -19,7 +19,7 @@
 
 //TODO handle uncaught node.js errors
 
-var events = require('events'), http = require('http');
+var events = require('events'), http = require('http'), byline = require('./byline');
 
 var logContents = '', logEvent = new events.EventEmitter();
 
@@ -138,11 +138,14 @@ function startCodePulse() {
 			}
 		}
 
-		childProcess.stdout.on('data', doDataChecks);
-		childProcess.stderr.on('data', doDataChecks);
+        var childStdOut = byline.createStream(childProcess.stdout)
+        var childStdErr = byline.createStream(childProcess.stderr)
 
-		childProcess.stdout.on('data', writeLog);
-		childProcess.stderr.on('data', writeLog);
+        childStdOut.on('data', doDataChecks);
+        childStdOut.on('data', (data) => { writeLog(data + '\n') });
+
+        childStdErr.on('data', doDataChecks);
+        childStdErr.on('data', (data) => { writeLog(data + '\n') });
 
 		childProcess.on('error', function(err) {
 			writeLog('Error running Code Pulse: ' + err + '\n');
@@ -250,7 +253,7 @@ exports.registerMainWindow = function(window) {
 
 				window.gui.hide();
 				if (childProcess)
-					killCodePulse();
+                    killCodePulse();
 				else
 					window.gui.close(true);
 			});

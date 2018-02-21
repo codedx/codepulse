@@ -19,9 +19,10 @@
 
 package com.secdec.codepulse.data.dotnet
 
+import java.io.File
 import java.nio.file.Paths
-
 import scala.sys.process._
+
 import com.typesafe.config.ConfigFactory
 import net.liftweb.common.Loggable
 
@@ -44,8 +45,9 @@ class SymbolService extends Lifetime with Loggable {
 			val binaryPath = Paths.get(symbolServiceLocation, symbolServiceBinary).toString
 			val port = config.getString("cp.symbol-service.port")
 			var url = s"http://*:$port"
-			
-			logger.debug(s"attempting to start $binaryPath using $url...")
+
+			var binaryCanonical = new File(binaryPath).getCanonicalPath
+			logger.debug(s"attempting to start $binaryCanonical using $url...")
 			process = Some(Process(s"$binaryPath", new java.io.File(symbolServiceLocation), "ASPNETCORE_URLS" -> url).run())
 			logger.debug(s"created SymbolService from $binaryPath")
 
