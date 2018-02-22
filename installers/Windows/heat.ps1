@@ -8,7 +8,7 @@ Push-Location $PSScriptRoot
 $heatPath = 'C:\Program Files (x86)\WiX Toolset v3.11\bin\heat.exe' 
 
 function Write-Fragment($folderPath, $sourceFolderVariableName, $sourceFolderVariableValue, $outputFile, $componentGroupName, [switch] $isInRootDir) {
-    & $heatPath dir $folderPath -o $outputFile -var "var.$sourceFolderVariableName" -sreg -cg $componentGroupName -dr INSTALLFOLDER -ke
+    & $heatPath dir $folderPath -o $outputFile -var "var.$sourceFolderVariableName" -sreg -cg $componentGroupName -dr INSTALLFOLDER -ke -ag
 
     $rootDirectoryId = $null
     if ($isInRootDir) {
@@ -19,14 +19,12 @@ function Write-Fragment($folderPath, $sourceFolderVariableName, $sourceFolderVar
         $data.Save($outputFile)
     }
 
-    $lines = gc  $outputFile
-    $linesWithGuids = $lines | % { $_ -replace 'PUT-GUID-HERE',([guid]::NewGuid()) }
-
     if ($rootDirectoryId -ne $null) {
-        $linesWithGuids = $linesWithGuids | % { $_ -replace $rootDirectoryId,'INSTALLFOLDER' }
+        $lines = gc  $outputFile
+        $lines = $lines | % { $_ -replace $rootDirectoryId,'INSTALLFOLDER' }
+        Set-TextContent $outputFile $lines
     }
 
-    Set-TextContent $outputFile $linesWithGuids
     Set-TextAt $outputFile 2 "  <?define $sourceFolderVariableName = `"$sourceFolderVariableValue`" ?>"
 }
 

@@ -208,6 +208,3 @@ if ($lastexitcode -ne 0) {
 }
 
 1..2 | % { Pop-Location }
-
-write-verbose "NOTE: If this is a major release, commit changes to .wxs files. Update existing .wxs "
-write-verbose "files, ignoring component GUID and ID differences, if this is a minor release."

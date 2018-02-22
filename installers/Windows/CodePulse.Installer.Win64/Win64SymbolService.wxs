@@ -8,1219 +8,1219 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="SymbolService">
-            <Component Id="cmp393D592ED26168C0C5CFAE796E247644" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="386e4f39-88ac-4c54-b274-6d50a0830d12">
+            <Component Id="cmp393D592ED26168C0C5CFAE796E247644" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0CEBD53AB086FA0872399161C9C64BA3" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Base-Util-L1-1-0.dll" />
             </Component>
-            <Component Id="cmpB1D365EE0C8677C1B87954B2A4C4C2EF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="002157b9-6f59-41b8-b6d4-8cdf8c8dc281">
+            <Component Id="cmpB1D365EE0C8677C1B87954B2A4C4C2EF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB36E27149FE92ABD2A5C0131D45FC996" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-com-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp43C1BFB60418B0813B123B54D6E6C500" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="446a5a23-8c42-45d6-9b82-0074e6052a89">
+            <Component Id="cmp43C1BFB60418B0813B123B54D6E6C500" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1DF0C1649EB3F7BB99EF52B1E8A84CE7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-com-private-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpCC79FB2BEE04B46A525B61FB3B79D089" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="67da238b-991c-4a67-9e4f-9e99d93486bd">
+            <Component Id="cmpCC79FB2BEE04B46A525B61FB3B79D089" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE99F8853D9CDDD57D49554B37D420251" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-comm-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp0A32C2ABD4A24B2499F5C3464F43A715" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="80286d25-5daf-4905-ac45-72e31fb888c3">
+            <Component Id="cmp0A32C2ABD4A24B2499F5C3464F43A715" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil007206FFEA489A68911A163C9DBF19A5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-console-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpB3A6F1DF26C209B75FAEE53BD13C2C34" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="96b7ec7e-8566-409f-b162-699cd1c2ab05">
+            <Component Id="cmpB3A6F1DF26C209B75FAEE53BD13C2C34" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCB09881C21D3BB658C2302309C7F4F7F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-console-l2-1-0.dll" />
             </Component>
-            <Component Id="cmpE53381A8AB2CD5D3A787B6EE7BCBDB29" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1298c1df-b45f-4d3e-a03c-78dd2c28d8d1">
+            <Component Id="cmpE53381A8AB2CD5D3A787B6EE7BCBDB29" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil7E89AA8573FC1869DF84C5DF2B34DE90" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-datetime-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp388FA5CA868A7632881B90921A7666C3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b7a59569-bd92-44ab-ac90-41062e0ec24d">
+            <Component Id="cmp388FA5CA868A7632881B90921A7666C3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDE8B52D4BD2DECBB8E8559381E813A7F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-datetime-l1-1-1.dll" />
             </Component>
-            <Component Id="cmpF7892DBDC1A27980B4CBB9CE5FF25DC4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="240deb09-88ed-423a-a846-f0b3943e84ed">
+            <Component Id="cmpF7892DBDC1A27980B4CBB9CE5FF25DC4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC8DDA59EDAF10D2F060E6BB85F39D338" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-debug-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp80F2CE6DDAB65949FA95E3FFB45958EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6e489b1c-4c7e-4009-a9cd-8ab6b55a8dc3">
+            <Component Id="cmp80F2CE6DDAB65949FA95E3FFB45958EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil75DDA57144216C57AC7C475E7BAE40B3" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-debug-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp19341DDC5C11B6339AE808986A8418A4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b14b8a95-a32a-4379-b73f-2c41a237b48e">
+            <Component Id="cmp19341DDC5C11B6339AE808986A8418A4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBFCCE224DD3E0D122BD92DDD2CBD7A6A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-delayload-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp770BA40C73F0C768B6AFD75CFD6DD7FE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="3cc4966d-158e-4cf2-9378-5a3ece4b0aae">
+            <Component Id="cmp770BA40C73F0C768B6AFD75CFD6DD7FE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1DBA1D9B7FE702A362955115A521094D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-errorhandling-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp53C217506CB184041D149A80C9465ED3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6534119b-85f0-4cf6-87a4-7f28ce3054e9">
+            <Component Id="cmp53C217506CB184041D149A80C9465ED3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEFB433A1DB41BD35222E1C5C5F162C5E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-errorhandling-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp0F79BE3E9798712473442AFFCC81D7C2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c33760a6-8b3a-407f-9d3a-a909cc3c3f43">
+            <Component Id="cmp0F79BE3E9798712473442AFFCC81D7C2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filACE0B222D0A998F92C008B0BD4E78183" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-fibers-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpA3BC9A98F6735D4C4DB7F6C18F3667A7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="32894ab1-2d5b-4ee3-84e8-9ae472383189">
+            <Component Id="cmpA3BC9A98F6735D4C4DB7F6C18F3667A7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0365CBD078AD4924A664BFCC8EC6AE7B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-fibers-l1-1-1.dll" />
             </Component>
-            <Component Id="cmpAEA78B76E88AC8EADA382EFE8CEE48D6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="69492a10-986f-4096-a396-eca3796bad16">
+            <Component Id="cmpAEA78B76E88AC8EADA382EFE8CEE48D6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA030B6E21B48B9573BC7A9B76939519F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-file-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp868ED7A5A9A9A8C3A339A8433B949E37" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2352b5e6-c600-44e4-9169-d928d69e6634">
+            <Component Id="cmp868ED7A5A9A9A8C3A339A8433B949E37" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0708EE7FED4BCC7DADC7634F4A40D00C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-file-l1-2-0.dll" />
             </Component>
-            <Component Id="cmpD36ADF29567F37DF0BB56A4793EA18DE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="abc128d5-2418-4291-b2d6-e430a4dab2d9">
+            <Component Id="cmpD36ADF29567F37DF0BB56A4793EA18DE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil95C0B2768FC066606FB9AC8CF7D4C364" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-file-l1-2-1.dll" />
             </Component>
-            <Component Id="cmp3F7489137399D78941EA7DA4088E24F9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="57d1d55f-e0c3-450a-8d61-2ffa6d7502c8">
+            <Component Id="cmp3F7489137399D78941EA7DA4088E24F9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil125753A5A47EA935F5623E619DFDCF7E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-file-l2-1-0.dll" />
             </Component>
-            <Component Id="cmp4A6C0FE6B2201CE94B24C8AD6134DF85" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4867526e-6f81-40fa-bf57-6c89c2c1deb6">
+            <Component Id="cmp4A6C0FE6B2201CE94B24C8AD6134DF85" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8DB237C63F2D0CABAB9BAFBD03AECE1A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-file-l2-1-1.dll" />
             </Component>
-            <Component Id="cmp09C3CAA1A28CF97658D269B752742818" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="62a2297c-c20b-430b-9bbc-02b801d4b8ea">
+            <Component Id="cmp09C3CAA1A28CF97658D269B752742818" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1D1E823FB64B5027668E127F4679F2C5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-handle-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpE7B09A2655BF6B762B51EB3DE4ADFE60" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="fc0f2ec5-b969-4286-8791-108392f3a1c4">
+            <Component Id="cmpE7B09A2655BF6B762B51EB3DE4ADFE60" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil539F78C30A3704878166AA056116B2D5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-heap-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp0717D843EDA386DB1488706D590C92C8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="58774b27-2e25-49aa-96f2-6926caab3cab">
+            <Component Id="cmp0717D843EDA386DB1488706D590C92C8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil71C127ED36F0E8802E67525EF7665485" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-heap-obsolete-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp6051F94BD663D43BA3551EF8E717495C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ec125c74-51a5-4b43-bb10-35587affa9df">
+            <Component Id="cmp6051F94BD663D43BA3551EF8E717495C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4161890E7394C5CFC690BDB0002791E6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-interlocked-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpF4F364EE315706CE31451DFB55CE1E9D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="82a4c012-b733-4fe6-9410-c35d84bdfca8">
+            <Component Id="cmpF4F364EE315706CE31451DFB55CE1E9D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2331BD56EEDD741908F756137008CA06" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-io-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpC8D95F875F04251257E7A5DB45F511E7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="24ef2193-c7b0-492e-b056-d92d5cf460ed">
+            <Component Id="cmpC8D95F875F04251257E7A5DB45F511E7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil69105DB92BCAF41AFD5883873E7938CD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-io-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp615E6AC2F4795A8287B9CDA41D5B74B8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="cb8b061a-2c89-45c2-a8cb-2f1164b4056b">
+            <Component Id="cmp615E6AC2F4795A8287B9CDA41D5B74B8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB521ED6F5CF11AE67EB868B6081BB100" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-kernel32-legacy-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpCE89C17AACB1F13E5EE9AE98BC49517A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="85058da5-be06-48d5-bcdc-2352fe5e8747">
+            <Component Id="cmpCE89C17AACB1F13E5EE9AE98BC49517A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil84D20EF23F498C2B0DD9C16246E6E75F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-kernel32-legacy-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp00E3C1C13C8BF43994F62580D9D04C68" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="359c861d-c1cc-4c3f-aa8f-24e6e77cbbbd">
+            <Component Id="cmp00E3C1C13C8BF43994F62580D9D04C68" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB69327E20845E34D8464D82ED3CFFEA5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-kernel32-legacy-l1-1-2.dll" />
             </Component>
-            <Component Id="cmpA52DB4BA53D9D419976B34CDE90A0ACE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="559a2575-cf24-485a-a220-a7efdc8752b6">
+            <Component Id="cmpA52DB4BA53D9D419976B34CDE90A0ACE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF91B2B1D12CFF322B223CD91C56B7CC3" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-Kernel32-Private-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp82D79C796CDBA5193C6B6174D8B14FBE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6a08269c-394b-442c-ae23-71e9e24a88d3">
+            <Component Id="cmp82D79C796CDBA5193C6B6174D8B14FBE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF96C1C7E955A2E6F5F9F1CF4CAA8BFD2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-Kernel32-Private-L1-1-1.dll" />
             </Component>
-            <Component Id="cmpE1A2FCA6E5BAED35B3F151513A3170D3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b9ec8f98-6d1e-4f76-829e-bff63cf84036">
+            <Component Id="cmpE1A2FCA6E5BAED35B3F151513A3170D3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEC2A0E76ED5819CD7FB5C9AAA19B1593" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-Kernel32-Private-L1-1-2.dll" />
             </Component>
-            <Component Id="cmp6DFCFF9C3C60A645FB963236EB6C9163" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f50e2a06-4de4-4ae4-bb1b-6d1faf68b58a">
+            <Component Id="cmp6DFCFF9C3C60A645FB963236EB6C9163" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil76D6A4E8A55FC42EF8AD73D2EA286811" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-libraryloader-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp0A0A1AAB51D9B8C8C2A36C3B91D3A9AE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7dd71500-9322-4513-b2f9-b4ca1eb3e803">
+            <Component Id="cmp0A0A1AAB51D9B8C8C2A36C3B91D3A9AE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6B9961E205780B792621CAC814DAA435" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-libraryloader-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp64E0B8FAF81281CDB0C5F0D4F27EB22F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6e40002f-905a-4eb7-953d-fee9e3ccf529">
+            <Component Id="cmp64E0B8FAF81281CDB0C5F0D4F27EB22F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB3074C36DBC398B04AC3329F65751810" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-localization-l1-2-0.dll" />
             </Component>
-            <Component Id="cmpD1FF0E945223611ACCB171337839F5C9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="83f2667c-e0be-4575-92de-bbae9a62c651">
+            <Component Id="cmpD1FF0E945223611ACCB171337839F5C9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil261177560D4753723690446FDB2E0871" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-localization-l1-2-1.dll" />
             </Component>
-            <Component Id="cmpB028DE83EF8F3C666F2817EBD2CEEDAB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5da5e56f-f5b1-4a3d-8551-b7d7c9c403d5">
+            <Component Id="cmpB028DE83EF8F3C666F2817EBD2CEEDAB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAE2F0880ED6CEAF2AB84A45293F28EB2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-localization-l2-1-0.dll" />
             </Component>
-            <Component Id="cmp1BA53D85261BA7A3AA5059535133C454" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f2d73962-f8a2-4f6f-bb9c-28ff711ce20f">
+            <Component Id="cmp1BA53D85261BA7A3AA5059535133C454" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filADE1E12AFA63F0495A38E39F97238070" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-localization-obsolete-l1-2-0.dll" />
             </Component>
-            <Component Id="cmpC266AE06B3B6C8C01E0C2B6AE4833DAE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5e80d64d-d60a-46eb-bf94-617877210d8a">
+            <Component Id="cmpC266AE06B3B6C8C01E0C2B6AE4833DAE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF9BCDB0A2FED63B6D245703848DB6AC2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-memory-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpFC213612305DFF09175A53DC33AE11C5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9724ff10-44ad-434b-8829-b108b5768cbb">
+            <Component Id="cmpFC213612305DFF09175A53DC33AE11C5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF4417A87F5C57C956A8C3AB46ED39695" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-memory-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp69A519C94A0A7F9E3154369FF39764DD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="dd5a1824-7437-4e06-b1c1-1c75ec16198e">
+            <Component Id="cmp69A519C94A0A7F9E3154369FF39764DD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil82769049404FAF3EF69EDBBC755F588B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-memory-l1-1-2.dll" />
             </Component>
-            <Component Id="cmpCC6CA5CB82F44B24A813281856ECCAD2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="542a4298-fda8-4ae2-adca-e190a17aee20">
+            <Component Id="cmpCC6CA5CB82F44B24A813281856ECCAD2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil23725DBEEC04E01D8612E388FA44CAEE" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-memory-l1-1-3.dll" />
             </Component>
-            <Component Id="cmp593061DE7FB25920A4431877B8C01457" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="34442ea8-0048-4ff1-a941-7028f20f4c00">
+            <Component Id="cmp593061DE7FB25920A4431877B8C01457" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8ECFC62C684DD3FC11E64DABA0BC7E06" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-namedpipe-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp88FB4220335D60731BAB839F4C5A7743" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="850a283a-9016-4240-9ba0-589015afab7a">
+            <Component Id="cmp88FB4220335D60731BAB839F4C5A7743" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8738EF63BA5E5F9F76F62A581F8D049B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-namedpipe-l1-2-1.dll" />
             </Component>
-            <Component Id="cmp690DD18D296CAA6388D833D19442E21D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="86f4c641-dc8e-4848-827e-4e0f46f1a1a0">
+            <Component Id="cmp690DD18D296CAA6388D833D19442E21D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBBCF8DF5253E66764832DD1EB201A551" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-normalization-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp550B573680D6EC9346939907EF278620" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ee207b51-05c1-485b-8399-c61f9845cecb">
+            <Component Id="cmp550B573680D6EC9346939907EF278620" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEE1E328A62672231D0C475D3F5585422" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-PrivateProfile-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp87A1D527F4B79F1F8F32381652D432D0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="69680495-ffcb-4fe1-8007-1e8cb0a31ad9">
+            <Component Id="cmp87A1D527F4B79F1F8F32381652D432D0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil7906D654105545383B7F7785CD543381" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-privateprofile-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp7DB0C3BCCA36334BC44C86E005D33A3C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="948ef39a-4456-41a0-b796-5f95eb4cbc28">
+            <Component Id="cmp7DB0C3BCCA36334BC44C86E005D33A3C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4AE56E89FDF440771798AA34CEA7180D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-processenvironment-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp6C9DA052995D8E8C6E59A732A3437FC5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="12c63808-aae0-4dc8-b333-3cf1ddb18518">
+            <Component Id="cmp6C9DA052995D8E8C6E59A732A3437FC5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil87D2E5C0D355E9A3DD45C37BA188841B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-processenvironment-l1-2-0.dll" />
             </Component>
-            <Component Id="cmpC908B67474D69CD8338DF29CFD112633" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b3f4f768-a16d-46ba-8fee-c383db76619c">
+            <Component Id="cmpC908B67474D69CD8338DF29CFD112633" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDF431EAE10E78A10E3FB6B99098B1075" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-processsecurity-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp1B997EECC6AB509DF481E7690E5984BA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="18a39c01-f860-43ec-af31-c40146b54bc8">
+            <Component Id="cmp1B997EECC6AB509DF481E7690E5984BA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE916AA81BEE29CDF3A608621C7B30251" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-processthreads-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpF4AD1F11C9217339494FEA44F53EE292" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d6ed30f3-dc30-40cb-841a-ba5ab39030ec">
+            <Component Id="cmpF4AD1F11C9217339494FEA44F53EE292" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE1EA3AEF46EA1A2DB992FE75E39D33BD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-processthreads-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp6C8A73723C32BEC959A8DC0166409A70" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="cce61740-8596-4511-8972-5a79d2521b30">
+            <Component Id="cmp6C8A73723C32BEC959A8DC0166409A70" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFE10EA140AFD0123D44C7F6F5FCFDFB4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-processthreads-l1-1-2.dll" />
             </Component>
-            <Component Id="cmpE7FD0FD70339FD8B17A16EEB7B136C2A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e78188f5-1e55-4a15-8e6b-a129a1983c89">
+            <Component Id="cmpE7FD0FD70339FD8B17A16EEB7B136C2A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0D1FDBF4305BB044D89C203C3599E626" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-ProcessTopology-Obsolete-L1-1-0.dll" />
             </Component>
-            <Component Id="cmpB989BEE952B5ACFFCA4D434A1C410901" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="505a1e1c-2720-49c2-92cf-0a1ccf362d6b">
+            <Component Id="cmpB989BEE952B5ACFFCA4D434A1C410901" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3D171BE27FD51E7D9FC3A1B66E2317DA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-profile-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp36281BB7E874AD2E7BB0493A8B1CA70B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="beac955f-73db-4109-9720-d0c95235b860">
+            <Component Id="cmp36281BB7E874AD2E7BB0493A8B1CA70B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil30388650BF022FC7723F158B7D002AB7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-psapi-ansi-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpE47DB37014C4375490BF2BB54AA417BF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="70c3d73e-d793-4079-80f5-3843cc0b9626">
+            <Component Id="cmpE47DB37014C4375490BF2BB54AA417BF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil11B9C570C0BC0A695523DF3CDBD734BA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-psapi-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpA7E5AACD4A1AC3E88666E4381AF77920" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1eb4f81d-fed1-4ed1-93dc-1d075a6555fe">
+            <Component Id="cmpA7E5AACD4A1AC3E88666E4381AF77920" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil70474D31652FB989AA7546DB0CD26C99" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-psapi-obsolete-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp231DC281EA9FD98D8A205A7C382F7F4D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="05a67964-3b80-4384-8f26-53a7257f6f00">
+            <Component Id="cmp231DC281EA9FD98D8A205A7C382F7F4D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC6C7BF67A8E5C653925E252913D4B928" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-realtime-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpA1A91633040CC619974AFD891364B1D3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="672fa6ff-368d-43a3-9002-a1db0d801bfa">
+            <Component Id="cmpA1A91633040CC619974AFD891364B1D3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filECB1585C6D8206CC0EBC8FDF0A8CE295" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-registry-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp98BD5AC728DFDD593F3375CC84E33BA0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a73a0e06-6b3e-4840-a056-6be089c46256">
+            <Component Id="cmp98BD5AC728DFDD593F3375CC84E33BA0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil373DD8E3A5C1A9A359912297036C2C18" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-registry-l2-1-0.dll" />
             </Component>
-            <Component Id="cmp96E40EC3FA9C9C7871F4D0825E9E40EC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9d319db2-0651-49b3-8061-2d0252288cf8">
+            <Component Id="cmp96E40EC3FA9C9C7871F4D0825E9E40EC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC24545F2976DD7E2F559A61CDEF72DE9" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-rtlsupport-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp6686C2C25B071B5D3812A4FFD20C1D0F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="adc3ce8f-ef83-496c-821f-6a6e02217589">
+            <Component Id="cmp6686C2C25B071B5D3812A4FFD20C1D0F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil16F0C422C1BF5EE19072566366DF48CF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-shlwapi-legacy-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp901FC9819C2EAF04ADADBA5D5BA62563" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="fb5586d9-0daf-462f-8bc9-02c71b857dc3">
+            <Component Id="cmp901FC9819C2EAF04ADADBA5D5BA62563" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil075824A76CA2697C95B1AA23F3FDAB80" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-shlwapi-obsolete-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpFEE370380E89728D47CDD10F03ACD146" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f2c864a6-5ce6-41ad-9547-eb186f99c7fd">
+            <Component Id="cmpFEE370380E89728D47CDD10F03ACD146" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF34C81772CD3530FCDD027F111533941" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-shutdown-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpF017454CB06D35AA0C279CF8A1CF337C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8390d8a4-8570-4d3d-a24b-d408afe28dc9">
+            <Component Id="cmpF017454CB06D35AA0C279CF8A1CF337C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil869CA4494F429C7DBD778F0C25ED48D6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-shutdown-l1-1-1.dll" />
             </Component>
-            <Component Id="cmpCAB021390B612066544CD352B45E139A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c11a0f0c-b1a1-4ea4-8250-2e08a8c7ba64">
+            <Component Id="cmpCAB021390B612066544CD352B45E139A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6B19F70F6FF02B05C09986C28783A461" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-string-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp2B8937B4C681BC621FD5AB88BAA65468" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="37aa56ec-3493-4007-b0c6-1ab4d4b02307">
+            <Component Id="cmp2B8937B4C681BC621FD5AB88BAA65468" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil75BB1A4AF43B42296E68602FD3DBF7C5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-String-L2-1-0.dll" />
             </Component>
-            <Component Id="cmp1ACDB549731332F41EDE13AEB0116507" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="73c8644a-51db-489b-b819-6884e747b6cf">
+            <Component Id="cmp1ACDB549731332F41EDE13AEB0116507" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB61800AFF88E76EC28CC2F1707C6021B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-string-obsolete-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp7B54DBC7A3BE68F4D5DB837895B9D3DC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a2629b6e-63aa-45a2-b08f-813e9a3a7409">
+            <Component Id="cmp7B54DBC7A3BE68F4D5DB837895B9D3DC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil00B682747DA87F2FF3168DD81EFF8369" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-string-obsolete-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp781ED1A0CC46F4FA482E1C08B256A9D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f26100b0-c65e-4bf0-94a7-227262b131ad">
+            <Component Id="cmp781ED1A0CC46F4FA482E1C08B256A9D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE1C0EBEAB3ABFC08E69B6E742FBA6719" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Core-StringAnsi-L1-1-0.dll" />
             </Component>
-            <Component Id="cmpAA3F5D2AFF68317ED87FC356483C72A3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2599ab78-c6fd-458b-b80c-9a0bea5e457b">
+            <Component Id="cmpAA3F5D2AFF68317ED87FC356483C72A3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2B8763B7C1651FBC597CA88F3C452669" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-stringloader-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp13A8559C79A20B45E41EF0DC033DC3E2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8913b3f9-9b97-445e-9939-42aec10c3151">
+            <Component Id="cmp13A8559C79A20B45E41EF0DC033DC3E2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA1C583B2FCFDF5D40EB610F92BCDB11A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-stringloader-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp862E909A79A18C1EF4C73CC72A79E6DA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2b594e85-46e0-41f3-ba81-afe017cab8fd">
+            <Component Id="cmp862E909A79A18C1EF4C73CC72A79E6DA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE567C925FA56F9C898E3A098491B0D70" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-synch-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp87199CF0D3ABAFE4123F174380772F76" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="eaadfded-725f-4615-a41d-f0051712c302">
+            <Component Id="cmp87199CF0D3ABAFE4123F174380772F76" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF6071F570AC64C028DAC51F2921C0080" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-synch-l1-2-0.dll" />
             </Component>
-            <Component Id="cmp768B69C2E036E5085901763175B8E739" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d391cc6b-ce0d-495e-9bab-5834a6539b91">
+            <Component Id="cmp768B69C2E036E5085901763175B8E739" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1D8FFE166E789D7D6A14C0439EBE422D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-sysinfo-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpB24AEA646312D97C6BF234A25E15514A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a827506a-8118-42b0-a84c-9a74f490adf9">
+            <Component Id="cmpB24AEA646312D97C6BF234A25E15514A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3742A3CF21F2D633A8EF641AD44FC31B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-sysinfo-l1-2-0.dll" />
             </Component>
-            <Component Id="cmp87022E9F61976D8B20E9C87A9EEE6816" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="56051182-b308-44e2-bca1-978488b0996c">
+            <Component Id="cmp87022E9F61976D8B20E9C87A9EEE6816" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil677B59C63AC8EA1CD25022005253C7B4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-sysinfo-l1-2-1.dll" />
             </Component>
-            <Component Id="cmp0AC313622C5485ECBB33E94C49786488" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b73b15a0-1955-4839-b463-9afc0beffaaa">
+            <Component Id="cmp0AC313622C5485ECBB33E94C49786488" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5F64E0494ACF0466A86A4178BA870382" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-sysinfo-l1-2-2.dll" />
             </Component>
-            <Component Id="cmpB3CEF1CD90CF709F510BEA23C9A3FD89" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7ee7d29a-3b03-4854-9897-c483d95757bf">
+            <Component Id="cmpB3CEF1CD90CF709F510BEA23C9A3FD89" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCCE33C772BBB280DF76315CF65CF567D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-sysinfo-l1-2-3.dll" />
             </Component>
-            <Component Id="cmpDC3301920377AA4AB193D53655DF5BCB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="242083ff-4ad6-4153-b089-1e35b317fd74">
+            <Component Id="cmpDC3301920377AA4AB193D53655DF5BCB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil739E178B948BBEA326219CFD23265FEB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-threadpool-l1-2-0.dll" />
             </Component>
-            <Component Id="cmpEFF31A2E59288E934188D58D955466C8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="91571fc2-a1fb-41eb-97c5-0559926d66d8">
+            <Component Id="cmpEFF31A2E59288E934188D58D955466C8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDFFFD2B7BF13700603943587FF17FD13" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-threadpool-legacy-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp730ABC4EF37753AC66B6696085FC1883" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1a909b3c-90ab-4a9d-9ba9-dd3d9322b47f">
+            <Component Id="cmp730ABC4EF37753AC66B6696085FC1883" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE216D505D6700A63B48019C074E167CC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-threadpool-private-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp9A27A2CCD7A1C88D3C01F08A0C7ADBC2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a6a1a0b0-9467-44d9-b29c-3c92eeb70356">
+            <Component Id="cmp9A27A2CCD7A1C88D3C01F08A0C7ADBC2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB43929B30AF52D623B7E37DF2BA98A5D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-timezone-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp33597AE8302316BBEE52E1F33FC6CDEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a2f885c9-ce6d-4d4b-a254-e0c4a77cd179">
+            <Component Id="cmp33597AE8302316BBEE52E1F33FC6CDEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF05D5C32DEA72937215A1BDD3557464A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-url-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp94E8C970A85AB643C809620E7EE56E45" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="40310bd8-0c4d-404f-80fe-ce5f60499f2c">
+            <Component Id="cmp94E8C970A85AB643C809620E7EE56E45" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB12FE6C0B8FC4C417DB487DB9F2A338E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-util-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp173BC53127C9FAA48DE1819C05A111D2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5ab1122c-eb70-4b60-b286-ae1c4cf64256">
+            <Component Id="cmp173BC53127C9FAA48DE1819C05A111D2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4C995744444A714C9435842237F3F496" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-version-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp108E4957E5002EE68A1DA11982368C37" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d2eb4ff9-1511-4b19-86c9-ccc38010c92a">
+            <Component Id="cmp108E4957E5002EE68A1DA11982368C37" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCC904E8C570729D5E306D513FD85D74F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-error-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp406F68692CF35B2A0AC34C4BE348F351" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9f8f73f8-118d-492b-ba34-2abeb36b5926">
+            <Component Id="cmp406F68692CF35B2A0AC34C4BE348F351" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB99A08A35349F0605D58C222CC910845" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-error-l1-1-1.dll" />
             </Component>
-            <Component Id="cmpEBFCE9A9A813BC45950567007D7CD624" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2051c97c-61fa-449b-8345-d14221d2e9fe">
+            <Component Id="cmpEBFCE9A9A813BC45950567007D7CD624" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4DC5682EB6C95551511D8B177D2E1D36" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp02A208DF7B241D1B27BF45472FD745B8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a91ccc44-b8c6-4008-9ac3-6f0925243683">
+            <Component Id="cmp02A208DF7B241D1B27BF45472FD745B8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCE2BF5C8BD797E443DC4A960800B4DCF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-registration-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp426C0755B3381B143C1CB9C08F1BE39E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ac82d768-3b11-476e-ac54-98851c86d3a0">
+            <Component Id="cmp426C0755B3381B143C1CB9C08F1BE39E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD62B513499FCBD1CB6EA343F8819137A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-robuffer-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp96E63960027185C15BA7EF7028BCAC8D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2e36c615-611c-4b36-a250-415adb958b99">
+            <Component Id="cmp96E63960027185C15BA7EF7028BCAC8D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD86F011D57E81B77DD379A702A7063FD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-roparameterizediid-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpA3926D0A2FA290A5614B32B2F935E9ED" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="41af842f-8f5f-40e9-abca-92c82ffbca00">
+            <Component Id="cmpA3926D0A2FA290A5614B32B2F935E9ED" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil037076E1635F19DD1030271977F37438" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-winrt-string-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp9CFFD47D8BF17E9D00E92A0C119A4D8A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a2bf6200-674f-4f51-acea-de01774f5cd2">
+            <Component Id="cmp9CFFD47D8BF17E9D00E92A0C119A4D8A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil858FC2FC1972E1F80708B53B2F9A0136" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-wow64-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp6D3DF02C7E14BABB82D8A6287B88AE83" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e7f84657-d41c-4264-94de-579816848075">
+            <Component Id="cmp6D3DF02C7E14BABB82D8A6287B88AE83" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil94FA1773C727BA951C58FE6C9F257F6E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-xstate-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpDBE1AB5333E2216FC9879C4211223A7D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1e675b54-a0ce-42a0-a7b3-ff230acd17c0">
+            <Component Id="cmpDBE1AB5333E2216FC9879C4211223A7D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEE5427582C90C637DFBA56B19A0FDBE4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-core-xstate-l2-1-0.dll" />
             </Component>
-            <Component Id="cmp474E47E316AC0DF6992C90BC40C49ECC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="06434041-91fa-4dd3-98cd-a4c59fdbedda">
+            <Component Id="cmp474E47E316AC0DF6992C90BC40C49ECC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8281466CB5251D46F5D2578F3E4CF3C7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-devices-config-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp07865C2D96AC45B7ADD708BEF222A4EC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a60ba903-80d8-4990-9665-59c8f30862a8">
+            <Component Id="cmp07865C2D96AC45B7ADD708BEF222A4EC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil158438421FE223C81FED9A7E132B1500" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-devices-config-L1-1-1.dll" />
             </Component>
-            <Component Id="cmpCC1CCB2195BDC49F8ACF30CF000169B9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ba94ef9e-a26e-4ce4-9333-8feac1003c86">
+            <Component Id="cmpCC1CCB2195BDC49F8ACF30CF000169B9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA777F89C0586619B88A538BF674BA1A4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Eventing-ClassicProvider-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp1256FAEAB5DA91284F0BE9EB02C5A0DA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="32d58238-d818-4191-95c5-ee1bd22877a7">
+            <Component Id="cmp1256FAEAB5DA91284F0BE9EB02C5A0DA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil83FF79421261B5B34B31D0202A7E4998" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Eventing-Consumer-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp7275E867F522A468CB239217D403C0EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="62d0735b-65fc-47f5-9181-6f47bb37543a">
+            <Component Id="cmp7275E867F522A468CB239217D403C0EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6F92F898BBF0AB8DF42C3B184FCC88A5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Eventing-Controller-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp4576C8E14E28407E527A971E40E7D38F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="56c70f2b-09d6-44f0-b240-4b32dc80d174">
+            <Component Id="cmp4576C8E14E28407E527A971E40E7D38F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB18E28396BD65F161D35A5218330BB1D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Eventing-Legacy-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp04F555CC8D0F53E5BF8A9E787990E542" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c304e524-9ecb-4e63-9ec8-88c60aca5c9b">
+            <Component Id="cmp04F555CC8D0F53E5BF8A9E787990E542" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil799F1E8BE82F95F785C199184DF675B8" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Eventing-Provider-L1-1-0.dll" />
             </Component>
-            <Component Id="cmpA9D274C65D1BA9E36EEF64C5C2A28DBF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7f4ec178-dabb-49c1-9d2d-7edb06b8d40a">
+            <Component Id="cmpA9D274C65D1BA9E36EEF64C5C2A28DBF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3B0D0446F7AA41F993255EF49595D05C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-EventLog-Legacy-L1-1-0.dll" />
             </Component>
-            <Component Id="cmpB4422FEE572248569191615955164FDB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2ed55cd9-0fbc-4a4c-8d88-51eb6a7e8b60">
+            <Component Id="cmpB4422FEE572248569191615955164FDB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil25B02F60E7A272C383D29ED4F7D64E29" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-ro-typeresolution-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp05362CDF99DDE1347E604BCFB7598FAD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="43c9c756-9f5c-4577-ba27-caa946a95ac4">
+            <Component Id="cmp05362CDF99DDE1347E604BCFB7598FAD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBB42E3863D4A1942A3B66356DC4FFA00" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-base-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp2645615A2F9039FB01273EB473A5777C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="793f6001-1e4e-4b4b-8e63-a40ec5355f34">
+            <Component Id="cmp2645615A2F9039FB01273EB473A5777C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFA9F9027FBF6DF1FEDC31311820D203B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-cpwl-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpDC059D3E4A2FFE16BC625022C8CF7109" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5d970a02-81bf-40bd-ae08-c6ee901a223f">
+            <Component Id="cmpDC059D3E4A2FFE16BC625022C8CF7109" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDF682B876E12DDBE5BA3106E60AF9744" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-cryptoapi-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp1A212E778FED0EF9291522A9BC6947AD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="849265cc-a930-4678-9340-af1adfda259f">
+            <Component Id="cmp1A212E778FED0EF9291522A9BC6947AD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil72E6D1F6947016A4665D9842A148EC94" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-lsalookup-l2-1-0.dll" />
             </Component>
-            <Component Id="cmp605B96B331F9B0122FA8F800E0939493" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="512492cf-31ad-45ed-81c3-4a7eee1594a4">
+            <Component Id="cmp605B96B331F9B0122FA8F800E0939493" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3DF814A87D49D763FD1F773FACFE7F92" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-lsalookup-l2-1-1.dll" />
             </Component>
-            <Component Id="cmp5CB732FA91931BA90A6ABC875BC0F2D7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f1e678ac-f732-4793-8721-c0c996772063">
+            <Component Id="cmp5CB732FA91931BA90A6ABC875BC0F2D7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF38491AC661387A4FBF5F7424391C2EC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\API-MS-Win-Security-LsaPolicy-L1-1-0.dll" />
             </Component>
-            <Component Id="cmp36C1F25C571B93CF53DCC38305C21CD3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b0f41f8c-5366-4657-ad26-8e5e4c776fc3">
+            <Component Id="cmp36C1F25C571B93CF53DCC38305C21CD3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4888FDE9CB550490C44F30490E630058" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-provider-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp15F76EFAB97CA67088093A66BDE82089" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="17512a21-ea25-44ac-bb8d-0750bec613ab">
+            <Component Id="cmp15F76EFAB97CA67088093A66BDE82089" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3346D955866B4B51426E229009C0D68B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-security-sddl-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp6E481DD9E1AF2BE40D1FB42C28E489D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9de04bfe-44c6-4bd3-b09a-61027f31f158">
+            <Component Id="cmp6E481DD9E1AF2BE40D1FB42C28E489D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF3A9FEC330F95D7A69DC1468FB3D9FF5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-core-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp7A085DC630C029B3DFE922E3017AB6B8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="be8cf4e5-d9a8-459c-b11c-07730a334a9d">
+            <Component Id="cmp7A085DC630C029B3DFE922E3017AB6B8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAC6B42DB7C7B0412900A6453041FE983" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-core-l1-1-1.dll" />
             </Component>
-            <Component Id="cmp09B260EFB9C7B358761D41277CD264D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d209d5fe-110e-43c3-ae7f-6a1d30537f9c">
+            <Component Id="cmp09B260EFB9C7B358761D41277CD264D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0CC3A6CB477C11FCEAF8A78748118CBB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-management-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpFC5F55F656A58E021B3A37EF04D58EBA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5f0402d4-6951-490b-820b-ad7d9c280305">
+            <Component Id="cmpFC5F55F656A58E021B3A37EF04D58EBA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6DE035D697D4610058D66EEEB8C8FF1E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-management-l2-1-0.dll" />
             </Component>
-            <Component Id="cmp820A1E86E56E303912933F4A4100605D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8a72af0e-53b0-4099-9314-c469ef0eaaa9">
+            <Component Id="cmp820A1E86E56E303912933F4A4100605D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9EB81391529BCE8DA835BC8FC0BE45D2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-private-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpD99163F66C938644E4EFB8C4768276AB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="57dadd72-c460-409a-94d5-cb769f4c8adf">
+            <Component Id="cmpD99163F66C938644E4EFB8C4768276AB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6998A6879F31BE2910D99B98F6AFE402" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-private-l1-1-1.dll" />
             </Component>
-            <Component Id="cmpBCF66CF4051804BD4B40BE3E27A493FC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="fe924aec-000e-4305-b161-bc5ce5a6722c">
+            <Component Id="cmpBCF66CF4051804BD4B40BE3E27A493FC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9BF1F2104362FBE9F73C1FD8EF15691A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\api-ms-win-service-winsvc-l1-1-0.dll" />
             </Component>
-            <Component Id="cmp0BD2476A5FE597832F6407AC0129455E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="aa5f738f-a24b-4a7f-9af5-9483669e03ac">
+            <Component Id="cmp0BD2476A5FE597832F6407AC0129455E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2E64840FE2E3FC57F29C945000142329" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\appsettings.Development.json" />
             </Component>
-            <Component Id="cmpE85DAB690C0362902709D961035A792A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="749e7abe-1dec-4be0-9bc8-9a5b791f72fa">
+            <Component Id="cmpE85DAB690C0362902709D961035A792A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil18C15EF605560B1B9464F3BEE98B11BB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\appsettings.json" />
             </Component>
-            <Component Id="cmp2DBE89DE6C0A10E63219B880ABA37A74" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8081128e-08ca-438f-9cb6-70cc73c6e2ab">
+            <Component Id="cmp2DBE89DE6C0A10E63219B880ABA37A74" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8FE25C527C26A605E6EDF35944D49862" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\clrcompression.dll" />
             </Component>
-            <Component Id="cmp41E28B5EE66A1C76BA16BDDCA3481958" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1bd4dab5-47ea-4799-9bb8-7b840de04f25">
+            <Component Id="cmp41E28B5EE66A1C76BA16BDDCA3481958" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5D824A538641DFF98E65966738E06E0F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\clretwrc.dll" />
             </Component>
-            <Component Id="cmp5333AB8D644A180B5D1EDCC6C0FF841B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b71ad5dc-618c-4fe6-a0a4-8ee7704772f7">
+            <Component Id="cmp5333AB8D644A180B5D1EDCC6C0FF841B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA3727F517F79FE6B3983B7CBB408F08A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\clrjit.dll" />
             </Component>
-            <Component Id="cmp7EBD0A8B6C3F3DB9D9C93A6D57C6C761" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e850c4e2-ce57-421e-b42a-f46203d0df5d">
+            <Component Id="cmp7EBD0A8B6C3F3DB9D9C93A6D57C6C761" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8AE94FE11DE46E3E80C60D6C3F4AF453" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\coreclr.dll" />
             </Component>
-            <Component Id="cmpDB72E652074AB033460E972656DE0E59" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="bfc09159-af19-417d-9ec9-e9b38a5d5ce9">
+            <Component Id="cmpDB72E652074AB033460E972656DE0E59" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil016FF1C9D5557AAB7E251F9D7A9CDE3C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\dbgshim.dll" />
             </Component>
-            <Component Id="cmp8634FFB4C60F983FF9FA2F39F198B20E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4643a228-8fe8-48b3-acd4-96c2ad5df74f">
+            <Component Id="cmp8634FFB4C60F983FF9FA2F39F198B20E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCF3E7404EC3C18E74230904581729C76" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\ext-ms-win-advapi32-encryptedfile-l1-1-0.dll" />
             </Component>
-            <Component Id="cmpFED6A192196B173B8EEC4EB43C54E73B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="50921e1f-ac6a-45b2-9268-80aa259432b1">
+            <Component Id="cmpFED6A192196B173B8EEC4EB43C54E73B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBEF60BF7AC2D205F93CE468C2D11B012" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\ext-ms-win-ntuser-keyboard-l1-2-1.dll" />
             </Component>
-            <Component Id="cmp9999A2A0E053D3354C5A644666FF27CA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="3c7e2f8c-ef3c-4cdf-ab56-f011f0c14e86">
+            <Component Id="cmp9999A2A0E053D3354C5A644666FF27CA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1A7DD61C9E76462EDA309F3FEFAE3055" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\hostfxr.dll" />
             </Component>
-            <Component Id="cmp2191E14D5EAEBFD41C87A0A083D10C4D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="91ef1973-1736-44d1-af6f-d3438db0cc80">
+            <Component Id="cmp2191E14D5EAEBFD41C87A0A083D10C4D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD2E138D2D89383BBC1EA13C48893BF1E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\hostpolicy.dll" />
             </Component>
-            <Component Id="cmp092862958C073DED377189161139D7CA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c6d01c71-de36-42a6-9603-33d08ceb08e4">
+            <Component Id="cmp092862958C073DED377189161139D7CA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE71B2D1E61E13A6A0CC399F8E73EB3A6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\libuv.dll" />
             </Component>
-            <Component Id="cmp8720E32C8149F26554830CC97321A377" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a3488f1f-464e-4ba7-a32a-dd95be10c751">
+            <Component Id="cmp8720E32C8149F26554830CC97321A377" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2F116187ACBA8A1670C4F30C2DA0605A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Antiforgery.dll" />
             </Component>
-            <Component Id="cmp33AB078B03D5BD2213B02132E16E4F93" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="29380eac-1551-49f7-ba95-8cea6f76515f">
+            <Component Id="cmp33AB078B03D5BD2213B02132E16E4F93" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil44F2402FD33381391879334AC0B9EA67" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Authorization.dll" />
             </Component>
-            <Component Id="cmp88B51DEF1ED82142B55A87F9636C8CF8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="be674c47-c0aa-440f-8241-503bdd503eea">
+            <Component Id="cmp88B51DEF1ED82142B55A87F9636C8CF8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil23A04A7E41DAC54311D4F3C9B8557A77" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Cors.dll" />
             </Component>
-            <Component Id="cmp8603B3E4BE5C40A5AB27F81872D2761D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9bfe76aa-a8c6-4ea6-8099-dff7f27fa822">
+            <Component Id="cmp8603B3E4BE5C40A5AB27F81872D2761D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6FE0608E11842947A27811AA3008F2BB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Cryptography.Internal.dll" />
             </Component>
-            <Component Id="cmpE1A72124B9B970DB96AE82EA01544E32" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4011c5a0-35eb-4617-8a79-c3d5889cd0c4">
+            <Component Id="cmpE1A72124B9B970DB96AE82EA01544E32" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil30FC8FC552AA8B985BDD1E43F524DA42" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.DataProtection.Abstractions.dll" />
             </Component>
-            <Component Id="cmpD195E8E89D63FFF101EC28553C0EF3C5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a9c52f0f-b75a-4390-8158-806adba27e96">
+            <Component Id="cmpD195E8E89D63FFF101EC28553C0EF3C5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0190DFA686E77A70DED6458CAB072D77" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.DataProtection.dll" />
             </Component>
-            <Component Id="cmpC5FCAEFBA29B6313C6354D0AC34CA896" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2a4b9b5f-92ab-40c4-b802-18dae2d32139">
+            <Component Id="cmpC5FCAEFBA29B6313C6354D0AC34CA896" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE64BFCE2DE52904408A8851E9B817A0F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Diagnostics.Abstractions.dll" />
             </Component>
-            <Component Id="cmpE4FEE52E630A8737A4589E8AE4A8BCCD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="3a904dc1-cd4f-424e-9dd6-bc65ab06e12d">
+            <Component Id="cmpE4FEE52E630A8737A4589E8AE4A8BCCD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil70F82C8E1160FD7B422AA8DD7EE82ABB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Diagnostics.dll" />
             </Component>
-            <Component Id="cmpD3C4BEAC2BECB71ED22220B2C70CC5E5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="fdbe0159-7e6f-4517-8a31-147d28df8ae9">
+            <Component Id="cmpD3C4BEAC2BECB71ED22220B2C70CC5E5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil913365F30F6BDDEA48C9C689C5D2F288" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Hosting.Abstractions.dll" />
             </Component>
-            <Component Id="cmp5E8904196092EE404301ABD52DA15589" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="faf4c776-bf01-4223-86ad-a81221e2d1be">
+            <Component Id="cmp5E8904196092EE404301ABD52DA15589" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil367F260273B8BAEF9446C1DB4D2140D6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Hosting.dll" />
             </Component>
-            <Component Id="cmp277D3BAD7C4FCFDEE001C0C9E62FCCED" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="de17daba-831a-42b8-b395-f3ae9bbd5368">
+            <Component Id="cmp277D3BAD7C4FCFDEE001C0C9E62FCCED" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD6CA2CD63C540C0DA05E18741D037505" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Hosting.Server.Abstractions.dll" />
             </Component>
-            <Component Id="cmpC4BDB1DCC5B8D2A5E09D102BA440AB33" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="783350c1-1a71-4250-999d-87fc01a0c26b">
+            <Component Id="cmpC4BDB1DCC5B8D2A5E09D102BA440AB33" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAC52DF086FCB8A0FA4B8BDF166BFA68D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Html.Abstractions.dll" />
             </Component>
-            <Component Id="cmp26F14A0EF35ACE35FC3BAA97B91133B4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a574d20b-bf9b-4f36-9077-7db35aaabe10">
+            <Component Id="cmp26F14A0EF35ACE35FC3BAA97B91133B4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDCD4254704049539796AAAB688EBE4CA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Http.Abstractions.dll" />
             </Component>
-            <Component Id="cmp94BFF5BC8B31A60A6E9499379A1F82EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9e4923ef-02e7-4da4-abd0-6adb81af5dee">
+            <Component Id="cmp94BFF5BC8B31A60A6E9499379A1F82EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4F3643F4589B4B8B736F3F97CA12B234" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Http.dll" />
             </Component>
-            <Component Id="cmpCDFEE6C58425BCC0650CAFF155C67E51" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="12d7c424-3d2f-4a45-a328-e253e78ff809">
+            <Component Id="cmpCDFEE6C58425BCC0650CAFF155C67E51" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB8B0475AD5D6D370EBF6C05B63A0D46A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Http.Extensions.dll" />
             </Component>
-            <Component Id="cmp1D69F3ADEFF28787145715B5BBFA34EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="23034b9e-c99d-4b6f-b9f9-79d21394f501">
+            <Component Id="cmp1D69F3ADEFF28787145715B5BBFA34EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil83EC42C857B79028B65BF256CDE82E48" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Http.Features.dll" />
             </Component>
-            <Component Id="cmp513E227FC18DFB74A81596D7183826D9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="cf15b7a4-faa2-4e16-be29-a831e8c0ed21">
+            <Component Id="cmp513E227FC18DFB74A81596D7183826D9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBDFD450F0A24288BE2A3ABB8DB0A8F48" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.HttpOverrides.dll" />
             </Component>
-            <Component Id="cmpA944FC5C8B7B49647A4F99E6D0AADA6F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="3c6151bc-d106-4185-bf53-5c4f4a75d0ff">
+            <Component Id="cmpA944FC5C8B7B49647A4F99E6D0AADA6F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF90EC596E1C197CF9826117C859BA7E8" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.JsonPatch.dll" />
             </Component>
-            <Component Id="cmp5C7756A045786F5007DD9858FBC5934D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1ff6257b-e37f-4e34-a321-1a07d44c71b2">
+            <Component Id="cmp5C7756A045786F5007DD9858FBC5934D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil879D81C28604D74511824E9242AA0D67" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Localization.dll" />
             </Component>
-            <Component Id="cmp4EB227050C3359293F23012576313F34" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="215f4579-9047-473e-8eb8-324da35a564d">
+            <Component Id="cmp4EB227050C3359293F23012576313F34" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil344DDF88057B66B56F6382FA55CBCF8F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Abstractions.dll" />
             </Component>
-            <Component Id="cmp0D5126FB572D28C90586F4C5ACADD271" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="37f6b69e-8dda-450e-91ad-30c563f992fd">
+            <Component Id="cmp0D5126FB572D28C90586F4C5ACADD271" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil06D6DB7029A605560F31B0F6C942C315" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.ApiExplorer.dll" />
             </Component>
-            <Component Id="cmpA850760C2BCBCF0415DAB8493AAF65F2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c84c3166-c043-4076-a00d-832f692335ca">
+            <Component Id="cmpA850760C2BCBCF0415DAB8493AAF65F2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6D7969E54314C3605AECD6C4C1F1A079" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Core.dll" />
             </Component>
-            <Component Id="cmpBF9363A3766B320A6079689D686ECAC7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="adddaa9e-2161-4813-8044-df7b4e098fdb">
+            <Component Id="cmpBF9363A3766B320A6079689D686ECAC7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil571868683A1BB1EB1CB3552F70F7C3EB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Cors.dll" />
             </Component>
-            <Component Id="cmp24D8AE1C4152D161DB962367CEDD286E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6fcac8ff-d62b-4788-acf3-dbc9d5813232">
+            <Component Id="cmp24D8AE1C4152D161DB962367CEDD286E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF403D523985818468BDDAC67D6524542" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.DataAnnotations.dll" />
             </Component>
-            <Component Id="cmpC1F03B4C9B6038BAE7898FE84ECACE1A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f3ad01cd-8a62-4a1e-9592-0d0456501b18">
+            <Component Id="cmpC1F03B4C9B6038BAE7898FE84ECACE1A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2E5C77E55204CF6AC89265DCF6DC4952" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.dll" />
             </Component>
-            <Component Id="cmp5987BD1768F1AACC6EEA624C88B12FD1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="bd4f2846-6da9-480d-8932-605fa2718185">
+            <Component Id="cmp5987BD1768F1AACC6EEA624C88B12FD1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1A4334DC97438A6B1284159257073382" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Formatters.Json.dll" />
             </Component>
-            <Component Id="cmpBDC7843E3091F349BE5541EF321706C5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6010cb19-38fe-4f22-896b-82bb350c56d3">
+            <Component Id="cmpBDC7843E3091F349BE5541EF321706C5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4A92AC9C47989E4423153D65DAB1C6CE" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Localization.dll" />
             </Component>
-            <Component Id="cmp4EA823C8F7F920390DEB8E48B7B1461A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="fe6927c8-d9cb-4b02-aed5-3a347dc8cb30">
+            <Component Id="cmp4EA823C8F7F920390DEB8E48B7B1461A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD8BD3F155C91C90BB10AAE8F27BEB251" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Razor.dll" />
             </Component>
-            <Component Id="cmp4EDE357A7CBF4AF104026E0848BC1368" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b4a7a740-f99b-49d3-bb65-8b996861413c">
+            <Component Id="cmp4EDE357A7CBF4AF104026E0848BC1368" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3A541F9BC072C122F0222C0A7331A1C9" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.Razor.Host.dll" />
             </Component>
-            <Component Id="cmp6FAF5FBE28532EE18968A6082E3BBEC2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="935def3d-ca7c-4f64-91f0-0b832da3234b">
+            <Component Id="cmp6FAF5FBE28532EE18968A6082E3BBEC2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filADDCFCEA958665F618D069F2FAF83779" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.TagHelpers.dll" />
             </Component>
-            <Component Id="cmp4AF2A93F591B8494840903AE57A20CEF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="93c21d6e-75c1-46c3-9f5a-62a6c4313935">
+            <Component Id="cmp4AF2A93F591B8494840903AE57A20CEF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9179C6FB42CEFD538F7C7874E425AAF5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Mvc.ViewFeatures.dll" />
             </Component>
-            <Component Id="cmpBB45360A193C0E0AA6BC29476C9A41E2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="050222dc-57a6-4ab5-b42e-7cc941cace8d">
+            <Component Id="cmpBB45360A193C0E0AA6BC29476C9A41E2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC2B20C71F8DC04E3C6F4BB3F91D23AD5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Razor.dll" />
             </Component>
-            <Component Id="cmp0B461656BF5D94FB16AE6D45942558A0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b7defd71-1336-4231-8f2a-8ed05af3aa75">
+            <Component Id="cmp0B461656BF5D94FB16AE6D45942558A0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil70EC14872EC98EA03EB3B135E2E4C6B8" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Razor.Runtime.dll" />
             </Component>
-            <Component Id="cmp6DB9C772041875484E6BB88BBABFC2FE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="420f737a-43cd-42fc-bc06-772434a65324">
+            <Component Id="cmp6DB9C772041875484E6BB88BBABFC2FE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil21FC08F5350C4A53B91B79C0D64C497F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.ResponseCaching.Abstractions.dll" />
             </Component>
-            <Component Id="cmp493CF85CB851E3B78FB553ACD2C67053" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c46da092-b30f-42f0-b2c3-3fac87ad6db0">
+            <Component Id="cmp493CF85CB851E3B78FB553ACD2C67053" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA158C0625D1806D156C4C340653417C1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Routing.Abstractions.dll" />
             </Component>
-            <Component Id="cmp2069E474130E29E3AC04A83D03568281" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a975679e-8081-4ccf-b5ac-381a999ccf84">
+            <Component Id="cmp2069E474130E29E3AC04A83D03568281" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA44B70EEEC2F14F4BEDA39D7B2F80D77" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Routing.dll" />
             </Component>
-            <Component Id="cmpEBCA56C4AA062B8ABC6AA9B04217A137" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a8a5427e-297b-4ff7-a244-465ae526ed9e">
+            <Component Id="cmpEBCA56C4AA062B8ABC6AA9B04217A137" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0772632A6A6C7911F57210CD224FDEDC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Server.IISIntegration.dll" />
             </Component>
-            <Component Id="cmp7B65A95238EE82687B91EEB382CA0899" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d263330b-7e42-4ee6-a81b-13bdb9342d1b">
+            <Component Id="cmp7B65A95238EE82687B91EEB382CA0899" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF358D2FA4E0640D2C900EB0ACB34659E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.Server.Kestrel.dll" />
             </Component>
-            <Component Id="cmpAD2D489BA052AFB6099D1F860479C6DD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f4c48fb7-128a-4617-ab2a-6645f9dfd737">
+            <Component Id="cmpAD2D489BA052AFB6099D1F860479C6DD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA6368E2A5D400D55139E558DE3BF8BA2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.AspNetCore.WebUtilities.dll" />
             </Component>
-            <Component Id="cmpEF95F170115E79EBABC85E61931D2CFF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d21dcc19-890d-4acb-bad7-d83280e026c6">
+            <Component Id="cmpEF95F170115E79EBABC85E61931D2CFF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8EBCB6CFCF1715F0A5901E0FD54FF83C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.CodeAnalysis.CSharp.dll" />
             </Component>
-            <Component Id="cmpE2E937B6C4262E56F749A24A6BEEADFD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="efd85616-6e40-4602-b243-2d5d633cd8b3">
+            <Component Id="cmpE2E937B6C4262E56F749A24A6BEEADFD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF98D5CFF04EB41623495114F54D194C6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.CodeAnalysis.dll" />
             </Component>
-            <Component Id="cmp9FB48EC8B003E5FD92963451572A90E7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="db445c42-fb36-4d36-a61a-f65912a86c88">
+            <Component Id="cmp9FB48EC8B003E5FD92963451572A90E7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil423D4EE2839B9B6E1F63E0F61887A2AA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.CodeAnalysis.VisualBasic.dll" />
             </Component>
-            <Component Id="cmp2F35B9A90E9B8EABC408A501327EA2A3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="47767f10-8c35-4ced-ac77-4d9e1b9aa6ab">
+            <Component Id="cmp2F35B9A90E9B8EABC408A501327EA2A3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil65BE7531FEABC97E8DA4EC626C61C095" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.CSharp.dll" />
             </Component>
-            <Component Id="cmpD822E101E154B24FA2D80376C066E77B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="3d30856a-383d-4ce8-86c2-8bc66e0e2230">
+            <Component Id="cmpD822E101E154B24FA2D80376C066E77B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil97131A249FBA9974CBC69F3863A1CB7F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.DiaSymReader.Native.amd64.dll" />
             </Component>
-            <Component Id="cmpC980AEE52E935C445D6572DDCB633A54" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="03af0b7e-652a-4f2b-912b-168fea9336ef">
+            <Component Id="cmpC980AEE52E935C445D6572DDCB633A54" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1AA0DBE98C2D6F900FF8301C50EF1AE1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.DotNet.PlatformAbstractions.dll" />
             </Component>
-            <Component Id="cmp96A19C477B7B54407D26BF095A622EEE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="84839d29-f0c5-4180-9ad7-eecaca45b96b">
+            <Component Id="cmp96A19C477B7B54407D26BF095A622EEE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8789D0DBBC8B47922CF33F012D4E6EF3" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Caching.Abstractions.dll" />
             </Component>
-            <Component Id="cmpAEDBC13EA31698C596BD7DE71BC65011" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="97b709bd-2fa3-49c8-9637-a3780bfe7583">
+            <Component Id="cmpAEDBC13EA31698C596BD7DE71BC65011" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filACCEAE29F0126EE6F308FBCB80E50AE0" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Caching.Memory.dll" />
             </Component>
-            <Component Id="cmp35ADFBF3B2CB93B70AE3C5DCF096F5EF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a1ecf822-c579-434d-9e05-78ffa2e90196">
+            <Component Id="cmp35ADFBF3B2CB93B70AE3C5DCF096F5EF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil958A846B825A35607A48A3DFBD520C2F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Configuration.Abstractions.dll" />
             </Component>
-            <Component Id="cmpFBB404768BDB1ED1B27899EBCB9246EB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9fb10af8-6464-4892-ab7f-3b5a7a029203">
+            <Component Id="cmpFBB404768BDB1ED1B27899EBCB9246EB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAD019A027166464F1FA209021073B395" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Configuration.Binder.dll" />
             </Component>
-            <Component Id="cmp9BC14196BB903A05E53F7C40EAC67AF9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4edb0a19-8780-4f3c-8ae8-6ae01a697454">
+            <Component Id="cmp9BC14196BB903A05E53F7C40EAC67AF9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5D2DD16AEE7851CDA0231F8B13D8E4F6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Configuration.dll" />
             </Component>
-            <Component Id="cmp933FF6272E7FFD562CB2F75D7DECA401" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="623ffb6a-41e4-41b9-bd2f-f34dea2dfc11">
+            <Component Id="cmp933FF6272E7FFD562CB2F75D7DECA401" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4146F492A94EE4BBE5D84BAF965E62DD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Configuration.EnvironmentVariables.dll" />
             </Component>
-            <Component Id="cmp313DC1FB205CA37AC9D8910BA2D19083" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="0ac1343d-5492-4f9c-a545-ffa558914c96">
+            <Component Id="cmp313DC1FB205CA37AC9D8910BA2D19083" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC7A043A19C9E4389D13EF8B6DBC71634" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Configuration.FileExtensions.dll" />
             </Component>
-            <Component Id="cmpEB66861DC92E5B15B50FA6311DB1FC9D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f75951a9-5fbd-4384-8a8b-823031ddfd13">
+            <Component Id="cmpEB66861DC92E5B15B50FA6311DB1FC9D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil215FE01679135701F07771CF197CF260" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Configuration.Json.dll" />
             </Component>
-            <Component Id="cmp9BF4CDEA3D1B7BFB440A2BEBBAD9F15F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a6b3abd5-5b37-487a-ae7d-90ce418be145">
+            <Component Id="cmp9BF4CDEA3D1B7BFB440A2BEBBAD9F15F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4C34E9A713F1A244D1BAC36C6237837E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
             </Component>
-            <Component Id="cmp0562F9A6457E05267E8909F656A816D4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1fd38c0e-f242-4fa9-8b58-dab2c41ea627">
+            <Component Id="cmp0562F9A6457E05267E8909F656A816D4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil23670D9A151BB391494D4225CDDFED31" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.DependencyInjection.dll" />
             </Component>
-            <Component Id="cmpD86AC9E778E62E05A2F722F60863486F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6941f68d-56a9-4241-902c-448772f58f17">
+            <Component Id="cmpD86AC9E778E62E05A2F722F60863486F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDD2D9E2092A62FBBA1F3500E043DA90A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.DependencyModel.dll" />
             </Component>
-            <Component Id="cmpEEF844024AEF63C74D282CF98251FDDD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8738add1-b046-4785-b3c5-3b2d5865dc89">
+            <Component Id="cmpEEF844024AEF63C74D282CF98251FDDD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3EA5199891951AAEC111BB4A88BAF42A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.FileProviders.Abstractions.dll" />
             </Component>
-            <Component Id="cmp5E8D9FBC34C2E59B85BE499092062CD1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4a508233-b7ba-48ce-a4f9-b991853aba61">
+            <Component Id="cmp5E8D9FBC34C2E59B85BE499092062CD1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil99E441E3D200455A800D0945806BE17C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.FileProviders.Composite.dll" />
             </Component>
-            <Component Id="cmp71D1DB911ED8F90980A103151B7214F2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="0a525048-b24f-4569-89a7-a4e757b5bcf1">
+            <Component Id="cmp71D1DB911ED8F90980A103151B7214F2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFB5BCB30FC7DB49BFD108837B10B2342" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.FileProviders.Physical.dll" />
             </Component>
-            <Component Id="cmpFB4094CE4FD0102D25D954177E800277" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1b09b0ac-c2b5-4638-b72e-e30f0ccd3e4a">
+            <Component Id="cmpFB4094CE4FD0102D25D954177E800277" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6ED026C46BCED9A3B87F1C08C204953B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.FileSystemGlobbing.dll" />
             </Component>
-            <Component Id="cmpFEE74E8D2FC481E6D849BC2D583FE65A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="bc010cf5-6795-4500-bea9-7cac7149e22a">
+            <Component Id="cmpFEE74E8D2FC481E6D849BC2D583FE65A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC741711482554F4EA4146A8DA73082A1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Globalization.CultureInfoCache.dll" />
             </Component>
-            <Component Id="cmpD6B48147199CB95AAFE6CD2292C5FD38" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="0f4629b0-170a-478a-b473-3f338a8f79ec">
+            <Component Id="cmpD6B48147199CB95AAFE6CD2292C5FD38" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filDB885B72D00B7F4F133C1731C839D13B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Localization.Abstractions.dll" />
             </Component>
-            <Component Id="cmpABC40E4328D78AE89FABFCC5704D2315" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="591177a4-fb86-46e0-9a70-6dbdb3767a34">
+            <Component Id="cmpABC40E4328D78AE89FABFCC5704D2315" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil29E9419851EBBCEED3A13FA0A124170B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Localization.dll" />
             </Component>
-            <Component Id="cmp91A813483BA840A1176FEF3674BE8308" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2d33738c-51e7-462c-9187-a65578900802">
+            <Component Id="cmp91A813483BA840A1176FEF3674BE8308" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil49CF3EF70C41CD46B2C87724614FD24D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Logging.Abstractions.dll" />
             </Component>
-            <Component Id="cmp1317F3277BBD03845DED695F6EAD2B97" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e8b51c6f-237c-40af-a197-b8e028502a2e">
+            <Component Id="cmp1317F3277BBD03845DED695F6EAD2B97" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8EDFD8841EBBA392F1F7B8F0C1DA8E8C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Logging.Console.dll" />
             </Component>
-            <Component Id="cmpBFA69F3F7BCE564949FE329C336E5531" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2c4a9427-9195-4456-9d34-690eb8b328c7">
+            <Component Id="cmpBFA69F3F7BCE564949FE329C336E5531" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil39FABFDB89A9DAA7D88AE73047DCA7CB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Logging.Debug.dll" />
             </Component>
-            <Component Id="cmpF170B23042AED1DB5B963A65B4EC0DAC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e7ff2283-f2c1-428f-ab5f-67185317a27f">
+            <Component Id="cmpF170B23042AED1DB5B963A65B4EC0DAC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5F147993BB4BD29DC83CF3A129742587" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Logging.dll" />
             </Component>
-            <Component Id="cmpCC32122C53FE0E37C08E93DBAAD92D92" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1c3745a1-e438-4da1-98b2-3d2748647ff5">
+            <Component Id="cmpCC32122C53FE0E37C08E93DBAAD92D92" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil148BBA330471D07171B0522FC87E4818" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.ObjectPool.dll" />
             </Component>
-            <Component Id="cmp4B144B801EF2E2FF46F9F5B1F27C8DA8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="53f9e9c6-25f8-4031-8057-1e7ad4beb8ef">
+            <Component Id="cmp4B144B801EF2E2FF46F9F5B1F27C8DA8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1B654F7CC17C6C27EA0223DAA063BA10" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Options.ConfigurationExtensions.dll" />
             </Component>
-            <Component Id="cmp924571091CA88996769A5667ADF38C51" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="cd7cf914-a975-46b8-b9a2-8a5b61885354">
+            <Component Id="cmp924571091CA88996769A5667ADF38C51" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEDEF9B64AFC0888BDD7DC7E8D3B9BED1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Options.dll" />
             </Component>
-            <Component Id="cmp160972E2D92CF8DEA2041C63FE2E1683" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="43500e10-81f4-4b8a-9386-270a86554a64">
+            <Component Id="cmp160972E2D92CF8DEA2041C63FE2E1683" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9EC50071F122996FA38609234623362A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.PlatformAbstractions.dll" />
             </Component>
-            <Component Id="cmpDE3488499CA8114D7DE96778AE95D8D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5e9ea49f-2fed-4c9a-abec-207ad24ceef7">
+            <Component Id="cmpDE3488499CA8114D7DE96778AE95D8D8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil132D66EB8B4B752F5C58AB0E8E1C8472" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.Primitives.dll" />
             </Component>
-            <Component Id="cmp8E76B89312E47218FC99D2C6757D2CC8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="07ad1509-c3f4-4b41-89d6-002eb40d5786">
+            <Component Id="cmp8E76B89312E47218FC99D2C6757D2CC8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB904ED24AD16B25536F9A71D59500B50" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Extensions.WebEncoders.dll" />
             </Component>
-            <Component Id="cmpA5E08F1C6CD767F4DE115FA5BC0CD2FA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b51d27b3-900c-4bcc-9aa9-d9ee463756e4">
+            <Component Id="cmpA5E08F1C6CD767F4DE115FA5BC0CD2FA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1EE5BB9810AF35336DA79FBC3463C1E5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Net.Http.Headers.dll" />
             </Component>
-            <Component Id="cmp7F0BA575975ABA3CD6E953395D43CAB3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d7a8f9c0-50ce-4f76-b07b-bc0a5ab10327">
+            <Component Id="cmp7F0BA575975ABA3CD6E953395D43CAB3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBD9556F884F241545079059FB9232743" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.VisualBasic.dll" />
             </Component>
-            <Component Id="cmpF6B271700EB551886C11EE9704917A19" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d20d85ed-fccf-4d40-85f4-e6387f260347">
+            <Component Id="cmpF6B271700EB551886C11EE9704917A19" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAB345FA05E4ABBED7BD3A1DD43291D24" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Win32.Primitives.dll" />
             </Component>
-            <Component Id="cmp7CBE8F635CF78188749CF61B7688A662" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8df5575d-6f83-42d6-8327-6594a4069e3c">
+            <Component Id="cmp7CBE8F635CF78188749CF61B7688A662" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil14B654213821E47160A6ED4787DA6FFE" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Microsoft.Win32.Registry.dll" />
             </Component>
-            <Component Id="cmpB922302F7D104139471E531C69958947" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6070d5bb-8d2a-486f-bcc3-30551fdc31ff">
+            <Component Id="cmpB922302F7D104139471E531C69958947" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil733F1B041F8B346EBBAD1B5CEE0933D6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Mono.Cecil.dll" />
             </Component>
-            <Component Id="cmp231B451F15455DCAD64126B29A5F7103" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="270d768f-0a1d-43c0-ac68-265df45b0488">
+            <Component Id="cmp231B451F15455DCAD64126B29A5F7103" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil19BA72122E844FB6FBE7EABC8431D063" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Mono.Cecil.Mdb.dll" />
             </Component>
-            <Component Id="cmpC9971D4FC16BFE6AA7C0952F890A9AB6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="3cf1176d-687a-4d90-855f-77bcc02b2ff4">
+            <Component Id="cmpC9971D4FC16BFE6AA7C0952F890A9AB6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil406AEDB76C72BE0BC192CC8004B22BDD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Mono.Cecil.Pdb.dll" />
             </Component>
-            <Component Id="cmpEC011395C1A04DBEA6146FE2B4283445" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="af5d6d6b-02d0-462e-b4a0-ac0dfc723d13">
+            <Component Id="cmpEC011395C1A04DBEA6146FE2B4283445" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filED95D0895937EE1D0C07BA8C344517A7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Mono.Cecil.Rocks.dll" />
             </Component>
-            <Component Id="cmp643448F4DE3E54B4D2E6ABB370EA4024" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2d86241f-786d-4036-b352-0152d05412d4">
+            <Component Id="cmp643448F4DE3E54B4D2E6ABB370EA4024" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD91BB803F97117EADE35536F929A2AD9" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscordaccore.dll" />
             </Component>
-            <Component Id="cmp3DB6F519C48E2E9EF339652B271F7DEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="33555e9e-50fb-4512-9b9d-7c388ed91524">
+            <Component Id="cmp3DB6F519C48E2E9EF339652B271F7DEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC53607A96732ACC1F3D1E1E5ABED01DE" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscordbi.dll" />
             </Component>
-            <Component Id="cmp164A71445BC2DF97BE51B77382FA3202" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="231ae855-2d33-421b-a7d0-163465b49dd8">
+            <Component Id="cmp164A71445BC2DF97BE51B77382FA3202" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6956AC748C5BF7C5C56D6AB285B5BF2B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscorlib.dll" />
             </Component>
-            <Component Id="cmpD78A0E2FAFBC44B62C19E8E2AA4BB75B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6272953a-2d9d-492c-9c05-f0b5bc9b9fc0">
+            <Component Id="cmpD78A0E2FAFBC44B62C19E8E2AA4BB75B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9E996C4E57D63281C278FB9E37B0C74E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscorlib.ni.dll" />
             </Component>
-            <Component Id="cmp660DF8458068D56E2C7C655BB80F8EFC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="43993d16-4967-40ef-8ef4-cbd069123738">
+            <Component Id="cmp660DF8458068D56E2C7C655BB80F8EFC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5C4BAD05D690F6C02DB53E438242AE94" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscorrc.debug.dll" />
             </Component>
-            <Component Id="cmpF3884ADD5ADA00554A2146ABE9A9A2FA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5d47498f-1abf-44f7-a814-91c321f95e5d">
+            <Component Id="cmpF3884ADD5ADA00554A2146ABE9A9A2FA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFF7D5F1CB7F3976D8DA3AF670BE0768C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscorrc.dll" />
             </Component>
-            <Component Id="cmp72B317F60515BAD6A255C5A96E630B1B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7ae57c1f-3d60-483e-babf-3ecd26152903">
+            <Component Id="cmp72B317F60515BAD6A255C5A96E630B1B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4E9E397B41815143E7DE0244B0E7C5FF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\Newtonsoft.Json.dll" />
             </Component>
-            <Component Id="cmp84A0FB91111D1D224CCC58D2CD17EF3C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="02d429c6-389f-4864-8693-9e2cd105e463">
+            <Component Id="cmp84A0FB91111D1D224CCC58D2CD17EF3C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAEF90F876F1A4DA3C9384DA3E008D860" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\sos.dll" />
             </Component>
-            <Component Id="cmp8A33C321D30A6EACF8103E61C6E6E99E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8e86ffa7-aa9f-419e-9223-534d6f5753c3">
+            <Component Id="cmp8A33C321D30A6EACF8103E61C6E6E99E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBDB6C82F2B3C03682ECC64FFB41EBB64" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SOS.NETCore.dll" />
             </Component>
-            <Component Id="cmp44E3E520EFA0760DA96DFEEDDF9F59CE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6b844272-a365-4f33-b969-19105516cf16">
+            <Component Id="cmp44E3E520EFA0760DA96DFEEDDF9F59CE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil28923444805F499A1D00B40B965B9811" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SymbolService.deps.json" />
             </Component>
-            <Component Id="cmpAAD9F9398C310167B3D3A0002D9B7CEC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2086434b-43c8-4664-9cb9-278f9a37b263">
+            <Component Id="cmpAAD9F9398C310167B3D3A0002D9B7CEC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE3915B8655E16B82B23F6B615EC66C0E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SymbolService.dll" />
             </Component>
-            <Component Id="cmp1DD7A78DF2D17B75FBF9C01288A53293" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e494104b-0947-43ed-83b2-4aad1bd33aa5">
+            <Component Id="cmp1DD7A78DF2D17B75FBF9C01288A53293" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil01405F24C28AB7F4B2F8B53E55150A04" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SymbolService.exe" />
             </Component>
-            <Component Id="cmp8AFE6E71F3A7D489E714B380CEB177DC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2301440e-e4fe-4cc0-a9b4-dc9100efbd06">
+            <Component Id="cmp8AFE6E71F3A7D489E714B380CEB177DC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil25042055746944481C1F74B26E133D17" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SymbolService.pdb" />
             </Component>
-            <Component Id="cmp04646FE655766D71F59150BD4980DA85" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e6e8d3aa-90c9-42f8-bab4-8cc1849462a0">
+            <Component Id="cmp04646FE655766D71F59150BD4980DA85" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil394E4B546A895E6F2B1E1D86D42C1E12" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SymbolService.runtimeconfig.json" />
             </Component>
-            <Component Id="cmpDE13F497598C9DBAD45D83847F469EA6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="fa36851d-307b-49b3-9035-d9364b5c8a5e">
+            <Component Id="cmpDE13F497598C9DBAD45D83847F469EA6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9B04782982AB68D9DEEA0FD8D158F2A1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.AppContext.dll" />
             </Component>
-            <Component Id="cmp148DEF51E25278D9F10A2A063A012416" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a4a59efa-c11f-457b-b1c5-0cfacbe8931f">
+            <Component Id="cmp148DEF51E25278D9F10A2A063A012416" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD027EAD10F820463286A45BBF9262402" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Buffers.dll" />
             </Component>
-            <Component Id="cmp5AC63F8F98774EED2660D6A1BB23CBA1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e09c2277-6936-442f-81b3-2b80751b1ceb">
+            <Component Id="cmp5AC63F8F98774EED2660D6A1BB23CBA1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2C41839C05238251152EEFCAF76B6EBB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Collections.Concurrent.dll" />
             </Component>
-            <Component Id="cmp54182F38FA361658A884EABB0D785955" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="558fd2e2-6867-48c6-aa5a-5fb691cf32a5">
+            <Component Id="cmp54182F38FA361658A884EABB0D785955" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil806670433EB9802FD03A73427B3BB608" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Collections.dll" />
             </Component>
-            <Component Id="cmp4CE99DFFF10800DCA74D60CF7C686F3D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c060babe-8627-4bba-8185-5f9d76311450">
+            <Component Id="cmp4CE99DFFF10800DCA74D60CF7C686F3D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6586E160AFE9AE6C78C755D1CDD33EC6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Collections.Immutable.dll" />
             </Component>
-            <Component Id="cmp82E80C3BF059F150BAA0B0BC82B1FF9A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f33b2f1b-72e2-4dbc-9e2f-a664afbbeaad">
+            <Component Id="cmp82E80C3BF059F150BAA0B0BC82B1FF9A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEF1000EF3224D5990C77E54B3F69892A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Collections.NonGeneric.dll" />
             </Component>
-            <Component Id="cmpF715A53F511C8F6F8F31D40BAACDF31C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="adcee724-43bc-4822-a86d-ff57dc9add22">
+            <Component Id="cmpF715A53F511C8F6F8F31D40BAACDF31C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil13ED24D1EF1A729ED7AF9C03D112D3B8" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Collections.Specialized.dll" />
             </Component>
-            <Component Id="cmpE09240EBF54507006377EC06A16D0392" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="19ba2d2f-ee7f-4d35-86cd-1368c4185895">
+            <Component Id="cmpE09240EBF54507006377EC06A16D0392" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD36E2B26942420C882BC90E92FD31D98" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.ComponentModel.Annotations.dll" />
             </Component>
-            <Component Id="cmp1A8AF4FCF2F9A83AE11CC134EFACBD65" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c3138d85-26ea-4450-91ca-097e15452d94">
+            <Component Id="cmp1A8AF4FCF2F9A83AE11CC134EFACBD65" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9506785932BE87E869A3F8785E83BE58" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.ComponentModel.dll" />
             </Component>
-            <Component Id="cmp333282D536107577F6741D8E911E00E4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="09d7fb01-1e65-47a0-9e76-bd8ae80dc6e4">
+            <Component Id="cmp333282D536107577F6741D8E911E00E4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9B1383C1E94EAEC84F331F15E7168FAC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.ComponentModel.Primitives.dll" />
             </Component>
-            <Component Id="cmp48A5BEBCF3C3773DC1727B9A8F341AE9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f6d8a99b-3fc8-4d01-b84d-ec6623c5afc7">
+            <Component Id="cmp48A5BEBCF3C3773DC1727B9A8F341AE9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0181396377A83123DFC64E2544300CD6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.ComponentModel.TypeConverter.dll" />
             </Component>
-            <Component Id="cmp18BDEA896C4482FFBF0052964C2431EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="00a88835-5141-4c9a-9517-5b5f50643746">
+            <Component Id="cmp18BDEA896C4482FFBF0052964C2431EA" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0D9C79D1631B85D630C61220C6C28CC0" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Console.dll" />
             </Component>
-            <Component Id="cmp96F7094C229AA4C04122D3207A550673" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="318f26c8-c369-444f-bb86-99ece6e4e1a6">
+            <Component Id="cmp96F7094C229AA4C04122D3207A550673" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil45E123377DE441BA418D09C3EC0DD196" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.Contracts.dll" />
             </Component>
-            <Component Id="cmpD4E3F0D470DB8EB3DC6CF4FDBD125D71" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d451c11f-25fb-45da-8074-2f0cbb632373">
+            <Component Id="cmpD4E3F0D470DB8EB3DC6CF4FDBD125D71" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0B0C6EFB6E05BE1B3A334FD16D8AB7CC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.Debug.dll" />
             </Component>
-            <Component Id="cmp15350F30D16305FC8460BEB58159A34C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7bbd86bf-caae-4f2a-9da2-04606bbdcc1e">
+            <Component Id="cmp15350F30D16305FC8460BEB58159A34C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4DE284028D5B7D69AFC48C99AA5F99BB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.DiagnosticSource.dll" />
             </Component>
-            <Component Id="cmpF5D493384206350C0C2AE227CC0E02FE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="69d7c8f8-2dff-466a-aecd-6de2e8143742">
+            <Component Id="cmpF5D493384206350C0C2AE227CC0E02FE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3CD5EB17EBD72563D0285131A76AB073" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.FileVersionInfo.dll" />
             </Component>
-            <Component Id="cmp09C26BBBAA8C752D22E770ACD6517D48" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b77e9213-f9bd-4171-9b34-21dcb308dd13">
+            <Component Id="cmp09C26BBBAA8C752D22E770ACD6517D48" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2B6413E8AC23128916269E8D8702B825" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.Process.dll" />
             </Component>
-            <Component Id="cmp089EC3FEF0F6F788172360F2F858EDB7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="acf9338c-90f6-467e-899e-d165cab71a3e">
+            <Component Id="cmp089EC3FEF0F6F788172360F2F858EDB7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE0995B5A8B7BC39D45BAD47C885A2116" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.StackTrace.dll" />
             </Component>
-            <Component Id="cmp11EC59E975922488D491A6C053972A47" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4d04f435-c8e5-48c8-8c74-12219bb7acdf">
+            <Component Id="cmp11EC59E975922488D491A6C053972A47" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE1DC975F22E87564A00565C28C52658B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.Tools.dll" />
             </Component>
-            <Component Id="cmp4AB32469B10B086F6FAE29B1E5A98419" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f2854162-c8f8-4d4d-a528-e55d03bee42d">
+            <Component Id="cmp4AB32469B10B086F6FAE29B1E5A98419" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil021DCDF104023D50DD80AC8FFC558888" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Diagnostics.Tracing.dll" />
             </Component>
-            <Component Id="cmp8AAA6CB0C5525D8D527164CC986879D3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="04543ed9-457d-4ba0-bea9-ff5a8f91ece5">
+            <Component Id="cmp8AAA6CB0C5525D8D527164CC986879D3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA63CB39FD689AC39250946D945A57246" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Dynamic.Runtime.dll" />
             </Component>
-            <Component Id="cmpEC306F7BE3841B7CD04077F6DA4CFD9B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="af71f1a0-b949-4c8b-a0fe-333f72e91d4e">
+            <Component Id="cmpEC306F7BE3841B7CD04077F6DA4CFD9B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3AAA4B95AB0D7308B404376D4FF4CAC0" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Globalization.Calendars.dll" />
             </Component>
-            <Component Id="cmpADDB01FF3E3664D1E33DA243CD7A3156" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="bac78d09-e7ee-40dc-b5aa-92a7ce43c37c">
+            <Component Id="cmpADDB01FF3E3664D1E33DA243CD7A3156" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil7456E2968CC168251A4673410F997FD3" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Globalization.dll" />
             </Component>
-            <Component Id="cmp6DD1C052C42B9B77B20F498F358A3895" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="a645848c-4bf1-45ff-8284-064fed0c9a57">
+            <Component Id="cmp6DD1C052C42B9B77B20F498F358A3895" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC8FFA3EA7AB902380E03C2B0EFD1183C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Globalization.Extensions.dll" />
             </Component>
-            <Component Id="cmp136AB084C506C0236D40A65F56CAC295" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e72b2f1c-f2d6-43f8-9b89-d3279a9c96e1">
+            <Component Id="cmp136AB084C506C0236D40A65F56CAC295" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF16A5878895AED4A720290A30C5AF55B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.Compression.dll" />
             </Component>
-            <Component Id="cmpA2060B89121BB00618C89C6F39D6EC45" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="17531428-a469-433a-a19e-3588ba83301a">
+            <Component Id="cmpA2060B89121BB00618C89C6F39D6EC45" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil909A2BF0C7CCCD91145243AC893A8D53" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.Compression.ZipFile.dll" />
             </Component>
-            <Component Id="cmpD405FBEA1A81DD474038FD5DEE90B230" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f7034ef0-3f25-4a8a-8ec0-4502dbc2ace4">
+            <Component Id="cmpD405FBEA1A81DD474038FD5DEE90B230" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6669AAEDBBE99CD4B12EDF9FB0D0446F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.dll" />
             </Component>
-            <Component Id="cmpF4B9D318D7591FD0A5E928544594ADA8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="0f8337ac-1125-45bf-9e7a-6bba3928966a">
+            <Component Id="cmpF4B9D318D7591FD0A5E928544594ADA8" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE4AB4592BDDD102FB45BDBE84D32A203" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.FileSystem.dll" />
             </Component>
-            <Component Id="cmp45DAD5327B49A3AE04A6D19F6A637DB3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9af7b1fc-762c-42e0-b137-222f1eab54d5">
+            <Component Id="cmp45DAD5327B49A3AE04A6D19F6A637DB3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3A29654A1B875C1BD1DDED75AC868341" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.FileSystem.Primitives.dll" />
             </Component>
-            <Component Id="cmp866A52201A6783682041C7275F156E21" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e8bb2dc5-098e-4567-b550-e9a5fba14733">
+            <Component Id="cmp866A52201A6783682041C7275F156E21" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCD78D366B8922A2A6619356241EBEB3C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.FileSystem.Watcher.dll" />
             </Component>
-            <Component Id="cmpEA5A01182EF607DA90F2A1FCE93231E3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f012e6c2-1930-458d-9768-0f8482280026">
+            <Component Id="cmpEA5A01182EF607DA90F2A1FCE93231E3" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6D235221B71E3F5C72B6BC70EB6B5444" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.MemoryMappedFiles.dll" />
             </Component>
-            <Component Id="cmpA3C1E4ACDFE87907FA638288CBDE061C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="59ca29c9-7f47-4491-aa32-babafeeaddb9">
+            <Component Id="cmpA3C1E4ACDFE87907FA638288CBDE061C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8E8D179B56473C46CF37FD7698C00F11" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.IO.UnmanagedMemoryStream.dll" />
             </Component>
-            <Component Id="cmp2107EF908F7A38DFE7229E8784E58A94" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ad4ea809-0488-47c9-b026-47b987140dfd">
+            <Component Id="cmp2107EF908F7A38DFE7229E8784E58A94" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil8EF8785F38109F8752D15D60B6778754" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Linq.dll" />
             </Component>
-            <Component Id="cmp24FA97B934C5D5CE196B76A47EAD8CE0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c2215953-ca8d-4302-99e9-7a85a9dabc25">
+            <Component Id="cmp24FA97B934C5D5CE196B76A47EAD8CE0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA081263F9C644D2A7FBD5C5CF684A614" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Linq.Expressions.dll" />
             </Component>
-            <Component Id="cmp20118BE75F5840BBECBB7E535963ACFD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="80d4afd7-e9ea-4875-8719-e0cce8f84e8f">
+            <Component Id="cmp20118BE75F5840BBECBB7E535963ACFD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil78275E9ECB0D32BDFB37B34C760219DC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Linq.Parallel.dll" />
             </Component>
-            <Component Id="cmpA489DD9197A0684A6DEA97976C469BB5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f4e980c7-1294-428d-987b-a45a6e63430a">
+            <Component Id="cmpA489DD9197A0684A6DEA97976C469BB5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF6D71EB526736F4BC1A023202E908FF9" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Linq.Queryable.dll" />
             </Component>
-            <Component Id="cmpFAF7B8BD929428076CF6C197B1562FF4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="b6fd7d08-75df-4109-8ef2-23e57c344224">
+            <Component Id="cmpFAF7B8BD929428076CF6C197B1562FF4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC5B89597B9FB535C0D2D4F57118EBE1D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.Http.dll" />
             </Component>
-            <Component Id="cmp2AFDE4CF9E4F5F994B109413D77F6B95" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="33c2b27f-9683-4be0-a3b1-0a9847da1127">
+            <Component Id="cmp2AFDE4CF9E4F5F994B109413D77F6B95" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0BB991DCCB0B6EC43ABB6511A05E028A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.NameResolution.dll" />
             </Component>
-            <Component Id="cmp14D38403CF49B74878F072BB7044AA40" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="82178fc5-b218-42db-97c8-f0a1edb97eb9">
+            <Component Id="cmp14D38403CF49B74878F072BB7044AA40" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5FDA4E665BA60D74BFA9BF5D640D8CFF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.Primitives.dll" />
             </Component>
-            <Component Id="cmp7AFB19BC06593376464B2FB506FBBB35" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9772c431-5af6-401b-8324-dccd6907b3ac">
+            <Component Id="cmp7AFB19BC06593376464B2FB506FBBB35" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFC1875926E20F64AEF2DF833BBD896BB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.Requests.dll" />
             </Component>
-            <Component Id="cmpF2F24FE6F8F018A945BA223FED7D36EC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ebe7d196-86e9-4daf-83fe-de7b29ddfcc7">
+            <Component Id="cmpF2F24FE6F8F018A945BA223FED7D36EC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filF23CFE1DB540AD215C136690D32E880C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.Security.dll" />
             </Component>
-            <Component Id="cmp24C512845B886375C33F000B8E319312" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="d3899867-c187-420e-9eb8-04d61053bfe9">
+            <Component Id="cmp24C512845B886375C33F000B8E319312" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD54FA0320FAA4C383B24AF3A1064A139" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.Sockets.dll" />
             </Component>
-            <Component Id="cmpF06A9D526625D05099A92B8297A2B594" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="9039d84c-d25b-490d-9a06-6c6d13f631f9">
+            <Component Id="cmpF06A9D526625D05099A92B8297A2B594" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filCDFC74374643D62AF672DB1B75DF2D29" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.WebHeaderCollection.dll" />
             </Component>
-            <Component Id="cmp5A775D63F23F7483452F3EC3F3D37CEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="20433d23-b0a8-4ee1-a98e-665911dee598">
+            <Component Id="cmp5A775D63F23F7483452F3EC3F3D37CEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil45C42E70DB553B0451D46FBAA3D1E0D5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Net.WebSockets.dll" />
             </Component>
-            <Component Id="cmpBFE1683B7EFF491106C5A76329A21BE4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="294c9bab-3dbf-468e-bc3d-b4a59d46e9ec">
+            <Component Id="cmpBFE1683B7EFF491106C5A76329A21BE4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9B2CEDAA97A99517C41719043A962E8F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Numerics.Vectors.dll" />
             </Component>
-            <Component Id="cmp637F8C0EEF71D57307AD5F2B38848CDC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4d91a1d1-6f99-4658-aca9-a53bbd3bea11">
+            <Component Id="cmp637F8C0EEF71D57307AD5F2B38848CDC" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9A6AD1D3E26E382A7803D63E06FE6357" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.ObjectModel.dll" />
             </Component>
-            <Component Id="cmp5A7306462219D05A69EDB0B873E33358" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="be1bd5f4-e3f3-4a38-985f-14680a5e4163">
+            <Component Id="cmp5A7306462219D05A69EDB0B873E33358" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil91CA3EDEB1EA2C41CC7313D36AE1B22C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Private.CoreLib.dll" />
             </Component>
-            <Component Id="cmp3DD95B59601D1BFF552FAE25830ABE67" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ffbb7456-f4f5-4c32-b3e8-bc00756f4455">
+            <Component Id="cmp3DD95B59601D1BFF552FAE25830ABE67" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFBC3A87114310587C47AD6A1E909C0B7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Private.CoreLib.ni.dll" />
             </Component>
-            <Component Id="cmp9F6DE1762BC221625C42910A0315B62D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c2170247-74e4-4fab-bab9-54a254c25bff">
+            <Component Id="cmp9F6DE1762BC221625C42910A0315B62D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil7655FDCF438D039597CE475EC4F2A29A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Private.Uri.dll" />
             </Component>
-            <Component Id="cmpF47BA0D85746F5EAB51EAF58C47056C2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="460022ef-8621-44aa-9996-a93af7c48ee4">
+            <Component Id="cmpF47BA0D85746F5EAB51EAF58C47056C2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFFF9358E4812FDB78D33773BD750EC5E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.DispatchProxy.dll" />
             </Component>
-            <Component Id="cmp05CD97846490E4A88A1A43684E6D06CF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="62c8c0df-d436-4737-b1ff-16a63ffe600d">
+            <Component Id="cmp05CD97846490E4A88A1A43684E6D06CF" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil103F56293345F7F69BD098C4EA8128D4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.dll" />
             </Component>
-            <Component Id="cmpC7B9D00B32FA6E7B372264CFD6F512B2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="98ac82d5-799a-4bbe-b18f-d58c3f16e8c7">
+            <Component Id="cmpC7B9D00B32FA6E7B372264CFD6F512B2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBE35AA99A38927ADA053C3DC691FFB17" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.Emit.dll" />
             </Component>
-            <Component Id="cmpF0029BA4844475039A756E9C550361F5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f4dde5ab-092d-4265-95ba-c5de52f5321c">
+            <Component Id="cmpF0029BA4844475039A756E9C550361F5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil3EA4468F4DBDA4C01743F5CFF6509AD7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.Emit.ILGeneration.dll" />
             </Component>
-            <Component Id="cmpE6FF098AC9A7C89D5A2F07EE62FAFB80" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="655c2f3f-92c0-4949-a080-2b322f0e61fc">
+            <Component Id="cmpE6FF098AC9A7C89D5A2F07EE62FAFB80" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9A250EED963CF55B0F5899084C53E5BB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.Emit.Lightweight.dll" />
             </Component>
-            <Component Id="cmp9FA79D06D6299B1C174B99A535A13915" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e6e9d945-45ca-4ffc-a9fd-574072b2c7df">
+            <Component Id="cmp9FA79D06D6299B1C174B99A535A13915" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil85959934AAF423F30895FF9E2F2CDC32" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.Extensions.dll" />
             </Component>
-            <Component Id="cmp0A677A8DB1A2ECDEEC5F8032760F5911" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="03382379-f484-45d3-8c53-fcdfe0fd4e2b">
+            <Component Id="cmp0A677A8DB1A2ECDEEC5F8032760F5911" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0F85B04497AC8FC2F167196D4B5D051F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.Metadata.dll" />
             </Component>
-            <Component Id="cmp53516F435BFD467B21CF8F1A6FC755ED" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7a1623d3-498f-46ce-8eea-676d12f9bc73">
+            <Component Id="cmp53516F435BFD467B21CF8F1A6FC755ED" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1507B2F963C34D59785C224B2EE66FC6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.Primitives.dll" />
             </Component>
-            <Component Id="cmp96F1A36EB8292D1E6C8B796A704E3CF6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="295881bc-4941-40ec-b373-2c3d3364251f">
+            <Component Id="cmp96F1A36EB8292D1E6C8B796A704E3CF6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filAA2843E13651A28665C43592639DBE56" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Reflection.TypeExtensions.dll" />
             </Component>
-            <Component Id="cmpF8524F6868F7F1EFCB431EE7A1665088" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="adea4970-76ab-4fd5-ae50-df776b84991e">
+            <Component Id="cmpF8524F6868F7F1EFCB431EE7A1665088" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE4E436D7519F05E20C0F7AB49E9887D2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Resources.Reader.dll" />
             </Component>
-            <Component Id="cmpAF80A68EFF55C1C42E0DB71A1F91CB42" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="0e5a737e-7051-4d33-9992-984aa65b0eb8">
+            <Component Id="cmpAF80A68EFF55C1C42E0DB71A1F91CB42" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil988368BFEE3D14437281FFABB20F51BB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Resources.ResourceManager.dll" />
             </Component>
-            <Component Id="cmpDE60A189955A0138E1F1C5C6CD3A43B6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="1c9664a4-a1d9-4d0c-b07b-7f152ce16235">
+            <Component Id="cmpDE60A189955A0138E1F1C5C6CD3A43B6" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB74B25D1A542CBABACB2E0BFF444F1BD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.CompilerServices.Unsafe.dll" />
             </Component>
-            <Component Id="cmp4A90D29F994BC619C433A0BF80AD0B4A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="ae7b42c7-68d8-472a-9ba0-b43258e79f91">
+            <Component Id="cmp4A90D29F994BC619C433A0BF80AD0B4A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFA7EDEDE375446D3DB97564159974DAB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.dll" />
             </Component>
-            <Component Id="cmpF9D2E49CFDB081418DB43FB6BB5B65E4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4c1f2f2c-5f47-43d5-9116-d66c9627f965">
+            <Component Id="cmpF9D2E49CFDB081418DB43FB6BB5B65E4" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil23741DECB565CE9936C33E7701E2DF6E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.Extensions.dll" />
             </Component>
-            <Component Id="cmp063A55144EA0577F32D04C5B8E0CB721" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="24164e56-6968-4c8f-a43f-036bfcb491c8">
+            <Component Id="cmp063A55144EA0577F32D04C5B8E0CB721" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil07D31A99C87879D1DBE795D31C8A019F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.Handles.dll" />
             </Component>
-            <Component Id="cmpACC656EC6B4A0B598B4EC449387650D0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e145aa10-9da9-4528-8966-020c320b90ba">
+            <Component Id="cmpACC656EC6B4A0B598B4EC449387650D0" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD4075FB8C234F53993E05B41AC81B70D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.InteropServices.dll" />
             </Component>
-            <Component Id="cmp7760EBD8E1A9F3F41BD7A9A503F2492B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="608cd19d-c41f-40b1-b5e1-ea793eb59e94">
+            <Component Id="cmp7760EBD8E1A9F3F41BD7A9A503F2492B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6A43951234B28290EB835DECFA29FEF7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.InteropServices.RuntimeInformation.dll" />
             </Component>
-            <Component Id="cmpB3DE451E4B63F2B4297A40EEE8B82B7F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7e3c0613-47fa-4381-b891-cd442baa39fe">
+            <Component Id="cmpB3DE451E4B63F2B4297A40EEE8B82B7F" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB1530741C1EAFE559C04683729422EFF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.Loader.dll" />
             </Component>
-            <Component Id="cmp8FE5F766A004FA93720FA2F43C355549" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f3ec4d3d-23ca-4bab-b8f7-303382b5339f">
+            <Component Id="cmp8FE5F766A004FA93720FA2F43C355549" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE61B9632D6A45A7F7859AF1704814F2B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.Numerics.dll" />
             </Component>
-            <Component Id="cmpFF95C69414C70AD37E30D752D319FFD1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="017f90f3-a4ac-41d9-b7c4-9d4ab484631c">
+            <Component Id="cmpFF95C69414C70AD37E30D752D319FFD1" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil170B9278E53547CEC1D28D8644F24180" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Runtime.Serialization.Primitives.dll" />
             </Component>
-            <Component Id="cmp5185F59C2D17EECACE526235EDFD07CD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6141a2b7-1289-4dab-ba6a-c1efc9a1092e">
+            <Component Id="cmp5185F59C2D17EECACE526235EDFD07CD" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil65591A6D165B876F62017F4393E7556E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Claims.dll" />
             </Component>
-            <Component Id="cmp1B96AAA209FCCE0677C3A810405231F2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e2018df7-2194-491b-82d2-f9e719eb7a33">
+            <Component Id="cmp1B96AAA209FCCE0677C3A810405231F2" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB890AC22E2092676281FF0AC71E4CD49" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.Algorithms.dll" />
             </Component>
-            <Component Id="cmp5CCE00A3B7B160DE2301E2041A6E5B3C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="0733a862-4440-4215-b775-d3cc92facbc2">
+            <Component Id="cmp5CCE00A3B7B160DE2301E2041A6E5B3C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filABB9833683A07E337864B4D5D19BA671" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.Cng.dll" />
             </Component>
-            <Component Id="cmp9C8DB768C86978E145FD06BD8CCA1386" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e008ef63-68f6-4c03-8301-920f3a6f1e65">
+            <Component Id="cmp9C8DB768C86978E145FD06BD8CCA1386" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil540EF55E489C27DBDEA386AB94CFF03F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.Csp.dll" />
             </Component>
-            <Component Id="cmpEE5A13968CD62EF13151945A7D32D546" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4668af03-e6ed-4fca-a408-17851afbbc96">
+            <Component Id="cmpEE5A13968CD62EF13151945A7D32D546" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD296A8F5A438F310E543B09BB757BA16" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.Encoding.dll" />
             </Component>
-            <Component Id="cmp22C6828EE947C41B0C2E865C82E4B1BE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f3cbd276-cc80-4a98-b297-2d29b4954761">
+            <Component Id="cmp22C6828EE947C41B0C2E865C82E4B1BE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil722F3FFAB44458211BEBDD24A49FF6EB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.OpenSsl.dll" />
             </Component>
-            <Component Id="cmp55A950DA052DEF80D34A84419E94839E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8aac1370-59c1-4c11-8df0-ca432e9da57c">
+            <Component Id="cmp55A950DA052DEF80D34A84419E94839E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil908E59943117231D5327E5393E44FB94" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.Primitives.dll" />
             </Component>
-            <Component Id="cmpA2912C8B0B0E4C7B7806B6DAC34CDA3B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="86b39ccb-07ee-493c-88cf-adf51b2b490a">
+            <Component Id="cmpA2912C8B0B0E4C7B7806B6DAC34CDA3B" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil9D52C421F70C7BAC9070B1AC62DB3609" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Cryptography.X509Certificates.dll" />
             </Component>
-            <Component Id="cmpAD3DC296FF038EB10EDCDE8F88A63914" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e5d41e9b-2abd-423e-9dcb-213750e83826">
+            <Component Id="cmpAD3DC296FF038EB10EDCDE8F88A63914" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil51ACA5D3499D7DE2A8E8888E5BD2E4C1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Principal.dll" />
             </Component>
-            <Component Id="cmpA531C1E20B3E2EC88204DC40E39C6265" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="11663c7b-a858-41bc-9b8e-5b06984179e5">
+            <Component Id="cmpA531C1E20B3E2EC88204DC40E39C6265" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filEE34703051B10030BB42AD03968C2514" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Security.Principal.Windows.dll" />
             </Component>
-            <Component Id="cmp3C8F5A62608CF665CCCBB750AB0AAA8C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="71913a1e-6ff4-4b67-b635-5223f185c6e3">
+            <Component Id="cmp3C8F5A62608CF665CCCBB750AB0AAA8C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC30090AE1F50DB068A1398E3D9384CDA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Text.Encoding.CodePages.dll" />
             </Component>
-            <Component Id="cmpA71BE46A115AB0CE56693F9DE833CE0E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="5edba8c6-47d2-48a6-aad8-a1f567353a55">
+            <Component Id="cmpA71BE46A115AB0CE56693F9DE833CE0E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0AF2FBED53061298D04C306EC60131F5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Text.Encoding.dll" />
             </Component>
-            <Component Id="cmp564AFA6B661FA41CE6378E019F6ACB31" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="af5588e1-7c7b-4eb5-b32e-8cd1c9952a47">
+            <Component Id="cmp564AFA6B661FA41CE6378E019F6ACB31" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil592BAF6C7CB48FC7A678A82A202B8340" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Text.Encoding.Extensions.dll" />
             </Component>
-            <Component Id="cmp9824EE234B67105C8BA528A1620B9D94" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="088b59cd-a5c3-43e2-9069-c9efdf2483ec">
+            <Component Id="cmp9824EE234B67105C8BA528A1620B9D94" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filE4F5698F9C35E90F87D4CB74BA50AFDC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Text.Encodings.Web.dll" />
             </Component>
-            <Component Id="cmp8F2C3B5A2F788BBABE83634BBD6B9630" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="930bc1e9-a1ce-4789-89c6-c0c72ce52e86">
+            <Component Id="cmp8F2C3B5A2F788BBABE83634BBD6B9630" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil627AA1C2C9210A64E0BF85777E6BAF79" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Text.RegularExpressions.dll" />
             </Component>
-            <Component Id="cmp39D5E10A6AAB26D8D1D32C8738AA6BFE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="e2149d10-c93f-4688-806a-5b18956a1dca">
+            <Component Id="cmp39D5E10A6AAB26D8D1D32C8738AA6BFE" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filFD7E493435668820784E562BC2F80024" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.dll" />
             </Component>
-            <Component Id="cmp16CF925441268CB0D7284536157217B7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="96548b29-7024-4d93-8352-6ec1dcfcf4be">
+            <Component Id="cmp16CF925441268CB0D7284536157217B7" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5030DE344611E4A03F1AC9ADB035E4CD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Overlapped.dll" />
             </Component>
-            <Component Id="cmp94CF787D12441C290B0FFF618AEAD184" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="39f80cfb-fa44-47de-ad6d-1630999fb8f2">
+            <Component Id="cmp94CF787D12441C290B0FFF618AEAD184" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil6FBC01A4FFB29C74248EFCEF7B64C9BD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Tasks.Dataflow.dll" />
             </Component>
-            <Component Id="cmpFCA329EB68EF7AC696B4B90B17D4DB85" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c12df0a9-07f0-4de5-a196-36051dd91309">
+            <Component Id="cmpFCA329EB68EF7AC696B4B90B17D4DB85" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filA311B08193DAEC7E04326CF1524BB35A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Tasks.dll" />
             </Component>
-            <Component Id="cmp6C6CB9B9673DC60E6E5879F5DD4919A5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="8b2be2ed-de0e-4340-b254-b41be9fffcb1">
+            <Component Id="cmp6C6CB9B9673DC60E6E5879F5DD4919A5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil1C4A0FB41443438BE0D08ACC12980728" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Tasks.Extensions.dll" />
             </Component>
-            <Component Id="cmpE0A82E25876784920C6A821124C37057" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="cede3ad5-2bf9-4aa5-8c56-90f40d57c979">
+            <Component Id="cmpE0A82E25876784920C6A821124C37057" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil7264A2229084AB14BF125A5841F5D37D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Tasks.Parallel.dll" />
             </Component>
-            <Component Id="cmpE57ABEBDC1BF2ED2B6747859BF8646CB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="06459faf-d829-45d1-91ad-70a364965284">
+            <Component Id="cmpE57ABEBDC1BF2ED2B6747859BF8646CB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil992F579AC5CBB9D5E4489FC9222CE901" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Thread.dll" />
             </Component>
-            <Component Id="cmp7151EFFE53906C7C5ABE0CE48C585D7A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="446c7989-5979-4ad8-89e3-9f884c2552ee">
+            <Component Id="cmp7151EFFE53906C7C5ABE0CE48C585D7A" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC44959596F9FAF43E6B851B533333205" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.ThreadPool.dll" />
             </Component>
-            <Component Id="cmpA87BF0442ECF1E0C336B323BB61779B9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="2a902466-238a-4536-aea1-e6633a25090b">
+            <Component Id="cmpA87BF0442ECF1E0C336B323BB61779B9" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil4B4FE0E49663CB6C7D3D997F0B4C5BBC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Threading.Timer.dll" />
             </Component>
-            <Component Id="cmp28A5BF55B28B9093101A56D1807D403C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="4cde30c2-f82c-4bec-9635-d36c942ed422">
+            <Component Id="cmp28A5BF55B28B9093101A56D1807D403C" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil5DB1FFF6B7A00FB9F012E2BC41A1EC12" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Xml.ReaderWriter.dll" />
             </Component>
-            <Component Id="cmp15526E2B8227942F16B2182CB3D02236" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="c8851ac2-f845-4875-88e8-dfa580217cf6">
+            <Component Id="cmp15526E2B8227942F16B2182CB3D02236" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filB5338729BAB9547AC5C8EE88FC9C6DAB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Xml.XDocument.dll" />
             </Component>
-            <Component Id="cmpD1079EF2B649985DD10D0E0657C90824" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="7049f5b9-55ea-4e73-9a89-319233f45b26">
+            <Component Id="cmpD1079EF2B649985DD10D0E0657C90824" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil98E78F33A8876430BB0236EABB3D967F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Xml.XmlDocument.dll" />
             </Component>
-            <Component Id="cmp3BC35866D415CFDFFEBDAF4D49ACED65" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f0e5d24c-0435-4424-9e63-dbcaffb9dbb6">
+            <Component Id="cmp3BC35866D415CFDFFEBDAF4D49ACED65" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil0D3AB2875F5BA414DEA42A3C52F11516" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Xml.XPath.dll" />
             </Component>
-            <Component Id="cmpC008FA0196823676D7B223837937CB5D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="6b6f80ee-5081-4722-b0b2-05d0a2f29689">
+            <Component Id="cmpC008FA0196823676D7B223837937CB5D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD1ED6CC33BAB8C4BFF3DBE6BECFC154C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\System.Xml.XPath.XDocument.dll" />
             </Component>
-            <Component Id="cmpAC7AFA3B8724E77ADC56252014240CD5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="f66b77b8-f587-4c60-bf3b-5d6d361feb13">
+            <Component Id="cmpAC7AFA3B8724E77ADC56252014240CD5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil2710E6311F60BDFF760C583DD8F1EB6E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\web.config" />
             </Component>
-            <Component Id="cmpB3F8786566AB6A3A3E2C584466FED128" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="3f453835-9431-485b-826e-1965797cfadd">
+            <Component Id="cmpB3F8786566AB6A3A3E2C584466FED128" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil7C0616042AD984134E7EB8CFD853CDAF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\Microsoft.CSharp.dll" />
             </Component>
-            <Component Id="cmp9C3772EF351D216D12C84901344DCB15" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="87d1305a-ff54-4451-a8f0-23366e6eefb3">
+            <Component Id="cmp9C3772EF351D216D12C84901344DCB15" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil46A28B2A777B0080E7AEF4409AE094D4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\Microsoft.VisualBasic.dll" />
             </Component>
-            <Component Id="cmp9EEB0A9AE084A72839B8EFEC909B4F9B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="28fffe01-4f53-4bda-9425-9b28bae78f58">
+            <Component Id="cmp9EEB0A9AE084A72839B8EFEC909B4F9B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil489F953340324E88F826B7428DD6923B" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\Microsoft.Win32.Primitives.dll" />
             </Component>
-            <Component Id="cmpD90F314E1942C391B4C04FA42D0AAFA0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="66152f18-774d-4b28-9de4-590aa26665d3">
+            <Component Id="cmpD90F314E1942C391B4C04FA42D0AAFA0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil23961E58729D52FF9289DC884C615352" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\Microsoft.Win32.Registry.dll" />
             </Component>
-            <Component Id="cmp2915998328D1FA9ED7D07EAC397F56CD" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="51085307-3c51-411b-a502-f1c0d044b183">
+            <Component Id="cmp2915998328D1FA9ED7D07EAC397F56CD" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil1F173E11CD51CB908FCCFC934C7E3778" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.AppContext.dll" />
             </Component>
-            <Component Id="cmpE463512EFAA27729C5F41517AEED515A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="88a32363-c885-417b-aade-6671da1bc3b0">
+            <Component Id="cmpE463512EFAA27729C5F41517AEED515A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filA05096AA96708F9E5040C9270230B2CA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Collections.Concurrent.dll" />
             </Component>
-            <Component Id="cmp250485DA71540B4FD5B5472C679A45D8" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="0061e08e-42c9-49bf-b4ee-13e36c601889">
+            <Component Id="cmp250485DA71540B4FD5B5472C679A45D8" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filD0E05D3FAA87AA21A7D122DCFCFC63AF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Collections.dll" />
             </Component>
-            <Component Id="cmp41ADAC63D2C93EE76B26ED9C48AE56BD" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="09023ab1-c0cb-4dfc-b0fe-a4426468944c">
+            <Component Id="cmp41ADAC63D2C93EE76B26ED9C48AE56BD" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil8B503A31001A21181356E1222790F14F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Collections.NonGeneric.dll" />
             </Component>
-            <Component Id="cmpB07F64D6497E074708A089B86680FEE9" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="6e97700d-a77e-4a9f-a6a4-e9f6e8d6a56d">
+            <Component Id="cmpB07F64D6497E074708A089B86680FEE9" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filB50F0C18E434B6A45570EF314DFCF026" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.ComponentModel.Annotations.dll" />
             </Component>
-            <Component Id="cmp6435E8A77513502F4BE0324534461ABC" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="06e3441e-8466-4a79-8982-25df92d8dbe3">
+            <Component Id="cmp6435E8A77513502F4BE0324534461ABC" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil4E3BA7A8104CA6D172B4BA3D52AC6040" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.ComponentModel.dll" />
             </Component>
-            <Component Id="cmp4C7A04EEDF68E7568BB5742F11224708" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="4fdce69e-5ea6-415f-aa50-7da925dfaa10">
+            <Component Id="cmp4C7A04EEDF68E7568BB5742F11224708" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil408BD57E6000D0F8F98B4C7C037068C1" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.ComponentModel.Primitives.dll" />
             </Component>
-            <Component Id="cmp18C0CF0BF33B25348B31BE73EEAE39D0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="7f2e0793-a855-4ca3-b2ea-70b039fab225">
+            <Component Id="cmp18C0CF0BF33B25348B31BE73EEAE39D0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filFE7E51D7E1F0184F5C771C31D0AB2B9E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.ComponentModel.TypeConverter.dll" />
             </Component>
-            <Component Id="cmp5BC45833FC3B2045416634C0880277BC" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="23bb8044-1714-4911-895f-2d9283e70f2f">
+            <Component Id="cmp5BC45833FC3B2045416634C0880277BC" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil0EA1C8B5CC51F4F861827902E5A3D8BF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Console.dll" />
             </Component>
-            <Component Id="cmp5A2CAAFD00DE66C07B9379CBCBF7C308" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="11075169-a874-4b09-a665-197457fdd57e">
+            <Component Id="cmp5A2CAAFD00DE66C07B9379CBCBF7C308" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil87E96B8C2F3B207CE3A5FC49CB842EF4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Diagnostics.Contracts.dll" />
             </Component>
-            <Component Id="cmpDF229F8974EE07402FA8F877912FD320" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="ce2043be-a57d-4769-ae7b-04ec1954dda0">
+            <Component Id="cmpDF229F8974EE07402FA8F877912FD320" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil8DCC67CBCC1816740B3E463D84B8A3E9" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Diagnostics.Debug.dll" />
             </Component>
-            <Component Id="cmp330922509415D4FA2C957193723B918A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="5e6e67d0-f6aa-48ca-9263-26170cd80631">
+            <Component Id="cmp330922509415D4FA2C957193723B918A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil4D27A675812AC37E357D8DF5E849FCC2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Diagnostics.Process.dll" />
             </Component>
-            <Component Id="cmpD2FFE97C174AE96BEDB5AC6FE8B08121" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="2c71b5c6-6a92-4121-9725-0411546f66ab">
+            <Component Id="cmpD2FFE97C174AE96BEDB5AC6FE8B08121" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filA992D35EB5002A8A2571FB3921196319" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Diagnostics.StackTrace.dll" />
             </Component>
-            <Component Id="cmpBD0F443C8FC3E064C78110EA8EC3465E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="044b592b-e8de-41c0-a604-7913c85e4aa6">
+            <Component Id="cmpBD0F443C8FC3E064C78110EA8EC3465E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil53B6563B51C1A404142CBD38F62952FA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Diagnostics.Tools.dll" />
             </Component>
-            <Component Id="cmp0D868F48A641BF666393C732820BCBF2" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="f8c0cd3d-2fc4-479c-9c29-17de286411cc">
+            <Component Id="cmp0D868F48A641BF666393C732820BCBF2" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil97AD79C0703755AE76B673FDE69C8D65" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Diagnostics.Tracing.dll" />
             </Component>
-            <Component Id="cmpB3214AB44C4BFE25F1B0643F3103249C" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9212e115-b95d-4556-925f-15c3bf5c68e6">
+            <Component Id="cmpB3214AB44C4BFE25F1B0643F3103249C" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filB9573449FCF05E6B46958D5674440A6C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Dynamic.Runtime.dll" />
             </Component>
-            <Component Id="cmpC4BF054951C1D274B64DA2D791BA4485" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="e798f6b2-f4e9-473a-979a-7d178fc7ee23">
+            <Component Id="cmpC4BF054951C1D274B64DA2D791BA4485" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil6999EA33C41B8CB08EA5A97EE091ED73" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Globalization.Calendars.dll" />
             </Component>
-            <Component Id="cmpDE45D94CFFB306E919BBB9AB674531B5" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="d08ab199-dc9c-4112-9a39-9b662eb499ab">
+            <Component Id="cmpDE45D94CFFB306E919BBB9AB674531B5" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil2604B48D61915838E97E206D3984B2E5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Globalization.dll" />
             </Component>
-            <Component Id="cmp77650CBE1DCBFF637AA7626377625B77" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="2f8bcba4-405a-432c-a07d-5c8ab0c9a1c8">
+            <Component Id="cmp77650CBE1DCBFF637AA7626377625B77" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil870BA5B5415D978642FAD96553F72F6A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Globalization.Extensions.dll" />
             </Component>
-            <Component Id="cmpFBBB913B878F4959FA5B7CA18BF7EF7D" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="a19992aa-4773-465e-994c-15097785a28f">
+            <Component Id="cmpFBBB913B878F4959FA5B7CA18BF7EF7D" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil2F522B62224E2A8838DCE71EC9D33D78" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.Compression.dll" />
             </Component>
-            <Component Id="cmp128069F330BECA94EC2EA61D4E4F4CAC" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="1b9fb0b5-b875-4319-a6d0-4b1313643560">
+            <Component Id="cmp128069F330BECA94EC2EA61D4E4F4CAC" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil78C5B53355B4A08DCF4B8F882880FAC4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.Compression.ZipFile.dll" />
             </Component>
-            <Component Id="cmp9DDF9B3531C6DCDA86FD7F9E89E7AF01" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="63d3962a-a5ca-4f53-a772-1141ef6dc45a">
+            <Component Id="cmp9DDF9B3531C6DCDA86FD7F9E89E7AF01" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil955445E0D112D9DB31EC1BCAAC263256" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.dll" />
             </Component>
-            <Component Id="cmpE197E170D33B60275BD047924915982A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="05e7c424-538d-42d0-bd69-5172ee6b9380">
+            <Component Id="cmpE197E170D33B60275BD047924915982A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil79A8A72D0AE21F3846EAF9A14873E53A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.FileSystem.dll" />
             </Component>
-            <Component Id="cmp9F0E939FADEAA20CA05A0A4AF5C9506E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="4b8b637d-1bd0-44d6-ad9c-49a90a3f4452">
+            <Component Id="cmp9F0E939FADEAA20CA05A0A4AF5C9506E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil821A6EC4430C055A3DEDB65639F27350" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.FileSystem.Primitives.dll" />
             </Component>
-            <Component Id="cmpB6E508E4557B9F3F16470D30B1B049CB" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="1077c10d-1f96-42a3-b5a1-de34560a0eb7">
+            <Component Id="cmpB6E508E4557B9F3F16470D30B1B049CB" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filBA937F4E119B6DD6B20FC87B114348AA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.FileSystem.Watcher.dll" />
             </Component>
-            <Component Id="cmp9461304CE5E8F5DD33B097EE2796B121" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9b53074a-4a70-4f06-8638-398d5aeaf83b">
+            <Component Id="cmp9461304CE5E8F5DD33B097EE2796B121" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filC57E44C6349136405ABF0CCDD42004C6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.MemoryMappedFiles.dll" />
             </Component>
-            <Component Id="cmp2D789B2B49DDEBFD12E0D9A3A3C21B7B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="22448b62-189b-44cb-a478-24b6ffdb3d58">
+            <Component Id="cmp2D789B2B49DDEBFD12E0D9A3A3C21B7B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filE26AAA237646D8CA3E107AC087FB3DAA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.IO.UnmanagedMemoryStream.dll" />
             </Component>
-            <Component Id="cmpAEED55E5983FDEC1A1F8A13AEBE6E616" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="ab401f14-f26d-4069-ac39-075f89a4739f">
+            <Component Id="cmpAEED55E5983FDEC1A1F8A13AEBE6E616" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filB5528156E2609A8A37D599F07053AF2C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Linq.dll" />
             </Component>
-            <Component Id="cmpB5B0A437EC08C76D7F6188469175D84E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="905b5fc4-3f99-4409-b062-63f9e22e39d5">
+            <Component Id="cmpB5B0A437EC08C76D7F6188469175D84E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil4AD60983DF81AD5445AC2E7A4F9EA538" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Linq.Expressions.dll" />
             </Component>
-            <Component Id="cmpB328888C097022116D60928463216D3B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9cb8cb25-ec7f-4cae-a47a-684164a8661e">
+            <Component Id="cmpB328888C097022116D60928463216D3B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil5E206EB767A8D97572A5B0F58232B0B3" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Linq.Parallel.dll" />
             </Component>
-            <Component Id="cmp1E89F813D1816676731888BA8C7AE223" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="2f5389dd-4f68-4bc7-b581-ddfdfc0213e3">
+            <Component Id="cmp1E89F813D1816676731888BA8C7AE223" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil92A04541FCC1F66B7CBA6047BF30FB5F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Linq.Queryable.dll" />
             </Component>
-            <Component Id="cmp3E22FA07D09C88741DBBC9F738C9C735" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="d2ceb797-269c-4cfc-96ad-27321e2df2fd">
+            <Component Id="cmp3E22FA07D09C88741DBBC9F738C9C735" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil4D797FAF53F8D201CA63104A66D890EB" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.Http.dll" />
             </Component>
-            <Component Id="cmp3B12E088FE6C4A2531B9F04DD2D5F426" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="69773dbb-4dc1-4681-b1de-69578e118f9f">
+            <Component Id="cmp3B12E088FE6C4A2531B9F04DD2D5F426" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil56F38EFC7A8D4138705A405AC2CDB073" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.NameResolution.dll" />
             </Component>
-            <Component Id="cmp9C7BC8D0F120CCF9DF50DC7D0AFB2BE7" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="c540086a-464c-4af6-9160-1e69d372e874">
+            <Component Id="cmp9C7BC8D0F120CCF9DF50DC7D0AFB2BE7" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filF87CCEA7FF1F4E082536508D402C3312" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.Primitives.dll" />
             </Component>
-            <Component Id="cmp6161B0185368E5A9B64B5FFED6B20310" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="4efd52f7-b17a-4916-b70b-9c9ca1da88e1">
+            <Component Id="cmp6161B0185368E5A9B64B5FFED6B20310" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil53607A582885F0EFDEC93F77541B69E2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.Requests.dll" />
             </Component>
-            <Component Id="cmp357C46765D0D52A3E3C7C59A88EC145D" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9d092ff9-cbe0-4aa7-a685-34f61cf4b92e">
+            <Component Id="cmp357C46765D0D52A3E3C7C59A88EC145D" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filE4DFF94822EECF911F2F8FCB75683461" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.Security.dll" />
             </Component>
-            <Component Id="cmpB922FD2BAB5F28DA117EE99CA867878A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="5894153d-b467-4311-8f09-17565e92b86f">
+            <Component Id="cmpB922FD2BAB5F28DA117EE99CA867878A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filCEC56E4903A46FF921938183253214D6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.Sockets.dll" />
             </Component>
-            <Component Id="cmp3D0F3876B87E1BB01C2699246D7FFD93" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="5000d892-6ea8-4707-b387-4fa1f8ba589b">
+            <Component Id="cmp3D0F3876B87E1BB01C2699246D7FFD93" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil8F6A516A072B340F644A19A2D8E08741" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.WebHeaderCollection.dll" />
             </Component>
-            <Component Id="cmp750F7B29213E8964746BDAC0BFA5D3C6" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="b134d5ad-845d-4a5c-b360-6df8116a10bc">
+            <Component Id="cmp750F7B29213E8964746BDAC0BFA5D3C6" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filA4072CE1B1F2E9D11B12000B7E7E9C77" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Net.WebSockets.dll" />
             </Component>
-            <Component Id="cmpEC6C3B73D4C0C847BD2ABFCF9A9546E6" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="1d59f66c-6040-452c-bb8f-e8a0a8b6b6ca">
+            <Component Id="cmpEC6C3B73D4C0C847BD2ABFCF9A9546E6" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil54996F69814E59B31E989412797D42C6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Numerics.Vectors.dll" />
             </Component>
-            <Component Id="cmp72A1768E41D5E9A6E288198BD1DCBC51" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="de012fb8-6496-4cfd-966b-ab14fcc2b02e">
+            <Component Id="cmp72A1768E41D5E9A6E288198BD1DCBC51" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil7D98A4D8379167AC13E55ACA81DD4E7D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.ObjectModel.dll" />
             </Component>
-            <Component Id="cmpBC72DF5A48ACC843FC277FC9136C4944" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="bfb93c54-0107-4023-a480-d2cae10cf69b">
+            <Component Id="cmpBC72DF5A48ACC843FC277FC9136C4944" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil6B1C8A388F65CA8BB2273ADF5DE14E10" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Reflection.DispatchProxy.dll" />
             </Component>
-            <Component Id="cmp6D2A3525AEADBBBCC320C0DC37DCDF61" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="3bc4da3e-7b4a-4122-90e5-5b3920c108b3">
+            <Component Id="cmp6D2A3525AEADBBBCC320C0DC37DCDF61" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filFDEA1A8A93F6A77F44DE48BE71EDC73F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Reflection.dll" />
             </Component>
-            <Component Id="cmpE73019B2987507C2C88C49E9754F84D2" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="c7fd5bdb-fe8c-426e-91e5-23f67382ca4f">
+            <Component Id="cmpE73019B2987507C2C88C49E9754F84D2" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil266F4515E523AA20C4D4034309A0A58F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Reflection.Extensions.dll" />
             </Component>
-            <Component Id="cmpCCDD06AC44CB3999B80443A58037D036" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="997d99d8-64c5-4597-a2c1-72189cf0cdc1">
+            <Component Id="cmpCCDD06AC44CB3999B80443A58037D036" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil97CBE80F1BE199150658D16918B9900C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Reflection.Primitives.dll" />
             </Component>
-            <Component Id="cmp2FA54EC7457D01BD89E5923F1314B26E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9acfe708-b63a-4605-b6f4-c361102ebdb4">
+            <Component Id="cmp2FA54EC7457D01BD89E5923F1314B26E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil97AF52C388EA30CBABF9828B24847326" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Reflection.TypeExtensions.dll" />
             </Component>
-            <Component Id="cmp853FE8073838BAE0583F3C618C730FAF" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9e226a3f-002d-427d-ba22-156e3b74dd3b">
+            <Component Id="cmp853FE8073838BAE0583F3C618C730FAF" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil7248329D96627170D6AB8C3ECF3769AA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Resources.ResourceManager.dll" />
             </Component>
-            <Component Id="cmp802F09F9CEDCDCBD0A02CB03377E26E0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="33a1c5c5-a2f7-49e2-a492-d6a4c6bbdb52">
+            <Component Id="cmp802F09F9CEDCDCBD0A02CB03377E26E0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filF6666D2D57075472A6F0EDDA10497B16" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.dll" />
             </Component>
-            <Component Id="cmp53AA7F82B6488ACBFC53F16CA7A925F9" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="88eecc4c-f26e-41e7-a968-732d54ffbdd3">
+            <Component Id="cmp53AA7F82B6488ACBFC53F16CA7A925F9" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filF687A3D05AFCF57E2F298EB49684F8D8" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.Extensions.dll" />
             </Component>
-            <Component Id="cmpA44AE6563DFC3CE853F3793D4113CF12" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="432d9b51-83da-4f20-8b37-bea6865801b2">
+            <Component Id="cmpA44AE6563DFC3CE853F3793D4113CF12" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filB4DAAC258A2E8FF39E4B03A1225428E7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.Handles.dll" />
             </Component>
-            <Component Id="cmpEE766C6A38A93CA4E8051265C37EE014" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="a45bc144-6ac1-45c6-9af7-fca6a783a625">
+            <Component Id="cmpEE766C6A38A93CA4E8051265C37EE014" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil09FC0047551DCD220F3E2F3131810BDD" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.InteropServices.dll" />
             </Component>
-            <Component Id="cmp88B53CCFA575F2DEF56B409B3960E7AD" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="b6d13ec7-577e-4929-8728-4ccce8b568b8">
+            <Component Id="cmp88B53CCFA575F2DEF56B409B3960E7AD" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filC5EE810A842BBBB6B1D65AF5B41C59B7" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.InteropServices.RuntimeInformation.dll" />
             </Component>
-            <Component Id="cmp9D220B2DD46D07F4837C3FA2D103D413" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="9a6ff19a-749c-4792-a361-e2192ed88cd3">
+            <Component Id="cmp9D220B2DD46D07F4837C3FA2D103D413" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil4026ECE6A665821062B4B546703ED4BF" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.Loader.dll" />
             </Component>
-            <Component Id="cmpA9860E15049BAE9FA9D2488A51D8CB64" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="41eeb8cb-140c-4c16-b23f-48f9f28641e7">
+            <Component Id="cmpA9860E15049BAE9FA9D2488A51D8CB64" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil9332E0E7BCE36F84CD47B09023B1AB4E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.Numerics.dll" />
             </Component>
-            <Component Id="cmp195B74DE7235477DDF25D08BB5441C97" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="0ee97fe4-9f55-4bf4-8cd8-d405065ba9e4">
+            <Component Id="cmp195B74DE7235477DDF25D08BB5441C97" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filA7B19B5E9EA5B2D7598E14F6D8ADFF02" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Runtime.Serialization.Primitives.dll" />
             </Component>
-            <Component Id="cmp52A370DAE9B08D2C1E33FECC7B6F30C1" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="0af18fdc-be52-4688-9a48-1c668dd855fe">
+            <Component Id="cmp52A370DAE9B08D2C1E33FECC7B6F30C1" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filCD9E1B89FFA602DD3C55FBAB65B20BF4" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Claims.dll" />
             </Component>
-            <Component Id="cmpD3D4D3AE363575C5AC17DBFEACFE9933" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="1e0d8031-fc35-4bd9-8b66-f8ad11919f79">
+            <Component Id="cmpD3D4D3AE363575C5AC17DBFEACFE9933" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil7CD85D03ACB3091B770B8CB3AD081CCC" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Cryptography.Algorithms.dll" />
             </Component>
-            <Component Id="cmp805C9935CA35162A0E63BF23CCA800EE" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="6b56f971-6924-4f05-ae7e-aa26588df601">
+            <Component Id="cmp805C9935CA35162A0E63BF23CCA800EE" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil4BED011A7DA2EDE235E9F75A6C3A4D84" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Cryptography.Csp.dll" />
             </Component>
-            <Component Id="cmp773F6E7FBD4B3CB2A302E7FBF60A2E09" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="6174b8e9-0a30-4018-93d8-b9a44d0ff61a">
+            <Component Id="cmp773F6E7FBD4B3CB2A302E7FBF60A2E09" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filBD473F71D405903F46973ADEB4B21205" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Cryptography.Encoding.dll" />
             </Component>
-            <Component Id="cmp3A37F9C83929FCAF5D99E376E173F8D9" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="b05a0cca-3963-4829-9450-403051edd2aa">
+            <Component Id="cmp3A37F9C83929FCAF5D99E376E173F8D9" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filD66B60C3528308FEE3B9DF91E58CCFBA" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Cryptography.Primitives.dll" />
             </Component>
-            <Component Id="cmpC676E0F7D74FC393C44497C8136CE55E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="403c9f7a-408f-4399-820b-4810dfe2fbdc">
+            <Component Id="cmpC676E0F7D74FC393C44497C8136CE55E" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filE19BBDB102A822436D878DA4EC03DCD2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Cryptography.X509Certificates.dll" />
             </Component>
-            <Component Id="cmp12BFEB9F59A8BA6170E672DA4FBECB80" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="2c8cec1f-c3d9-4e25-820f-0149c09efbab">
+            <Component Id="cmp12BFEB9F59A8BA6170E672DA4FBECB80" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filE2741B6EEB8357542A1BB05966A2BD2F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Principal.dll" />
             </Component>
-            <Component Id="cmp3F3F379C8F9A958EC55A59CC0400360A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="bb8e46fb-9ea3-462d-93fe-f29adaee97c4">
+            <Component Id="cmp3F3F379C8F9A958EC55A59CC0400360A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil258FD818D9FCC2FA72D3C56243912720" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Security.Principal.Windows.dll" />
             </Component>
-            <Component Id="cmpFE573B422A357CFC0E5FAE40247B6EB2" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="f5c0b478-3812-41ac-b45d-c955fd9903e6">
+            <Component Id="cmpFE573B422A357CFC0E5FAE40247B6EB2" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil9ECA7626AB506520DF54A754F416E3B2" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Text.Encoding.dll" />
             </Component>
-            <Component Id="cmpE4EEC196D068C7D8EB42E64E23DCDFAA" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="aca0e977-2bbb-4f57-8b91-0f84eb4ba796">
+            <Component Id="cmpE4EEC196D068C7D8EB42E64E23DCDFAA" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filF380C3AF325CBD3F56AC8B59252C4846" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Text.Encoding.Extensions.dll" />
             </Component>
-            <Component Id="cmpCC586061244D28856CCE1AA3A5F2508A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="d8311feb-aa8a-4350-927f-0fd5fdf49e16">
+            <Component Id="cmpCC586061244D28856CCE1AA3A5F2508A" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filE49F39D35EB25D6288BF895F69958F45" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Text.RegularExpressions.dll" />
             </Component>
-            <Component Id="cmp72BCEDEBD80FB93CB11D1CCAF7963AB8" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="761e7e71-48e3-49c7-b7ef-fcaecf5fb563">
+            <Component Id="cmp72BCEDEBD80FB93CB11D1CCAF7963AB8" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil76BD06626162E68A0507464895DD482E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Threading.dll" />
             </Component>
-            <Component Id="cmpECA5A734154B571BEE0DE6ABEB0BF4D0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="7aab09c4-5850-49f3-a244-f72f8c083353">
+            <Component Id="cmpECA5A734154B571BEE0DE6ABEB0BF4D0" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil1E2B990D36BBEFBDA5B844C0D79B8221" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Threading.Tasks.dll" />
             </Component>
-            <Component Id="cmpDC1A12836B5713EB1569E8BEB0F392E1" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="df24378f-1854-40ff-8662-7f7cf4c7190d">
+            <Component Id="cmpDC1A12836B5713EB1569E8BEB0F392E1" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filE99D69093547914698E1E71736F9E05F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Threading.Tasks.Parallel.dll" />
             </Component>
-            <Component Id="cmp629D4F3C2697D5057122C17FA99A4B20" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="7a1d683f-54f5-4976-837b-9b19d2571fa9">
+            <Component Id="cmp629D4F3C2697D5057122C17FA99A4B20" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil71BB8CF92C2CD3CEDA1C791A10F3494E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Threading.Thread.dll" />
             </Component>
-            <Component Id="cmpA2407061981B8FA2208F7E2BDB81F1FE" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="a34213b9-23f5-4f2b-9a93-d426875e0cd1">
+            <Component Id="cmpA2407061981B8FA2208F7E2BDB81F1FE" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filA473607B5CDAEA8756169027D6DF161D" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Threading.ThreadPool.dll" />
             </Component>
-            <Component Id="cmpBFB2CB1B5622F732033AB065CF64567D" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="e40ecbcb-d642-420a-97d4-6007dc80c655">
+            <Component Id="cmpBFB2CB1B5622F732033AB065CF64567D" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil758AA809424CC216974F32A1BBD3931F" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Threading.Timer.dll" />
             </Component>
-            <Component Id="cmpDA85D887B8746132ABB709D1787080A6" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="cf523b2c-d430-46a1-96f5-7c28066c7c27">
+            <Component Id="cmpDA85D887B8746132ABB709D1787080A6" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="fil39076A04F2A9B0D2A1DF2FEE29B8EBF8" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Xml.ReaderWriter.dll" />
             </Component>
-            <Component Id="cmpDE92F29FE0D871227F903689C072480B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="7b810fe8-28bd-4271-99e7-96ff11760c04">
+            <Component Id="cmpDE92F29FE0D871227F903689C072480B" Directory="dirE3593CC110F752E16DDC5CEAB9341B0B" Guid="*">
                 <File Id="filAC6C9C80D45F2B3DAB1C598A250C87E5" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\refs\System.Xml.XDocument.dll" />
             </Component>
         </ComponentGroup>
