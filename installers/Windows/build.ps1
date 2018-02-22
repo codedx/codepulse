@@ -16,7 +16,7 @@ Push-Location $PSScriptRoot
 
 # NOTE: build will not work with C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 
-$vs2017Edition = 'Enterprise' # this build script supports other VS editions
+$vs2017Edition = 'Community' # this build script supports other VS editions
 $vs2017Path = "C:\Program Files (x86)\Microsoft Visual Studio\2017\$vs2017Edition"
 
 if (-not (test-path $vs2017Path)) {
