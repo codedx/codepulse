@@ -1,4 +1,12 @@
-﻿Set-PSDebug -Strict
+﻿# 
+# Steps to build Code Pulse (requires working Code Pulse development environment)
+#
+# 1. git clone https://github.com/codedx/codepulse -b <branch>
+# 2. change directory to codepulse\installers\Windows
+# 3. run powershell -file .\build.ps1
+# 4. find the installer in codepulse\installers\Windows\CodePulse.Bundle.Windows\bin\Release
+
+Set-PSDebug -Strict
 $ErrorActionPreference = 'Stop'
 $VerbosePreference = 'Continue'
 
@@ -7,12 +15,21 @@ Push-Location $PSScriptRoot
 . .\text.ps1
 
 # NOTE: build will not work with C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-$msbuildPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBuild.exe'
+
+$vs2017Edition = 'Enterprise' # this build script supports other VS editions
+$vs2017Path = "C:\Program Files (x86)\Microsoft Visual Studio\2017\$vs2017Edition"
+
+if (-not (test-path $vs2017Path)) {
+    Write-Error "Unable to find the $vs2017Edition edition of Visual Studio 2017 at $vs2017Path" -ErrorAction Continue
+    exit 1
+}
+
+$msbuildPath = "$vs2017Path\MSBuild\15.0\Bin\MSBuild.exe"
 
 write-verbose 'Testing for msbuild.exe path...'
 if (-not (test-path $msbuildPath)) { 
-    Write-Error "Expected to find msbuild.exe at $msbuildPath"
-    exit 1
+    Write-Error "Expected to find msbuild.exe at $msbuildPath" -ErrorAction Continue
+    exit 2
 }
 
 write-verbose 'Adding type for unzip support...'
@@ -191,3 +208,6 @@ if ($lastexitcode -ne 0) {
 }
 
 1..2 | % { Pop-Location }
+
+write-verbose "NOTE: If this is a major release, commit changes to .wxs files. Update existing .wxs "
+write-verbose "files, ignoring component GUID and ID differences, if this is a minor release."
