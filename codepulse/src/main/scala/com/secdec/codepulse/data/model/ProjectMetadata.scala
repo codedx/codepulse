@@ -40,6 +40,9 @@ trait ProjectMetadataAccess {
 
 	def dependencyCheckStatus: DependencyCheckStatus
 	def dependencyCheckStatus_=(newStatus: DependencyCheckStatus): DependencyCheckStatus
+
+	def deleted: Boolean
+	def deleted_=(softDelete: Boolean): Boolean
 }
 
 /** Trait for project metadata update events.

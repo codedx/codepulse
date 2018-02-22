@@ -63,11 +63,11 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 
 	def delete() {
 		metadataAccess.delete
-
+		
 		close
 
-		db withTransaction { implicit session =>
-			(Q updateNA "DROP ALL OBJECTS DELETE FILES").execute
-		}
+//		db withTransaction { implicit session =>
+//			(Q updateNA "DROP ALL OBJECTS DELETE FILES").execute
+//		}
 	}
 }

@@ -58,7 +58,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	def projectsIterator: Iterator[TracingTarget] = projects.valuesIterator
 
-	private var nextProjectNum = 0
+	private var nextProjectNum = dataProvider.maxProjectId + 1
 	private val nextProjectNumLock = new Object {}
 	private def getNextProjectId(): ProjectId = nextProjectNumLock.synchronized {
 		var id = ProjectId(nextProjectNum)

@@ -51,29 +51,22 @@ class SymbolService extends Lifetime with Loggable {
 			process = Some(Process(s"$binaryPath", new java.io.File(symbolServiceLocation), "ASPNETCORE_URLS" -> url).run())
 			logger.debug(s"created SymbolService from $binaryPath")
 
-			AppCleanup addShutdownHook { () =>
-				logger.debug(s"Code Pulse shutdown hook attempting to destroy process")
-				try {
-					destroy
-				} catch {
-					case e: Exception => {
-						logger.error("failed to destroy process")
-						logger.error(s"$e")
+			def shutdown(area: String): () => Unit = {
+				() => {
+					logger.debug(s"$area shutdown hook attempting to destroy process")
+					try {
+						destroy
+					} catch {
+						case e: Exception => {
+							logger.error("failed to destroy process")
+							logger.error(s"$e")
+						}
 					}
 				}
 			}
 
-			sys addShutdownHook {
-				logger.debug(s"JVM shutdown hook attempting to destroy process")
-				try {
-					destroy
-				} catch {
-					case e: Exception => {
-						logger.error("failed to destroy process")
-						logger.error(s"$e")
-					}
-				}
-			}
+			AppCleanup addPreShutdownHook shutdown("Code Pulse")
+			sys addShutdownHook shutdown("JVM")
 		} catch {
 			case e: Exception => {
 				logger.error("could not create SymbolService due to an exception}")

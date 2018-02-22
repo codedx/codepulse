@@ -27,6 +27,7 @@ trait ProjectDataProvider {
 	def getProject(id: ProjectId): ProjectData
 	def removeProject(id: ProjectId): Unit
 	def projectList: List[ProjectId]
+	def maxProjectId: Int
 }
 
 /** Provides instances of the default ProjectDataProvider implementation.
