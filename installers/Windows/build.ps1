@@ -100,11 +100,15 @@ write-verbose 'Creating Files folder structure...'
 # ├───Win32
 # │   ├───codepulse
 # │   ├───dotnet-symbol-service
-# │   └───dotnet-tracer
+#     └───tracers
+#         ├───dotnet
+#         └───java
 # └───Win64
 #     ├───codepulse
 #     ├───dotnet-symbol-service
-#     └───dotnet-tracer
+#     └───tracers
+#         ├───dotnet
+#         └───java
 #
 New-Item -Path $filesFolderWin32Path -ItemType Directory
 New-Item -Path $filesFolderWin32CodePulsePath -ItemType Directory
@@ -213,6 +217,27 @@ if ($lastexitcode -ne 0) {
 $msiTracerBundlePath = join-path (get-location) ".\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Bundle.exe"
 copy-item $msiTracerBundlePath $filesFolderWin32DotNetTracerPath
 copy-item $msiTracerBundlePath $filesFolderWin64DotNetTracerPath
+
+write-verbose "Building CodePulse.Client.Test ($buildConfiguration)..."
+& $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ CodePulse.Client.Test
+if ($lastexitcode -ne 0) {
+    exit $lastexitcode
+}
+write-verbose "Building CodePulse.Console.Test ($buildConfiguration)..."
+& $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ CodePulse.Console.Test
+if ($lastexitcode -ne 0) {
+    exit $lastexitcode
+}
+write-verbose "Building OpenCover.Test ($buildConfiguration)..."
+& $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ OpenCover.Test
+if ($lastexitcode -ne 0) {
+    exit $lastexitcode
+}
+write-verbose "Building OpenCover.Test.Profiler ($buildConfiguration)..."
+& $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ OpenCover.Test.Profiler
+if ($lastexitcode -ne 0) {
+    exit $lastexitcode
+}
 
 Pop-Location; Push-Location $PSScriptRoot
 
