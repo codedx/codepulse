@@ -18,17 +18,18 @@
 package com.secdec.bytefrog.agent.control.test
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.agent.control.ModeChangeListener
-import com.secdec.bytefrog.agent.control.StateManager
+import com.codedx.codepulse.agent.control.ModeChangeListener
+import com.codedx.codepulse.agent.control.StateManager
 import com.secdec.bytefrog.agent.util.ErrorEnforcement
 import com.secdec.bytefrog.agent.util.MockHelpers
 import com.secdec.bytefrog.agent.util.StateManagerHelpers
-import com.secdec.bytefrog.common.message.AgentOperationMode
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
 
-class StateManagerSuite extends FunSpec with MockFactory with ShouldMatchers with ErrorEnforcement with MockHelpers with StateManagerHelpers {
+class StateManagerSuite extends FunSpec with MockFactory with Matchers with ErrorEnforcement with MockHelpers with StateManagerHelpers {
 	describe("state manager") {
 		it("should start in initialization mode") {
 			enforceNoErrors

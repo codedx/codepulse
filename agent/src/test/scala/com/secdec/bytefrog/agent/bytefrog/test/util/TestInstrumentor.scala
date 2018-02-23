@@ -21,8 +21,11 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.net.URI
+import java.net.URLClassLoader
+import org.objectweb.asm.ClassReader
 
-import com.secdec.bytefrog.agent.bytefrog.Instrumentor
+import com.codedx.codepulse.agent.trace.Instrumentor
+import com.codedx.bytefrog.instrumentation.id._
 
 /** A helper class that can find, instrument, and load classes. Any class loaded will be instrumented.
   *
@@ -72,7 +75,12 @@ class TestInstrumentor {
 		private def findClassFile(name: String) = new File(getClass.getResource(s"/${name.replace('.', '/')}.class").toURI)
 
 		override def findClass(name: String): Class[_ <: Any] = {
-			val bytes = Instrumentor.instrument(name, new FileInputStream(findClassFile(name)))
+			val className = name
+			val classFile = findClassFile(className)
+			val classLoader = new URLClassLoader(Array(classFile.toURL))
+			val classReader = new ClassReader(new FileInputStream(classFile))
+			val enableTrace = false
+			val bytes = new Instrumentor(new ClassIdentifier, new MethodIdentifier, File.createTempFile("instr", "codepulse_test")).instrument(classLoader, className, classReader, enableTrace)
 			if (bytes != null)
 				defineClass(name, bytes, 0, bytes.length)
 			else

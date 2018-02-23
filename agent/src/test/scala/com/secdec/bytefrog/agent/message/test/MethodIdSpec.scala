@@ -23,24 +23,27 @@ import java.io.DataOutputStream
 import scala.collection.mutable.ListBuffer
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.agent.message.BufferService
-import com.secdec.bytefrog.agent.message.MessageDealer
-import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.common.queue.DataBufferOutputStream
+import com.codedx.codepulse.agent.message.BufferService
+import com.codedx.codepulse.agent.message.MessageDealer
+import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.queue.DataBufferOutputStream
 
-class MethodIdSpec extends FunSpec with ShouldMatchers with MockFactory {
+import com.codedx.bytefrog.instrumentation.id._
+
+class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 
 	class FakeBufferService extends BufferService {
 		def innerObtain = new DataBufferOutputStream(new ByteArrayOutputStream)
 		def innerSend(buffer: DataBufferOutputStream) = ()
 	}
 
-	def doMapMethodNames(names: String*): List[Int] = {
+	def doMapMethodIds(methodIds: Int*): List[Int] = {
 		val protocol = mock[MessageProtocol]
-		val md = new MessageDealer(protocol, new FakeBufferService)
+		val md = new MessageDealer(protocol, new FakeBufferService, new ClassIdentifier, new MethodIdentifier)
 
 		(protocol.writeMapMethodSignature _).expects(*, *, *).anyNumberOfTimes
 		(protocol.writeMapThreadName _).expects(*, *, *, *).anyNumberOfTimes
@@ -52,7 +55,7 @@ class MethodIdSpec extends FunSpec with ShouldMatchers with MockFactory {
 				ids += id; ()
 		}
 
-		for (name <- names) md.sendMethodEntry(name)
+		for (id <- methodIds) md.sendMethodEntry(id)
 
 		ids.result
 	}
@@ -60,7 +63,7 @@ class MethodIdSpec extends FunSpec with ShouldMatchers with MockFactory {
 	describe("MethodId `get`") {
 
 		it("should yield the same result if called repeatedly with the same inputs") {
-			val ids = doMapMethodNames("A", "A")
+			val ids = doMapMethodIds(1, 1)
 
 			ids match {
 				case a1 :: a2 :: Nil => a1 shouldBe a2
@@ -69,7 +72,7 @@ class MethodIdSpec extends FunSpec with ShouldMatchers with MockFactory {
 		}
 
 		it("should have consistent results even when called with new inputs") {
-			doMapMethodNames("A", "B", "A") match {
+			doMapMethodIds(1, 2, 1) match {
 				case a1 :: b :: a2 :: Nil =>
 					a1 should equal(a2)
 					a1 should not equal (b)
@@ -77,7 +80,7 @@ class MethodIdSpec extends FunSpec with ShouldMatchers with MockFactory {
 			}
 		}
 		it("should have consistent results across many inputs") {
-			def getList = doMapMethodNames("A", "B", "C", "D")
+			def getList = doMapMethodIds(1, 2, 3, 4)
 
 			val r1 = getList
 			val r2 = getList
@@ -90,30 +93,30 @@ class MethodIdSpec extends FunSpec with ShouldMatchers with MockFactory {
 
 		it("should fire a `MapMethodSignature` event the first time it maps a new String") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService)
+			val md = new MessageDealer(protocol, new FakeBufferService, new ClassIdentifier, new MethodIdentifier)
 
 			(protocol.writeMapThreadName _).expects(*, *, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
 
 			(protocol.writeMapMethodSignature _).expects(*, *, *).once
 
-			md.sendMethodEntry("A")
+			md.sendMethodEntry(1)
 		}
 
 		it("should not fire a `MapMethodSignature` event more than once per String (when an infinite cache is used)") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService)
+			val md = new MessageDealer(protocol, new FakeBufferService, new ClassIdentifier, new MethodIdentifier)
 
 			(protocol.writeMapThreadName _).expects(*, *, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
 
-			(protocol.writeMapMethodSignature _).expects(*, *, "A").once
-			(protocol.writeMapMethodSignature _).expects(*, *, "B").once
-			(protocol.writeMapMethodSignature _).expects(*, *, "C").once
+			(protocol.writeMapMethodSignature _).expects(*, 1, *).once
+			(protocol.writeMapMethodSignature _).expects(*, 2, *).once
+			(protocol.writeMapMethodSignature _).expects(*, 3, *).once
 
 			for {
 				i <- 1 to 5
-				c <- List("A", "B", "C")
+				c <- List(1, 2, 3)
 			} md.sendMethodEntry(c)
 
 		}

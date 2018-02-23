@@ -18,22 +18,54 @@
 package com.secdec.bytefrog.agent.bytefrog.test.util
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 import org.scalatest.exceptions.TestFailedException
-
-import com.secdec.bytefrog.agent.TraceDataCollector
+import com.codedx.codepulse.agent.trace.TraceDataCollector
 
 sealed trait TestScriptEntry
 object TestScriptEntry {
-	case class MethodEntry(method: String) extends TestScriptEntry
-	case class MethodExit(method: String) extends TestScriptEntry
-	case class Exception(method: String, exception: String) extends TestScriptEntry
-	case class ExceptionBubble(method: String, exception: String) extends TestScriptEntry
+	case class MethodEntry(method: Int) extends TestScriptEntry
+	case class MethodExit(method: Int) extends TestScriptEntry
+	case class Exception(method: Int, exception: String) extends TestScriptEntry
+	case class ExceptionBubble(method: Int, exception: String) extends TestScriptEntry
 	case class Marker(key: String, value: String) extends TestScriptEntry
 }
 
 object TestScript {
 	def apply[T](script: TestScriptEntry*)(implicit runner: TestRunner, m: Manifest[T]) = new TestScript[T](script)
+}
+
+class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], trimMethod: String => String) extends TraceDataCollector {
+	val nextIdLock = new Object
+	var nextId = 0
+	private def id(): Int = nextIdLock.synchronized {
+		nextId += 1
+		nextId
+	}
+
+	private var identifiers = mutable.Map[String, Int]()
+	private def insert(signature: String): Int = identifiers.getOrElseUpdate(trimMethod(signature), id)
+
+	def methodEntry(method: Int) {
+		data += TestScriptEntry.MethodEntry(method)
+	}
+
+	def methodExit(method: Int, line: Int) {
+		data += TestScriptEntry.MethodExit(method)
+	}
+
+	def exception(exception: String, method: Int, line: Int) {
+		data += TestScriptEntry.Exception(method, exception)
+	}
+
+	def bubbleException(exception: String, method: Int) {
+		data += TestScriptEntry.ExceptionBubble(method, exception)
+	}
+
+	def marker(key: String, value: String) {
+		data += TestScriptEntry.Marker(key, value)
+	}
 }
 
 /** A helper class that defines a bytefrog test script, i.e., expected results
@@ -53,27 +85,7 @@ class TestScript[T](script: Seq[TestScriptEntry])(implicit runner: TestRunner, m
 
 	private def trimMethod(sig: String) = sig.takeWhile(_ != ';')
 
-	private implicit val dataCollector = new TraceDataCollector {
-		def methodEntry(method: String) {
-			data += MethodEntry(trimMethod(method))
-		}
-
-		def methodExit(method: String, line: Int) {
-			data += MethodExit(trimMethod(method))
-		}
-
-		def exception(exception: String, method: String, line: Int) {
-			data += Exception(trimMethod(method), exception)
-		}
-
-		def bubbleException(exception: String, method: String) {
-			data += ExceptionBubble(trimMethod(method), exception)
-		}
-
-		def marker(key: String, value: String) {
-			data += Marker(key, value)
-		}
-	}
+	private implicit val dataCollector = new TraceDataCollectorImpl(data, trimMethod)
 
 	def run(arguments: java.lang.String*) {
 		try {

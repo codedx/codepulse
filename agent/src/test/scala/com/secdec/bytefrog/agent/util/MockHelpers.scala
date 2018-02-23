@@ -17,16 +17,24 @@
 
 package com.secdec.bytefrog.agent.util
 
-import org.scalamock.scalatest.MockFactory
+import java.io.ByteArrayOutputStream
 
-import com.secdec.bytefrog.agent.message.BufferService
-import com.secdec.bytefrog.agent.message.MessageDealer
-import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.common.queue.BufferPool
+import org.scalamock.scalatest.MockFactory
+import com.codedx.codepulse.agent.message.BufferService
+import com.codedx.codepulse.agent.message.MessageDealer
+import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.queue.BufferPool
+import com.codedx.bytefrog.instrumentation.id._
+import com.codedx.codepulse.agent.common.queue.DataBufferOutputStream
 
 trait MockHelpers { self: MockFactory =>
 
-	class MessageDealerMockable extends MessageDealer(mock[MessageProtocol], mock[BufferService])
+	class MockBufferService extends BufferService  {
+		protected def innerObtain(): DataBufferOutputStream = new DataBufferOutputStream(new ByteArrayOutputStream())
+		protected def innerSend(buffer: DataBufferOutputStream): Unit = {}
+	}
+
+	class MessageDealerMockable extends MessageDealer(mock[MessageProtocol], mock[MockBufferService], mock[ClassIdentifier], mock[MethodIdentifier])
 
 	class BufferPoolMockable extends BufferPool(10, 100)
 }
