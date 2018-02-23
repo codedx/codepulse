@@ -49,55 +49,15 @@ public class MessageDealerTraceDataCollector implements TraceDataCollector
 	}
 
 	@Override
-	public void methodExit(int methodId, int sourceLine)
+	public void methodExit(int methodId, boolean exThrown)
 	{
 		try
 		{
-			messageDealer.sendMethodExit(methodId, sourceLine);
+			messageDealer.sendMethodExit(methodId, exThrown);
 		}
 		catch (Exception e)
 		{
 			ErrorHandler.handleError("error sending method exit", e);
 		}
-	}
-
-	@Override
-	public void exception(String exception, int methodId, int sourceLine)
-	{
-		try
-		{
-			messageDealer.sendException(exception, methodId, sourceLine);
-		}
-		catch (Exception e)
-		{
-			ErrorHandler.handleError("error sending exception", e);
-		}
-	}
-
-	@Override
-	public void bubbleException(String exception, int methodId)
-	{
-		try
-		{
-			messageDealer.sendExceptionBubble(exception, methodId);
-		}
-		catch (Exception e)
-		{
-			ErrorHandler.handleError("error sending exception bubble", e);
-		}
-	}
-
-	@Override
-	public void marker(String key, String value)
-	{
-		try
-		{
-			messageDealer.sendMarker(key, value);
-		}
-		catch (Exception e)
-		{
-			ErrorHandler.handleError("error sending marker", e);
-		}
-
 	}
 }

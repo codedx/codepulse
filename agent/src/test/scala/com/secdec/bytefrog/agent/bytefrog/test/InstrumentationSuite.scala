@@ -25,138 +25,104 @@ import com.secdec.bytefrog.agent.bytefrog.test.util._
 import com.secdec.bytefrog.agent.bytefrog.test.util.TestScriptEntry._
 import com.secdec.bytefrog.agent.util.MockHelpers
 
+import com.codedx.bytefrog.instrumentation.id._
+
 class InstrumentationSuite extends FunSuite with MockFactory with MockHelpers {
-	implicit val runner = new TestRunner
-
-	val nextIdLock = new Object
-	var nextId = 0
-	private def id(): Int = nextIdLock.synchronized {
-		nextId += 1
-		nextId
-	}
-
-	val identifiers = List(
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.<clinit>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$SuperClass.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$ChildClass.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass1.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass2.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass3.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$ChildClass.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionThrowTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.thrower",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.<init>",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest.main",
-		"com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest$SuperThrower.<init>"
-	) map (signature => signature -> id) toMap
+	val classIdentifier = new ClassIdentifier
+	val methodIdentifier = new MethodIdentifier
+	implicit val runner = new TestRunner(classIdentifier, methodIdentifier)
 
 	test("Simple Method Instrumentation") {
-		TestScript[SimpleTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleTest.main")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleTest.main")))
+		TestScript[SimpleTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleTest.main"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleTest.main", false))
 			.run()
 	}
 
 	test("Static Initializer Instrumentation") {
-		TestScript[StaticInitializerTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.<clinit>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.<clinit>")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.main")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.main")))
+		TestScript[StaticInitializerTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.<clinit>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.<clinit>", false),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.main"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.StaticInitializerTest.main", false))
 			.run()
 	}
 
 	test("Simple Constructor Instrumentation") {
-		TestScript[SimpleConstructorTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.main")))
+		TestScript[SimpleConstructorTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.main"),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.<init>", false),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SimpleConstructorTest.main", false))
 			.run()
 	}
 
 	test("Super Constructor Instrumentation") {
-		TestScript[SuperConstructorTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$SuperClass.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$SuperClass.<init>")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$ChildClass.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$ChildClass.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest.main")))
+		TestScript[SuperConstructorTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest.main"),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$SuperClass.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$SuperClass.<init>", false),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$ChildClass.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest$ChildClass.<init>", false),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorTest.main", false))
 			.run()
 	}
 
 	test("Layered Super Constructor Instrumentation") {
-		TestScript[MultipleSuperConstructorTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass1.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass1.<init>")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass2.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass2.<init>")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass3.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass3.<init>")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$ChildClass.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$ChildClass.<init>")),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest.main")))
+		TestScript[MultipleSuperConstructorTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest.main"),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass1.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass1.<init>", false),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass2.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass2.<init>", false),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass3.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$SuperClass3.<init>", false),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$ChildClass.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest$ChildClass.<init>", false),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.MultipleSuperConstructorTest.main", false))
 			.run()
 	}
 
 	test("Exception throw/catch without bubble") {
-		TestScript[ExceptionThrowTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionThrowTest.main")),
-			Exception(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionThrowTest.main"), "java.io.IOException"),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionThrowTest.main")))
+		TestScript[ExceptionThrowTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionThrowTest.main"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionThrowTest.main", false))
 			.run()
 	}
 
 	test("Exception throw/bubble with catch") {
-		TestScript[ExceptionBubbleTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.thrower")),
-			Exception(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.thrower"), "java.io.IOException"),
-			ExceptionBubble(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.thrower"), "java.io.IOException"),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.main")))
+		TestScript[ExceptionBubbleTest](classIdentifier, methodIdentifier,
+			MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.main"),
+			MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.thrower"),
+			MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.thrower", true),
+			MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionBubbleTest.main", false))
 			.run()
 	}
 
 	test("Exception throw/finally/bubble with catch") {
-		TestScript[ExceptionFinallyBubbleTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower")),
-			Exception(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower"), "java.io.IOException"),
-			Exception(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower"), "java.io.IOException"),
-			ExceptionBubble(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower"), "java.io.IOException"),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.main")))
+		TestScript[ExceptionFinallyBubbleTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.main"),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.thrower", true),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ExceptionFinallyBubbleTest.main", false))
 			.run()
 	}
 
 	test("Exception throw/bubble by constructor with catch") {
-		TestScript[ConstructorThrowTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.<init>")),
-			Exception(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.<init>"), "java.io.IOException"),
-			ExceptionBubble(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.<init>"), "java.io.IOException"),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.main")))
+		TestScript[ConstructorThrowTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.main"),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.<init>", true),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.ConstructorThrowTest.main", false))
 			.run()
 	}
 
 	test("Exception throw/bubble by super constructor with catch") {
-		TestScript[SuperConstructorThrowTest](
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest.main")),
-			MethodEntry(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest$SuperThrower.<init>")),
-			Exception(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest$SuperThrower.<init>"), "java.io.IOException"),
-			ExceptionBubble(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest$SuperThrower.<init>"), "java.io.IOException"),
-			MethodExit(identifiers("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest.main")))
+		TestScript[SuperConstructorThrowTest](classIdentifier, methodIdentifier,
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest.main"),
+		MethodEntry("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest$SuperThrower.<init>"),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest$SuperThrower.<init>", true),
+		MethodExit("com.secdec.bytefrog.agent.bytefrog.test.cases.SuperConstructorThrowTest.main", false))
 			.run()
 	}
 }

@@ -54,9 +54,9 @@ public class Trace
 	public static void methodExit(int methodId, boolean exceptionThrown)
 	{
 		if (exceptionThrown)
-			traceDataCollector.bubbleException("???", methodId);
+			traceDataCollector.methodExit(methodId, true);
 		else
-			traceDataCollector.methodExit(methodId, -1);
+			traceDataCollector.methodExit(methodId, false);
 	}
 
 	public static void recordLineLevelTrace(int methodId, int startLine, int endLine, java.util.BitSet lineMap)

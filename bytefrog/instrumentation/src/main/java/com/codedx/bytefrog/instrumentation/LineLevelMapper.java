@@ -121,12 +121,19 @@ public class LineLevelMapper {
 	private LineLevelMapper(String filename, Map<Integer, List<MappedLocation>> rawMappings) {
 		this.filename = filename;
 
-		mappings = new HashMap<>(rawMappings.size());
-		for (Map.Entry<Integer, List<MappedLocation>> mapping : rawMappings.entrySet()) {
-			mappings.put(
-				mapping.getKey(),
-				mapping.getValue().toArray(new MappedLocation[0])
-			);
+		if(rawMappings != null)
+		{
+			mappings = new HashMap<>(rawMappings.size());
+			for (Map.Entry<Integer, List<MappedLocation>> mapping : rawMappings.entrySet()) {
+				mappings.put(
+					mapping.getKey(),
+					mapping.getValue().toArray(new MappedLocation[0])
+				);
+			}
+		}
+		else
+		{
+			mappings = new HashMap<>(64);
 		}
 	}
 

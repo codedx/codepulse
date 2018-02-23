@@ -23,48 +23,29 @@ import scala.collection.mutable
 import org.scalatest.exceptions.TestFailedException
 import com.codedx.codepulse.agent.trace.TraceDataCollector
 
+import com.codedx.bytefrog.instrumentation.id._
+
 sealed trait TestScriptEntry
 object TestScriptEntry {
-	case class MethodEntry(method: Int) extends TestScriptEntry
-	case class MethodExit(method: Int) extends TestScriptEntry
-	case class Exception(method: Int, exception: String) extends TestScriptEntry
-	case class ExceptionBubble(method: Int, exception: String) extends TestScriptEntry
-	case class Marker(key: String, value: String) extends TestScriptEntry
+	case class MethodEntry(method: String) extends TestScriptEntry
+	case class MethodExit(method: String, exThrown: Boolean) extends TestScriptEntry
 }
 
 object TestScript {
-	def apply[T](script: TestScriptEntry*)(implicit runner: TestRunner, m: Manifest[T]) = new TestScript[T](script)
+	def apply[T](classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier, script: TestScriptEntry*)(implicit runner: TestRunner, m: Manifest[T]) = new TestScript[T](classIdentifier, methodIdentifier, script)
 }
 
-class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], trimMethod: String => String) extends TraceDataCollector {
-	val nextIdLock = new Object
-	var nextId = 0
-	private def id(): Int = nextIdLock.synchronized {
-		nextId += 1
-		nextId
-	}
-
-	private var identifiers = mutable.Map[String, Int]()
-	private def insert(signature: String): Int = identifiers.getOrElseUpdate(trimMethod(signature), id)
-
+class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier) extends TraceDataCollector {
 	def methodEntry(method: Int) {
-		data += TestScriptEntry.MethodEntry(method)
+		val mi = methodIdentifier.get(method)
+		val ci = classIdentifier.get(mi.getClassId)
+		data += TestScriptEntry.MethodEntry(s"${ci.getName}.${mi.getName}")
 	}
 
-	def methodExit(method: Int, line: Int) {
-		data += TestScriptEntry.MethodExit(method)
-	}
-
-	def exception(exception: String, method: Int, line: Int) {
-		data += TestScriptEntry.Exception(method, exception)
-	}
-
-	def bubbleException(exception: String, method: Int) {
-		data += TestScriptEntry.ExceptionBubble(method, exception)
-	}
-
-	def marker(key: String, value: String) {
-		data += TestScriptEntry.Marker(key, value)
+	def methodExit(method: Int, exThrown: Boolean) {
+		val mi = methodIdentifier.get(method)
+		val ci = classIdentifier.get(mi.getClassId)
+		data += TestScriptEntry.MethodExit(s"${ci.getName}.${mi.getName}", exThrown)
 	}
 }
 
@@ -73,7 +54,7 @@ class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], trimMethod: Stri
   *
   * @author robertf
   */
-class TestScript[T](script: Seq[TestScriptEntry])(implicit runner: TestRunner, m: Manifest[T]) {
+class TestScript[T](classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier, script: Seq[TestScriptEntry])(implicit runner: TestRunner, m: Manifest[T]) {
 	def isCorrect = observed.corresponds(expected) { _ == _ }
 
 	def expected = script
@@ -85,7 +66,7 @@ class TestScript[T](script: Seq[TestScriptEntry])(implicit runner: TestRunner, m
 
 	private def trimMethod(sig: String) = sig.takeWhile(_ != ';')
 
-	private implicit val dataCollector = new TraceDataCollectorImpl(data, trimMethod)
+	private implicit val dataCollector = new TraceDataCollectorImpl(data, classIdentifier, methodIdentifier)
 
 	def run(arguments: java.lang.String*) {
 		try {

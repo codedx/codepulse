@@ -32,31 +32,7 @@ public interface TraceDataCollector
 	/**
 	 * Reports a method exit.
 	 * @param methodId the ID of the method being exited
-	 * @param sourceLine the line number where the method exit occurred
+	 * @param exThrown whether an exception was thrown to force the method to exit
 	 */
-	void methodExit(int methodId, int sourceLine);
-
-	/**
-	 * Reports a exception.
-	 * TODO: won't be called
-	 * @param exception the fully qualified name of the exception thrown
-	 * @param methodId the ID of method throwing the exception
-	 * @param sourceLine the line number where the exception was thrown
-	 */
-	void exception(String exception, int methodId, int sourceLine);
-
-	/**
-	 * Reports a bubbled exception.
-	 * TODO: won't have exception name
-	 * @param exception the fully qualified name of the exception bubbled
-	 * @param methodId the ID of the method that bubbled
-	 */
-	void bubbleException(String exception, int methodId);
-
-	/**
-	 * Reports a marker event
-	 * @param key The marker's key
-	 * @param value The marker's value
-	 */
-	void marker(String key, String value);
+	void methodExit(int methodId, boolean exThrown);
 }

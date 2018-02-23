@@ -31,7 +31,8 @@ import com.codedx.bytefrog.instrumentation.id._
   *
   * @author robertf
   */
-class TestInstrumentor {
+class TestInstrumentor(classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier) {
+
 	/** An internal class loader that will prefer to load its own instrumented versions */
 	private object instrumentingLoader extends ClassLoader(getClass.getClassLoader) {
 		private val system = ClassLoader.getSystemClassLoader
@@ -79,8 +80,8 @@ class TestInstrumentor {
 			val classFile = findClassFile(className)
 			val classLoader = new URLClassLoader(Array(classFile.toURL))
 			val classReader = new ClassReader(new FileInputStream(classFile))
-			val enableTrace = false
-			val bytes = new Instrumentor(new ClassIdentifier, new MethodIdentifier, File.createTempFile("instr", "codepulse_test")).instrument(classLoader, className, classReader, enableTrace)
+			val enableTrace = true
+			val bytes = new Instrumentor(classIdentifier, methodIdentifier, null).instrument(classLoader, className, classReader, enableTrace)
 			if (bytes != null)
 				defineClass(name, bytes, 0, bytes.length)
 			else

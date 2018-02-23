@@ -33,6 +33,7 @@ import com.codedx.codepulse.agent.common.message.MessageProtocol
 import com.codedx.codepulse.agent.common.queue.DataBufferOutputStream
 
 import com.codedx.bytefrog.instrumentation.id._
+import com.codedx.bytefrog.instrumentation.LineLevelMapper
 
 class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 
@@ -41,9 +42,19 @@ class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 		def innerSend(buffer: DataBufferOutputStream) = ()
 	}
 
+	val classIdentifier = new ClassIdentifier
+	val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"))
+
+	val methodIdentifier = new MethodIdentifier
+	val idA = methodIdentifier.record(cId, 1, "A", "A", 1, 0)
+	val idB = methodIdentifier.record(cId, 1, "B", "B", 2, 0)
+	val idC = methodIdentifier.record(cId, 1, "B", "C", 3, 0)
+	val idD = methodIdentifier.record(cId, 1, "B", "D", 4, 0)
+
 	def doMapMethodIds(methodIds: Int*): List[Int] = {
 		val protocol = mock[MessageProtocol]
-		val md = new MessageDealer(protocol, new FakeBufferService, new ClassIdentifier, new MethodIdentifier)
+
+		val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 
 		(protocol.writeMapMethodSignature _).expects(*, *, *).anyNumberOfTimes
 		(protocol.writeMapThreadName _).expects(*, *, *, *).anyNumberOfTimes
@@ -63,7 +74,7 @@ class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 	describe("MethodId `get`") {
 
 		it("should yield the same result if called repeatedly with the same inputs") {
-			val ids = doMapMethodIds(1, 1)
+			val ids = doMapMethodIds(idA, idA)
 
 			ids match {
 				case a1 :: a2 :: Nil => a1 shouldBe a2
@@ -72,7 +83,7 @@ class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 		}
 
 		it("should have consistent results even when called with new inputs") {
-			doMapMethodIds(1, 2, 1) match {
+			doMapMethodIds(idA, idB, idA) match {
 				case a1 :: b :: a2 :: Nil =>
 					a1 should equal(a2)
 					a1 should not equal (b)
@@ -80,7 +91,7 @@ class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 			}
 		}
 		it("should have consistent results across many inputs") {
-			def getList = doMapMethodIds(1, 2, 3, 4)
+			def getList = doMapMethodIds(idA, idB, idC, idD)
 
 			val r1 = getList
 			val r2 = getList
@@ -93,30 +104,30 @@ class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 
 		it("should fire a `MapMethodSignature` event the first time it maps a new String") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService, new ClassIdentifier, new MethodIdentifier)
+			val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 
 			(protocol.writeMapThreadName _).expects(*, *, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
 
 			(protocol.writeMapMethodSignature _).expects(*, *, *).once
 
-			md.sendMethodEntry(1)
+			md.sendMethodEntry(idA)
 		}
 
 		it("should not fire a `MapMethodSignature` event more than once per String (when an infinite cache is used)") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService, new ClassIdentifier, new MethodIdentifier)
+			val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 
 			(protocol.writeMapThreadName _).expects(*, *, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
 
-			(protocol.writeMapMethodSignature _).expects(*, 1, *).once
-			(protocol.writeMapMethodSignature _).expects(*, 2, *).once
-			(protocol.writeMapMethodSignature _).expects(*, 3, *).once
+			(protocol.writeMapMethodSignature _).expects(*, idA, *).once
+			(protocol.writeMapMethodSignature _).expects(*, idB, *).once
+			(protocol.writeMapMethodSignature _).expects(*, idC, *).once
 
 			for {
 				i <- 1 to 5
-				c <- List(1, 2, 3)
+				c <- List(idA, idB, idC)
 			} md.sendMethodEntry(c)
 
 		}

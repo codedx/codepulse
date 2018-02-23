@@ -22,13 +22,15 @@ import java.lang.reflect.InvocationTargetException
 import com.codedx.codepulse.agent.trace.TraceDataCollector
 import com.codedx.codepulse.agent.trace.Trace
 
+import com.codedx.bytefrog.instrumentation.id._
+
 /** A helper class that will load and instrument a test class with bytefrog and run the "main" method on it
   * with the given trace data collector.
   *
   * @author robertf
   */
-class TestRunner {
-	private val instrumentor = new TestInstrumentor
+class TestRunner(classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier) {
+	private val instrumentor = new TestInstrumentor(classIdentifier, methodIdentifier)
 
 	def runTest[T](arguments: java.lang.String*)(implicit dataCollector: TraceDataCollector, m: Manifest[T]) {
 		try {
