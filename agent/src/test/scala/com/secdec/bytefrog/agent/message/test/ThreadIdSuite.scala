@@ -25,15 +25,19 @@ import java.io.DataOutputStream
 
 import org.scalatest.FunSpec
 import org.scalatest.concurrent.AsyncAssertions
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.agent.message._
+import com.codedx.codepulse.agent.message._
 import com.secdec.bytefrog.agent.util.MockHelpers
-import com.secdec.bytefrog.common.message._
-import com.secdec.bytefrog.common.queue.DataBufferOutputStream
+import com.codedx.codepulse.agent.common.message._
+import com.codedx.codepulse.agent.common.queue.DataBufferOutputStream
 
-class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions with MockFactory with MockHelpers {
+import com.codedx.bytefrog.instrumentation.id._
+import com.codedx.bytefrog.instrumentation.LineLevelMapper
+
+class ThreadIdSuite extends FunSpec with Matchers with AsyncAssertions with MockFactory with MockHelpers {
 
 	class FakeBufferService extends BufferService {
 		def innerObtain = new DataBufferOutputStream(new ByteArrayOutputStream)
@@ -55,7 +59,14 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 	describe("ThreadId.getCurrent") {
 		it("Should return the same id for a thread even when it changes names") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService)
+
+			val classIdentifier = new ClassIdentifier
+			val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"))
+
+			val methodIdentifier = new MethodIdentifier
+			val idA = methodIdentifier.record(cId, 1, "A", "A", 0, 0)
+
+			val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 
 			(protocol.writeMapMethodSignature _).expects(*, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
@@ -78,9 +89,9 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 				}
 				val t = Thread.currentThread
 				t.setName("Thread-1")
-				md.sendMethodEntry("method")
+				md.sendMethodEntry(idA)
 				t.setName("Thread-A")
-				md.sendMethodEntry("method")
+				md.sendMethodEntry(idA)
 
 				id1 should not equal -1
 				id1 should equal(id2)
@@ -94,7 +105,14 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 
 		it("Should give different ids for different threads, even if the threads have the same name") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService)
+
+			val classIdentifier = new ClassIdentifier
+			val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"))
+
+			val methodIdentifier = new MethodIdentifier
+			val idA = methodIdentifier.record(cId, 1, "A", "A", 0, 0)
+
+			val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 
 			(protocol.writeMapMethodSignature _).expects(*, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
@@ -107,7 +125,7 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 					(_: DataOutputStream, threadId: Int, _: Int, _: String) =>
 						id1 = threadId
 				}
-				md.sendMethodEntry("method")
+				md.sendMethodEntry(idA)
 			}
 
 			//make a second thread and get its id according to `md`
@@ -118,7 +136,7 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 					(_: DataOutputStream, threadId: Int, _: Int, _: String) =>
 						id2 = threadId
 				}
-				md.sendMethodEntry("method")
+				md.sendMethodEntry(idA)
 			}
 
 			// the two ids should be different
@@ -131,7 +149,14 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 	describe("ThreadId's generated messages") {
 		it("Should generate a message the first time it maps each thread") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService)
+
+			val classIdentifier = new ClassIdentifier
+			val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"))
+
+			val methodIdentifier = new MethodIdentifier
+			val idA = methodIdentifier.record(cId, 1, "A", "A", 0, 0)
+
+			val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 
 			doOnSeparateThread {
 				val threadName = Thread.currentThread.getName
@@ -139,15 +164,24 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 				(protocol.writeMapMethodSignature _).expects(*, *, *).anyNumberOfTimes
 				(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
 
-				md.sendMethodEntry("method") //emit
-				md.sendMethodEntry("method") //no emit
-				md.sendMethodEntry("method") //no emit
+				md.sendMethodEntry(idA) //emit
+				md.sendMethodEntry(idA) //no emit
+				md.sendMethodEntry(idA) //no emit
 			}
 		}
 
 		it("Should generate a message whenever it maps a thread whose name has changed") {
 			val protocol = mock[MessageProtocol]
-			val md = new MessageDealer(protocol, new FakeBufferService)
+
+			val classIdentifier = new ClassIdentifier
+			val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"))
+
+			val methodIdentifier = new MethodIdentifier
+			val idA = methodIdentifier.record(cId, 1, "A", "A", 0, 0)
+			val idB = methodIdentifier.record(cId, 1, "B", "B", 1, 0)
+			val idC = methodIdentifier.record(cId, 1, "C", "C", 2, 0)
+
+			val md = new MessageDealer(protocol, new FakeBufferService, classIdentifier, methodIdentifier)
 			(protocol.writeMapMethodSignature _).expects(*, *, *).anyNumberOfTimes
 			(protocol.writeMethodEntry _).expects(*, *, *, *, *).anyNumberOfTimes
 
@@ -156,17 +190,17 @@ class ThreadIdSuite extends FunSpec with ShouldMatchers with AsyncAssertions wit
 				val threadName = Thread.currentThread.getName
 				(protocol.writeMapThreadName _).expects(*, *, *, threadName).once
 				//val id = mapper.getCurrent
-				md.sendMethodEntry("method1")
+				md.sendMethodEntry(idA)
 
 				//change name and get the id
 				(protocol.writeMapThreadName _).expects(*, *, *, "Thread-A").once
 				Thread.currentThread.setName("Thread-A")
-				md.sendMethodEntry("method2")
+				md.sendMethodEntry(idB)
 
 				//change name and get the id (again)
 				(protocol.writeMapThreadName _).expects(*, *, *, "Thread-B").once
 				Thread.currentThread.setName("Thread-B")
-				md.sendMethodEntry("method3")
+				md.sendMethodEntry(idC)
 			}
 		}
 	}

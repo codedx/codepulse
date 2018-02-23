@@ -28,6 +28,7 @@ import java.io.PipedOutputStream
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.Conductors
+import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.time.SpanSugar._
 import org.scalatest.Suite
 import org.scalatest.SuiteMixin

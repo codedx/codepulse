@@ -198,51 +198,15 @@ public class MessageProtocolV1 implements MessageProtocol
 	}
 
 	@Override
-	public void writeMethodExit(DataOutputStream out, int relTime, int seq, int sigId, int lineNum,
+	public void writeMethodExit(DataOutputStream out, int relTime, int seq, int sigId, boolean exThrown,
 			int threadId) throws IOException
 	{
 		out.writeByte(MessageConstantsV1.MsgMethodExit);
 		out.writeInt(relTime);
 		out.writeInt(seq);
 		out.writeInt(sigId);
-		out.writeShort(lineNum);
+		out.writeBoolean(exThrown);
 		out.writeShort(threadId);
-	}
-
-	@Override
-	public void writeException(DataOutputStream out, int relTime, int seq, int methodSigId,
-			int excId, int lineNum, int threadId) throws IOException
-	{
-		out.writeByte(MessageConstantsV1.MsgException);
-		out.writeInt(relTime);
-		out.writeInt(seq);
-		out.writeInt(methodSigId);
-		out.writeInt(excId);
-		out.writeShort(lineNum);
-		out.writeShort(threadId);
-	}
-
-	@Override
-	public void writeExceptionBubble(DataOutputStream out, int relTime, int seq, int sigId,
-			int excId, int threadId) throws IOException
-	{
-		out.writeByte(MessageConstantsV1.MsgExceptionBubble);
-		out.writeInt(relTime);
-		out.writeInt(seq);
-		out.writeInt(sigId);
-		out.writeInt(excId);
-		out.writeShort(threadId);
-	}
-
-	@Override
-	public void writeMarker(DataOutputStream out, String key, String value, int relTime, int seq)
-			throws IOException
-	{
-		out.writeByte(MessageConstantsV1.MsgMarker);
-		out.writeInt(relTime);
-		out.writeInt(seq);
-		out.writeUTF(key);
-		out.writeUTF(value);
 	}
 
 	@Override

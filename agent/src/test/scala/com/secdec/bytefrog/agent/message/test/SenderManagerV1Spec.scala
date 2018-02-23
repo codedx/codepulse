@@ -26,16 +26,17 @@ import java.net.SocketImpl
 
 import org.scalatest.FunSpec
 import org.scalatest.concurrent.AsyncAssertions
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.agent.init.DataConnectionHandshake
-import com.secdec.bytefrog.agent.message.MessageSenderManager
+import com.codedx.codepulse.agent.init.DataConnectionHandshake
+import com.codedx.codepulse.agent.message.MessageSenderManager
 import com.secdec.bytefrog.agent.util.ControlSimulation
 import com.secdec.bytefrog.agent.util.MockHelpers
-import com.secdec.bytefrog.agent.util.SocketFactory
+import com.codedx.codepulse.agent.util.SocketFactory
 
-class SenderManagerV1Spec extends FunSpec with ShouldMatchers with MockFactory with AsyncAssertions with ControlSimulation with MockHelpers {
+class SenderManagerV1Spec extends FunSpec with Matchers with MockFactory with AsyncAssertions with ControlSimulation with MockHelpers {
 
 	class UselessSocket extends Socket {
 		val in = new ByteArrayInputStream(Array())

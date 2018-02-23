@@ -18,22 +18,35 @@
 package com.secdec.bytefrog.agent.bytefrog.test.util
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 import org.scalatest.exceptions.TestFailedException
+import com.codedx.codepulse.agent.trace.TraceDataCollector
 
-import com.secdec.bytefrog.agent.TraceDataCollector
+import com.codedx.bytefrog.instrumentation.id._
 
 sealed trait TestScriptEntry
 object TestScriptEntry {
 	case class MethodEntry(method: String) extends TestScriptEntry
-	case class MethodExit(method: String) extends TestScriptEntry
-	case class Exception(method: String, exception: String) extends TestScriptEntry
-	case class ExceptionBubble(method: String, exception: String) extends TestScriptEntry
-	case class Marker(key: String, value: String) extends TestScriptEntry
+	case class MethodExit(method: String, exThrown: Boolean) extends TestScriptEntry
 }
 
 object TestScript {
-	def apply[T](script: TestScriptEntry*)(implicit runner: TestRunner, m: Manifest[T]) = new TestScript[T](script)
+	def apply[T](classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier, script: TestScriptEntry*)(implicit runner: TestRunner, m: Manifest[T]) = new TestScript[T](classIdentifier, methodIdentifier, script)
+}
+
+class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier) extends TraceDataCollector {
+	def methodEntry(method: Int) {
+		val mi = methodIdentifier.get(method)
+		val ci = classIdentifier.get(mi.getClassId)
+		data += TestScriptEntry.MethodEntry(s"${ci.getName}.${mi.getName}")
+	}
+
+	def methodExit(method: Int, exThrown: Boolean) {
+		val mi = methodIdentifier.get(method)
+		val ci = classIdentifier.get(mi.getClassId)
+		data += TestScriptEntry.MethodExit(s"${ci.getName}.${mi.getName}", exThrown)
+	}
 }
 
 /** A helper class that defines a bytefrog test script, i.e., expected results
@@ -41,7 +54,7 @@ object TestScript {
   *
   * @author robertf
   */
-class TestScript[T](script: Seq[TestScriptEntry])(implicit runner: TestRunner, m: Manifest[T]) {
+class TestScript[T](classIdentifier: ClassIdentifier, methodIdentifier: MethodIdentifier, script: Seq[TestScriptEntry])(implicit runner: TestRunner, m: Manifest[T]) {
 	def isCorrect = observed.corresponds(expected) { _ == _ }
 
 	def expected = script
@@ -53,27 +66,7 @@ class TestScript[T](script: Seq[TestScriptEntry])(implicit runner: TestRunner, m
 
 	private def trimMethod(sig: String) = sig.takeWhile(_ != ';')
 
-	private implicit val dataCollector = new TraceDataCollector {
-		def methodEntry(method: String) {
-			data += MethodEntry(trimMethod(method))
-		}
-
-		def methodExit(method: String, line: Int) {
-			data += MethodExit(trimMethod(method))
-		}
-
-		def exception(exception: String, method: String, line: Int) {
-			data += Exception(trimMethod(method), exception)
-		}
-
-		def bubbleException(exception: String, method: String) {
-			data += ExceptionBubble(trimMethod(method), exception)
-		}
-
-		def marker(key: String, value: String) {
-			data += Marker(key, value)
-		}
-	}
+	private implicit val dataCollector = new TraceDataCollectorImpl(data, classIdentifier, methodIdentifier)
 
 	def run(arguments: java.lang.String*) {
 		try {

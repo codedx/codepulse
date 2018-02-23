@@ -211,12 +211,12 @@ public class MessageDealer
 	 * METHOD EXIT (EVENT) MESSAGE
 	 *
 	 * @param methodId
-	 * @param sourceLine
+	 * @param exThrown
 	 * @throws IOException
 	 * @throws FailedToObtainBufferException
 	 * @throws FailedToSendBufferException
 	 */
-	public void sendMethodExit(int methodId, int sourceLine) throws IOException,
+	public void sendMethodExit(int methodId, boolean exThrown) throws IOException,
 			FailedToObtainBufferException, FailedToSendBufferException
 	{
 		DataBufferOutputStream buffer = bufferService.obtainBuffer();
@@ -229,109 +229,7 @@ public class MessageDealer
 				int threadId = threadIdMapper.getCurrent();
 				methodIdAdapter.mark(methodId);
 				messageProtocol.writeMethodExit(buffer, timestamp, sequencer.getSequence(),
-						methodId, sourceLine, threadId);
-				wrote = true;
-			}
-			finally
-			{
-				if (!wrote)
-					buffer.reset();
-				bufferService.sendBuffer(buffer);
-			}
-		}
-	}
-
-	/**
-	 * EXCEPTION (EVENT) MESSAGE
-	 *
-	 * @param exception
-	 * @param methodSig
-	 * @param sourceLine
-	 * @throws IOException
-	 * @throws FailedToObtainBufferException
-	 * @throws FailedToSendBufferException
-	 */
-	public void sendException(String exception, int methodId, int sourceLine)
-			throws IOException, FailedToObtainBufferException, FailedToSendBufferException
-	{
-		DataBufferOutputStream buffer = bufferService.obtainBuffer();
-		if (buffer != null)
-		{
-			boolean wrote = false;
-			try
-			{
-				int timestamp = getTimeOffset();
-				int threadId = threadIdMapper.getCurrent();
-				int exceptionId = exceptionIdMapper.getId(exception);
-				methodIdAdapter.mark(methodId);
-				messageProtocol.writeException(buffer, timestamp, sequencer.getSequence(),
-						methodId, exceptionId, sourceLine, threadId);
-				wrote = true;
-			}
-			finally
-			{
-				if (!wrote)
-					buffer.reset();
-				bufferService.sendBuffer(buffer);
-			}
-		}
-	}
-
-	/**
-	 * EXCEPTION BUBBLE (EVENT) MESSAGE
-	 *
-	 * @param exception
-	 * @param methodSig
-	 * @throws IOException
-	 * @throws FailedToObtainBufferException
-	 * @throws FailedToSendBufferException
-	 */
-	public void sendExceptionBubble(String exception, int methodId) throws IOException,
-			FailedToObtainBufferException, FailedToSendBufferException
-	{
-		DataBufferOutputStream buffer = bufferService.obtainBuffer();
-		if (buffer != null)
-		{
-			boolean wrote = false;
-			try
-			{
-				int timestamp = getTimeOffset();
-				int threadId = threadIdMapper.getCurrent();
-				int exceptionId = exceptionIdMapper.getId(exception);
-				methodIdAdapter.mark(methodId);
-				messageProtocol.writeExceptionBubble(buffer, timestamp, sequencer.getSequence(),
-						methodId, exceptionId, threadId);
-				wrote = true;
-			}
-			finally
-			{
-				if (!wrote)
-					buffer.reset();
-				bufferService.sendBuffer(buffer);
-			}
-		}
-	}
-
-	/**
-	 * MARKER MESSAGE
-	 *
-	 * @param key
-	 * @param value
-	 * @throws IOException
-	 * @throws FailedToObtainBufferException
-	 * @throws FailedToSendBufferException
-	 */
-	public void sendMarker(String key, String value) throws IOException,
-			FailedToObtainBufferException, FailedToSendBufferException
-	{
-		DataBufferOutputStream buffer = bufferService.obtainBuffer();
-		if (buffer != null)
-		{
-			boolean wrote = false;
-			try
-			{
-				int timestamp = getTimeOffset();
-				messageProtocol.writeMarker(buffer, key, value, timestamp, sequencer.getSequence());
+						methodId, exThrown, threadId);
 				wrote = true;
 			}
 			finally
