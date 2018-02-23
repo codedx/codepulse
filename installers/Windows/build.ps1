@@ -16,11 +16,19 @@ Push-Location $PSScriptRoot
 
 # NOTE: build will not work with C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 
-$vs2017Edition = 'Enterprise' # this build script supports other VS editions
-$vs2017Path = "C:\Program Files (x86)\Microsoft Visual Studio\2017\$vs2017Edition"
+$vs2017Editions = 'Community','Professional','Enterprise'
 
-if (-not (test-path $vs2017Path)) {
-    Write-Error "Unable to find the $vs2017Edition edition of Visual Studio 2017 at $vs2017Path" -ErrorAction Continue
+$vs2017Path = $null
+$vsRootFolder = 'C:\Program Files (x86)\Microsoft Visual Studio\2017'
+
+$vs2017Editions | % { 
+    if (test-path "C:\Program Files (x86)\Microsoft Visual Studio\2017\$_") {
+        $vs2017Path = "$vsRootFolder\$_"
+    }
+}
+
+if ($vs2017Path -eq $null) {
+    Write-Error "Unable to find an installed version of Visual Studio 2017 (looked for $([string]::join(', ', $vs2017Editions)) editions at '$vsRootFolder')" -ErrorAction Continue
     exit 1
 }
 
@@ -32,12 +40,28 @@ if (-not (test-path $msbuildPath)) {
     exit 2
 }
 
+write-verbose "Using msbuild.exe at $msbuildPath"
+
 write-verbose 'Adding type for unzip support...'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
+function Get-SbtPath() {
+    try { 
+	    $sbtPaths = C:\Windows\System32\where.exe sbt 2> $null 
+	    $sbtPaths[0]
+    } 
+    catch {
+        $sbtPath = join-path $($env:USERPROFILE) 'Downloads\sbt\bin\sbt'
+        if (-not (test-path $sbtPath)) {
+            throw 'The sbt path cannot be found.'
+        }
+		$sbtPath
+    }
+}
+
 function Invoke-Sbt([string] $packageName) {
     try {
-        sbt $packageName
+        c:\windows\system32\cmd.exe /c "`"$(Get-SbtPath)`" $packageName"
     }
     catch {
         if ($_.Exception.Message -ne 'Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize=256m; support was removed in 8.0') {
