@@ -126,7 +126,7 @@ $dotNetSymbolServicePath = join-path $codePulsePath 'dotnet-symbol-service'
 $dotNetTracerPath = join-path $codePulsePath 'dotnet-tracer'
 $dotNetTracerMainPath = join-path $dotNetTracerPath 'main'
 
-Push-Location $codePulsePath
+Pop-Location; Push-Location $codePulsePath
 
 write-verbose "Editing application.conf for packaging..."
 $applicationConfPath = join-path (get-location) 'codepulse\src\main\resources\application.conf'
@@ -256,4 +256,11 @@ if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
 
-1..2 | % { Pop-Location }
+write-verbose 'Zipping Code Pulse package (Windows)...'
+$outputFolder = join-path (get-location) "CodePulse.Bundle.Windows\bin\$buildConfiguration"
+dir $outputFolder -Exclude CodePulse.Windows.exe | % { remove-item $_.FullName -Force }
+
+$outputFile = join-path $filesFolderPath "CodePulse-$codePulseVersion-windows.zip"
+[io.compression.zipfile]::CreateFromDirectory($outputFolder, $outputFile)
+
+Pop-Location
