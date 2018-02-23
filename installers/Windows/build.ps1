@@ -61,7 +61,7 @@ function Get-SbtPath() {
 
 function Invoke-Sbt([string] $packageName) {
     try {
-        & (Get-SbtPath) $packageName
+        c:\windows\system32\cmd.exe /c "`"$(Get-SbtPath)`" $packageName"
     }
     catch {
         if ($_.Exception.Message -ne 'Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize=256m; support was removed in 8.0') {
