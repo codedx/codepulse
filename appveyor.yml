@@ -1,13 +1,8 @@
 version: 1.0.{build}
-branches:
-  only:
-  - dev/dotnet
 image: Visual Studio 2017
 clone_folder: C:\CodePulse
-init:
-- ps: "Set-PSDebug -Strict\n$ErrorActionPreference = 'Stop'\n$VerbosePreference = 'Continue'\n\nAdd-Type -AssemblyName System.IO.Compression.FileSystem\n\nfunction Install-SBT([string] $sbtVersion, [string] $sbtFilename) {\n\n    $url = \"https://github.com/sbt/sbt/releases/download/$sbtVersion/$sbtFilename\"\n\n    $downloadsFolder = join-path $($env:USERPROFILE) 'Downloads'\n    $sbtArchivePath = join-path $downloadsFolder $sbtFilename\n\n    write-verbose \"Downloading $url to $sbtArchivePath...\"\n\n    (new-object System.Net.WebClient).DownloadFile($url, $sbtArchivePath)\n\n    $sbtFolder = @(join-path $downloadsFolder 'sbt')\n    if (test-path $sbtFolder) {\n        write-verbose \"Removing folder $sbtFolder...\"\n        remove-item -Path $sbtFolder -Recurse -Force \n    }\n\n    write-verbose \"Extracting $sbtArchivePath to folder $downloadsFolder...\"\n    [System.IO.Compression.ZipFile]::ExtractToDirectory($sbtArchivePath, $downloadsFolder)\n\n    join-path $sbtFolder 'bin\\sbt'\n}\n\n$sbtPath = $null\ntry { \n	$sbtPaths = C:\\Windows\\System32\\where.exe sbt 2> $null \n	$sbtPath = $sbtPaths[0]\n} \ncatch { \n    $sbtPath = Install-SBT 'v1.0.3' 'sbt-1.0.3.zip'\n}\n\nwrite-verbose \"Using sbt at $sbtPath\""
 build_script:
-- cmd: powershell -file C:\CodePulse\build.ps1
+- cmd: powershell -file C:\CodePulse\installers\build.ps1
 test:
   assemblies:
     only:
