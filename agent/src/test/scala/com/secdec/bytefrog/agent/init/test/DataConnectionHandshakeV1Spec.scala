@@ -21,15 +21,16 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 
-import com.secdec.bytefrog.agent.protocol.ProtocolVersion1
+import com.codedx.codepulse.agent.protocol.ProtocolVersion1
 import com.secdec.bytefrog.agent.util.ControlSimulation
 import com.secdec.bytefrog.agent.util.ErrorEnforcement
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.common.message.MessageConstantsV1
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1
 
-class DataConnectionHandshakeV1Spec extends FunSpec with ShouldMatchers with ControlSimulation with ErrorEnforcement {
+class DataConnectionHandshakeV1Spec extends FunSpec with Matchers with ControlSimulation with ErrorEnforcement {
 
 	def connectionOf(in: DataInputStream, out: DataOutputStream) = new Connection {
 		val input = in

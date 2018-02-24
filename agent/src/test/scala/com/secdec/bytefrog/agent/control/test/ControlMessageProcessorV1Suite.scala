@@ -21,15 +21,15 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.FunSpec
 import org.scalatest.concurrent.Conductors
 
-import com.secdec.bytefrog.agent.control.ControlMessageProcessorV1
-import com.secdec.bytefrog.agent.control.ControlMessageHandler
-import com.secdec.bytefrog.agent.control.ConfigurationReader
-import com.secdec.bytefrog.agent.control.ConfigurationHandler
+import com.codedx.codepulse.agent.control.ControlMessageProcessorV1
+import com.codedx.codepulse.agent.control.ControlMessageHandler
+import com.codedx.codepulse.agent.control.ConfigurationReader
+import com.codedx.codepulse.agent.control.ConfigurationHandler
 import com.secdec.bytefrog.agent.util.ErrorEnforcement
 import com.secdec.bytefrog.agent.util.ControlSimulation
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
-import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.common.message.MessageProtocolV1
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.message.MessageProtocolV1
 
 class ControlMessageProcessorV1Suite extends FunSpec with ControlSimulation with ErrorEnforcement {
 	val protocol: MessageProtocol = new MessageProtocolV1

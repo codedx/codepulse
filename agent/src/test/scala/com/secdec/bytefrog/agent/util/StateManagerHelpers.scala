@@ -22,8 +22,8 @@ import scala.collection.mutable.ListBuffer
 import org.scalatest.Suite
 import org.scalatest.SuiteMixin
 
-import com.secdec.bytefrog.agent.control.ModeChangeListener
-import com.secdec.bytefrog.agent.control.StateManager
+import com.codedx.codepulse.agent.control.ModeChangeListener
+import com.codedx.codepulse.agent.control.StateManager
 
 trait StateManagerHelpers extends SuiteMixin with Suite {
 	implicit class PimpedStateManager(stateManager: StateManager) {

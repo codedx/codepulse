@@ -19,14 +19,15 @@ package com.secdec.bytefrog.agent.util
 
 import scala.collection.mutable.ListBuffer
 
-import org.scalatest.Suite
-import org.scalatest.SuiteMixin
+import org.scalatest.TestSuite
+import org.scalatest.TestSuiteMixin
+import org.scalatest.Outcome
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.agent.errors.ErrorListener
-import com.secdec.bytefrog.agent.errors.ErrorHandler
+import com.codedx.codepulse.agent.errors.ErrorListener
+import com.codedx.codepulse.agent.errors.ErrorHandler
 
-trait ErrorEnforcement extends SuiteMixin with Suite with MockFactory {
+trait ErrorEnforcement extends TestSuiteMixin with TestSuite with MockFactory {
 	private val mockedListeners = ListBuffer[ErrorListener]()
 
 	private def registerMockedErrorListener(listener: ErrorListener): Unit = {
@@ -56,7 +57,7 @@ trait ErrorEnforcement extends SuiteMixin with Suite with MockFactory {
 		registerMockedErrorListener(listener)
 	}
 
-	abstract override def withFixture(test: NoArgTest) {
+	abstract override def withFixture(test: NoArgTest): Outcome = {
 		try {
 			super.withFixture(test)
 		} finally {

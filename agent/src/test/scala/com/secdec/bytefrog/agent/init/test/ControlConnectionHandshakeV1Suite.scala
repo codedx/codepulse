@@ -27,25 +27,26 @@ import java.io.ObjectOutputStream
 
 import collection.JavaConversions._
 
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.Conductors
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.agent.errors.ErrorHandler
-import com.secdec.bytefrog.agent.errors.ErrorListener
-import com.secdec.bytefrog.agent.init.ControlConnectionHandshakeV1
-import com.secdec.bytefrog.agent.protocol.ProtocolVersion1
+import com.codedx.codepulse.agent.errors.ErrorHandler
+import com.codedx.codepulse.agent.errors.ErrorListener
+import com.codedx.codepulse.agent.init.ControlConnectionHandshakeV1
+import com.codedx.codepulse.agent.protocol.ProtocolVersion1
 import com.secdec.bytefrog.agent.util.ControlSimulation
 import com.secdec.bytefrog.agent.util.ErrorEnforcement
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.common.message.MessageProtocol
-import com.secdec.bytefrog.common.message.MessageProtocolV1
-import com.secdec.bytefrog.common.message.MessageConstantsV1
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.message.MessageProtocolV1
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1
 
-class ControlConnectionHandshakeV1Suite extends FunSuite with ShouldMatchers with ControlSimulation with ErrorEnforcement {
+class ControlConnectionHandshakeV1Suite extends FunSuite with Matchers with ControlSimulation with ErrorEnforcement {
 	val protocol = new ProtocolVersion1
 	val messageProtocol = protocol.getMessageProtocol
 	val handshake = protocol.getControlConnectionHandshake

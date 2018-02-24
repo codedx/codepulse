@@ -77,17 +77,8 @@ public interface MessageProtocol
 	public void writeMethodEntry(DataOutputStream out, int relTime, int seq, int sigId, int threadId)
 			throws IOException;
 
-	public void writeMethodExit(DataOutputStream out, int relTime, int seq, int sigId, int lineNum,
+	public void writeMethodExit(DataOutputStream out, int relTime, int seq, int sigId, boolean exThrown,
 			int threadId) throws IOException;
-
-	public void writeException(DataOutputStream out, int relTime, int seq, int sigId, int excId,
-			int lineNum, int threadId) throws IOException;
-
-	public void writeExceptionBubble(DataOutputStream out, int relTime, int seq, int sigId,
-			int excId, int threadId) throws IOException;
-
-	public void writeMarker(DataOutputStream out, String key, String value, int relTime, int seq)
-			throws IOException;
 
 	public void writeConfiguration(DataOutputStream out, String configJson) throws IOException, NotSupportedException;
 }
