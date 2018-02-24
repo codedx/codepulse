@@ -41,6 +41,7 @@ function Install-SBT([string] $sbtVersion, [string] $sbtFilename) {
     $sbtArchivePath = join-path $downloadsFolder $sbtFilename
 
     write-verbose "Downloading $url to $sbtArchivePath..."
+    [net.servicepointmanager]::securityprotocol = [net.securityprotocoltype]::Tls12
     (new-object System.Net.WebClient).DownloadFile($url, $sbtArchivePath)
 
     $sbtFolder = @(join-path $downloadsFolder 'sbt')
