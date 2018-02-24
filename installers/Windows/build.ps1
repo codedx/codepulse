@@ -1,10 +1,4 @@
-﻿# 
-# Steps to build Code Pulse (requires working Code Pulse development environment)
-#
-# 1. git clone https://github.com/codedx/codepulse -b <branch>
-# 2. change directory to codepulse\installers\Windows
-# 3. run powershell -file .\build.ps1
-# 4. find the installer in codepulse\installers\Windows\CodePulse.Bundle.Windows\bin\Release
+﻿# This script creates the Windows Code Pulse package
 
 Set-PSDebug -Strict
 $ErrorActionPreference = 'Stop'
@@ -12,9 +6,7 @@ $VerbosePreference = 'Continue'
 
 Push-Location $PSScriptRoot
 
-. .\text.ps1
-
-# NOTE: build will not work with C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+. ..\Scripts\common.ps1
 
 $vs2017Editions = 'Community','Professional','Enterprise'
 
@@ -32,7 +24,8 @@ if ($vs2017Path -eq $null) {
     exit 1
 }
 
-$msbuildPath = "$vs2017Path\MSBuild\15.0\Bin\MSBuild.exe"
+# NOTE: build will not work with C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
+$msbuildPath = "$vs2017Path\MSBuild\15.0\Bin\MSBuild.exe" 
 
 write-verbose 'Testing for msbuild.exe path...'
 if (-not (test-path $msbuildPath)) { 
@@ -42,57 +35,11 @@ if (-not (test-path $msbuildPath)) {
 
 write-verbose "Using msbuild.exe at $msbuildPath"
 
-write-verbose 'Adding type for unzip support...'
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-
-function Get-SbtPath() {
-    try { 
-	    $sbtPaths = C:\Windows\System32\where.exe sbt 2> $null 
-	    $sbtPaths[0]
-    } 
-    catch {
-        $sbtPath = join-path $($env:USERPROFILE) 'Downloads\sbt\bin\sbt'
-        if (-not (test-path $sbtPath)) {
-            throw 'The sbt path cannot be found.'
-        }
-		$sbtPath
-    }
-}
-
-function Invoke-Sbt([string] $packageName) {
-    try {
-        c:\windows\system32\cmd.exe /c "`"$(Get-SbtPath)`" $packageName"
-    }
-    catch {
-        if ($_.Exception.Message -ne 'Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize=256m; support was removed in 8.0') {
-            exit $lastexitcode
-        }
-    }
-}
-
-$codePulseVersion = '2.0.0'
-$buildConfiguration = 'Release'
-
 $filesFolderPath = join-path $PSScriptRoot 'Files'
 if (test-path -PathType Container $filesFolderPath) {
     write-verbose 'Removing Files folder...'
     Remove-Item -Path $filesFolderPath -Recurse -Force
 }
-
-write-verbose 'Creating Files folder...'
-New-Item -Path $filesFolderPath -ItemType Directory
-
-$filesFolderWin32Path = join-path $filesFolderPath 'Win32'
-$filesFolderWin32CodePulsePath = join-path $filesFolderWin32Path 'codepulse'
-$filesFolderWin32DotNetSymbolServicePath = join-path $filesFolderWin32Path 'dotnet-symbol-service'
-$filesFolderWin32DotNetTracerPath = join-path $filesFolderWin32Path 'tracers\dotnet'
-$filesFolderWin32JavaTracerPath = join-path $filesFolderWin32Path 'tracers\java'
-
-$filesFolderWin64Path = join-path $filesFolderPath 'Win64'
-$filesFolderWin64CodePulsePath = join-path $filesFolderWin64Path 'codepulse'
-$filesFolderWin64DotNetSymbolServicePath = join-path $filesFolderWin64Path 'dotnet-symbol-service'
-$filesFolderWin64DotNetTracerPath = join-path $filesFolderWin64Path 'tracers\dotnet'
-$filesFolderWin64JavaTracerPath = join-path $filesFolderWin64Path 'tracers\java'
 
 write-verbose 'Creating Files folder structure...'
 #
@@ -110,21 +57,28 @@ write-verbose 'Creating Files folder structure...'
 #         ├───dotnet
 #         └───java
 #
-New-Item -Path $filesFolderWin32Path -ItemType Directory
-New-Item -Path $filesFolderWin32CodePulsePath -ItemType Directory
-New-Item -Path $filesFolderWin32DotNetSymbolServicePath -ItemType Directory
-New-Item -Path $filesFolderWin32DotNetTracerPath -ItemType Directory
-New-Item -Path $filesFolderWin32JavaTracerPath -ItemType Directory
-New-Item -Path $filesFolderWin64Path -ItemType Directory
-New-Item -Path $filesFolderWin64CodePulsePath -ItemType Directory
-New-Item -Path $filesFolderWin64DotNetSymbolServicePath -ItemType Directory
-New-Item -Path $filesFolderWin64DotNetTracerPath -ItemType Directory
-New-Item -Path $filesFolderWin64JavaTracerPath -ItemType Directory
+$filesFolderWin32Path = join-path $filesFolderPath 'Win32'
+$filesFolderWin32CodePulsePath = join-path $filesFolderWin32Path 'codepulse'
+$filesFolderWin32DotNetSymbolServicePath = join-path $filesFolderWin32Path 'dotnet-symbol-service'
+$filesFolderWin32DotNetTracerPath = join-path $filesFolderWin32Path 'tracers\dotnet'
+$filesFolderWin32JavaTracerPath = join-path $filesFolderWin32Path 'tracers\java'
+$filesFolderWin64Path = join-path $filesFolderPath 'Win64'
+$filesFolderWin64CodePulsePath = join-path $filesFolderWin64Path 'codepulse'
+$filesFolderWin64DotNetSymbolServicePath = join-path $filesFolderWin64Path 'dotnet-symbol-service'
+$filesFolderWin64DotNetTracerPath = join-path $filesFolderWin64Path 'tracers\dotnet'
+$filesFolderWin64JavaTracerPath = join-path $filesFolderWin64Path 'tracers\java'
 
-$codePulsePath = join-path $PSScriptRoot '..\..'
-$dotNetSymbolServicePath = join-path $codePulsePath 'dotnet-symbol-service'
-$dotNetTracerPath = join-path $codePulsePath 'dotnet-tracer'
-$dotNetTracerMainPath = join-path $dotNetTracerPath 'main'
+New-Item -Path $filesFolderPath -ItemType Directory
+New-Item -Path $filesFolderWin32Path -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin32CodePulsePath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin32DotNetSymbolServicePath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin32DotNetTracerPath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin32JavaTracerPath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin64Path -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin64CodePulsePath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin64DotNetSymbolServicePath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin64DotNetTracerPath -ItemType Directory | Out-Null
+New-Item -Path $filesFolderWin64JavaTracerPath -ItemType Directory | Out-Null
 
 Pop-Location; Push-Location $codePulsePath
 
@@ -260,7 +214,12 @@ write-verbose 'Zipping Code Pulse package (Windows)...'
 $outputFolder = join-path (get-location) "CodePulse.Bundle.Windows\bin\$buildConfiguration"
 dir $outputFolder -Exclude CodePulse.Windows.exe | % { remove-item $_.FullName -Force }
 
-$outputFile = join-path $filesFolderPath "CodePulse-$codePulseVersion-windows.zip"
+$outputFile = join-path $PSScriptRoot "..\CodePulse-$codePulseVersion-windows.zip"
+if (test-path $outputFile -Type Leaf) {
+    write-verbose "Deleting outdated output file $outputFile"
+    remove-item $outputFile -Force
+}
+
 [io.compression.zipfile]::CreateFromDirectory($outputFolder, $outputFile)
 
 Pop-Location

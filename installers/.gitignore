@@ -323,4 +323,6 @@ ASALocalRun/
 *.binlog
 
 
+CodePulse-*-*.zip
 /Windows/Files
+/macOS/Files

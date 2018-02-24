@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 
 Push-Location $PSScriptRoot
 
-. .\text.ps1
+. ..\Scripts\common.ps1
 
 $heatPath = 'C:\Program Files (x86)\WiX Toolset v3.11\bin\heat.exe' 
 
