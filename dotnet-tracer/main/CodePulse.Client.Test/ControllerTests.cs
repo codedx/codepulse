@@ -219,7 +219,7 @@ namespace CodePulse.Client.Test
                 new Mock<ILog>().Object);
 
             Thread.Sleep(10000);
-            controller.SetHeartbeatInterval(200);
+            controller.SetHeartbeatInterval(500);
             Thread.Sleep(10000);
 
             controller.Shutdown();
@@ -230,8 +230,28 @@ namespace CodePulse.Client.Test
             var slowHeartbeatTimeFrequency = heartbeatTimes[2].Subtract(heartbeatTimes[1]).TotalMilliseconds;
             var fastHeartbeatTimeFrequency = heartbeatTimes[heartbeatTimes.Count-1].Subtract(heartbeatTimes[heartbeatTimes.Count-2]).TotalMilliseconds;
 
-            Assert.IsTrue(slowHeartbeatTimeFrequency > 2000 && slowHeartbeatTimeFrequency < 5000);
-            Assert.IsTrue(fastHeartbeatTimeFrequency > 200 && fastHeartbeatTimeFrequency < 500);
+            void PrintHeartbeatTimes(IReadOnlyList<DateTime> heartbeats)
+            {
+                for (var index = 0; index < heartbeats.Count; index++)
+                {
+                    if (index == 0)
+                        continue;
+
+                    Console.WriteLine(heartbeats[index].Subtract(heartbeats[index - 1]).TotalMilliseconds);
+                }
+            }
+
+            if (!(slowHeartbeatTimeFrequency > 2000 && slowHeartbeatTimeFrequency < 5000))
+            {
+                PrintHeartbeatTimes(heartbeatTimes);
+                Assert.Fail($"Unexpected value of slowHeartbeatTimeFrequency: {slowHeartbeatTimeFrequency}");
+            }
+
+            if (!(fastHeartbeatTimeFrequency > 200 && fastHeartbeatTimeFrequency < 800))
+            {
+                PrintHeartbeatTimes(heartbeatTimes);
+                Assert.Fail($"Unexpected value of fastHeartbeatTimeFrequency: {fastHeartbeatTimeFrequency}");
+            }
 
             closeSocketEvent.Set();
             serverTask.Wait();
