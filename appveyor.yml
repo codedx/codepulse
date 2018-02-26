@@ -7,6 +7,7 @@ test:
   assemblies:
     only:
     - '**\CodePulse.Client.Test.dll'
+    - '**\CodePulse.Console.Test.dll'
 artifacts:
 - path: installers\Windows\CodePulse.Bundle.Windows\bin\Release\CodePulse.Windows.exe
   name: CodePulse.Windows.exe (Release)
