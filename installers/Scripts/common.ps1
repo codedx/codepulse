@@ -11,6 +11,8 @@ $codePulseVersion = '2.0.0'
 $buildConfiguration = 'Release'
 
 $codePulsePath = join-path $PSScriptRoot '..\..'
+$toolsPath = join-path $codePulsePath 'installers\Tools'
+$zipFilePath = join-path $toolsPath 'ZipFile\bin\ZipFile.exe'
 $dotNetSymbolServicePath = join-path $codePulsePath 'dotnet-symbol-service'
 $dotNetTracerPath = join-path $codePulsePath 'dotnet-tracer'
 $dotNetTracerMainPath = join-path $dotNetTracerPath 'main'

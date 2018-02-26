@@ -66,7 +66,7 @@ if ($lastexitcode -ne 0) {
 Pop-Location; Push-Location $PSScriptRoot
 
 write-verbose 'Copying .NET Tracer...'
-copy-item "..\..\installers\Windows\CodePulse.Bundle.Windows\bin\$buildConfiguration\CodePulse.Windows.exe" $filesFoldermacOSDotNetTracerPath
+copy-item "..\..\dotnet-tracer\main\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Bundle.exe" $filesFoldermacOSDotNetTracerPath
 
 write-verbose 'Zipping Code Pulse package (osx)...'
 $outputFile = join-path $PSScriptRoot "..\CodePulse-$codePulseVersion-macOS.zip"
@@ -74,6 +74,10 @@ if (test-path $outputFile -Type Leaf) {
     write-verbose "Deleting outdated output file $outputFile"
     remove-item $outputFile -Force
 }
-[io.compression.zipfile]::CreateFromDirectory($filesFoldermacOSCodePulsePath, $outputFile)
+
+& $zipFilePath $filesFoldermacOSPath $outputFile
+if ($lastexitcode -ne 0) {
+    exit $lastexitcode
+}
 
 Pop-Location
