@@ -19,11 +19,11 @@ package com.codedx.codepulse.hq.testutil
 
 import java.io.DataOutputStream
 
-import org.scalamock.MockFunction1
+import org.scalamock.function.MockFunction1
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.agent.common.message.MessageProtocol
 import com.codedx.codepulse.hq.connect.ControlConnection
 import com.codedx.codepulse.hq.protocol._
 

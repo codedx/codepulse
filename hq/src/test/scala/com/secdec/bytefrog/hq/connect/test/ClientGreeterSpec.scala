@@ -27,20 +27,21 @@ import scala.concurrent.Future
 import scala.concurrent.Promise
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
-import com.secdec.bytefrog.common.connect.Connection
-import com.secdec.bytefrog.common.message.MessageConstantsV1
-import com.secdec.bytefrog.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.agent.common.connect.Connection
+import com.codedx.codepulse.agent.common.message.MessageConstantsV1
+import com.codedx.codepulse.agent.common.message.MessageProtocol
 import com.codedx.codepulse.hq.connect._
 import com.codedx.codepulse.hq.protocol._
 import com.codedx.codepulse.hq.config._
 import com.codedx.codepulse.hq.trace.Trace
 import com.codedx.codepulse.hq.testutil.MockedSendingHelpers
 
-class ClientGreeterSpec extends FunSpec with ShouldMatchers with MockFactory with MockedSendingHelpers {
+class ClientGreeterSpec extends FunSpec with Matchers with MockFactory with MockedSendingHelpers {
 
 	def makeBytesInput(bytes: Byte*) = new DataInputStream(new ByteArrayInputStream(Array[Byte](bytes: _*)))
 

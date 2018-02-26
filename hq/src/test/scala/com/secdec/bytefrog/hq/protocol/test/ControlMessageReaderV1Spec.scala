@@ -23,15 +23,16 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalamock.scalatest.MockFactory
 
-import com.secdec.bytefrog.common.message.AgentOperationMode
-import com.secdec.bytefrog.common.message.MessageProtocolV1
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
+import com.codedx.codepulse.agent.common.message.MessageProtocolV1
 import com.codedx.codepulse.hq.protocol.ControlMessage._
 import com.codedx.codepulse.hq.protocol.ControlMessageReaderV1
 
-class ControlMessageReaderV1Spec extends FunSpec with ShouldMatchers with MockFactory {
+class ControlMessageReaderV1Spec extends FunSpec with Matchers with MockFactory {
 
 	def makeInput(body: DataOutputStream => Unit): DataInputStream = {
 		val baos = new ByteArrayOutputStream

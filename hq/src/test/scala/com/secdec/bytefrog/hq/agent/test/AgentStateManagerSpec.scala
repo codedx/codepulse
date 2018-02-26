@@ -19,9 +19,10 @@ package com.codedx.codepulse.hq.agent.test
 
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 
-import com.secdec.bytefrog.common.message.AgentOperationMode
+import com.codedx.codepulse.agent.common.message.AgentOperationMode
 import com.codedx.codepulse.hq.agent.AgentState
 import com.codedx.codepulse.hq.agent.AgentStateCommand
 import com.codedx.codepulse.hq.agent.AgentStateManager
@@ -29,7 +30,7 @@ import com.codedx.codepulse.hq.errors.TraceErrorController
 import com.codedx.codepulse.hq.protocol.ControlMessage
 import com.codedx.codepulse.hq.testutil.MockedSendingHelpers
 
-class AgentStateManagerSpec extends FunSpec with MockFactory with ShouldMatchers with MockedSendingHelpers {
+class AgentStateManagerSpec extends FunSpec with MockFactory with Matchers with MockedSendingHelpers {
 
 	private val tec = new TraceErrorController
 
