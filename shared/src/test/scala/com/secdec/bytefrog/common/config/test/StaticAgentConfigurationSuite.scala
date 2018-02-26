@@ -19,11 +19,12 @@ package com.secdec.bytefrog.common.config.test
 
 import org.scalatest.FunSpec
 import org.scalatest.GivenWhenThen
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 
-import com.secdec.bytefrog.common.config.StaticAgentConfiguration
+import com.codedx.codepulse.agent.common.config.StaticAgentConfiguration
 
-class StaticAgentConfigurationSuite extends FunSpec with ShouldMatchers {
+class StaticAgentConfigurationSuite extends FunSpec with Matchers {
 	describe("StaticAgentConfiguration parser") {
 		it("should return null when parseOptionString is sent an invalid option string") {
 			val result = StaticAgentConfiguration.parseOptionString("lala")

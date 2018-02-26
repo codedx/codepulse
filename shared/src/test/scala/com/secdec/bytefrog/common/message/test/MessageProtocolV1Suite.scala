@@ -25,7 +25,7 @@ import java.io.DataOutputStream
 import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 
-import com.secdec.bytefrog.common.message._
+import com.codedx.codepulse.agent.common.message._
 
 class MessageProtocolV1Suite extends FunSuite with BeforeAndAfter {
 
@@ -345,14 +345,14 @@ class MessageProtocolV1Suite extends FunSuite with BeforeAndAfter {
 		val relTime = 376433
 		val sequence: Short = 372
 		val signatureID = 785932
-		val lineNumber = 34
+		val exThrown = false
 		val threadID = 13
 
-		protocol.writeMethodExit(dataOutputStream, relTime, sequence, signatureID, lineNumber, threadID)
+		protocol.writeMethodExit(dataOutputStream, relTime, sequence, signatureID, exThrown, threadID)
 		dataOutputStream.flush
 		val result = byteBuffer.toByteArray
 
-		assert(result.length == 17, "message should be 17 bytes long")
+		assert(result.length == 16, "message should be 17 bytes long")
 		assert(result(0) == 21, "message type ID should be 21")
 
 		val stream = new DataInputStream(new ByteArrayInputStream(result))
@@ -360,99 +360,13 @@ class MessageProtocolV1Suite extends FunSuite with BeforeAndAfter {
 		val relTimeResult = stream.readInt
 		val sequenceResult = stream.readInt
 		val signatureIDResult = stream.readInt
-		val lineNumberResult = stream.readShort
+		val exThrownResult = stream.readBoolean
 		val threadIDResult = stream.readShort
 
 		assert(relTimeResult == relTime, "relative timestamp should contain given value")
 		assert(sequenceResult == sequence, "sequence should contain given value")
 		assert(signatureIDResult == signatureID, "signature ID should contain given value")
-		assert(lineNumberResult == lineNumber, "line number should contain given value")
+		assert(exThrownResult == exThrown, "line number should contain given value")
 		assert(threadIDResult == threadID, "thread ID should contain given value")
-	}
-
-	test("writeException should write a valid exception message") {
-		val relTime = 376433
-		val sequence: Short = 372
-		val signatureID = 785932
-		val excID = 356
-		val lineNumber = 34
-		val threadID = 13
-
-		protocol.writeException(dataOutputStream, relTime, sequence, signatureID, excID, lineNumber, threadID)
-		dataOutputStream.flush
-		val result = byteBuffer.toByteArray
-
-		assert(result.length == 21, "message should be 21 bytes")
-		assert(result(0) == 22, "message type ID should be 22")
-
-		val stream = new DataInputStream(new ByteArrayInputStream(result))
-		stream.skipBytes(1)
-		val relTimeResult = stream.readInt
-		val sequenceResult = stream.readInt
-		val signatureIDResult = stream.readInt
-		val excIDResult = stream.readInt
-		val lineNumberResult = stream.readShort
-		val threadIDResult = stream.readShort
-
-		assert(relTimeResult == relTime, "relative timestamp should contain given value")
-		assert(sequenceResult == sequence, "sequence should contain given value")
-		assert(signatureIDResult == signatureID, "signature ID should contain given value")
-		assert(excIDResult == excID, "exception name should contain given value")
-		assert(lineNumberResult == lineNumber, "line number should contain given value")
-		assert(threadIDResult == threadID, "thread ID should contain given value")
-	}
-
-	test("writeExceptionBubble should write a valid exception bubble message") {
-		val relTime = 54754
-		val sequence = 37215
-		val signatureID = 1687
-		val excID = 12
-		val threadID = 42
-
-		protocol.writeExceptionBubble(dataOutputStream, relTime, sequence, signatureID, excID, threadID)
-		dataOutputStream.flush
-		val result = byteBuffer.toByteArray
-
-		assert(result.length == 19, "message should be 19 bytes long")
-		assert(result(0) == 23, "message type ID should be 23")
-
-		val stream = new DataInputStream(new ByteArrayInputStream(result))
-		stream.skipBytes(1)
-		val relTimeResult = stream.readInt
-		val sequenceResult = stream.readInt
-		val signatureIDResult = stream.readInt
-		val excIDResult = stream.readInt
-		val threadIDResult = stream.readShort
-
-		assert(relTimeResult == relTime, "relative timestamp should contain given value")
-		assert(sequenceResult == sequence, "sequence should contain given value")
-		assert(signatureIDResult == signatureID, "signature ID should contain given value")
-		assert(excIDResult == excID, "exception ID should contain given value")
-		assert(threadIDResult == threadID, "thread ID should contain given value")
-	}
-
-	test("writeMarker should write a valid marker message") {
-		val key = "key"
-		val value = "value"
-		val timestamp = 1000
-		val sequence = 12
-		protocol.writeMarker(dataOutputStream, key, value, timestamp, sequence)
-		dataOutputStream.flush
-		val result = byteBuffer.toByteArray
-
-		assert(result.length == (13 + key.length + value.length), "message should be 13 + K + V bytes")
-		assert(result(0) == 50, "message type ID should be 50")
-
-		val stream = new DataInputStream(new ByteArrayInputStream(result))
-		stream.skipBytes(1)
-		val reTimestamp = stream.readInt
-		val reSequence = stream.readInt
-		val reKey = stream.readUTF
-		val reValue = stream.readUTF
-
-		assert(reTimestamp == timestamp, "incorrect timestamp")
-		assert(reSequence == sequence, "incorrect sequence")
-		assert(reKey == key, "incorrect key")
-		assert(reValue == value, "incorrect value")
 	}
 }

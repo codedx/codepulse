@@ -19,12 +19,13 @@ package com.secdec.bytefrog.common.queue.test
 
 import org.scalatest.FunSpec
 import org.scalatest.concurrent.Conductors
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 
-import com.secdec.bytefrog.common.queue.BufferPool
+import com.codedx.codepulse.agent.common.queue.BufferPool
 
-class BufferPoolSpec extends FunSpec with ShouldMatchers with Conductors {
+class BufferPoolSpec extends FunSpec with Matchers with Conductors {
 	override implicit def patienceConfig = PatienceConfig(timeout = 5000.millis)
 
 	describe("BufferPool") {

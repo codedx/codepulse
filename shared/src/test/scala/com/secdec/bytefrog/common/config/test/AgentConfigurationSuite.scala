@@ -25,11 +25,12 @@ import java.io.ObjectOutputStream
 import scala.collection.JavaConversions._
 
 import org.scalatest.FunSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest._
+import org.scalatest.Matchers._
 
-import com.secdec.bytefrog.common.config.RuntimeAgentConfigurationV1
+import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
 
-class AgentConfigurationSuite extends FunSpec with ShouldMatchers {
+class AgentConfigurationSuite extends FunSpec with Matchers {
 
 	describe("AgentConfiguration") {
 		it("should be serializable in both directions") {

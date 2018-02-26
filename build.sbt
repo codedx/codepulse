@@ -36,6 +36,7 @@ lazy val Shared = Project("Shared", file("shared"))
 		scalaSettings,
 		javaSettings,
 		javaOnly,
+		withTesting,
 
 		libraryDependencies ++= Dependencies.jsonb
 	)
