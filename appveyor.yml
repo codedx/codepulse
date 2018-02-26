@@ -6,7 +6,7 @@ build_script:
 test:
   assemblies:
     only:
-    - '**\CodePulse.Client.Tests.dll'
+    - '**\CodePulse.Client.Test.dll'
 artifacts:
 - path: installers\Windows\CodePulse.Bundle.Windows\bin\Release\CodePulse.Windows.exe
   name: CodePulse.Windows.exe (Release)
