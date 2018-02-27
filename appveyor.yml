@@ -13,6 +13,8 @@ test:
     only:
     - '**\CodePulse.Client.Test.dll'
     - '**\CodePulse.Console.Test.dll'
+    - '**\OpenCover.Test.dll'
+    - '**\OpenCover.Test.Profiler.dll'
 artifacts:
 - path: installers\Windows\CodePulse.Bundle.Windows\bin\Release\CodePulse.Windows.exe
   name: CodePulse.Windows.exe (Release)

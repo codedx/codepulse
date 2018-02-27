@@ -14,16 +14,32 @@ namespace OpenCover.Test.ConsoleEx
     public class OutputTests
     {
         [Test]
-        public void OutputHasPreferred32BitDisabled()
+        public void OpenCoverConsoleOutputHasPreferred32BitDisabled()
+        {
+            OutputHasPreferred32BitDisabled("OpenCover.Console.exe");
+        }
+
+        [Test]
+        public void CodePulseConsoleOutputHasPreferred32BitDisabled()
+        {
+            OutputHasPreferred32BitDisabled("CodePulse.DotNet.Tracer.exe");
+        }
+
+        private void OutputHasPreferred32BitDisabled(string filename)
         {
             var pi = new ProcessStartInfo()
             {
                 FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\corflags.exe"),
-                Arguments = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "OpenCover.Console.exe"),
+                Arguments = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
+
+            if (!File.Exists(pi.Arguments))
+            {
+                Assert.Inconclusive($"Unable to find exe at {pi.Arguments}.");
+            }
 
             var process = Process.Start(pi);
             Assert.IsNotNull(process);
