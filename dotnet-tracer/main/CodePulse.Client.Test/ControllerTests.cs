@@ -230,27 +230,19 @@ namespace CodePulse.Client.Test
             var slowHeartbeatTimeFrequency = heartbeatTimes[2].Subtract(heartbeatTimes[1]).TotalMilliseconds;
             var fastHeartbeatTimeFrequency = heartbeatTimes[heartbeatTimes.Count-1].Subtract(heartbeatTimes[heartbeatTimes.Count-2]).TotalMilliseconds;
 
-            void PrintHeartbeatTimes(IReadOnlyList<DateTime> heartbeats)
+            // Runs in a local environment have heartbeats at ~3100 for slow and ~600 for fast, but on the build 
+            // server heartbeats can be at ~4100 for slow and ~1600 for fast, so pass this test if there's a 
+            // significant difference between the slow and fast heartbeats
+            if (slowHeartbeatTimeFrequency - fastHeartbeatTimeFrequency <= 1750)
             {
-                for (var index = 0; index < heartbeats.Count; index++)
+                for (var index = 0; index < heartbeatTimes.Count; index++)
                 {
                     if (index == 0)
                         continue;
 
-                    Console.WriteLine(heartbeats[index].Subtract(heartbeats[index - 1]).TotalMilliseconds);
+                    Console.WriteLine(heartbeatTimes[index].Subtract(heartbeatTimes[index - 1]).TotalMilliseconds);
                 }
-            }
-
-            if (!(slowHeartbeatTimeFrequency > 2000 && slowHeartbeatTimeFrequency < 5000))
-            {
-                PrintHeartbeatTimes(heartbeatTimes);
-                Assert.Fail($"Unexpected value of slowHeartbeatTimeFrequency: {slowHeartbeatTimeFrequency}");
-            }
-
-            if (!(fastHeartbeatTimeFrequency > 200 && fastHeartbeatTimeFrequency < 800))
-            {
-                PrintHeartbeatTimes(heartbeatTimes);
-                Assert.Fail($"Unexpected value of fastHeartbeatTimeFrequency: {fastHeartbeatTimeFrequency}");
+                Assert.Fail($"Unexpected values for fastHeartbeatTimeFrequency ({fastHeartbeatTimeFrequency}) and slowHeartbeatTimeFrequency ({slowHeartbeatTimeFrequency})");
             }
 
             closeSocketEvent.Set();
