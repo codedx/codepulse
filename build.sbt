@@ -65,9 +65,6 @@ lazy val Agent = Project("Agent", file("agent"))
 
 		libraryDependencies += Dependencies.minlog,
 
-		// temporarily disable tests
-		Keys.test in assembly := {},
-
 		assembledMappings in assembly := {
 			val mappings = (assembledMappings in assembly).value
 			def fileStartsWith(file: String, prefix: String) = {
