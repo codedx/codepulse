@@ -58,7 +58,7 @@ Pop-Location; Push-Location $dotNetSymbolServicePath
 
 write-verbose 'Publishing .NET Symbol Service (macOS)...'
 $dotNetSymbolServiceOutputDirectory = New-Item -Path (join-path $filesFoldermacOSCodePulsePath 'Code Pulse.app\Contents\Resources\app.nw\dotnet-symbol-service') -ItemType Directory
-dotnet publish -c $buildConfiguration -r osx.10.12-x64 -o ($dotNetSymbolServiceOutputDirectory.FullName)
+dotnet publish -c $buildConfiguration -r osx-x64 -o ($dotNetSymbolServiceOutputDirectory.FullName)
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }

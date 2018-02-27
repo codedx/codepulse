@@ -114,13 +114,13 @@ move-item (join-path $filesFolderWin64CodePulsePath 'codepulse\agent.jar') $file
 Pop-Location; Push-Location $dotNetSymbolServicePath
 
 write-verbose 'Publishing .NET Symbol Service (Win32)...'
-dotnet publish -c $buildConfiguration -r win7-x86 -o $filesFolderWin32DotNetSymbolServicePath
+dotnet publish -c $buildConfiguration -r win-x86 -o $filesFolderWin32DotNetSymbolServicePath
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
 
 write-verbose 'Publishing .NET Symbol Service (Win64)...'
-dotnet publish -c $buildConfiguration -r win7-x64 -o $filesFolderWin64DotNetSymbolServicePath
+dotnet publish -c $buildConfiguration -r win-x64 -o $filesFolderWin64DotNetSymbolServicePath
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
