@@ -3,6 +3,11 @@ image: Visual Studio 2017
 clone_folder: C:\CodePulse
 build_script:
 - cmd: powershell -file C:\CodePulse\installers\build.ps1
+before_test:
+- cmd: >-
+    C:\Windows\System32\regsvr32.exe C:\CodePulse\dotnet-tracer\main\bin\Release\x64\OpenCover.Profiler.dll
+
+    C:\Windows\SysWOW64\regsvr32.exe C:\CodePulse\dotnet-tracer\main\bin\Release\x86\OpenCover.Profiler.dll
 test:
   assemblies:
     only:
