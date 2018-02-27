@@ -14,20 +14,20 @@ namespace OpenCover.Test.ConsoleEx
     public class OutputTests
     {
         [Test]
-        public void OpenCoverConsoleOutputHasPreferred32BitDisabled()
+        public void OpenCoverConsoleOutputHasPreferred32BitEnabled()
         {
-            OutputHasPreferred32BitDisabled("OpenCover.Console.exe");
+            OutputHasPreferred32BitEnabled("OpenCover.Console.exe");
         }
 
         [Test]
-        public void CodePulseConsoleOutputHasPreferred32BitDisabled()
+        public void CodePulseConsoleOutputHasPreferred32BitEnabled()
         {
-            OutputHasPreferred32BitDisabled("CodePulse.DotNet.Tracer.exe");
+            OutputHasPreferred32BitEnabled("CodePulse.DotNet.Tracer.exe");
         }
 
-        private void OutputHasPreferred32BitDisabled(string filename)
+        private void OutputHasPreferred32BitEnabled(string filename)
         {
-            var pi = new ProcessStartInfo()
+            var pi = new ProcessStartInfo
             {
                 FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.1 Tools\corflags.exe"),
                 Arguments = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename),
@@ -47,7 +47,8 @@ namespace OpenCover.Test.ConsoleEx
             process.WaitForExit();
             Console.WriteLine(output);
 
-            Assert.IsTrue(output.Contains("32BITPREF : 0"));
+            Assert.IsTrue(output.Contains("32BITREQ  : 0"));
+            Assert.IsTrue(output.Contains("32BITPREF : 1"));
         }
     }
 }
