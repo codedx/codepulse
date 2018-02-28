@@ -32,7 +32,7 @@ import net.liftweb.json._
 
 class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends DotNetBuilder {
 	val config = ConfigFactory.load()
-	val port = config.getString("cp.symbol-service.port")
+	val port = config.getString("cp.symbol_service.port")
 	val symbolService = url(s"http://localhost:$port/api/methods")
 
 	override def Methods: List[(MethodSignature, Int)] = {

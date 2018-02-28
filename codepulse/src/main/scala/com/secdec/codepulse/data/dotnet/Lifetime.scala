@@ -40,10 +40,10 @@ class SymbolService extends Lifetime with Loggable {
 		logger.debug("attempt to create SymbolService")
 		try {
 			val config = ConfigFactory.load()
-			val symbolServiceBinary = config.getString("cp.symbol-service.binary")
-			val symbolServiceLocation = config.getString("cp.symbol-service.location")
+			val symbolServiceBinary = config.getString("cp.symbol_service.binary")
+			val symbolServiceLocation = config.getString("cp.symbol_service.location")
 			val binaryPath = Paths.get(symbolServiceLocation, symbolServiceBinary).toString
-			val port = config.getString("cp.symbol-service.port")
+			val port = config.getString("cp.symbol_service.port")
 			var url = s"http://*:$port"
 
 			var binaryCanonical = new File(binaryPath).getCanonicalPath
