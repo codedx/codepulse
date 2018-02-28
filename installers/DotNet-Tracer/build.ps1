@@ -65,8 +65,13 @@ write-verbose "Building OpenCover.Test ($buildConfiguration)..."
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
-write-verbose "Building OpenCover.Test.Profiler ($buildConfiguration)..."
-& $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ OpenCover.Test.Profiler
+write-verbose "Building OpenCover.Test.Profiler ($buildConfiguration | x86)..."
+& $msbuildPath /p:Configuration=$buildConfiguration /p:Platform=x86 /p:SolutionDir=..\ OpenCover.Test.Profiler
+if ($lastexitcode -ne 0) {
+    exit $lastexitcode
+}
+write-verbose "Building OpenCover.Test.Profiler ($buildConfiguration | x64)..."
+& $msbuildPath /p:Configuration=$buildConfiguration /p:Platform=x64 /p:SolutionDir=..\ OpenCover.Test.Profiler
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
