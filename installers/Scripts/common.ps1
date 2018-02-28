@@ -58,11 +58,17 @@ function Invoke-CodePulsePackaging(
     $applicationNewConf = $applicationNewConf | % { $_ -replace 'SymbolService.exe', $symbolServiceFilename }
     Set-TextContent $applicationConfPath $applicationNewConf
 
+    $codePulsePackagePath = join-path (get-location) ".\codepulse\target\scala-2.10\$codePulseTargetFilename"
+     
+    if (test-path $codePulsePackagePath -PathType Leaf) {
+        write-verbose "Removing outdated $codePulseTargetFilename..."
+        remove-item $codePulsePackagePath -Force
+    }
+
     write-verbose "Packaging Code Pulse ($osRID)..."
     Invoke-Sbt $packageCommand
 
     write-verbose "Unzipping Code Pulse package ($osName)..."
-    $codePulsePackagePath = join-path (get-location) ".\codepulse\target\scala-2.10\$codePulseTargetFilename"
     [io.compression.zipfile]::ExtractToDirectory($codePulsePackagePath, $filesFolderPath)
 
     write-verbose "Restoring original '$applicationConfPath' contents..."
