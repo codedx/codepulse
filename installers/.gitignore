@@ -326,5 +326,6 @@ ASALocalRun/
 CodePulse-*-*.zip
 /Windows/Files
 /macOS/Files
+/Linux/Files
 !/Tools/ZipFile/bin
 !/Tools/ZipFile/bin/*.pdb

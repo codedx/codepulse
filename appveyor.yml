@@ -15,6 +15,19 @@ test:
     - '**\CodePulse.Console.Test.dll'
     - '**\OpenCover.Test.dll'
     - '**\OpenCover.Test.Profiler.dll'
+after_test:
+- ps: >-
+    $wc = New-Object 'System.Net.WebClient'
+
+
+    C:\CodePulse\dotnet-tracer\main\bin\Release\x86\OpenCover.Test.Profiler.exe --gtest_output="xml:C:\CodePulse\OpenCover.Test.Profiler.x86.xml" --gtest_filter=-TimerTest*
+
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", "C:\CodePulse\OpenCover.Test.Profiler.x86.xml")
+
+
+    C:\CodePulse\dotnet-tracer\main\bin\Release\x64\OpenCover.Test.Profiler.exe --gtest_output="xml:C:\CodePulse\OpenCover.Test.Profiler.x64.xml" --gtest_filter=-TimerTest*
+
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", "C:\CodePulse\OpenCover.Test.Profiler.x64.xml")
 artifacts:
 - path: installers\Windows\CodePulse.Bundle.Windows\bin\Release\CodePulse.Windows.exe
   name: CodePulse.Windows.exe (Release)
