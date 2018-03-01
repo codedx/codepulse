@@ -57,7 +57,6 @@ object Distributor extends BuildExtra {
 		val packageEmbeddedWin32 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (32-bit)")
 		val packageEmbeddedWin64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (64-bit)")
 		val packageEmbeddedOsx = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for OS X (32/64-bit)")
-		val packageEmbeddedLinuxX86 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x86)")
 		val packageEmbeddedLinuxX64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x64)")
 	}
 
@@ -484,6 +483,5 @@ object Distributor extends BuildExtra {
 		distribution("win32", agent, dependencies.nwjs.win32, dependencies.java.win32, packageEmbeddedWin32)(Compile) ++
 		distribution("win64", agent, dependencies.nwjs.win64, dependencies.java.win64, packageEmbeddedWin64)(Compile) ++
 		distribution("osx", agent, dependencies.nwjs.osx, dependencies.java.osx, packageEmbeddedOsx)(Compile) ++
-		distribution("linux-x86", agent, dependencies.nwjs.linuxX86, dependencies.java.linuxX86, packageEmbeddedLinuxX86)(Compile) ++
 		distribution("linux-x64", agent, dependencies.nwjs.linuxX64, dependencies.java.linuxX64, packageEmbeddedLinuxX64)(Compile)
 }

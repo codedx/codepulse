@@ -1,5 +1,5 @@
 ﻿#
-# This script creates the macOS Code Pulse package
+# This script creates the Linux Code Pulse package
 #
 param (
 	[switch] $forceTracerRebuild
@@ -26,20 +26,20 @@ Invoke-CodePulsePackaging `
     $codePulseVersion `
     $PSScriptRoot `
     $codePulsePath `
-    'macOS' `
-    'osx-x64' `
-    'packageEmbeddedOsx' `
-    "CodePulse-$($codePulseVersion)-SNAPSHOT-osx.zip" `
-    'Code Pulse.app\Contents\Resources\app.nw\dotnet-symbol-service' `
+    'Linux' `
+    'linux-x64' `
+    'packageEmbeddedLinuxX64' `
+    "CodePulse-$($codePulseVersion)-SNAPSHOT-linux-x64.zip" `
+    'dotnet-symbol-service' `
     'SymbolService' `
-    'Code Pulse.app\Contents\Resources\app.nw\agent.jar'
+    'agent.jar'
 
 Invoke-CodePulseZip `
     $PSScriptRoot `
-    'macOS' `
-    'macOS-x64' `
+    'Linux' `
+    'Linux-x64' `
     $codePulseVersion `
     $zipFilePath `
-    'Files\macOS'
+    'Files\Linux'
 
 Pop-Location

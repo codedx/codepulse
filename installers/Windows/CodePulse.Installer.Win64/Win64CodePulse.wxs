@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <?define CodePulseWin64SourceFolder = "..\Files\Win64\codepulse\codepulse" ?>
+  <?define CodePulseWin64SourceFolder = "..\Files\Win64\codepulse" ?>
   <Fragment>
     <ComponentGroup Id="CodePulseApp">
       <Component Id="cmpC61482BE7A36ACC5229EFF7044E4D255" Directory="INSTALLFOLDER" Guid="*">

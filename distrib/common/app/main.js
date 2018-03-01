@@ -20,6 +20,7 @@
 //TODO handle uncaught node.js errors
 
 var events = require('events'), http = require('http'), byline = require('./byline');
+var fs = require('fs');
 
 var logContents = '', logEvent = new events.EventEmitter();
 
@@ -56,30 +57,40 @@ function getJava() {
 	}
 }
 
+function ensureReadAndExecute(path) {
+    try {
+        writeLog('Testing user\'s read & execute permission for ' + path + '...\n')
+		var unusedAlways = fs.accessSync(path, fs.constants.R_OK | fs.constants.X_OK);
+	} catch (e) {
+		writeLog('User does not have read & execute permissions for ' + path + ': ' + e + '...\n');
+
+		var newPermission = 0755;
+		writeLog('Attempting to change permission for ' + path + ' to ' + newPermission.toString(8) + '...\n');
+		fs.chmodSync(path, newPermission);
+	}
+}
+
 var started = false;
 
 function startCodePulse() {
 	if (started) return;
 	started = true;
 
-	var fs = require('fs')
-	var spawn = require('child_process').spawn,
-	    chmodSync = fs.chmodSync;
+
+	var spawn = require('child_process').spawn;
 
 	try {
 		var java = getJava();
 
-		// make sure java is executable...
+        ensureReadAndExecute(java)
 
-		try {
-			var unusedAlways = fs.accessSync(java, fs.constants.R_OK | fs.constants.X_OK);
-		} catch (e) {
-			writeLog('User does not have read & execute permissions on java: ' + e + '...\n');
-			
-			var newPermission = 0755;
-			writeLog('Attempting to change java permission to ' + newPermission.toString(8) + '...\n');
-			chmodSync(java, newPermission);
-		}
+        const symbolServicePath = 'dotnet-symbol-service/SymbolService'
+        var symbolServicePathExists = fs.existsSync(symbolServicePath)
+
+        writeLog(symbolServicePath + ' exists: ' + symbolServicePathExists + '\n')
+        if (symbolServicePathExists) {
+            ensureReadAndExecute(symbolServicePath)
+        }
 
 		var args = [ '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
 
