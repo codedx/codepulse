@@ -49,7 +49,7 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 				target.notifyLoadingFinished()
 			}
 		}
-		case ProcessEnvelope(_, Failed(identifier, action, Some(excepetion))) => {
+		case ProcessEnvelope(_, Failed(identifier, action, Some(exception))) if action != "Dependency Check" => {
 			for (target <- projectManager.removeUnloadedProject(ProjectId(identifier.toInt))) {
 				target.notifyLoadingFailed()
 			}
