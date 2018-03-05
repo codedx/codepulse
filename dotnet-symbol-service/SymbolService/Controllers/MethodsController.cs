@@ -49,7 +49,7 @@ namespace SymbolService.Controllers
 
                 using (var module = LoadModule(assemblyPath, symbolsPath))
                 {
-                    var methodInfos = module.Types.SelectMany(type => type.Methods).Select(GetMethodInfo);
+                    var methodInfos = module.Types.SelectMany(GetMethodInfos);
                     return new JsonResult(methodInfos.ToArray()); // materialize collection prior to module disposal
                 }
             }
@@ -57,6 +57,18 @@ namespace SymbolService.Controllers
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        private IList<MethodInfo> GetMethodInfos(TypeDefinition typeDefinition)
+        {
+            var methodInfos = new List<MethodInfo>();
+            foreach (var nestedType in typeDefinition.NestedTypes)
+            {
+                methodInfos.AddRange(GetMethodInfos(nestedType));
+            }
+
+            methodInfos.AddRange(typeDefinition.Methods.Select(GetMethodInfo));
+            return methodInfos;
         }
 
         private Tuple<string, string> GenerateFilePaths()
