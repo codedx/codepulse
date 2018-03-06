@@ -92,7 +92,7 @@ function startCodePulse() {
             ensureReadAndExecute(symbolServicePath)
         }
 
-		var args = [ '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
+		var args = [ '-DSTOP.PORT=0', '-Drun.mode=production', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
 
 		writeLog('Starting Code Pulse...\n');
 		writeLog('Using Java: ' + java + '\n');
