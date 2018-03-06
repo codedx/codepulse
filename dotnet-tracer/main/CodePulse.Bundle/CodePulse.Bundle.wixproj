@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>d390f301-798f-4b2d-a740-061ab6941645</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>CodePulse.DotNet.Tracer.Bundle</OutputName>
+    <OutputName>CodePulse.DotNet.Tracer.Installer</OutputName>
     <OutputType>Bundle</OutputType>
     <DefineSolutionProperties>false</DefineSolutionProperties>
   </PropertyGroup>

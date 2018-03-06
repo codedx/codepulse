@@ -89,7 +89,7 @@ function Invoke-CodePulsePackaging(
     Pop-Location; Push-Location $scriptRoot
 
     write-verbose 'Copying .NET Tracer...'
-    copy-item "..\..\dotnet-tracer\main\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Bundle.exe" $filesFolderDotNetTracerPath
+    copy-item "..\..\dotnet-tracer\main\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe" $filesFolderDotNetTracerPath
 
     Pop-Location
 }
@@ -121,7 +121,7 @@ function Invoke-CodePulseZip(
 
 function Test-DotNetTracer([string] $codePulsePath, [string] $buildConfiguration) 
 {
-    $msiTracerBundlePath = join-path $codePulsePath "dotnet-tracer\main\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Bundle.exe"
+    $msiTracerBundlePath = join-path $codePulsePath "dotnet-tracer\main\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe"
     Test-Path $msiTracerBundlePath -PathType Leaf
 }
 

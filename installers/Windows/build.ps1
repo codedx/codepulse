@@ -26,18 +26,6 @@ Invoke-CodePulsePackaging `
     $codePulseVersion `
     $PSScriptRoot `
     $codePulsePath `
-    'Win32' `
-    'win-x86' `
-    'packageEmbeddedWin32' `
-    "CodePulse-$($codePulseVersion)-SNAPSHOT-win32.zip" `
-    '..\dotnet-symbol-service' `
-    'SymbolService.exe' `
-    'agent.jar'
-
-Invoke-CodePulsePackaging `
-    $codePulseVersion `
-    $PSScriptRoot `
-    $codePulsePath `
     'Win64' `
     'win-x64' `
     'packageEmbeddedWin64' `
@@ -47,7 +35,6 @@ Invoke-CodePulsePackaging `
     'agent.jar'
     
 write-verbose 'Moving tracers folders to satisfy heat.ps1 requirement...'
-Move-Item 'Files\Win32\codepulse\tracers' 'Files\Win32'
 Move-Item 'Files\Win64\codepulse\tracers' 'Files\Win64'
 
 write-verbose 'Running heat.ps1...'
@@ -59,22 +46,16 @@ if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
 
-write-verbose "Building Code Pulse installer ($buildConfiguration | x86) and bundle..."
-& $msbuildPath /p:Configuration=$buildConfiguration /p:Platform=x86 Windows.sln
-if ($lastexitcode -ne 0) {
-    exit $lastexitcode
-}
-
 write-verbose 'Removing extra installer file(s)...'
-$outputFolder = join-path (get-location) "CodePulse.Bundle.Windows\bin\$buildConfiguration"
-dir $outputFolder -Exclude CodePulse.Windows.exe | % { remove-item $_.FullName -Force }
+$outputFolder = join-path (get-location) "CodePulse.Installer.Win64\bin\$buildConfiguration"
+dir $outputFolder -Exclude CodePulse.Win64.msi | % { remove-item $_.FullName -Force }
 
 Invoke-CodePulseZip `
     $PSScriptRoot `
     'Windows' `
-    'Windows' `
+    'Windows-x64' `
     $codePulseVersion `
     $zipFilePath `
-    "CodePulse.Bundle.Windows\bin\$buildConfiguration"
+    "CodePulse.Installer.Win64\bin\$buildConfiguration"
 
 Pop-Location

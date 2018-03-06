@@ -5,7 +5,7 @@
   <?define OutputFolder = "..\bin\Release\" ?>
   <?define x86OutputFolder = "$(var.OutputFolder)x86\" ?>
   
-	<Product Id="*" Name="Code Pulse .NET Tracer" Language="1033" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="0649c73e-1edf-4014-9926-0c6f86253814">
+	<Product Id="*" Name="Code Pulse .NET Tracer" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="0649c73e-1edf-4014-9926-0c6f86253814">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
@@ -59,7 +59,7 @@
     </Component>
     <Component Id="CodePulseRegistryKey" Directory="INSTALLFOLDER" Guid="{3f52dfaa-7de3-48cc-b185-b6bcdb9d5960}">
       <RegistryKey Root="HKLM"
-                   Key="Software\Secure Decisions\Code Pulse .NET Tracer">
+                   Key="Software\Code Dx, Inc.\Code Pulse .NET Tracer">
         <RegistryValue Type="string" Name="ApplicationPath" Value="[INSTALLFOLDER]" KeyPath="yes"/>
         <RegistryValue Type="string" Value="Default Value"/>
       </RegistryKey>
