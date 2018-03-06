@@ -389,7 +389,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// DELETE a project (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>
-			manager.scheduleProjectDeletion(target)
+			manager.removeProject(target)
 			OkResponse()
 
 		case Paths.Project(target) Get req =>

@@ -101,16 +101,6 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 		val subscriptionMade = target.subscribeToStateChanges { stateUpdates =>
 			// trigger an update when the target state updates
 			stateUpdates ->> { projectListUpdates fire () }
-
-			// when the state becomes 'deleted', send a notification about it
-			stateUpdates foreach {
-				case TracingTargetState.DeletePending =>
-					val projectName = projectData.metadata.name
-					val undoHref = apiServer.Paths.UndoDelete.toHref(target)
-					val msg = NotificationMessage.ProjectDeletion(projectName, undoHref)
-					Notifications.enqueueNotification(msg, NotificationSettings.defaultDelayed(13000), persist = true)
-				case _ =>
-			}
 		}
 
 		// wait up to 1 second for the subscription to be acknowledged
@@ -125,7 +115,18 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 			project.notifyLoadingFailed()
 			project
 		}
+	}
 
+	def removeProject(project: TracingTarget) = {
+		val (deletionKey, deletionFuture) = project.setDeletePending()
+
+		val id = project.id
+		projects remove id
+		dataProvider removeProject id
+		pendingProjectDeletions.remove(project)
+
+		projectListUpdates.fire()
+		project.finalizeDeletion(deletionKey)
 	}
 
 	def scheduleProjectDeletion(project: TracingTarget) = {
@@ -197,15 +198,6 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	// Also make sure any dirty projects are saved when exiting
 	AppCleanup.addPreShutdownHook { () =>
-		println("Finalizing project deletions")
-		val deletedProjects = pendingProjectDeletions.size
-		pendingProjectDeletions.foreach {
-			case (project, key) => {
-				project.finalizeDeletion(key)
-			}
-		}
-		println(s"Finalized ${deletedProjects} project deletions")
-
 		flushProjects
 		println("Flushed ProjectManager projects")
 	}
