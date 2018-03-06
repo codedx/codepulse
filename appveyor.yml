@@ -29,5 +29,5 @@ after_test:
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", "C:\CodePulse\OpenCover.Test.Profiler.x64.xml")
 artifacts:
-- path: installers\Windows\CodePulse.Bundle.Windows\bin\Release\CodePulse.Windows.exe
-  name: CodePulse.Windows.exe (Release)
+- path: installers\Windows\CodePulse.Installer.Win64\bin\Release\CodePulse.Win64.msi
+  name: CodePulse.Win64.msi (Release)

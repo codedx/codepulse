@@ -7,9 +7,9 @@
   <?define x86OutputFolder = "..\CodePulse.Installer\bin\Release\" ?>
   <?define x64OutputFolder = "..\CodePulse.Installer.x64\bin\x64\Release\" ?>
   
-	<Bundle Name="Code Pulse .NET Tracer" IconSourceFile="AppIcon.ico" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="d390f301-798f-4b2d-a740-061ab6941645">
+	<Bundle Name="Code Pulse .NET Tracer" IconSourceFile="AppIcon.ico" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="d390f301-798f-4b2d-a740-061ab6941645">
     <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.RtfLicense">
-      <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="AppIcon.ico"/>
+      <bal:WixStandardBootstrapperApplication LicenseFile="License.rtf" LogoFile="AppIcon.ico" SuppressOptionsUI="yes"/>
     </BootstrapperApplicationRef>
 		<Chain>
       <PackageGroupRef Id="NetFx452Web"/>

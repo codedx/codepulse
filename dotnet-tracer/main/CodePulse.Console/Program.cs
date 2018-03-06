@@ -325,6 +325,11 @@ namespace CodePulse.Console
                 var profilerEnvironment = new StringDictionary();
                 environment(profilerEnvironment);
 
+                if (parser.DiagMode)
+                {
+                    profilerEnvironment[@"OpenCover_Profiler_Diagnostics"] = "true";
+                }
+
                 try
                 {
                     Logger.Info($"Starting service '{w3SvcService.ServiceDisplayName}'.");

@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CodePulse.Installer.Win32", "CodePulse.Installer.Win32\CodePulse.Installer.Win32.wixproj", "{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}"
-EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CodePulse.Installer.Win64", "CodePulse.Installer.Win64\CodePulse.Installer.Win64.wixproj", "{B59B3B6A-291E-45D2-ABBB-C55C7515683E}"
-EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CodePulse.Bundle.Windows", "CodePulse.Bundle.Windows\CodePulse.Bundle.Windows.wixproj", "{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,24 +13,12 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}.Debug|x64.ActiveCfg = Debug|x86
-		{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}.Debug|x86.ActiveCfg = Debug|x86
-		{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}.Debug|x86.Build.0 = Debug|x86
-		{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}.Release|x64.ActiveCfg = Release|x86
-		{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}.Release|x86.ActiveCfg = Release|x86
-		{13E8DDED-EB8A-4DB8-8A95-0B6C83804E86}.Release|x86.Build.0 = Release|x86
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Debug|x64.ActiveCfg = Debug|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Debug|x64.Build.0 = Debug|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Debug|x86.ActiveCfg = Debug|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Release|x64.ActiveCfg = Release|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Release|x64.Build.0 = Release|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Release|x86.ActiveCfg = Release|x64
-		{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}.Debug|x64.ActiveCfg = Debug|x86
-		{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}.Debug|x86.ActiveCfg = Debug|x86
-		{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}.Debug|x86.Build.0 = Debug|x86
-		{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}.Release|x64.ActiveCfg = Release|x86
-		{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}.Release|x86.ActiveCfg = Release|x86
-		{58EEF657-CBBC-46F7-85E7-5640E7F20ADB}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

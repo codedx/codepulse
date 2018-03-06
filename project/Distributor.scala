@@ -54,7 +54,6 @@ object Distributor extends BuildExtra {
 
 		val packageMappings = taskKey[Seq[ZipEntry]]("Generate zip file mappings for package.")
 
-		val packageEmbeddedWin32 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (32-bit)")
 		val packageEmbeddedWin64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (64-bit)")
 		val packageEmbeddedOsx = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for OS X (32/64-bit)")
 		val packageEmbeddedLinuxX64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x64)")
@@ -480,7 +479,6 @@ object Distributor extends BuildExtra {
 			webappClassesJar in Distribution := buildJarTask.value
 		) ++
 		inConfig(DefaultConf) { warContents in Distribution := com.earldouglas.xsbtwebplugin.WarPlugin.packageWarTask(DefaultClasspathConf).value } ++
-		distribution("win32", agent, dependencies.nwjs.win32, dependencies.java.win32, packageEmbeddedWin32)(Compile) ++
 		distribution("win64", agent, dependencies.nwjs.win64, dependencies.java.win64, packageEmbeddedWin64)(Compile) ++
 		distribution("osx", agent, dependencies.nwjs.osx, dependencies.java.osx, packageEmbeddedOsx)(Compile) ++
 		distribution("linux-x64", agent, dependencies.nwjs.linuxX64, dependencies.java.linuxX64, packageEmbeddedLinuxX64)(Compile)

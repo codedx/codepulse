@@ -1,25 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   
   <?define Version = "2.0.0.0" ?>
   
-	<Product Id="*" Name="CodePulse.Installer.Win64" Language="1033" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="dc5c75ce-4562-4dc9-a1f5-e8e7e01b1c13">
+	<Product Id="*" Name="Code Pulse" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="dc5c75ce-4562-4dc9-a1f5-e8e7e01b1c13">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
-	  <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
-	  <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+		<Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="AppIcon" />
     
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<MediaTemplate EmbedCab="yes" />
 
-    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-	  <UIRef Id="WixUI_InstallDir" />
-	  <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+		<Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    
+		<UIRef Id="WixUI_InstallDir" />
+		<WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+		<WixVariable Id="WixUIDialogBmp" Value="WixUIDialogBmp.bmp" />
+		<WixVariable Id="WixUIBannerBmp" Value="WixUIBannerBmp.bmp" />
+		<Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Code Pulse. See the Code Pulse Start menu folder for the application shortcut and a link to open the Wiki." />
+
+		<Component Id="ApplicationShortcuts" Guid="*" Directory="CodePulseProgramsFolder">
+		<Shortcut Id="CodePulseShortcut"
+                Name="Code Pulse"
+                Description="Launch Code Pulse"
+                Target="[INSTALLFOLDER]codepulse.exe"
+                WorkingDirectory="INSTALLFOLDER"/>
+		<util:InternetShortcut Id="HomeWikiLink"
+                             Name="Code Pulse Wiki - Home"
+                             Target="https://github.com/codedx/codepulse/wiki"/>
+		<RemoveFolder Id="RemoveShortcutFolder" On="uninstall"/>
+		<RegistryValue
+			Root="HKCU"
+			Key="Software\Code Dx, Inc.\CodePulse"
+			Name="installed"
+			Type="integer"
+			Value="1"
+			KeyPath="yes"/>
+		</Component>
 
 		<Feature Id="ProductFeature" Title="CodePulse" Level="1">
-      <ComponentGroupRef Id="CodePulseApp"/>
-      <ComponentGroupRef Id="SymbolService"/>
-      <ComponentGroupRef Id="Tracers"/>
+			<ComponentGroupRef Id="CodePulseApp"/>
+			<ComponentGroupRef Id="SymbolService"/>
+			<ComponentGroupRef Id="Tracers"/>
+			<ComponentRef Id="ApplicationShortcuts"/>
 		</Feature>
 	</Product>
 
@@ -27,6 +52,9 @@
 		<Directory Id="TARGETDIR" Name="SourceDir">
 			<Directory Id="ProgramFiles64Folder">
 				<Directory Id="INSTALLFOLDER" Name="Code Pulse" />
+			</Directory>
+		<Directory Id="ProgramMenuFolder">
+			<Directory Id="CodePulseProgramsFolder" Name="Code Pulse"/>
 			</Directory>
 		</Directory>
 	</Fragment>

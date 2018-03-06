@@ -8,8 +8,8 @@
     </Fragment>
     <Fragment>
         <ComponentGroup Id="Tracers">
-            <Component Id="cmpC0ADDE853D5CE7153A18753BFAC66431" Directory="dir7415E8BC643AF6D21E1EB5173B15D68F" Guid="*">
-                <File Id="filBC539E25E21723161831CD156EC426BD" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\dotnet\CodePulse.DotNet.Tracer.Bundle.exe" />
+            <Component Id="cmp5F4BF9F3FB3B12EB821F8409BC17873B" Directory="dir7415E8BC643AF6D21E1EB5173B15D68F" Guid="*">
+                <File Id="fil89E8A6BE9DE5B06C2B965A94B8BC53E2" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\dotnet\CodePulse.DotNet.Tracer.Installer.exe" />
             </Component>
             <Component Id="cmp79DDE8B86EF01A8CA5C4972287965C4F" Directory="dirBD36B0B3BC81A30E46ED205BA3B8ECD2" Guid="*">
                 <File Id="fil4F19EF22B82575CD1093661E44F432A4" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\agent.jar" />

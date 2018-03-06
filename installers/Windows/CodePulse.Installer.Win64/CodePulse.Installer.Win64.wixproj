@@ -28,8 +28,14 @@
   <ItemGroup>
     <Content Include="AppIcon.ico" />
     <Content Include="License.rtf" />
+    <Content Include="WixUIBannerBmp.bmp" />
+    <Content Include="WixUIDialogBmp.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
     <WixExtension Include="WixUIExtension">
       <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
       <Name>WixUIExtension</Name>
