@@ -24,6 +24,7 @@ import org.scalamock.scalatest.MockFactory
 
 import com.codedx.codepulse.agent.common.connect.Connection
 import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.message.MessageProtocolV2
 import com.codedx.codepulse.hq.connect.ControlConnection
 import com.codedx.codepulse.hq.protocol._
 
@@ -40,6 +41,13 @@ trait MockedSendingHelpers { self: MockFactory =>
 			for (msg <- messages) writeMsg(msg)
 		}
 		def writeMessage(out: DataOutputStream, message: ControlMessage) = writeMsg(message)
+	}
+
+	class MockedMessageProtocolV2 extends MessageProtocolV2 {
+		val writeConfigJson = mockFunction[String, Unit]
+		override def writeConfiguration(out: DataOutputStream, configJson: String) = {
+			writeConfigJson(configJson)
+		}
 	}
 
 	protected def mockControlConnection = {
