@@ -2,7 +2,8 @@
 # This script creates the Windows Code Pulse package
 #
 param (
-	[switch] $forceTracerRebuild
+	[switch] $forceTracerRebuild,
+	$version='1.0.0.0'
 )
 
 Set-PSDebug -Strict
@@ -21,6 +22,12 @@ $msbuildPath = Get-MsBuild
 if ($forceTracerRebuild -or (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))) {
     & "$codePulsePath\installers\DotNet-Tracer\build.ps1"
 }
+
+write-verbose "Setting Code Pulse installer version to $version..."
+$productPath = join-path (get-location) 'CodePulse.Installer.Win64\Product.wxs'
+$product = gc $productPath
+$productNew = $product | % { $_ -replace ([System.Text.RegularExpressions.Regex]::Escape('<?define Version = "1.0.0.0" ?>')),"<?define Version = `"$version`" ?>" }
+Set-TextContent $productPath $productNew
 
 Invoke-CodePulsePackaging `
     $codePulseVersion `
@@ -45,6 +52,9 @@ write-verbose "Building Code Pulse installer ($buildConfiguration | x64)..."
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
+
+write-verbose "Restoring original '$productPath' contents..."
+Set-TextContent $productPath $product
 
 write-verbose 'Removing extra installer file(s)...'
 $outputFolder = join-path (get-location) "CodePulse.Installer.Win64\bin\$buildConfiguration"

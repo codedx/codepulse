@@ -10,12 +10,15 @@ param (
 	[switch] $skipInit,
 	[switch] $skipWindows,
 	[switch] $skipMac,
-	[switch] $skipLinux
+	[switch] $skipLinux,
+	$version='1.0.0.0'
 )
 
 Set-PSDebug -Strict
 $ErrorActionPreference = 'Stop'
 $VerbosePreference = 'Continue'
+
+Write-Verbose "Building with version number $version..."
 
 Push-Location $PSScriptRoot
 
@@ -25,11 +28,11 @@ if (-not $skipInit) {
 }
 
 Write-Verbose 'Starting .NET Tracer build...'
-.\DotNet-Tracer\build.ps1
+.\DotNet-Tracer\build.ps1 -version $version
 
 if (-not $skipWindows) {
 	Write-Verbose 'Starting Windows build...'
-	.\Windows\build.ps1
+	.\Windows\build.ps1 -version $version
 }
 
 if (-not $skipMac) {
