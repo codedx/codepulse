@@ -29,10 +29,6 @@ Push-Location $PSScriptRoot
 if (-not $skipInit) {
 	Write-Verbose 'Initializing...'
 	.\Scripts\init.ps1
-    if ($lastexitcode -ne 0) {
-        Write-Verbose 'Aborting build...'
-        exit $lastexitcode
-    }
 }
 
 $bundlePath = join-path $dotNetTracerMainPath "CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe"
