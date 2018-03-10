@@ -88,7 +88,7 @@ Press Enter *after* you have signed the bundle...
 
 if (-not $skipWindows) {
 	Write-Verbose 'Starting Windows build...'
-	.\Windows\build.ps1 -version $version -signOutput $signOutput
+	.\Windows\build.ps1 -version $version -signOutput:$signOutput
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting Windows build...'
         exit $lastexitcode
