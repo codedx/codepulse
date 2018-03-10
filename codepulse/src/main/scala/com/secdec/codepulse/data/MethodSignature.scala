@@ -22,7 +22,7 @@ package com.secdec.codepulse.data
 import scala.collection.mutable.ListBuffer
 import java.lang.reflect.Modifier
 
-/** Describes a JVM method signature.
+/** Describes a method signature.
   *
   * @param name The name of the method, e.g. "doStuff" or "getThings".
   * @param containingClass The fully-qualified name of the Class which this
@@ -36,13 +36,24 @@ import java.lang.reflect.Modifier
   * @param returnType The type that this method returns. Void methods will return
   * 	`Primitive("Void")`; and other return types will follow the same convention
   * 	as those in the `params` list.
+  * @param surrogateFor The MethodSignature for which this method signature is
+  *                     a surrogate. For example, the implementation of a C# method
+  *                     using the yield keyword in a method with the signature
+  *                     "IEnumerable<int> Power(int number, int exponent)"
+  *                     would instantiate and return a nested type named
+  *                     "<Power>d__1" whose "bool IEnumerator.MoveNext()" method would
+  *                     be a surrogate for the "Power" method. Another example, would
+  *                     be use of the C# async keyword.
   */
 case class MethodSignature(
 	name: String,
 	containingClass: String,
 	modifiers: Int,
 	params: List[MethodTypeParam],
-	returnType: MethodTypeParam) {
+	returnType: MethodTypeParam,
+	var surrogateFor: Option[MethodSignature] = None) {
+
+	def isSurrogate: Boolean = return surrogateFor != None
 
 	override def toString = "%s %s %s.%s(%s)".format(Modifier.toString(modifiers), returnType, containingClass, name, params.mkString(", "))
 }
