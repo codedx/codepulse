@@ -8,6 +8,7 @@
 #
 param (
 	[switch] $skipInit,
+    [switch] $skipDotNetTracer,
 	[switch] $skipWindows,
 	[switch] $skipMac,
 	[switch] $skipLinux,
@@ -28,15 +29,30 @@ Push-Location $PSScriptRoot
 if (-not $skipInit) {
 	Write-Verbose 'Initializing...'
 	.\Scripts\init.ps1
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Aborting build...'
+        exit $lastexitcode
+    }
 }
 
-Write-Verbose 'Starting .NET Tracer build...'
-.\DotNet-Tracer\build.ps1 -version $version
+$bundlePath = join-path $dotNetTracerMainPath "CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe"
 
-if ($signOutput) {
-    $bundlePath = join-path $dotNetTracerMainPath "CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe"
+if ($skipDotNetTracer -and -not (test-path $bundlePath)) {
+        Write-Verbose "Cannot use -skipDotNetTracer because the bundle does not exist at $bundlePath."
+        exit 1
+}
 
-    $signingInstructions = @'
+if (-not $skipDotNetTracer) {
+    Write-Verbose 'Starting .NET Tracer build...'
+    .\DotNet-Tracer\build.ps1 -version $version
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Aborting .NET Tracer build...'
+        exit $lastexitcode
+    }
+
+    if ($signOutput) {
+
+        $signingInstructions = @'
 
 Use signtool.exe and insignia.exe to sign CodePulse.DotNet.Tracer.Installer.exe:
 
@@ -63,29 +79,42 @@ Step 4: Sign CodePulse.DotNet.Tracer.Installer.exe
 Press Enter *after* you have signed the bundle...
 
 '@
-    Write-Host $signingInstructions; Read-Host
+        Write-Host $signingInstructions; Read-Host
 
-    Write-Verbose 'Verifying that the bundle is signed...'
-    signtool.exe verify /pa /tw $bundlePath
-    if ($lastexitcode -ne 0) {
-        Write-Verbose 'Cannot continue because the bundle is not signed.'
-        exit $lastexitcode
+        Write-Verbose 'Verifying that the bundle is signed...'
+        signtool.exe verify /pa /tw $bundlePath
+        if ($lastexitcode -ne 0) {
+            Write-Verbose 'Cannot continue because the bundle is not signed.'
+            exit $lastexitcode
+        }
     }
-}
+} 
 
 if (-not $skipWindows) {
 	Write-Verbose 'Starting Windows build...'
-	.\Windows\build.ps1 -version $version
+	.\Windows\build.ps1 -version $version -signOutput $signOutput
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Aborting Windows build...'
+        exit $lastexitcode
+    }
 }
 
 if (-not $skipMac) {
 	Write-Verbose 'Starting macOS build...'
 	.\macOS\build.ps1
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Aborting macOS build...'
+        exit $lastexitcode
+    }
 }
 
 if (-not $skipLinux) {
 	Write-Verbose 'Starting Linux build...'
 	.\Linux\build.ps1
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Aborting Linux build...'
+        exit $lastexitcode
+    }
 }
 
 Pop-Location

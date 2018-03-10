@@ -3,6 +3,7 @@
 #
 param (
 	[switch] $forceTracerRebuild,
+    [switch] $signOutput,
 	$version='1.0.0.0'
 )
 
@@ -59,6 +60,27 @@ Set-TextContent $productPath $product
 write-verbose 'Removing extra installer file(s)...'
 $outputFolder = join-path (get-location) "CodePulse.Installer.Win64\bin\$buildConfiguration"
 dir $outputFolder -Exclude CodePulse.Win64.msi | % { remove-item $_.FullName -Force }
+
+if ($signOutput) {
+    $msiPath = join-path $outputFolder 'CodePulse.Win64.msi'
+    $signingInstructions = @'
+
+Use signtool.exe to sign CodePulse.Win64.msi:
+
+"C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x86\signtool.exe" sign /v /f <path-to-pfx-file> /p <pfx-file-password> /t http://timestamp.verisign.com/scripts/timstamp.dll CodePulse.Win64.msi
+
+Press Enter *after* you have signed the bundle...
+
+'@
+    Write-Host $signingInstructions; Read-Host
+
+    Write-Verbose 'Verifying that the MSI is signed...'
+    signtool.exe verify /pa /tw $msiPath
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Cannot continue because the MSI is not signed.'
+        exit $lastexitcode
+    }
+}
 
 Invoke-CodePulseZip `
     $PSScriptRoot `
