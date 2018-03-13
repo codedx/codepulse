@@ -1,4 +1,4 @@
-﻿// Copyright 2017 Secure Decisions, a division of Applied Visions, Inc. 
+﻿// Copyright 2018 Secure Decisions, a division of Applied Visions, Inc. 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of 
 // this software and associated documentation files (the "Software"), to deal in the 
 // Software without restriction, including without limitation the rights to use, copy, 
@@ -26,10 +26,12 @@ using System.Linq;
 using CodePulse.Client.Agent;
 using CodePulse.Client.Config;
 using log4net;
+using OpenCover.Framework;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
+using OpenCover.Framework.Persistance;
 
-namespace OpenCover.Framework.Persistance
+namespace CodePulse.Framework.Persistence
 {
     /// <summary>
     /// Persists data to Code Pulse application.
@@ -54,7 +56,7 @@ namespace OpenCover.Framework.Persistance
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            _sendTimerExpiration = commandLine.SendVisitPointsTimerInterval != 0 ? 
+            _sendTimerExpiration = commandLine.SendVisitPointsTimerInterval != 0 ?
                 DateTime.UtcNow.AddMilliseconds(commandLine.SendVisitPointsTimerInterval) : DateTime.MaxValue;
         }
 
@@ -72,15 +74,27 @@ namespace OpenCover.Framework.Persistance
                 throw new ArgumentNullException(nameof(configuration));
             }
 
+            return Initialize(new DefaultTraceAgent(configuration));
+        }
+
+        /// <summary>
+        /// Initializes Code Pulse agent using the specified trace agent.
+        /// </summary>
+        /// <param name="traceAgent">Trace agent to use.</param>
+        /// <returns>True if agent started and ready to send trace data to Code Pulse. False
+        /// if the agent could not connect or prepare for communication with Code Pulse.
+        /// </returns>
+        public bool Initialize(ITraceAgent traceAgent)
+        {
             if (_agent != null)
             {
                 throw new InvalidOperationException("Agent is already initialized");
             }
+            _agent = traceAgent;
 
-            _agent = new DefaultTraceAgent(configuration);
             if (!_agent.Connect())
             {
-                _logger.Error($"Cannot connect agent to Code Pulse at {configuration.HqHost} on port {configuration.HqPort}.");
+                _logger.Error($"Cannot connect agent to Code Pulse at {_agent.StaticAgentConfiguration.HqHost} on port {_agent.StaticAgentConfiguration.HqPort}.");
                 return false;
             }
 
@@ -91,7 +105,7 @@ namespace OpenCover.Framework.Persistance
                 _logger.Error("Could not prepare to send data to Code Pulse");
                 return false;
             }
-            
+
             return true;
         }
 
@@ -113,7 +127,10 @@ namespace OpenCover.Framework.Persistance
         {
             base.Commit();
 
+            AddTraceData();
+
             _agent.Shutdown();
+            _agent.WaitForShutdown();
         }
 
         /// <inheritdoc />
@@ -131,6 +148,11 @@ namespace OpenCover.Framework.Persistance
             }
             _sendTimerExpiration = now.AddMilliseconds(CommandLine.SendVisitPointsTimerInterval);
 
+            AddTraceData();
+        }
+
+        private void AddTraceData()
+        {
             var contextIds = ContextSpidMap.Keys.ToArray();
             foreach (var contextId in contextIds)
             {
@@ -201,3 +223,4 @@ namespace OpenCover.Framework.Persistance
         }
     }
 }
+

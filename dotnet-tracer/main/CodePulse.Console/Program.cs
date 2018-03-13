@@ -37,6 +37,7 @@ using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
 using log4net;
 using CodePulse.Client.Config;
+using CodePulse.Framework.Persistence;
 using OpenCover.Framework.Model;
 using File = System.IO.File;
 

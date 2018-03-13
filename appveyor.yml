@@ -15,6 +15,7 @@ test:
     - '**\CodePulse.Console.Test.dll'
     - '**\OpenCover.Test.dll'
     - '**\OpenCover.Test.Profiler.dll'
+    - '**\CodePulse.Framework.Test.dll'
 after_test:
 - ps: >-
     $wc = New-Object 'System.Net.WebClient'

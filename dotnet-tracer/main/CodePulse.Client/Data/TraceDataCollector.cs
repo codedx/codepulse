@@ -78,7 +78,7 @@ namespace CodePulse.Client.Data
         {
             if (_task.Status != TaskStatus.Running)
             {
-                _logger.Warn($"The trace data collector is not running, so method visit ignored for {className}.{methodName} ({methodSignature}).");
+                _logger.Warn($"The trace data collector is not running (status is {_task.Status}), so method visit ignored for {className}.{methodName} ({methodSignature}).");
                 return;
             }
 

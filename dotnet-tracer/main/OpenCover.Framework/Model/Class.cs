@@ -26,9 +26,12 @@ namespace OpenCover.Framework.Model
         /// The full name of the class
         /// </summary>
         public string FullName { get; set; }
-        
+
+        /// <summary>
+        /// The source files
+        /// </summary>
         [XmlIgnore]
-        internal File[] Files { get; set; }
+        public File[] Files { get; set; }
 
         /// <summary>
         /// A list of methods that make up the class
