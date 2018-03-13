@@ -3,7 +3,8 @@
 #
 param (
 	[switch] $skipBuildInit,
-	[switch] $skipTests
+	[switch] $skipTests,
+	$version='1.0.0.0'
 )
 
 Set-PSDebug -Strict
@@ -42,6 +43,32 @@ write-verbose "Restoring NuGet packages..."
 if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
+
+write-verbose "Setting Code Pulse Console file version to $version..."
+$assemblyInfoPath = join-path (get-location) 'CodePulse.Console\Properties\AssemblyInfo.cs'
+$assemblyInfo = gc $assemblyInfoPath
+$assemblyInfoNew = $assemblyInfo | % { $_ -replace ([System.Text.RegularExpressions.Regex]::Escape('[assembly: AssemblyFileVersion("1.0.0.0")]')),"[assembly: AssemblyFileVersion(`"$version`")]" }
+Set-TextContent $assemblyInfoPath $assemblyInfoNew
+
+$wixVersionVariable = [System.Text.RegularExpressions.Regex]::Escape('<?define Version = "1.0.0.0" ?>')
+
+write-verbose "Setting Code Pulse Bundle version to $version..."
+$bundlePath = join-path (get-location) 'CodePulse.Bundle\Bundle.wxs'
+$bundle = gc $bundlePath
+$bundleNew = $bundle | % { $_ -replace $wixVersionVariable,"<?define Version = `"$version`" ?>" }
+Set-TextContent $bundlePath $bundleNew
+
+write-verbose "Setting Code Pulse x86 version to $version..."
+$product32Path = join-path (get-location) 'CodePulse.Installer\Product.wxs'
+$product32 = gc $product32Path
+$product32New = $product32 | % { $_ -replace $wixVersionVariable,"<?define Version = `"$version`" ?>" }
+Set-TextContent $product32Path $product32New
+
+write-verbose "Setting Code Pulse x64 version to $version..."
+$product64Path = join-path (get-location) 'CodePulse.Installer.x64\Product.wxs'
+$product64 = gc $product64Path
+$product64New = $product64 | % { $_ -replace $wixVersionVariable,"<?define Version = `"$version`" ?>" }
+Set-TextContent $product64Path $product64New
 
 $installerConfigurationName = "$buildConfiguration-Installer"
 
@@ -84,5 +111,17 @@ if (-not $skipTests) {
         exit $lastexitcode
     }
 }
+
+write-verbose "Restoring original '$assemblyInfoPath' contents..."
+Set-TextContent $assemblyInfoPath $assemblyInfo
+
+write-verbose "Restoring original '$bundlePath' contents..."
+Set-TextContent $bundlePath $bundle
+
+write-verbose "Restoring original '$product32Path' contents..."
+Set-TextContent $product32Path $product32
+
+write-verbose "Restoring original '$product64Path' contents..."
+Set-TextContent $product64Path $product64
 
 Pop-Location

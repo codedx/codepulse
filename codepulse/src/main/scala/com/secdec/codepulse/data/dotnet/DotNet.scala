@@ -31,12 +31,14 @@ trait DotNetBuilder {
 }
 
 case class MethodInfo(
+	id: String,
 	fullyQualifiedName: String,
 	containingClass: String,
 	accessModifiers: Int,
 	parameters: List[String],
 	returnType: String,
-	instructions: Int
+	instructions: Int,
+	surrogateFor: String
 )
 
 object DotNet {

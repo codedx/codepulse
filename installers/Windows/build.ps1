@@ -2,7 +2,9 @@
 # This script creates the Windows Code Pulse package
 #
 param (
-	[switch] $forceTracerRebuild
+	[switch] $forceTracerRebuild,
+    [switch] $signOutput,
+	$version='1.0.0.0'
 )
 
 Set-PSDebug -Strict
@@ -21,6 +23,12 @@ $msbuildPath = Get-MsBuild
 if ($forceTracerRebuild -or (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))) {
     & "$codePulsePath\installers\DotNet-Tracer\build.ps1"
 }
+
+write-verbose "Setting Code Pulse installer version to $version..."
+$productPath = join-path (get-location) 'CodePulse.Installer.Win64\Product.wxs'
+$product = gc $productPath
+$productNew = $product | % { $_ -replace ([System.Text.RegularExpressions.Regex]::Escape('<?define Version = "1.0.0.0" ?>')),"<?define Version = `"$version`" ?>" }
+Set-TextContent $productPath $productNew
 
 Invoke-CodePulsePackaging `
     $codePulseVersion `
@@ -46,9 +54,33 @@ if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
 
+write-verbose "Restoring original '$productPath' contents..."
+Set-TextContent $productPath $product
+
 write-verbose 'Removing extra installer file(s)...'
 $outputFolder = join-path (get-location) "CodePulse.Installer.Win64\bin\$buildConfiguration"
 dir $outputFolder -Exclude CodePulse.Win64.msi | % { remove-item $_.FullName -Force }
+
+if ($signOutput) {
+    $msiPath = join-path $outputFolder 'CodePulse.Win64.msi'
+    $signingInstructions = @'
+
+Use signtool.exe to sign CodePulse.Win64.msi:
+
+"C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x86\signtool.exe" sign /v /f <path-to-pfx-file> /p <pfx-file-password> /t http://timestamp.verisign.com/scripts/timstamp.dll CodePulse.Win64.msi
+
+Press Enter *after* you have signed the bundle...
+
+'@
+    Write-Host $signingInstructions; Read-Host
+
+    Write-Verbose 'Verifying that the MSI is signed...'
+    signtool.exe verify /pa /tw $msiPath
+    if ($lastexitcode -ne 0) {
+        Write-Verbose 'Cannot continue because the MSI is not signed.'
+        exit $lastexitcode
+    }
+}
 
 Invoke-CodePulseZip `
     $PSScriptRoot `

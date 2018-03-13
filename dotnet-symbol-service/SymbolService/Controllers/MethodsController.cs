@@ -20,6 +20,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Mono.Cecil;
 using Mono.Cecil.Pdb;
 using SymbolService.Model;
@@ -49,26 +50,44 @@ namespace SymbolService.Controllers
 
                 using (var module = LoadModule(assemblyPath, symbolsPath))
                 {
-                    var methodInfos = module.Types.SelectMany(GetMethodInfos);
-                    return new JsonResult(methodInfos.ToArray()); // materialize collection prior to module disposal
+                    var methodDefinitions = GetMethodDefinitions(module, out var methodInfoMap);
+
+                    var stateMachineAttributeTypes = new List<string>(new []
+                    {
+                        typeof(AsyncStateMachineAttribute).FullName,
+                        typeof(IteratorStateMachineAttribute).FullName
+                    });
+
+                    var stateMachineSupportedMethods =
+                        methodDefinitions.Where(x => !x.DebugInformation.HasSequencePoints &&
+                                                      x.HasCustomAttributes && x.CustomAttributes.Any(y =>
+                                                      stateMachineAttributeTypes.Contains(y.AttributeType.FullName))).ToArray();
+
+                    foreach (var stateMachineSupportedMethod in stateMachineSupportedMethods)
+                    {
+                        var stateMachineTypeDefinition = (TypeDefinition) stateMachineSupportedMethod.CustomAttributes
+                            .Single(x => stateMachineAttributeTypes.Contains(x.AttributeType.FullName))
+                            .ConstructorArguments.Single().Value;
+
+                        foreach (var stateMachineMethod in stateMachineTypeDefinition.Methods.Where(x => x.DebugInformation.HasSequencePoints))
+                        {
+                            if (!methodInfoMap.TryGetValue(stateMachineSupportedMethod.FullName, out var stateMachineSupportedMethodInfo))
+                            {
+                                stateMachineSupportedMethodInfo = GetMethodInfo(stateMachineSupportedMethod);
+                                methodInfoMap[stateMachineSupportedMethod.FullName] = stateMachineSupportedMethodInfo;
+                            }
+
+                            methodInfoMap[stateMachineMethod.FullName].SurrogateFor = methodInfoMap[stateMachineSupportedMethod.FullName].Id;
+                        }
+                    }
+
+                    return new JsonResult(methodInfoMap.Values);
                 }
             }
             catch
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
-        }
-
-        private IList<MethodInfo> GetMethodInfos(TypeDefinition typeDefinition)
-        {
-            var methodInfos = new List<MethodInfo>();
-            foreach (var nestedType in typeDefinition.NestedTypes)
-            {
-                methodInfos.AddRange(GetMethodInfos(nestedType));
-            }
-
-            methodInfos.AddRange(typeDefinition.Methods.Select(GetMethodInfo));
-            return methodInfos;
         }
 
         private Tuple<string, string> GenerateFilePaths()
@@ -102,6 +121,38 @@ namespace SymbolService.Controllers
 
                 return ModuleDefinition.ReadModule(assemblyPath, parameters);
             }
+        }
+
+        private List<MethodDefinition> GetMethodDefinitions(ModuleDefinition module, out Dictionary<string, MethodInfo> methodInfoMap)
+        {
+            var allMethodDefinitions = new List<MethodDefinition>();
+            methodInfoMap = new Dictionary<string, MethodInfo>();
+            foreach (var type in module.Types)
+            {
+                allMethodDefinitions.AddRange(GetMethodDefinitions(type, ref methodInfoMap));
+            }
+            return allMethodDefinitions;
+        }
+
+        private IEnumerable<MethodDefinition> GetMethodDefinitions(TypeDefinition typeDefinition, ref Dictionary<string, MethodInfo> methodInfoMap)
+        {
+            var definitions = new List<MethodDefinition>();
+            foreach (var type in typeDefinition.NestedTypes)
+            {
+                definitions.AddRange(GetMethodDefinitions(type, ref methodInfoMap));
+            }
+
+            foreach (var method in typeDefinition.Methods)
+            {
+                definitions.Add(method);
+
+                if (method.DebugInformation.HasSequencePoints)
+                {
+                    methodInfoMap[method.FullName] = GetMethodInfo(method);
+                }
+            }
+
+            return definitions;
         }
 
         private MethodInfo GetMethodInfo(MethodDefinition method)

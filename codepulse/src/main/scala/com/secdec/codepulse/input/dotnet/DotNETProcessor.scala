@@ -78,7 +78,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
 						for {
 							(sig, size) <- methods
-							treeNode <- Option(builder.getOrAddMethod(groupName, sig, size))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 

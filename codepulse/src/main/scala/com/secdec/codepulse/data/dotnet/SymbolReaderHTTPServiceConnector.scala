@@ -41,14 +41,25 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 		val request = symbolService.POST.addBodyPart(new FilePart("assemblyFile", assembly)).addBodyPart(new FilePart("symbolsFile", symbols))
 
 		val result = Await.result(Http(request).option, 10 second).head.getResponseBody
-		parse(result).children.map(child => child.extract[MethodInfo]).map(methodInfo => {
-			(new MethodSignature(
+
+		val methodInfos = parse(result).children.map(child => {
+			val methodInfo = child.extract[MethodInfo]
+			(methodInfo.id, methodInfo.surrogateFor, methodInfo.instructions, (new MethodSignature(
 				methodInfo.fullyQualifiedName,
 				methodInfo.containingClass,
 				methodInfo.accessModifiers,
 				methodInfo.parameters.map(parameter => MethodTypeParam.ReferenceType(parameter)),
 				MethodTypeParam.ReferenceType(methodInfo.returnType)
-			), methodInfo.instructions)
+			)))}).sortBy(_._2)
+
+		val methodSignaturesById = collection.mutable.Map[String, MethodSignature]().empty
+
+		methodInfos.map((methodInfo:(String, String, Int, MethodSignature)) => {
+			methodSignaturesById(methodInfo._1) = methodInfo._4
+			if (methodInfo._2 != "00000000-0000-0000-0000-000000000000") {
+				methodSignaturesById(methodInfo._1).surrogateFor = Some(methodSignaturesById(methodInfo._2))
+			}
+			(methodInfo._4, methodInfo._3)
 		})
 	}
 }

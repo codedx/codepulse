@@ -801,6 +801,9 @@
       <Component Id="cmpFE1BA3B4FEB626287D6AB835B9C30EC4" Directory="dir2859AB326CD40E14FF854B9E58690AB1" Guid="*">
         <File Id="fil748A54D2F4C699977B45E613D4AD2551" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\README.TXT" />
       </Component>
+      <Component Id="cmpF65009D6A4569E0321EFF65191E51803" Directory="dir3455DF23E2F873685E412C1DE9618424" Guid="*">
+        <File Id="fil17693DD9F67CD1F73AADA92D60570BD2" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\icon.png" />
+      </Component>
       <Component Id="cmp52A734A447F0698CFD44CB867C805494" Directory="dir3455DF23E2F873685E412C1DE9618424" Guid="*">
         <File Id="fil9479BA97D6934600E54E538031C4E5A6" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\index.html" />
       </Component>

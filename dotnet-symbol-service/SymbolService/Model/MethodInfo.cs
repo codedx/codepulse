@@ -21,6 +21,8 @@ namespace SymbolService.Model
 {
 	public class MethodInfo
 	{
+        public Guid Id { get; }
+
 		public String FullyQualifiedName { get; set; }
 
 		public String ContainingClass { get; set; }
@@ -32,5 +34,12 @@ namespace SymbolService.Model
 		public String ReturnType { get; set; }
 
 		public int Instructions { get; set; }
+
+        public Guid SurrogateFor { get; set; }
+
+	    public MethodInfo()
+	    {
+	        Id = Guid.NewGuid();
+	    }
     }
 }

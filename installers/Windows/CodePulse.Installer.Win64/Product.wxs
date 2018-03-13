@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   
-  <?define Version = "2.0.0.0" ?>
+  <?define Version = "1.0.0.0" ?>
   
 	<Product Id="*" Name="Code Pulse" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="dc5c75ce-4562-4dc9-a1f5-e8e7e01b1c13">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />

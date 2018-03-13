@@ -19,12 +19,6 @@ namespace OpenCover.Test.ConsoleEx
             OutputHasPreferred32BitEnabled("OpenCover.Console.exe");
         }
 
-        [Test]
-        public void CodePulseConsoleOutputHasPreferred32BitEnabled()
-        {
-            OutputHasPreferred32BitEnabled("CodePulse.DotNet.Tracer.exe");
-        }
-
         private void OutputHasPreferred32BitEnabled(string filename)
         {
             var pi = new ProcessStartInfo

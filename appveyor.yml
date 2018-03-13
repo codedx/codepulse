@@ -2,7 +2,7 @@ version: 1.0.{build}
 image: Visual Studio 2017
 clone_folder: C:\CodePulse
 build_script:
-- cmd: powershell -file C:\CodePulse\installers\build.ps1
+- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version %APPVEYOR_BUILD_VERSION%
 before_test:
 - cmd: >-
     C:\Windows\System32\regsvr32.exe C:\CodePulse\dotnet-tracer\main\bin\Release\x64\OpenCover.Profiler.dll /s
@@ -15,6 +15,7 @@ test:
     - '**\CodePulse.Console.Test.dll'
     - '**\OpenCover.Test.dll'
     - '**\OpenCover.Test.Profiler.dll'
+    - '**\CodePulse.Framework.Test.dll'
 after_test:
 - ps: >-
     $wc = New-Object 'System.Net.WebClient'

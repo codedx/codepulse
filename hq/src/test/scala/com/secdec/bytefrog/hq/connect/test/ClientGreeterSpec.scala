@@ -35,6 +35,7 @@ import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1
 import com.codedx.codepulse.agent.common.connect.Connection
 import com.codedx.codepulse.agent.common.message.MessageConstantsV1
 import com.codedx.codepulse.agent.common.message.MessageProtocol
+import com.codedx.codepulse.agent.common.message.MessageProtocolV2
 import com.codedx.codepulse.hq.connect._
 import com.codedx.codepulse.hq.protocol._
 import com.codedx.codepulse.hq.config._
@@ -181,6 +182,34 @@ class ClientGreeterSpec extends FunSpec with Matchers with MockFactory with Mock
 
 			greeter.handleHello(1)
 
+		}
+
+		it("should write a JSON configuration to the client if everything goes smoothly in 'handleHello'") {
+			val clientClose = mockFunction[Unit]
+			val client = new Connection {
+				def close = clientClose()
+				val input = new DataInputStream(stub[InputStream])
+				val output = new DataOutputStream(stub[OutputStream])
+			}
+
+			val controlMessageSenderV2 = new ControlMessageSenderV2
+			val mockedMessageProtocolV2 = new MockedMessageProtocolV2
+			controlMessageSenderV2.protocol = mockedMessageProtocolV2
+
+			val connector = mock[TraceControlConnector]
+			val pHelper = new MockedProtocolHelper(1) {
+				override val controlWriter = controlMessageSenderV2
+			}
+			val greeter = new ClientGreeter(client, connector, mock[TraceRegistry], pHelper)
+			val agentConfiguration = new AgentConfiguration(1, 2, 3, 4)
+			val config = Configuration(1, TraceSettings(), agentConfiguration)
+			val configMsg = ControlMessage.Configuration(config)
+
+			(connector.addControlConnection _).expects(*).once.returning(Some(configMsg))
+			mockedMessageProtocolV2.writeConfigJson.expects("{\"bufferMemoryBudget\":2,\"exclusions\":[],\"heartbeatInterval\":1,\"inclusions\":[],\"numDataSenders\":4,\"queueRetryCount\":3,\"runId\":1}").once()
+			clientClose.expects.never
+
+			greeter.handleHello(1)
 		}
 
 		it("should close a 'data' client if the TraceRegistry's getTrace Future doesn't provide a result within 500ms") {
