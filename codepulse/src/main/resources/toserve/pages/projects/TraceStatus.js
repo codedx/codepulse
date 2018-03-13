@@ -63,7 +63,7 @@
         API.requestStatus(function(status, error){
             console.log('ready status:', status, error)
 			// if there is an error at this point, we simply want to fail loading
-            if(error) statusBus.error('loading-failed')
+            if(error) statusBus.error(status)
             else statusBus.push(status)
         })
 

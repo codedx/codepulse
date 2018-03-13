@@ -48,6 +48,7 @@ object ProjectManager {
 class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	private val projects = MutableMap.empty[ProjectId, TracingTarget]
+	private val allSessionProjects = MutableMap.empty[ProjectId, TracingTarget]
 	private val pendingProjectDeletions = MutableMap.empty[TracingTarget, DeletionKey]
 	private val dataProvider: ProjectDataProvider = projectDataProvider
 	private val transientDataProvider: TransientTraceDataProvider = transientTraceDataProvider
@@ -55,6 +56,8 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	/** Looks up a TracingTarget from the given `traceId` */
 	def getProject(projectId: ProjectId): Option[TracingTarget] = projects.get(projectId)
+
+	def getInclusiveProject(projectId: ProjectId): Option[TracingTarget] = allSessionProjects.get(projectId)
 
 	def projectsIterator: Iterator[TracingTarget] = projects.valuesIterator
 
@@ -91,6 +94,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 		val target = AkkaTracingTarget(actorSystem, projectId, projectData, transientDataProvider get projectId, jspMapper)
 		projects.put(projectId, target)
+		allSessionProjects.put(projectId, target)
 
 		// cause a projectListUpdate when this project's name changes
 		projectData.metadata.nameChanges ->> { projectListUpdates fire () }
@@ -109,10 +113,10 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 		target
 	}
 
-	def removeUnloadedProject(projectId: ProjectId): Option[TracingTarget] = {
+	def removeUnloadedProject(projectId: ProjectId, reason: String): Option[TracingTarget] = {
 		dataProvider removeProject projectId
 		for (project <- projects remove projectId) yield {
-			project.notifyLoadingFailed()
+			project.notifyLoadingFailed(reason)
 			project
 		}
 	}

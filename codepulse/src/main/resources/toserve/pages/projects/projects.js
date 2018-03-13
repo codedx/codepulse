@@ -55,10 +55,14 @@ $(document).ready(function(){
 			})
 
 		Trace.status.onValue(function(status){
-			if(status == 'loading-failed'){
-				alert('Processing data failed. You will be redirected to the home screen.')
+			if(status.name == 'loading-failed'){
+				let reason = "Unknown reason."
+				if(status.information) {
+					reason = status.information
+				}
+				alert('Processing data failed. Reason:\n' + reason + '\n\nYou will be redirected to the home screen.')
 				window.location.href = '/'
-			} else if(status == 'delete-pending'){
+			} else if(status.name == 'delete-pending'){
 				// just redirect. There will be a notification waiting on the home page
 				window.location.href = '/'
 			} else {

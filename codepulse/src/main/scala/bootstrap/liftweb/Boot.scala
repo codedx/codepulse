@@ -21,19 +21,16 @@ package bootstrap.liftweb
 
 import scala.language.implicitConversions
 import scala.language.postfixOps
+
 import com.secdec.codepulse.components.includes.snippet.Includes
 import net.liftweb.common.Empty
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
-import net.liftweb.http.Html5Properties
-import net.liftweb.http.LiftRules
+import net.liftweb.http._
 import net.liftweb.http.LiftRulesMocker.toLiftRules
-import net.liftweb.http.LiftSession
-import net.liftweb.http.NoticeType
-import net.liftweb.http.Req
 import net.liftweb.util.Helpers.intToTimeSpanBuilder
 import net.liftweb.util.Vendor.valToVender
-
+import net.liftweb.http.RedirectWithState
 import com.secdec.codepulse.dependencycheck
 import com.secdec.codepulse.tracer
 
@@ -77,6 +74,11 @@ class Boot extends Loggable {
 
 		// Set Lift's SiteMap based on the SitemapConfig object.
 		LiftRules.setSiteMap(Sitemap.buildSitemap(tracer.projectManager))
+
+		LiftRules.uriNotFound.prepend {
+//			case (req, _) => new NotFoundAsResponse(RedirectWithState("/", RedirectState(() => NotFoundResponse("Attempted to redirect to a page that no longer exists"))))
+			case (req, _) => new NotFoundAsResponse(RedirectResponse("/", req))
+		}
 
 		LiftRules.jsArtifacts = net.liftweb.http.js.jquery.JQueryArtifacts
 

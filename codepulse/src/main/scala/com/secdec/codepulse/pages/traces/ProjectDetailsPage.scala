@@ -22,8 +22,8 @@ package com.secdec.codepulse.pages.traces
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.tracer.ProjectManager
 import com.secdec.codepulse.tracer.TracingTarget
-
 import net.liftweb.common.Box
+import net.liftweb.common.Box._
 import net.liftweb.sitemap.Menu
 
 object ProjectDetailsPage {
@@ -31,7 +31,7 @@ object ProjectDetailsPage {
 	def projectMenu(projectManager: ProjectManager) = {
 		def parse(link: String): Box[TracingTarget] = for {
 			projectId <- ProjectId unapply link
-			target <- projectManager getProject projectId
+			target <- (projectManager getProject projectId) ?~ "Project doesn't exist"
 		} yield target
 		def encode(target: TracingTarget): String = target.id.num.toString
 

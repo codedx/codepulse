@@ -26,14 +26,17 @@ import com.secdec.codepulse.tracer.TracingTarget
 import com.secdec.codepulse.tracer.TracingTargetState
 import com.secdec.codepulse.util.comet.CometWidget
 import com.secdec.codepulse.util.comet.CometWidgetCompanion
-
 import net.liftweb.common.Loggable
 import net.liftweb.http.js.JE.JsFunc
 import net.liftweb.http.js.JE.JsVar
 import net.liftweb.http.js.JsCmds.jsExpToJsCmd
 import net.liftweb.http.js.JsExp.strToJsExp
 import net.liftweb.http.js.jquery.JqJE.Jq
+import net.liftweb.json.{ DefaultFormats, Serialization, ShortTypeHints }
+import net.liftweb.json.Serialization.write
 import reactive.Observing
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.JsonDSL._
 
 object CometTracerUI extends CometWidgetCompanion[TracingTarget, CometTracerUI] {
 	val className = "CometTracerUi"
@@ -55,6 +58,9 @@ class CometTracerUI extends CometWidget[TracingTarget, CometTracerUI]
 
 	def sendStateUpdate(state: TracingTargetState) = partialUpdate {
 		Jq(JsVar("document")) ~> JsFunc("trigger", "tracer-state-change", state.name)
+		implicit val formats = DefaultFormats
+		val status: JObject = ("name" -> state.name) ~ ("information" -> state.information)
+		Jq(JsVar("document")) ~> JsFunc("trigger", "tracer-state-change", status)
 	}
 
 	def render = NodeSeq.Empty

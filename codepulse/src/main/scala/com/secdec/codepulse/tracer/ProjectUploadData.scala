@@ -79,7 +79,7 @@ object ProjectUploadData {
 			case util.Failure(exception) =>
 				println(s"Error importing file: $exception")
 				exception.printStackTrace()
-				projectManager.removeUnloadedProject(projectId)
+				projectManager.removeUnloadedProject(projectId, exception.getMessage)
 
 			case util.Success(_) =>
 				for (target <- projectManager getProject projectId) {

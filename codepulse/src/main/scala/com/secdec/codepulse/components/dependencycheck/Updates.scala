@@ -54,7 +54,7 @@ class Updates extends Actor {
 				vulnerableNodes)
 		}
 
-		case ProcessEnvelope(_, ProcessStatus.Failed(identifier, _, _)) => {
+		case ProcessEnvelope(_, ProcessStatus.Failed(identifier, action, _)) if action == "Dependency Check" => {
 			val project = projectDataProvider getProject ProjectId(identifier.toInt)
 			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Failed
 			Updates.pushUpdate(identifier, ("state" -> "failed"))

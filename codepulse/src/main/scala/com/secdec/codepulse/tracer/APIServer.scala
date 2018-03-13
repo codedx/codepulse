@@ -158,6 +158,16 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		}
 	}
 
+	protected object InclusiveTargetPath extends PathMatcher[(TracingTarget, List[String])] {
+		def unapply(path: List[String]): Option[(TracingTarget, List[String])] = path match {
+			case "api" :: ProjectId(projectId) :: tail => manager.getInclusiveProject(projectId) map { _ -> tail }
+			case _ => None
+		}
+		def apply(ts: (TracingTarget, List[String])) = {
+			"api" :: ts._1.id.num.toString :: ts._2
+		}
+	}
+
 	protected object NotificationPath extends PathMatcher[(NotificationId, List[String])] {
 		def unapply(path: List[String]): Option[(NotificationId, List[String])] = path match {
 			case "api" :: "notifications" :: AsInt(id) :: tail => Some(NotificationId(id) -> tail)
@@ -169,6 +179,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	}
 
 	protected def simpleTargetPath(tail: String): PathMatcher[TracingTarget] = TargetPath.map[TracingTarget](
+		{ case (target, List(`tail`)) => target },
+		(_, List(tail)))
+
+	protected def simpleInclusiveTargetPath(tail: String): PathMatcher[TracingTarget] = InclusiveTargetPath.map[TracingTarget](
 		{ case (target, List(`tail`)) => target },
 		(_, List(tail)))
 
@@ -205,7 +219,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		val End = simpleTargetPath("end")
 
 		/** /api/<target.id>/status */
-		val Status = simpleTargetPath("status")
+		val Status = simpleInclusiveTargetPath("status")
 
 		/** /api/<target.id>/dcstatus */
 		val DepCheckStatus = simpleTargetPath("dcstatus")
@@ -427,7 +441,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// GET the current status of the trace
 		case Paths.Status(target) Get req =>
-			target.getState map { state => PlainTextResponse(state.name) }
+			target.getState map { state =>
+				val status: JObject = ("name" -> state.name) ~ ("information" -> state.information)
+				JsonResponse(status)
+			}
 
 		// GET the current dependency check status for the trace
 		case Paths.DepCheckStatus(target) Get req =>
