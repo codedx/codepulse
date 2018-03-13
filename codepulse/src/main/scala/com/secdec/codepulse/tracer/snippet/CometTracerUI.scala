@@ -57,7 +57,6 @@ class CometTracerUI extends CometWidget[TracingTarget, CometTracerUI]
 	}
 
 	def sendStateUpdate(state: TracingTargetState) = partialUpdate {
-		Jq(JsVar("document")) ~> JsFunc("trigger", "tracer-state-change", state.name)
 		implicit val formats = DefaultFormats
 		val status: JObject = ("name" -> state.name) ~ ("information" -> state.information)
 		Jq(JsVar("document")) ~> JsFunc("trigger", "tracer-state-change", status)
