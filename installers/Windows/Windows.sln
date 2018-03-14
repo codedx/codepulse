@@ -5,20 +5,22 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CodePulse.Installer.Win64", "CodePulse.Installer.Win64\CodePulse.Installer.Win64.wixproj", "{B59B3B6A-291E-45D2-ABBB-C55C7515683E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodePulse.Installer", "CodePulse.Installer\CodePulse.Installer.vcxproj", "{8EE1CBD6-5D1B-4821-9ABF-07ABEA6D1134}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Debug|x64.ActiveCfg = Debug|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Debug|x64.Build.0 = Debug|x64
-		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Debug|x86.ActiveCfg = Debug|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Release|x64.ActiveCfg = Release|x64
 		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Release|x64.Build.0 = Release|x64
-		{B59B3B6A-291E-45D2-ABBB-C55C7515683E}.Release|x86.ActiveCfg = Release|x64
+		{8EE1CBD6-5D1B-4821-9ABF-07ABEA6D1134}.Debug|x64.ActiveCfg = Debug|x64
+		{8EE1CBD6-5D1B-4821-9ABF-07ABEA6D1134}.Debug|x64.Build.0 = Debug|x64
+		{8EE1CBD6-5D1B-4821-9ABF-07ABEA6D1134}.Release|x64.ActiveCfg = Release|x64
+		{8EE1CBD6-5D1B-4821-9ABF-07ABEA6D1134}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

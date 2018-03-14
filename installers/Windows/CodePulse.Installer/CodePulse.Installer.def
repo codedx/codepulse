@@ -1,0 +1,4 @@
+LIBRARY "CodePulse.Installer.dll"
+
+EXPORTS
+	ValidateCodePulseInstallFolder
