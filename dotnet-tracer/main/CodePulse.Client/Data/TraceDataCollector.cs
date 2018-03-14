@@ -134,11 +134,40 @@ namespace CodePulse.Client.Data
 
         private void ReadTraceMessages()
         {
-            while (!_traceMessages.IsCompleted && !_cancellationTokenSource.IsCancellationRequested)
+            while (!_traceMessages.IsCompleted)
             {
                 try
                 {
-                    var traceMessage = _traceMessages.Take(_cancellationTokenSource.Token);
+                    ITraceMessage traceMessage = null;
+                    if (!_cancellationTokenSource.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            traceMessage = _traceMessages.Take(_cancellationTokenSource.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            if (_traceMessages.IsCompleted)
+                            {
+                                return;
+                            }
+                            continue;
+                        }
+                    }
+
+                    if (traceMessage == null)
+                    {
+                        if (!_traceMessages.TryTake(out traceMessage))
+                        {
+                            var count = _traceMessages.Count;
+                            if (count > 0)
+                            {
+                                _errorHandler.HandleError($"Cannot take a trace message from the collection having a count of {count}.");
+                            }
+                            return;
+                        }
+                    }
+
                     if (!(traceMessage is MethodVisitTraceMessage))
                     {
                         throw new InvalidOperationException($"Detected unknown trace message of type {traceMessage.GetType().FullName}.");
@@ -151,9 +180,6 @@ namespace CodePulse.Client.Data
                         methodVisitTraceMessage.MethodSignature,
                         methodVisitTraceMessage.StartLineNumber,
                         methodVisitTraceMessage.EndLineNumber);
-                }
-                catch (OperationCanceledException)
-                {
                 }
                 catch (Exception ex)
                 {

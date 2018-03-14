@@ -274,6 +274,10 @@ namespace CodePulse.Client.Agent
                     return;
                 }
 
+                // the TraceDataCollector shutdown will use the buffer service to send any pending 
+                // method-entry messages - if the service is suspended, the messages will not reach Code Pulse
+                TraceDataCollector?.Shutdown();
+
                 if (_bufferService != null)
                 { 
                     _bufferService.SetSuspended(true);
@@ -283,7 +287,6 @@ namespace CodePulse.Client.Agent
                     }
                 }
 
-                TraceDataCollector?.Shutdown();
                 WaitForSenderManager();
                 _messageSenderManager?.Shutdown();
                 _controller?.Shutdown();
