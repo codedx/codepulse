@@ -46,9 +46,9 @@ if (-not $skipDotNetTracer) {
         exit $lastexitcode
     }
 
-    if ($signOutput) {
+	if ($signOutput) {
 
-        $signingInstructions = @'
+		$signingInstructions = @'
 
 Use signtool.exe and insignia.exe to sign CodePulse.DotNet.Tracer.Installer.exe:
 
@@ -75,20 +75,20 @@ Step 4: Sign CodePulse.DotNet.Tracer.Installer.exe
 Press Enter *after* you have signed the bundle...
 
 '@
-        Write-Host $signingInstructions; Read-Host
+		Write-Host $signingInstructions; Read-Host
 
-        Write-Verbose 'Verifying that the bundle is signed...'
-        signtool.exe verify /pa /tw $bundlePath
-        if ($lastexitcode -ne 0) {
-            Write-Verbose 'Cannot continue because the bundle is not signed.'
-            exit $lastexitcode
-        }
+		Write-Verbose 'Verifying that the bundle is signed...'
+		signtool.exe verify /pa /tw $bundlePath
+		if ($lastexitcode -ne 0) {
+			Write-Verbose 'Cannot continue because the bundle is not signed.'
+			exit $lastexitcode
+		}
     }
 } 
 
 if (-not $skipWindows) {
-	Write-Verbose 'Starting Windows build...'
-	.\Windows\build.ps1 -version $version -signOutput:$signOutput
+    Write-Verbose 'Starting Windows build...'
+    .\Windows\build.ps1 -version $version -signOutput:$signOutput
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting Windows build...'
         exit $lastexitcode
@@ -96,8 +96,8 @@ if (-not $skipWindows) {
 }
 
 if (-not $skipMac) {
-	Write-Verbose 'Starting macOS build...'
-	.\macOS\build.ps1
+    Write-Verbose 'Starting macOS build...'
+    .\macOS\build.ps1 -signOutput:$signOutput
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting macOS build...'
         exit $lastexitcode
@@ -105,8 +105,8 @@ if (-not $skipMac) {
 }
 
 if (-not $skipLinux) {
-	Write-Verbose 'Starting Linux build...'
-	.\Linux\build.ps1
+    Write-Verbose 'Starting Linux build...'
+    .\Linux\build.ps1
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting Linux build...'
         exit $lastexitcode
