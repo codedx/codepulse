@@ -68,7 +68,7 @@ trait ZipEntryChecker {
 				entry <- entryStream
 				if !ZipCleaner.shouldFilter(entry)
 			} {
-				if (isZip(entry.getName) && recursive)
+				if (entry.isDirectory || (isZip(entry.getName) && recursive))
 					forEachEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(callback)
 				else
 					callback(filename, entry, zipStream)
@@ -104,9 +104,9 @@ trait ZipEntryChecker {
 				.filterNot(ZipCleaner.shouldFilter)
 
 			entryStream.exists { entry =>
-				lazy val recurse = recursive &&
+				lazy val recurse = entry.isDirectory || (recursive &&
 					isZip(entry.getName) &&
-					findFirstEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(predicate)
+					findFirstEntry(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(predicate))
 
 				predicate(filename, entry, zipStream) || recurse
 			}
