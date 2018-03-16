@@ -113,15 +113,15 @@ class DataMessageReaderV1 extends DataMessageReader {
 		//[4 bytes: method signature ID]
 		val methodId = stream.readInt
 
-		//[2 bytes: line number]
-		val lineNum = stream.readUnsignedShort
+		//[1 byte: exceptionThrown]
+		val exceptionThrown = stream.readBoolean
 
 		//[2 bytes: thread ID]
 		val threadId = stream.readUnsignedShort
 
 		DataMessage.SequencedData(
 			timestamp, sequenceId,
-			DataMessageContent.MethodExit(methodId, timestamp, lineNum, threadId))
+			DataMessageContent.MethodExit(methodId, timestamp, exceptionThrown, threadId))
 	}
 
 	protected def readException(stream: DataInputStream) = {

@@ -85,36 +85,6 @@ public class MessageDealer
 	// ===============================
 
 	/**
-	 * MAP METHOD SIGNATURE (EVENT) MESSAGE
-	 *
-	 * @param sig
-	 * @param id
-	 * @throws IOException
-	 * @throws FailedToObtainBufferException
-	 * @throws FailedToSendBufferException
-	 */
-	public void sendMapMethodSignature(String sig, int id) throws IOException,
-			FailedToObtainBufferException, FailedToSendBufferException
-	{
-		DataBufferOutputStream buffer = bufferService.obtainBuffer();
-		if (buffer != null)
-		{
-			boolean wrote = false;
-			try
-			{
-				messageProtocol.writeMapMethodSignature(buffer, id, sig);
-				wrote = true;
-			}
-			finally
-			{
-				if (!wrote)
-					buffer.reset();
-				bufferService.sendBuffer(buffer);
-			}
-		}
-	}
-
-	/**
 	 * MAP EXCEPTION (EVENT) MESSAGE
 	 *
 	 * @param exception
@@ -193,7 +163,7 @@ public class MessageDealer
 			{
 				int timestamp = getTimeOffset();
 				int threadId = threadIdMapper.getCurrent();
-				methodIdAdapter.mark(methodId);
+				methodIdAdapter.mark(methodId, buffer);
 				messageProtocol.writeMethodEntry(buffer, timestamp, sequencer.getSequence(),
 						methodId, threadId);
 				wrote = true;
@@ -227,7 +197,7 @@ public class MessageDealer
 			{
 				int timestamp = getTimeOffset();
 				int threadId = threadIdMapper.getCurrent();
-				methodIdAdapter.mark(methodId);
+				methodIdAdapter.mark(methodId, buffer);
 				messageProtocol.writeMethodExit(buffer, timestamp, sequencer.getSequence(),
 						methodId, exThrown, threadId);
 				wrote = true;
@@ -254,7 +224,7 @@ public class MessageDealer
 			this.methodIdentifier = methodIdentifier;
 		}
 
-		public void mark(int methodId) throws IOException, FailedToObtainBufferException, FailedToSendBufferException
+		public void mark(int methodId, DataBufferOutputStream buffer) throws IOException, FailedToObtainBufferException, FailedToSendBufferException
 		{
 			Boolean seen = observedIds.putIfAbsent(methodId, true);
 
@@ -264,7 +234,7 @@ public class MessageDealer
 				ClassIdentifier.ClassInformation c = classIdentifier.get(m.getClassId());
 
 				String signature = c.getName() + "." + m.getName() + ";" + m.getAccess() + ";" + m.getDescriptor();
-				sendMapMethodSignature(signature, methodId);
+				messageProtocol.writeMapMethodSignature(buffer, methodId, signature);
 			}
 		}
 	}

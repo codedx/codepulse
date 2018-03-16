@@ -35,7 +35,7 @@ trait DataMessageHandler {
 	def handleMethodEntry(methodId: Int, timestamp: Int, sequenceId: Int, threadId: Int): Unit
 
 	/** This method is called by a parser when it encounters a MethodExit message */
-	def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int): Unit
+	def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, exceptionThrown: Boolean, threadId: Int): Unit
 
 	/** This method is called by a parser when it encounters an Exception message */
 	def handleExceptionMessage(exceptionId: Int, methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int): Unit
@@ -65,7 +65,7 @@ class DefaultDataMessageHandler extends DataMessageHandler {
 	def handleMapException(exception: String, exceptionId: Int) = ()
 
 	def handleMethodEntry(methodId: Int, timestamp: Int, sequenceId: Int, threadId: Int) = ()
-	def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int) = ()
+	def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, exceptionThrown: Boolean, threadId: Int) = ()
 
 	def handleExceptionMessage(exceptionId: Int, methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int) = ()
 	def handleExceptionBubble(exceptionId: Int, methodId: Int, timestamp: Int, sequenceId: Int, threadId: Int) = ()

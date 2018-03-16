@@ -155,16 +155,16 @@ class DataMessageParserV1 extends DataMessageParser {
 		//[4 bytes: method signature ID]
 		val methodId = stream.readInt
 
-		//[2 bytes: line number]
-		val lineNum = stream.readUnsignedShort
+		//[1 byte: exceptionThrown]
+		val exceptionThrown = stream.readBoolean
 
 		//[2 bytes: thread ID]
 		val threadId = stream.readUnsignedShort
 
-		handler.handleMethodExit(methodId, timestamp, sequenceId, lineNum, threadId)
+		handler.handleMethodExit(methodId, timestamp, sequenceId, exceptionThrown, threadId)
 
-		// read 14 bytes
-		14
+		// read 15 bytes
+		15
 	}
 
 	protected def readException(stream: DataInputStream, handler: DataMessageHandler): Int = {
@@ -188,8 +188,8 @@ class DataMessageParserV1 extends DataMessageParser {
 
 		handler.handleExceptionMessage(exceptionId, methodId, timestamp, sequenceId, lineNum, threadId)
 
-		// read 18 bytes, plus length of exception
-		18
+		// read 20 bytes, plus length of exception
+		20
 	}
 
 	protected def readExceptionBubble(stream: DataInputStream, handler: DataMessageHandler): Int = {

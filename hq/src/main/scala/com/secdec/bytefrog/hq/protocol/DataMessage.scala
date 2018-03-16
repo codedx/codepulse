@@ -62,7 +62,7 @@ object DataMessageContent {
 	case class MethodExit(
 		methodId: Int,
 		timestamp: Int,
-		lineNum: Int,
+		exceptionThrown: Boolean,
 		threadId: Int)
 		extends DataMessageContent
 

@@ -57,8 +57,8 @@ class DataConnectionController(dataConnection: DataConnection, dataCollector: Da
 			dataCollector ! SequencedData(timestamp, sequenceId, MethodEntry(methodId, timestamp, threadId))
 		}
 
-		override def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int) {
-			dataCollector ! SequencedData(timestamp, sequenceId, MethodExit(methodId, timestamp, lineNum, threadId))
+		override def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, exceptionThrown: Boolean, threadId: Int) {
+			dataCollector ! SequencedData(timestamp, sequenceId, MethodExit(methodId, timestamp, exceptionThrown, threadId))
 		}
 
 		override def handleExceptionMessage(exception: Int, methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int) {
