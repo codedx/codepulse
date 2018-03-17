@@ -4,7 +4,8 @@
 param (
 	[switch] $forceTracerRebuild,
     [switch] $signOutput,
-	$version='1.0.0.0'
+	$version='1.0.0.0',
+    $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
 Set-PSDebug -Strict
@@ -31,13 +32,14 @@ $productNew = $product | % { $_ -replace ([System.Text.RegularExpressions.Regex]
 Set-TextContent $productPath $productNew
 
 Invoke-CodePulsePackaging `
-    $codePulseVersion `
+    $version `
+    $releaseDate `
     $PSScriptRoot `
     $codePulsePath `
     'Win64' `
     'win-x64' `
     'packageEmbeddedWin64' `
-    "CodePulse-$($codePulseVersion)-SNAPSHOT-win64.zip" `
+    "CodePulse-$($version)-win64.zip" `
     '..\dotnet-symbol-service' `
     'SymbolService.exe' `
     'agent.jar'
@@ -86,7 +88,7 @@ Invoke-CodePulseZip `
     $PSScriptRoot `
     'Windows' `
     'Windows-x64' `
-    $codePulseVersion `
+    $version `
     $zipFilePath `
     "CodePulse.Installer.Win64\bin\$buildConfiguration"
 

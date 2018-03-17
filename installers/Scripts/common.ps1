@@ -16,6 +16,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 function Invoke-CodePulsePackaging(
     [string] $codePulseVersion,
+    [datetime] $codePulseReleaseDate,
     [string] $scriptRoot, 
     [string] $codePulsePath, 
     [string] $osName, 
@@ -51,6 +52,13 @@ function Invoke-CodePulsePackaging(
 
     Push-Location $codePulsePath
 
+    write-verbose "Editing build.sbt for version $codePulseVersion and release date $codePulseReleaseDate..."
+    $buildSbtPath = join-path (get-location) 'build.sbt'
+    $buildSbt = gc $buildSbtPath
+    $buildSbtNew = $buildSbt | % { $_ -replace 'version\ :=\ "UNVERSIONED"',"version := `"$codePulseVersion`"" }
+    $buildSbtNew = $buildSbtNew | % { $_ -replace 'BuildKeys\.releaseDate\ :=\ "N/A"',"BuildKeys.releaseDate := `"$codePulseReleaseDate`"" }
+    Set-TextContent $buildSbtPath $buildSbtNew
+
     write-verbose "Editing application.conf for $osName packaging..."
     $applicationConfPath = join-path (get-location) 'codepulse\src\main\resources\application.conf'
     $applicationConf = gc $applicationConfPath
@@ -66,13 +74,19 @@ function Invoke-CodePulsePackaging(
     }
 
     write-verbose "Packaging Code Pulse ($osRID)..."
-    Invoke-Sbt $packageCommand
+    if (-not (Invoke-Sbt $packageCommand 3 ([timespan]::FromMinutes(1)))) {
+        write-verbose 'Packaging failed'
+        exit 1
+    }
 
     write-verbose "Unzipping Code Pulse package ($osName)..."
     [io.compression.zipfile]::ExtractToDirectory($codePulsePackagePath, $filesFolderPath)
 
     write-verbose "Restoring original '$applicationConfPath' contents..."
     Set-TextContent $applicationConfPath $applicationConf
+
+    write-verbose 'Restoring original build.sbt contents...'
+    Set-TextContent $buildSbtPath $buildSbt
 
     write-verbose 'Moving Java agent (Linux)...'
     move-item (join-path $filesFolderCodePulsePath $agentJarRelativePath) $filesFolderJavaTracerPath
@@ -174,6 +188,5 @@ $dotNetSymbolServicePath = join-path $codePulsePath 'dotnet-symbol-service'
 $dotNetTracerPath = join-path $codePulsePath 'dotnet-tracer'
 $dotNetTracerMainPath = join-path $dotNetTracerPath 'main'
 
-$codePulseVersion = '2.0.0'
 $buildConfiguration = 'Release'
 

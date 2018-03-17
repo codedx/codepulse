@@ -2,7 +2,9 @@
 # This script creates the Linux Code Pulse package
 #
 param (
-	[switch] $forceTracerRebuild
+	[switch] $forceTracerRebuild,
+	$version='1.0.0.0',
+    $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
 Set-PSDebug -Strict
@@ -23,13 +25,14 @@ if ($forceTracerRebuild -or (-not (Test-DotNetTracer $codePulsePath $buildConfig
 }
 
 Invoke-CodePulsePackaging `
-    $codePulseVersion `
+    $version `
+    $releaseDate `
     $PSScriptRoot `
     $codePulsePath `
     'Linux' `
     'linux-x64' `
     'packageEmbeddedLinuxX64' `
-    "CodePulse-$($codePulseVersion)-SNAPSHOT-linux-x64.zip" `
+    "CodePulse-$($version)-linux-x64.zip" `
     'dotnet-symbol-service' `
     'SymbolService' `
     'agent.jar'
@@ -38,7 +41,7 @@ Invoke-CodePulseZip `
     $PSScriptRoot `
     'Linux' `
     'Linux-x64' `
-    $codePulseVersion `
+    $version `
     $zipFilePath `
     'Files\Linux'
 

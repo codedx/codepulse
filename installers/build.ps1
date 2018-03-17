@@ -13,7 +13,8 @@ param (
 	[switch] $skipMac,
 	[switch] $skipLinux,
     [switch] $signOutput,
-	$version='1.0.0.0'
+	$version='1.0.0.0',
+    $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
 Set-PSDebug -Strict
@@ -88,7 +89,7 @@ Press Enter *after* you have signed the bundle...
 
 if (-not $skipWindows) {
     Write-Verbose 'Starting Windows build...'
-    .\Windows\build.ps1 -version $version -signOutput:$signOutput
+    .\Windows\build.ps1 -version $version -releaseDate $releaseDate -signOutput:$signOutput
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting Windows build...'
         exit $lastexitcode
@@ -97,7 +98,7 @@ if (-not $skipWindows) {
 
 if (-not $skipMac) {
     Write-Verbose 'Starting macOS build...'
-    .\macOS\build.ps1 -signOutput:$signOutput
+    .\macOS\build.ps1 -version $version -releaseDate $releaseDate -signOutput:$signOutput
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting macOS build...'
         exit $lastexitcode
@@ -106,7 +107,7 @@ if (-not $skipMac) {
 
 if (-not $skipLinux) {
     Write-Verbose 'Starting Linux build...'
-    .\Linux\build.ps1
+    .\Linux\build.ps1 -version $version -releaseDate $releaseDate
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Aborting Linux build...'
         exit $lastexitcode

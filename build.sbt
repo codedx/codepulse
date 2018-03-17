@@ -1,7 +1,7 @@
 val baseSettings = Seq(
 	organization := "com.codedx",
-	version := "2.0.0-SNAPSHOT",
-	BuildKeys.releaseDate := "SNAPSHOT"
+	version := "UNVERSIONED",
+	BuildKeys.releaseDate := "N/A"
 )
 
 val scalaSettings = Seq(

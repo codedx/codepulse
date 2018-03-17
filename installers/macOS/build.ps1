@@ -3,7 +3,9 @@
 #
 param (
     [switch] $forceTracerRebuild,
-    [switch] $signOutput
+    [switch] $signOutput,
+	$version='1.0.0.0',
+    $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
 Set-PSDebug -Strict
@@ -24,13 +26,14 @@ if ($forceTracerRebuild -or (-not (Test-DotNetTracer $codePulsePath $buildConfig
 }
 
 Invoke-CodePulsePackaging `
-    $codePulseVersion `
+    $version `
+    $releaseDate `
     $PSScriptRoot `
     $codePulsePath `
     'macOS' `
     'osx-x64' `
     'packageEmbeddedOsx' `
-    "CodePulse-$($codePulseVersion)-SNAPSHOT-osx.zip" `
+    "CodePulse-$($version)-osx.zip" `
     'Code Pulse.app\Contents\Resources\app.nw\dotnet-symbol-service' `
     'SymbolService' `
     'Code Pulse.app\Contents\Resources\app.nw\agent.jar'
@@ -70,7 +73,7 @@ Invoke-CodePulseZip `
     $PSScriptRoot `
     'macOS' `
     'macOS-x64' `
-    $codePulseVersion `
+    $version `
     $zipFilePath `
     'Files\macOS'
 
