@@ -357,7 +357,6 @@ namespace CodePulse.Console
 
                     Logger.Info("Stopping service...");
                     service.StopService(TimeSpan.MaxValue);
-                    Logger.Info("Service stopped");
                 });
 
                 Task.WaitAny(
