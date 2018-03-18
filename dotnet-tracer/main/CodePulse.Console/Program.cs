@@ -348,6 +348,18 @@ namespace CodePulse.Console
                 LogMandatoryInfo($"Trace will stop when either '{WorldWideWebPublishingServiceDisplayName}' stops or Code Pulse ends the trace.");
 
                 var service = w3SvcService;
+                Task.Run(() =>
+                {
+                    System.Console.WriteLine();
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Press Enter to end web application and tracing...");
+                    System.Console.ReadLine();
+
+                    Logger.Info("Stopping service...");
+                    service.StopService(TimeSpan.MaxValue);
+                    Logger.Info("Service stopped");
+                });
+
                 Task.WaitAny(
                     Task.Run(() => service.WaitForStatus(ServiceControllerStatus.Stopped)),
                     Task.Run(() => _persistence.WaitForShutdown()));
