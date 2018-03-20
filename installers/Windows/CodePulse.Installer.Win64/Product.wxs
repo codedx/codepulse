@@ -70,7 +70,7 @@
 
   <Fragment>
     <CustomAction Id="ValidateCodePulseInstallFolderProperty" Property="ValidateCodePulseInstallFolderCustomAction" Value="[INSTALLFOLDER]"/>
-    <CustomAction Id="ValidateCodePulseInstallFolderCustomAction" BinaryKey="CodePulseInstallerDll" DllEntry="ValidateCodePulseInstallFolder" Execute="deferred"/>
-    <Binary Id="CodePulseInstallerDll" SourceFile="CodePulse.Installer.dll"/>
+    <CustomAction Id="ValidateCodePulseInstallFolderCustomAction" BinaryKey="CodePulseDll" DllEntry="ValidateCodePulseInstallFolder" Execute="deferred"/>
+    <Binary Id="CodePulseDll" SourceFile="CodePulse.Installer.dll"/>
   </Fragment>
 </Wix>
