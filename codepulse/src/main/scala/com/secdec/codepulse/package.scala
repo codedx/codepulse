@@ -62,8 +62,8 @@ package object codepulse {
 	}
 
 	object paths {
-		val appData = ApplicationData.getApplicationDataFolder("Secure Decisions", "Code Pulse", "codepulse")
-		val localAppData = ApplicationData.getLocalApplicationDataFolder("Secure Decisions", "Code Pulse", "codepulse")
+		val appData = ApplicationData.getApplicationDataFolder("Code Dx", "Code Pulse", "codepulse")
+		val localAppData = ApplicationData.getLocalApplicationDataFolder("Code Dx", "Code Pulse", "codepulse")
 		val logFiles = appData / "log-files"
 
 		logFiles.mkdirs
