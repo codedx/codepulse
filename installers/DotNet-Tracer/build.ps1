@@ -2,11 +2,11 @@
 # This script creates the Windows Code Pulse .NET Tracer package
 #
 param (
-	[switch] $skipBuildInit=$true,
-	[switch] $skipTests=$true,
+    [switch] $skipBuildInit,
+    [switch] $skipTests,
     [switch] $signOutput,
     [string] $dotNetTracerWindowsDownloadUrl,
-	[string] $version='1.0.0'
+    [string] $version='1.0.0'
 )
 
 Set-PSDebug -Strict
@@ -110,18 +110,6 @@ if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
 
-write-verbose "Restoring original '$assemblyInfoPath' contents..."
-Set-TextContent $assemblyInfoPath $assemblyInfo
-
-write-verbose "Restoring original '$bundlePath' contents..."
-Set-TextContent $bundlePath $bundle
-
-write-verbose "Restoring original '$product32Path' contents..."
-Set-TextContent $product32Path $product32
-
-write-verbose "Restoring original '$product64Path' contents..."
-Set-TextContent $product64Path $product64
-
 if (-not $skipTests) {
     write-verbose "Building CodePulse.Client.Test ($buildConfiguration)..."
     & $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ CodePulse.Client.Test
@@ -149,6 +137,18 @@ if (-not $skipTests) {
         exit $lastexitcode
     }
 }
+
+write-verbose "Restoring original '$assemblyInfoPath' contents..."
+Set-TextContent $assemblyInfoPath $assemblyInfo
+
+write-verbose "Restoring original '$bundlePath' contents..."
+Set-TextContent $bundlePath $bundle
+
+write-verbose "Restoring original '$product32Path' contents..."
+Set-TextContent $product32Path $product32
+
+write-verbose "Restoring original '$product64Path' contents..."
+Set-TextContent $product64Path $product64
 
 if ($signOutput) {
 
