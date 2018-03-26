@@ -45,10 +45,12 @@ function Invoke-CodePulsePackaging(
     $filesFolderCodePulsePath = join-path $filesFolderPath 'codepulse'
     $filesFolderJavaTracerPath = join-path $filesFolderCodePulsePath 'tracers\java'
     $filesFolderDotNetTracerPath = join-path $filesFolderCodePulsePath 'tracers\dotnet'
+    $filesFolderDotNetTracerImgPath = join-path $filesFolderDotNetTracerPath 'img'
 
     New-Item -Path $filesFolderPath -ItemType Directory | Out-Null
     New-Item -Path $filesFolderJavaTracerPath -ItemType Directory | Out-Null
     New-Item -Path $filesFolderDotNetTracerPath -ItemType Directory | Out-Null
+    New-Item -Path $filesFolderDotNetTracerImgPath -ItemType Directory | Out-Null
 
     Push-Location $codePulsePath
 
@@ -102,15 +104,16 @@ function Invoke-CodePulsePackaging(
 
     Pop-Location; Push-Location $scriptRoot
 
-    write-verbose 'Copying .NET Tracer...'
-    copy-item "..\..\dotnet-tracer\main\CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe" $filesFolderDotNetTracerPath
+    write-verbose 'Copying .NET Tracer download files...'
+    copy-item "..\DotNet-Tracer\Files\codepulse-download\CodePulse.DotNet.Tracer.Installer.html" $filesFolderDotNetTracerPath
+    copy-item "..\DotNet-Tracer\Files\codepulse-download\img\*.*" $filesFolderDotNetTracerImgPath
 
     Pop-Location
 }
 
 function Invoke-CodePulseZip(
     [string] $scriptRoot,
-    [string] $osName,
+    [string] $packageName,
     [string] $osDescription,
     [string] $codePulseVersion,
     [string] $zipFilePath,
@@ -118,8 +121,8 @@ function Invoke-CodePulseZip(
 {
     Push-Location $scriptRoot
 
-    write-verbose "Zipping Code Pulse package ($osName)..."
-    $outputFile = join-path $scriptRoot "..\CodePulse-$codePulseVersion-$osDescription.zip"
+    write-verbose "Zipping Code Pulse package ($packageName-$codePulseVersion-$osDescription.zip)..."
+    $outputFile = join-path $scriptRoot "..\$packageName-$codePulseVersion-$osDescription.zip"
     if (test-path $outputFile -Type Leaf) {
         write-verbose "Deleting outdated output file $outputFile"
         remove-item $outputFile -Force

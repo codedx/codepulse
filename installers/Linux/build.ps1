@@ -2,9 +2,8 @@
 # This script creates the Linux Code Pulse package
 #
 param (
-	[switch] $forceTracerRebuild,
-	$version='1.0.0.0',
-    $releaseDate=([DateTime]::Now.ToShortDateString())
+	[string] $version='1.0.0',
+    [string] $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
 Set-PSDebug -Strict
@@ -15,13 +14,10 @@ Push-Location $PSScriptRoot
 
 . ..\Scripts\common.ps1
 
-if ($forceTracerRebuild -or (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))) 
+if (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))
 {
-    if (-not (Test-MsBuild)) {
-        exit 1
-    }
-
-    & "$codePulsePath\installers\DotNet-Tracer\build.ps1"
+    Write-Error 'Code Pulse .NET Tracer does not exist. Run installers\dotnet-tracers\build.ps1 first'
+    exit 1
 }
 
 Invoke-CodePulsePackaging `
@@ -39,7 +35,7 @@ Invoke-CodePulsePackaging `
 
 Invoke-CodePulseZip `
     $PSScriptRoot `
-    'Linux' `
+    'CodePulse' `
     'Linux-x64' `
     $version `
     $zipFilePath `

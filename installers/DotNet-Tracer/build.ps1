@@ -2,9 +2,11 @@
 # This script creates the Windows Code Pulse .NET Tracer package
 #
 param (
-	[switch] $skipBuildInit,
-	[switch] $skipTests,
-	$version='1.0.0.0'
+	[switch] $skipBuildInit=$true,
+	[switch] $skipTests=$true,
+    [switch] $signOutput,
+    [string] $dotNetTracerWindowsDownloadUrl,
+	[string] $version='1.0.0'
 )
 
 Set-PSDebug -Strict
@@ -14,6 +16,30 @@ $VerbosePreference = 'Continue'
 Push-Location $PSScriptRoot
 
 . ..\Scripts\common.ps1
+
+$filesFolderPath = join-path $PSScriptRoot 'Files\codepulse'
+$filesDownloadFolderPath = join-path $PSScriptRoot 'Files\codepulse-download'
+$filesDownloadFolderImgPath = join-path $filesDownloadFolderPath 'img'
+
+$filesFolderPath,$filesDownloadFolderPath,$filesDownloadFolderImgPath | % { 
+    if (test-path -PathType Container $_) {
+        write-verbose "Removing folder $_..."
+        Remove-Item -Path $_ -Recurse -Force
+    }
+    write-verbose "Creating folder $_..."
+    New-Item -Path $_ -ItemType Directory | Out-Null
+}
+
+$downloadPagePath = '.\download-files\CodePulse.DotNet.Tracer.Installer.html'
+
+write-verbose 'Copying .NET Tracer download files...'
+copy-item $downloadPagePath  $filesDownloadFolderPath
+copy-item '.\download-files\img\*.*' $filesDownloadFolderImgPath
+
+$downloadPageDestinationPath = join-path $filesDownloadFolderPath 'CodePulse.DotNet.Tracer.Installer.html'
+
+write-verbose "Editing $downloadPageDestinationPath  for URL $dotNetTracerWindowsDownloadUrl..."
+Set-TextContent $downloadPageDestinationPath ((gc $downloadPagePath ) | % { $_ -replace 'DOWNLOAD_HREF',$dotNetTracerWindowsDownloadUrl })
 
 if (-not (Test-MsBuild)) {
     exit 1
@@ -84,6 +110,18 @@ if ($lastexitcode -ne 0) {
     exit $lastexitcode
 }
 
+write-verbose "Restoring original '$assemblyInfoPath' contents..."
+Set-TextContent $assemblyInfoPath $assemblyInfo
+
+write-verbose "Restoring original '$bundlePath' contents..."
+Set-TextContent $bundlePath $bundle
+
+write-verbose "Restoring original '$product32Path' contents..."
+Set-TextContent $product32Path $product32
+
+write-verbose "Restoring original '$product64Path' contents..."
+Set-TextContent $product64Path $product64
+
 if (-not $skipTests) {
     write-verbose "Building CodePulse.Client.Test ($buildConfiguration)..."
     & $msbuildPath /p:Configuration=$buildConfiguration /p:SolutionDir=..\ CodePulse.Client.Test
@@ -112,16 +150,60 @@ if (-not $skipTests) {
     }
 }
 
-write-verbose "Restoring original '$assemblyInfoPath' contents..."
-Set-TextContent $assemblyInfoPath $assemblyInfo
+if ($signOutput) {
 
-write-verbose "Restoring original '$bundlePath' contents..."
-Set-TextContent $bundlePath $bundle
+	$signingInstructions = @'
 
-write-verbose "Restoring original '$product32Path' contents..."
-Set-TextContent $product32Path $product32
+Use signtool.exe and insignia.exe to sign CodePulse.DotNet.Tracer.Installer.exe:
 
-write-verbose "Restoring original '$product64Path' contents..."
-Set-TextContent $product64Path $product64
+Step 1: Extract engine.exe from CodePulse.DotNet.Tracer.Installer.exe
+
+"C:\Program Files (x86)\WiX Toolset v3.11\bin\insignia.exe" -ib CodePulse.DotNet.Tracer.Installer.exe -o engine.exe
+
+
+Step 2: Sign engine.exe
+
+"C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x86\signtool.exe" sign /v /f <path-to-pfx-file> /p <pfx-file-password> /t http://timestamp.verisign.com/scripts/timstamp.dll engine.exe
+
+
+Step 3: Reattach engine.exe to CodePulse.DotNet.Tracer.Installer.exe
+
+"C:\Program Files (x86)\WiX Toolset v3.11\bin\insignia.exe" -ab engine.exe CodePulse.DotNet.Tracer.Installer.exe -o CodePulse.DotNet.Tracer.Installer.exe
+
+
+Step 4: Sign CodePulse.DotNet.Tracer.Installer.exe
+
+"C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x86\signtool.exe" sign /v /f <path-to-pfx-file> /p <pfx-file-password> /t http://timestamp.verisign.com/scripts/timstamp.dll CodePulse.DotNet.Tracer.Installer.exe
+
+
+Press Enter *after* you have signed the bundle...
+
+'@
+	Write-Host $signingInstructions; Read-Host
+
+    $bundlePath = join-path $dotNetTracerMainPath "CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe"
+
+	Write-Verbose 'Verifying that the bundle is signed...'
+	signtool.exe verify /pa /tw $bundlePath
+	if ($lastexitcode -ne 0) {
+		Write-Verbose 'Cannot continue because the bundle is not signed.'
+		exit $lastexitcode
+	}
+}
+
+write-verbose 'Removing extra installer file(s)...'
+$outputFolder = join-path (get-location) "CodePulse.Bundle\bin\$buildConfiguration"
+dir $outputFolder -Exclude CodePulse.DotNet.Tracer.Installer.exe | % { remove-item $_.FullName -Force }
+
+write-verbose 'Copying bundle to Files\codepulse...'
+copy "CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe" $filesFolderPath
+
+Invoke-CodePulseZip `
+    $PSScriptRoot `
+    'CodePulse-DotNetTracer' `
+    'Windows' `
+    $version `
+    $zipFilePath `
+    'Files\codepulse'
 
 Pop-Location

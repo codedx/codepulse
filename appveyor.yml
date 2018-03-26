@@ -2,7 +2,7 @@ version: 1.2.{build}
 image: Visual Studio 2017
 clone_folder: C:\CodePulse
 build_script:
-- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version %APPVEYOR_BUILD_VERSION%
+- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version %APPVEYOR_BUILD_VERSION% -versionForDotNetTracerWindowsDownloadUrl %APPVEYOR_JOB_ID%
 before_test:
 - cmd: >-
     C:\Windows\System32\regsvr32.exe C:\CodePulse\dotnet-tracer\main\bin\Release\x64\OpenCover.Profiler.dll /s
@@ -30,5 +30,11 @@ after_test:
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", "C:\CodePulse\OpenCover.Test.Profiler.x64.xml")
 artifacts:
-- path: installers\Windows\CodePulse.Installer.Win64\bin\Release\CodePulse.Win64.msi
-  name: CodePulse.Win64.msi (Release)
+- path: installers\CodePulse-$(APPVEYOR_BUILD_VERSION)-Linux-x64.zip
+  name: Code Pulse Linux
+- path: installers\CodePulse-$(APPVEYOR_BUILD_VERSION)-macOS-x64.zip
+  name: Code Pulse Mac
+- path: installers\CodePulse-$(APPVEYOR_BUILD_VERSION)-Windows-x64.zip
+  name: Code Pulse Windows
+- path: installers\CodePulse-DotNetTracer-$(APPVEYOR_BUILD_VERSION)-Windows.zip
+  name: Code Pulse .NET Tracer

@@ -2,10 +2,9 @@
 # This script creates the Windows Code Pulse package
 #
 param (
-	[switch] $forceTracerRebuild,
-    [switch] $signOutput,
-	$version='1.0.0.0',
-    $releaseDate=([DateTime]::Now.ToShortDateString())
+	[switch] $signOutput,
+	[string] $version='1.0.0',
+    [string] $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
 Set-PSDebug -Strict
@@ -21,8 +20,10 @@ if (-not (Test-MsBuild)) {
 }
 $msbuildPath = Get-MsBuild
 
-if ($forceTracerRebuild -or (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))) {
-    & "$codePulsePath\installers\DotNet-Tracer\build.ps1"
+if (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))
+{
+    Write-Error 'Code Pulse .NET Tracer does not exist. Run installers\dotnet-tracers\build.ps1 first'
+    exit 1
 }
 
 write-verbose "Setting Code Pulse installer version to $version..."
@@ -86,7 +87,7 @@ Press Enter *after* you have signed the bundle...
 
 Invoke-CodePulseZip `
     $PSScriptRoot `
-    'Windows' `
+    'CodePulse' `
     'Windows-x64' `
     $version `
     $zipFilePath `

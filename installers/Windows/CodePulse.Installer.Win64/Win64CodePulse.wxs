@@ -861,8 +861,8 @@
       <Component Id="cmp36050222B1DE60CD7DCE84B75E2E531C" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil4AB79B89690D573B2C7E608BBF1160D0" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\cdi-api-2.0.jar" />
       </Component>
-      <Component Id="cmpE73F6D3B74D9BB9744FEFFE3EC057D85" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="fil1735D604882FAD9EE4C652AD179EDB85" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\CodePulse-2.0.0.0-webapp-classes.jar" />
+      <Component Id="cmp7D456B59E13775B7716A849E679BBEBC" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="fil6856530236DA2D3E02B0BB78AC663B0E" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\CodePulse-2.0.0-webapp-classes.jar" />
       </Component>
       <Component Id="cmp65EB9CA567BCE9D6B665546AF4D27735" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil30B8981337A059102AB200BF46B2AF2E" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-codec-1.6.jar" />
