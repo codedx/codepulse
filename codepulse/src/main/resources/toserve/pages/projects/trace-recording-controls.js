@@ -440,7 +440,7 @@
 			addedRecordings = d3.set()
 
 		Trace.status.onValue(function(status){
-			isRunning = (status == 'running')
+			isRunning = (status.name == 'running')
 			$adderButton.toggleClass('disabled', !isRunning)
 		})
 
