@@ -96,18 +96,18 @@ namespace CodePulse.Console
 
                 LogManager.GetRepository().Threshold = parser.LogLevel;
 
-                if (!DoesUserHaveReadAccess(parser.Profiler32Path, parser.ExpectedOwnerOfApplicationUnderTest, out var new32BitAccessRule))
+                if (!DoesUserHaveReadAndExecuteAccess(parser.Profiler32Path, parser.ExpectedOwnerOfApplicationUnderTest, out var new32BitAccessRule))
                 {
-                    LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read permissions for the 32-bit profiler library ({parser.Profiler32Path}).");
+                    LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read and execute permissions for the 32-bit profiler library ({parser.Profiler32Path}).");
                     return MakeExitCode(ProgramExitCodes.ProfilerNoReadPermission);
                 }
 
                 try
                 {
                     FileSystemAccessRule new64BitAccessRule = null;
-                    if (Environment.Is64BitOperatingSystem && !DoesUserHaveReadAccess(parser.Profiler64Path, parser.ExpectedOwnerOfApplicationUnderTest, out new64BitAccessRule))
+                    if (Environment.Is64BitOperatingSystem && !DoesUserHaveReadAndExecuteAccess(parser.Profiler64Path, parser.ExpectedOwnerOfApplicationUnderTest, out new64BitAccessRule))
                     {
-                        LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read permissions for the 64-bit profiler library ({parser.Profiler64Path}).");
+                        LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read and execute permissions for the 64-bit profiler library ({parser.Profiler64Path}).");
                         return MakeExitCode(ProgramExitCodes.ProfilerNoReadPermission);
                     }
 
@@ -172,7 +172,7 @@ namespace CodePulse.Console
             }
         }
 
-        private static bool DoesUserHaveReadAccess(string path, string username, out FileSystemAccessRule newAccessRule)
+        private static bool DoesUserHaveReadAndExecuteAccess(string path, string username, out FileSystemAccessRule newAccessRule)
         {
             newAccessRule = null;
 
@@ -189,19 +189,19 @@ namespace CodePulse.Console
                     return true;
                 }
 
-                Logger.Info($"Attempting to add access rule because expected owner of application under test ({username}) may not have read permissions to profiler library ({path})...");
+                Logger.Info($"Attempting to add access rule because expected owner of application under test ({username}) may not have read and execute permissions to profiler library ({path})...");
 
                 FileSecurity accessControl;
                 try
                 {
-                    newAccessRule = new FileSystemAccessRule(username, FileSystemRights.Read | FileSystemRights.Synchronize, InheritanceFlags.None, PropagationFlags.None, AccessControlType.Allow);
+                    newAccessRule = new FileSystemAccessRule(username, FileSystemRights.Read | FileSystemRights.ReadAndExecute | FileSystemRights.Synchronize, InheritanceFlags.None, PropagationFlags.None, AccessControlType.Allow);
 
                     accessControl = File.GetAccessControl(path);
                     accessControl.AddAccessRule(newAccessRule);
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Unable to obtain DACL for granting read permission to profiler library ({path}) to expected owner of application under test ({username}): {e.Message}");
+                    Logger.Error($"Unable to obtain DACL for granting read and execute permissions to profiler library ({path}) to expected owner of application under test ({username}): {e.Message}");
                     return false;
                 }
 
