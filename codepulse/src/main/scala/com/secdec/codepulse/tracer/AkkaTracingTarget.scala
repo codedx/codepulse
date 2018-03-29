@@ -171,10 +171,9 @@ object AkkaTracingTarget {
 		}
 
 		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = {
-			// TraceSettingsCreator.generateTraceSettings may take awhile to complete if
+			// TraceSettingsCreator.generateTraceSettings may take a long time to complete if
 			// there are many records in the tree_node_data table. Use a timeout duration of
-			// 10 minutes to effectively make a synchronous transition between the Initializing
-			// and Tracing states
+			// 10 minutes to move between the Initializing and Tracing states
 			getAckFuture(TraceConnected(trace))(exc = exc, timeout = new Timeout(10.minutes))
 		}
 
