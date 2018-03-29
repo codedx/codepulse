@@ -20,10 +20,11 @@
 package com.secdec.codepulse.tracer
 
 import java.util.concurrent.TimeoutException
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Failure
 import scala.util.Success
 import com.codedx.codepulse.hq.trace.Trace
@@ -169,7 +170,13 @@ object AkkaTracingTarget {
 			deletionKey -> deletionFuture
 		}
 
-		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = getAckFuture(TraceConnected(trace))
+		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = {
+			// TraceSettingsCreator.generateTraceSettings may take awhile to complete if
+			// there are many records in the tree_node_data table. Use a timeout duration of
+			// 10 minutes to effectively make a synchronous transition between the Initializing
+			// and Tracing states
+			getAckFuture(TraceConnected(trace))(exc = exc, timeout = new Timeout(10.minutes))
+		}
 
 		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
 		def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion(key))
@@ -181,8 +188,7 @@ object AkkaTracingTarget {
 		  * containing that message. If any other message is sent, the future fails
 		  * with no exception message.
 		  */
-		private def getAckFuture(msg: TargetRequest)(implicit exc: ExecutionContext) = {
-			implicit val timeout = new Timeout(5.seconds)
+		private def getAckFuture(msg: TargetRequest)(implicit exc: ExecutionContext, timeout: Timeout = new Timeout(5.seconds)) = {
 			val future = actor ? msg
 			future flatMap {
 				case Ack => Future successful ()
