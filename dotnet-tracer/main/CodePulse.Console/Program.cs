@@ -178,13 +178,13 @@ namespace CodePulse.Console
 
             try
             {
-                // Note: EffectiveAccess code can return a false negative result - it is possible that HasReadAccess 
+                // Note: EffectiveAccess code can return a false negative result - it is possible that HasReadAndExecuteAccess 
                 // may incorrectly return false. Similar behavior was witnessed when using the Windows 10 Effective
                 // Permission screen to check read access for an ApplicationPoolIdentity with read access via a
                 // local Windows group.
 
                 var effectiveAccess = new EffectiveAccess.EffectiveAccess(path, username);
-                if (effectiveAccess.HasReadAccess)
+                if (effectiveAccess.HasReadAndExecuteAccess)
                 {
                     return true;
                 }
