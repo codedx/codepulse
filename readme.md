@@ -2,7 +2,7 @@
 
 Code Pulse is a code coverage tool that works on running programs in real time. It uses the [bytefrog](https://github.com/codedx/bytefrog) tracing framework to monitor your Java applications, and displays its findings on a web-based UI.
 
-<sub>[![Build Status](https://travis-ci.org/codedx/codepulse.svg?branch=master)](https://travis-ci.org/codedx/codepulse)</sub> (master branch) <sub>[![Build status](https://ci.appveyor.com/api/projects/status/ifckp12pjgi96jxs?svg=true)](https://ci.appveyor.com/project/CodeDx/codepulse)</sub> (dev/dotnet branch) <sub>[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1760/badge)](https://bestpractices.coreinfrastructure.org/projects/1760)</sub>
+<sub>[![Build Status](https://travis-ci.org/codedx/codepulse.svg?branch=master)](https://travis-ci.org/codedx/codepulse)</sub><sub>[![Build status](https://ci.appveyor.com/api/projects/status/ifckp12pjgi96jxs?svg=true)](https://ci.appveyor.com/project/CodeDx/codepulse)</sub><sub>[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1760/badge)](https://bestpractices.coreinfrastructure.org/projects/1760)</sub>
 
 ## Layout
 
