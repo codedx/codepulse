@@ -31,7 +31,7 @@ edgeWidth = 25px
 	position: absolute;
 	top: 60px;
 	right: 0;
-	height: 200px;
+	height: 480px;
 	width: 500px;
 
 	pointer-events: none;
@@ -70,7 +70,7 @@ edgeWidth = 25px
 	 * the settings slide in, so the delay here is 0.
 	 */
 	transition-delay: 0s;
-	height: calc(100% + 200px); /* header height + settings height */
+	height: calc(100% + 480px); /* header height + settings height */
 }
 
 .TraceConnectorUI .main-container .gear-button .gear {

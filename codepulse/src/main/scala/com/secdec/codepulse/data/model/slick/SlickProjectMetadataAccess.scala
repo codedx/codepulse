@@ -48,9 +48,10 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 	}
 
 	def delete() {
-		db withSession { implicit session =>
-			dao delete projectId
-		}
+//		db withSession { implicit session =>
+//			dao delete projectId
+//		}
+		deleted = true
 	}
 
 	def name = db withSession { implicit session =>
@@ -83,6 +84,15 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 	def importDate_=(newDate: Option[Long]) = db withTransaction { implicit transaction =>
 		set("importDate", newDate.map(_.toString))
 		newDate
+	}
+
+	def deleted =  db withSession { implicit session =>
+		get("deleted") flatMap { AsBoolean.unapply }
+	} getOrElse false
+
+	def deleted_=(softDelete: Boolean) = db withTransaction { implicit transaction =>
+		set("deleted", softDelete.toString)
+		softDelete
 	}
 
 	private object DependencyCheckStatusHelpers {

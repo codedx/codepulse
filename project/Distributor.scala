@@ -54,10 +54,8 @@ object Distributor extends BuildExtra {
 
 		val packageMappings = taskKey[Seq[ZipEntry]]("Generate zip file mappings for package.")
 
-		val packageEmbeddedWin32 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (32-bit)")
 		val packageEmbeddedWin64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Windows (64-bit)")
 		val packageEmbeddedOsx = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for OS X (32/64-bit)")
-		val packageEmbeddedLinuxX86 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x86)")
 		val packageEmbeddedLinuxX64 = taskKey[File]("Creates a zipped distribution of the node-webkit embedded version of the current project for Linux (x64)")
 	}
 
@@ -430,9 +428,9 @@ object Distributor extends BuildExtra {
 			}
 		}
 
-		def agentJar(platform: String): FileMappingTask = Def.task {
+		def agentJar(agent: Project, platform: String): FileMappingTask = Def.task {
 			val root = (rootZipFolder in Distribution).value
-			appResource(platform, root, List(((assembly in BuildDef.BytefrogAgent).value, s"$root/agent.jar")))
+			appResource(platform, root, List(((assembly in agent).value, s"$root/agent.jar")))
 		}
 
 		def appResource(platform: String, root: String, mappings: Seq[(File, String)]) = platform match {
@@ -450,14 +448,14 @@ object Distributor extends BuildExtra {
 
 	import Settings._
 
-	def distribution(platform: String, nwjs: DependencyTask, jre: DependencyTask, task: TaskKey[File])(config: Configuration) =
+	def distribution(platform: String, agent: Project, nwjs: DependencyTask, jre: DependencyTask, task: TaskKey[File])(config: Configuration) =
 		Seq(packageMappings in (config, task) := embeddedWebApp(config, platform).value) ++
 		inConfig(config) { Seq(
-			packageMappings in task <++= jettyDist(platform),
-			packageMappings in task <++= embeddedAppFiles(platform),
-			packageMappings in task <++= nwjsRuntime(platform, nwjs),
-			packageMappings in task <++= javaRuntime(platform, jre),
-			packageMappings in task <++= agentJar(platform),
+			packageMappings in task ++= jettyDist(platform).value,
+			packageMappings in task ++= embeddedAppFiles(platform).value,
+			packageMappings in task ++= nwjsRuntime(platform, nwjs).value,
+			packageMappings in task ++= javaRuntime(platform, jre).value,
+			packageMappings in task ++= agentJar(agent, platform).value,
 			task := {
 				val log = streams.value.log
 				val name = s"CodePulse-${version.value}-$platform.zip"
@@ -469,7 +467,7 @@ object Distributor extends BuildExtra {
 			}
 		)}
 
-	lazy val distribSettings: Seq[Setting[_]] =
+	def distribSettings(agent: Project): Seq[Setting[_]] =
 		Seq(
 			rootZipFolder in Distribution := "codepulse",
 			webappFolder in Distribution := s"${(rootZipFolder in Distribution).value}/backend",
@@ -480,10 +478,8 @@ object Distributor extends BuildExtra {
 			webappClasses in Distribution := webappClassesTask.value,
 			webappClassesJar in Distribution := buildJarTask.value
 		) ++
-		inConfig(DefaultConf) { warContents in Distribution <<= com.earldouglas.xsbtwebplugin.WarPlugin.packageWarTask(DefaultClasspathConf) } ++
-		distribution("win32", dependencies.nwjs.win32, dependencies.java.win32, packageEmbeddedWin32)(Compile) ++
-		distribution("win64", dependencies.nwjs.win64, dependencies.java.win64, packageEmbeddedWin64)(Compile) ++
-		distribution("osx", dependencies.nwjs.osx, dependencies.java.osx, packageEmbeddedOsx)(Compile) ++
-		distribution("linux-x86", dependencies.nwjs.linuxX86, dependencies.java.linuxX86, packageEmbeddedLinuxX86)(Compile) ++
-		distribution("linux-x64", dependencies.nwjs.linuxX64, dependencies.java.linuxX64, packageEmbeddedLinuxX64)(Compile)
+		inConfig(DefaultConf) { warContents in Distribution := com.earldouglas.xsbtwebplugin.WarPlugin.packageWarTask(DefaultClasspathConf).value } ++
+		distribution("win64", agent, dependencies.nwjs.win64, dependencies.java.win64, packageEmbeddedWin64)(Compile) ++
+		distribution("osx", agent, dependencies.nwjs.osx, dependencies.java.osx, packageEmbeddedOsx)(Compile) ++
+		distribution("linux-x64", agent, dependencies.nwjs.linuxX64, dependencies.java.linuxX64, packageEmbeddedLinuxX64)(Compile)
 }

@@ -19,7 +19,8 @@
 
 //TODO handle uncaught node.js errors
 
-var events = require('events'), http = require('http');
+var events = require('events'), http = require('http'), byline = require('./byline');
+var fs = require('fs');
 
 var logContents = '', logEvent = new events.EventEmitter();
 
@@ -56,22 +57,42 @@ function getJava() {
 	}
 }
 
+function ensureReadAndExecute(path) {
+    try {
+        writeLog('Testing user\'s read & execute permission for ' + path + '...\n')
+		var unusedAlways = fs.accessSync(path, fs.constants.R_OK | fs.constants.X_OK);
+	} catch (e) {
+		writeLog('User does not have read & execute permissions for ' + path + ': ' + e + '...\n');
+
+		var newPermission = 0755;
+		writeLog('Attempting to change permission for ' + path + ' to ' + newPermission.toString(8) + '...\n');
+		fs.chmodSync(path, newPermission);
+	}
+}
+
 var started = false;
 
 function startCodePulse() {
 	if (started) return;
 	started = true;
 
-	var spawn = require('child_process').spawn,
-	    chmodSync = require('fs').chmodSync;
+
+	var spawn = require('child_process').spawn;
 
 	try {
 		var java = getJava();
 
-		// make sure java is executable...
-		chmodSync(java, 0755);
+        ensureReadAndExecute(java)
 
-		var args = [ '-DSTOP.PORT=0', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
+        const symbolServicePath = 'dotnet-symbol-service/SymbolService'
+        var symbolServicePathExists = fs.existsSync(symbolServicePath)
+
+        writeLog(symbolServicePath + ' exists: ' + symbolServicePathExists + '\n')
+        if (symbolServicePathExists) {
+            ensureReadAndExecute(symbolServicePath)
+        }
+
+		var args = [ '-DSTOP.PORT=0', '-Drun.mode=production', '-jar', 'start.jar', 'jetty.host=localhost', 'jetty.port=0' ];
 
 		writeLog('Starting Code Pulse...\n');
 		writeLog('Using Java: ' + java + '\n');
@@ -128,11 +149,14 @@ function startCodePulse() {
 			}
 		}
 
-		childProcess.stdout.on('data', doDataChecks);
-		childProcess.stderr.on('data', doDataChecks);
+        var childStdOut = byline.createStream(childProcess.stdout)
+        var childStdErr = byline.createStream(childProcess.stderr)
 
-		childProcess.stdout.on('data', writeLog);
-		childProcess.stderr.on('data', writeLog);
+        childStdOut.on('data', doDataChecks);
+        childStdOut.on('data', (data) => { writeLog(data + '\n') });
+
+        childStdErr.on('data', doDataChecks);
+        childStdErr.on('data', (data) => { writeLog(data + '\n') });
 
 		childProcess.on('error', function(err) {
 			writeLog('Error running Code Pulse: ' + err + '\n');
@@ -240,7 +264,7 @@ exports.registerMainWindow = function(window) {
 
 				window.gui.hide();
 				if (childProcess)
-					killCodePulse();
+                    killCodePulse();
 				else
 					window.gui.close(true);
 			});

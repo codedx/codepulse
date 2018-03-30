@@ -1,0 +1,12 @@
+language: scala
+scala:
+  - 2.12.4
+jdk:
+  - oraclejdk8
+notifications:
+  email:
+    - secure: "bnZOTWy67FbOJXZ6Luvrez2zgcitYxuUeyr6apFX9hSCTAJ8HrcWwAxfV/FW/L/W06DqzS9LbJ2COi4ErMmjHS2Dj5oeEnmWhF/H7g/IijL1E++n//C8u8g3buf04ac1sG126Wc7YcyJfGohUBAPuZ7Jb6zwiLLH8lt0jTpr0SQ="
+  slack:
+    rooms:
+      - secure: "YZiC1v5RIlTnkQ7k6QcsLO3ACrQIXU9mfQJaUSF58j2PSVwttHebUhJaDFZTrhxdtW0VxRrQe47K22lgd6JlE3hK93NgvfpZGIuGe+VZi0YHIRDshmbsZIGBJq6inNBAT89xk/+SsVLwPjYksFVe5aZbsh3D85KnTBeFSAT5gIE="
+    on_success: change

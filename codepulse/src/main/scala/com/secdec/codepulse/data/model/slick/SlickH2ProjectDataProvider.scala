@@ -99,6 +99,17 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 	def projectList: List[ProjectId] = {
 		folder.listFiles.toList.map { _.getName } collect {
 			case ProjectFilename(id) => id
+		} filter { id =>
+			val project = getProject(id)
+			// If this project has been soft-deleted, exclude
+			!project.metadata.deleted
 		}
+	}
+
+	def maxProjectId: Int = {
+		val default = 0
+		(folder.listFiles.toList.map { _.getName } collect {
+			case ProjectFilename(id) => id
+		} map(id => id.num) foldLeft default)(Math.max)
 	}
 }

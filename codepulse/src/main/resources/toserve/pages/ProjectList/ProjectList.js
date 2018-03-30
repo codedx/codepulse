@@ -119,12 +119,16 @@
 			if(isTraceRunning){
 				var msg = "You can't delete this project because it is currently running."
 				alert(msg)
-			} else $.ajax(data.deleteHref, {
-				type: 'DELETE',
-				error: function(xhr, status){
-					alert('Deleting failed.')
+			} else {
+				if(confirm("Are you sure you want to delete this project?")) {
+					$.ajax(data.deleteHref, {
+						type: 'DELETE',
+						error: function(xhr, status){
+							alert('Deleting failed.')
+						}
+					})
 				}
-			})
+            }
 		}
 
 		// update the delete link: if the project is running, you can't click it

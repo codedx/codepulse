@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?define Version = "1.0.0.0" ?>
+  <?define OutputFolder = "..\bin\Release\" ?>
+  <?define x86OutputFolder = "$(var.OutputFolder)x86\" ?>
+  
+	<Product Id="*" Name="Code Pulse .NET Tracer" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="0649c73e-1edf-4014-9926-0c6f86253814">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
+	  <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate EmbedCab="yes"/>
+
+	  <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+	  <UIRef Id="WixUI_InstallDir" />
+	  <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+		<Feature Id="TracerFeature" Title="Code Pulse .NET Tracer Application" Level="1">
+      <ComponentGroupRef Id="TracerComponentGroup" />
+      <ComponentGroupRef Id="MonoCecilComponentGroup" />
+      <ComponentGroupRef Id="GendarmeComponentGroup" />
+      <ComponentGroupRef Id="AutofacComponentGroup" />
+      <ComponentGroupRef Id="Log4NetComponentGroup" />
+      <ComponentGroupRef Id="NewtonsoftJsonComponentGroup" />
+      <ComponentGroupRef Id="OpenCoverComponentGroup" />
+		  <Feature Id="x64ProfilerFeature" Title="Code Pulse .NET Tracer (x86 Profiler)" Level="1">
+		    <ComponentGroupRef Id="ProfilerComponentGroup" />
+		  </Feature>
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="Code Pulse .NET Tracer">
+          <Directory Id="X86" Name="x86" />
+        </Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+  <Fragment>
+    <Component Id="TracerComponent" Directory="INSTALLFOLDER" Guid="{4dd7f876-d21b-4edd-b312-7c716d3fc1ba}">
+      <File Id="TracerComponentExe" Source="$(var.OutputFolder)CodePulse.DotNet.Tracer.exe" KeyPath="yes"/>
+      <File Id="TracerComponentPdb" Source="$(var.OutputFolder)CodePulse.DotNet.Tracer.pdb"/>
+    </Component>
+    <Component Id="TracerConfigComponent" Directory="INSTALLFOLDER" Guid="{7207f8e4-6dd1-4332-8cf9-9167b45a1b4e}">
+      <File Id="TracerComponentExeConfig" Source="$(var.OutputFolder)CodePulse.DotNet.Tracer.exe.config" KeyPath="yes"/>
+    </Component>
+    <Component Id="TracerLogConfigComponent" Directory="INSTALLFOLDER" Guid="{5c886504-7c75-461a-b87a-74d80ecf7ff3}">
+      <File Id="TracerLogConfig" Source="$(var.OutputFolder)log4net.config" KeyPath="yes"/>
+    </Component>
+    <Component Id="CodePulseClientComponent" Directory="INSTALLFOLDER" Guid="{a490fc1d-fd4e-4aaf-856f-e55dc093815a}">
+      <File Id="CodePulseClientDll" Source="$(var.OutputFolder)CodePulse.Client.dll" KeyPath="yes"/>
+      <File Id="CodePulseClientPdb" Source="$(var.OutputFolder)CodePulse.Client.pdb"/>
+    </Component>
+    <Component Id="CodePulseRegistryKey" Directory="INSTALLFOLDER" Guid="{3f52dfaa-7de3-48cc-b185-b6bcdb9d5960}">
+      <RegistryKey Root="HKLM"
+                   Key="Software\Code Dx, Inc.\Code Pulse .NET Tracer">
+        <RegistryValue Type="string" Name="ApplicationPath" Value="[INSTALLFOLDER]" KeyPath="yes"/>
+        <RegistryValue Type="string" Value="Default Value"/>
+      </RegistryKey>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="MonoCecilComponent" Directory="INSTALLFOLDER" Guid="{95b803f8-3c47-4ead-80cf-a46a37371291}">
+      <File Id="MonoCecilDll" Source="$(var.OutputFolder)Mono.Cecil.dll" KeyPath="yes"/>
+    </Component>
+    <Component Id="MonoCecilPdbComponent" Directory="INSTALLFOLDER" Guid="{b88f5e99-0d15-46f1-b0f2-fee5420d512a}">
+      <File Id="MonoCecilPdbDll" Source="$(var.OutputFolder)Mono.Cecil.Pdb.dll" KeyPath="yes"/>
+    </Component>
+    <Component Id="MonoCecilMdbComponent" Directory="INSTALLFOLDER" Guid="{8dc719a4-4ba8-4ecf-aed3-1f3a735e1055}">
+      <File Id="MonoCecilMdbDll" Source="$(var.OutputFolder)Mono.Cecil.Mdb.dll" KeyPath="yes"/>
+    </Component>
+    <Component Id="MonoCecilRocksComponent" Directory="INSTALLFOLDER" Guid="{ab7b90d2-5f41-4af7-af5d-0d275584a7cd}">
+      <File Id="MonoCecilRocksDll" Source="$(var.OutputFolder)Mono.Cecil.Rocks.dll" KeyPath="yes"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="GendarmeFrameworkComponent" Directory="INSTALLFOLDER" Guid="{63329ec3-746b-4d5f-97b6-95b0284eb16c}">
+      <File Id="GendarmeFrameworkDll" Source="$(var.OutputFolder)Gendarme.Framework.dll" KeyPath="yes"/>
+    </Component>
+    <Component Id="GendarmeRulesMaintainabilityComponent" Directory="INSTALLFOLDER" Guid="{a8ad6b60-07de-440f-98fb-11a338c5a79c}">
+      <File Id="GendarmeRulesMaintainabilityDll" Source="$(var.OutputFolder)Gendarme.Rules.Maintainability.dll" KeyPath="yes"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="AutofacComponent" Directory="INSTALLFOLDER" Guid="{a3af0d66-ed1a-41a6-8f60-4d8e9ca3fca6}">
+      <File Id="AutofacDll" Source="$(var.OutputFolder)Autofac.dll" KeyPath="yes"/>
+    </Component>
+    <Component Id="AutofacConfigurationComponent" Directory="INSTALLFOLDER" Guid="{626cd273-f285-46a8-8554-29e30baa1e19}">
+      <File Id="AutofacConfigurationDll" Source="$(var.OutputFolder)Autofac.Configuration.dll" KeyPath="yes"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="Log4NetComponent" Directory="INSTALLFOLDER" Guid="{5da572fa-52e6-4b2a-a9f7-c431185bb7b6}">
+      <File Id="Log4NetDll" Source="$(var.OutputFolder)log4net.dll" KeyPath="yes"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="NewtonsoftJsonComponent" Directory="INSTALLFOLDER" Guid="{a56ec12f-e4d4-41bd-bdac-adc2948beed2}">
+      <File Id="NewtonsoftJsonDll" Source="$(var.OutputFolder)Newtonsoft.Json.dll" KeyPath="yes"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="OpenCoverFrameworkComponent" Directory="INSTALLFOLDER" Guid="{3d674b59-2065-45a5-b801-4c10458d12bd}">
+      <File Id="OpenCoverFrameworkDll" Source="$(var.OutputFolder)OpenCover.Framework.dll" KeyPath="yes"/>
+      <File Id="OpenCoverFrameworkPdb" Source="$(var.OutputFolder)OpenCover.Framework.pdb"/>
+    </Component>
+    <Component Id="OpenCoverExtensionsComponent" Directory="INSTALLFOLDER" Guid="{f2e79188-3cc3-4cae-abe4-d99505d5b2fc}">
+      <File Id="OpenCoverExtensionsDll" Source="$(var.OutputFolder)OpenCover.Extensions.dll" KeyPath="yes"/>
+      <File Id="OpenCoverExtensionsPdb" Source="$(var.OutputFolder)OpenCover.Extensions.pdb"/>
+    </Component>
+    <Component Id="CodePulseFrameworkComponent" Directory="INSTALLFOLDER" Guid="{333e7f15-4969-40c9-b2dc-65b73b22fce3}">
+      <File Id="CodePulseFrameworkDll" Source="$(var.OutputFolder)CodePulse.Framework.dll" KeyPath="yes"/>
+      <File Id="CodePulseFrameworkPdb" Source="$(var.OutputFolder)CodePulse.Framework.pdb"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <Component Id="x86OpenCoverProfilerComponent" Directory="X86" Guid="{65c6c191-1348-4c2c-8535-f335668debf7}">
+      <File Id="x86OpenCoverProfilerDll" Source="$(var.x86OutputFolder)OpenCover.Profiler.dll" KeyPath="yes">
+        <TypeLib Id="{437C5B7B-DA44-4DE8-8629-CC994EA549EC}" Description="OpenCoverProfilerLib" HelpDirectory="X86" Language="0" MajorVersion="1" MinorVersion="0">
+          <Class Id="{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}" Context="InprocServer32" Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
+            <ProgId Id="OpenCover.CodeCoverage.1" Description="OpenCover CodeCoverage Class">
+              <ProgId Id="OpenCover.CodeCoverage" Description="OpenCover CodeCoverage Class" />
+            </ProgId>
+          </Class>
+        </TypeLib>
+      </File>
+      <File Id="x86OpenCoverProfilerPdb" Source="$(var.x86OutputFolder)OpenCover.Profiler.pdb"/>
+    </Component>
+  </Fragment>
+  
+	<Fragment>
+		<ComponentGroup Id="TracerComponentGroup">
+      <ComponentRef Id="TracerComponent"/>
+      <ComponentRef Id="TracerConfigComponent"/>
+      <ComponentRef Id="TracerLogConfigComponent"/>
+      <ComponentRef Id="CodePulseClientComponent"/>
+      <ComponentRef Id="CodePulseRegistryKey"/>
+    </ComponentGroup>
+	  <ComponentGroup Id="MonoCecilComponentGroup">
+	    <ComponentRef Id="MonoCecilComponent"/>
+      <ComponentRef Id="MonoCecilPdbComponent"/>
+      <ComponentRef Id="MonoCecilMdbComponent"/>
+      <ComponentRef Id="MonoCecilRocksComponent"/>
+	  </ComponentGroup>
+	  <ComponentGroup Id="GendarmeComponentGroup">
+	    <ComponentRef Id="GendarmeFrameworkComponent"/>
+	    <ComponentRef Id="GendarmeRulesMaintainabilityComponent"/>
+	  </ComponentGroup>
+	  <ComponentGroup Id="AutofacComponentGroup">
+	    <ComponentRef Id="AutofacComponent"/>
+	    <ComponentRef Id="AutofacConfigurationComponent"/>
+	  </ComponentGroup>
+	  <ComponentGroup Id="Log4NetComponentGroup">
+	    <ComponentRef Id="Log4NetComponent"/>
+	  </ComponentGroup>
+    <ComponentGroup Id="NewtonsoftJsonComponentGroup">
+	    <ComponentRef Id="NewtonsoftJsonComponent"/>
+	  </ComponentGroup>
+    <ComponentGroup Id="OpenCoverComponentGroup">
+      <ComponentRef Id="OpenCoverFrameworkComponent"/>
+      <ComponentRef Id="OpenCoverExtensionsComponent"/>
+      <ComponentRef Id="CodePulseFrameworkComponent"/>
+    </ComponentGroup>
+	  <ComponentGroup Id="ProfilerComponentGroup">
+	    <ComponentRef Id="x86OpenCoverProfilerComponent"/>
+  </ComponentGroup>
+	</Fragment>
+</Wix>

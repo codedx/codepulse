@@ -7,12 +7,22 @@
 	</appender>
 
 	<appender name="logFile" class="com.secdec.codepulse.CodePulseLogAppender">
+    <file>codepulse.log</file>
+    <rollingPolicy class="com.secdec.codepulse.CodePulseFixedWindowRollingPolicy">
+			<fileNamePattern>codepulse.%i.log</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>3</maxIndex>
+		</rollingPolicy>
+		<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+		  <maxFileSize>5MB</maxFileSize>
+		</triggeringPolicy>
 		<encoder>
 			<pattern>%-5level %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
 		</encoder>
 	</appender>
 	
 	<logger name="com.secdec" level="INFO" />
+	<logger name="com.codedx" level="INFO" />
 	<logger name="bootstrap" level="INFO" />
 	<logger name="net.liftweb" level="WARN" />
 

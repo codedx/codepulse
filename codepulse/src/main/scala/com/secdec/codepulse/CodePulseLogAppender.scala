@@ -22,19 +22,18 @@ package com.secdec.codepulse
 import ch.qos.logback.core.rolling._
 import com.secdec.codepulse.util.Implicits._
 
-class CodePulseLogAppender extends RollingFileAppender {
-	setFile {
-		val logFile = paths.logFiles / "codepulse.log"
-		logFile.getAbsolutePath
+class CodePulseFixedWindowRollingPolicy extends FixedWindowRollingPolicy {
+
+	override def setFileNamePattern(fnp: String)
+	{
+		val fnpWithDir = paths.logFiles / fnp
+		super.setFileNamePattern(fnpWithDir.getAbsolutePath)
 	}
+}
 
-	setRollingPolicy {
-		val policy = new TimeBasedRollingPolicy
-
-		policy setParent this
-		policy setFileNamePattern (paths.logFiles / "codepulse.%d{yyyy-MM-dd}.log").getAbsolutePath
-		policy setMaxHistory 5
-
-		policy
+class CodePulseLogAppender extends RollingFileAppender {
+	override def setFile(file: String) {
+		val logFile = paths.logFiles / file
+		super.setFile(logFile.getAbsolutePath)
 	}
 }

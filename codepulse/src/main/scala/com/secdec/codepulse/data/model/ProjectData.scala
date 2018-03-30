@@ -19,9 +19,6 @@
 
 package com.secdec.codepulse.data.model
 
-import scala.concurrent.duration._
-import akka.actor.ActorSystem
-
 /** Main entry point for getting a `ProjectData` for a certain trace ID.
   *
   * @author robertf
@@ -30,6 +27,7 @@ trait ProjectDataProvider {
 	def getProject(id: ProjectId): ProjectData
 	def removeProject(id: ProjectId): Unit
 	def projectList: List[ProjectId]
+	def maxProjectId: Int
 }
 
 /** Provides instances of the default ProjectDataProvider implementation.

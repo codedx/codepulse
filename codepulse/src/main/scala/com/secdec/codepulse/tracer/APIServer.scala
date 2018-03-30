@@ -25,12 +25,13 @@ import scala.concurrent.duration.DurationInt
 import scala.language.implicitConversions
 import scala.util.Failure
 import scala.util.Success
+
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
 import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import com.secdec.codepulse.tracer.snippet.ConnectionHelp
+import com.secdec.codepulse.tracer.snippet.{ ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp }
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -46,6 +47,7 @@ import java.net.BindException
 import java.util.Locale
 import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
+
 import DCJson._
 import com.secdec.codepulse.version
 
@@ -156,6 +158,16 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		}
 	}
 
+	protected object InclusiveTargetPath extends PathMatcher[(TracingTarget, List[String])] {
+		def unapply(path: List[String]): Option[(TracingTarget, List[String])] = path match {
+			case "api" :: ProjectId(projectId) :: tail => manager.getInclusiveProject(projectId) map { _ -> tail }
+			case _ => None
+		}
+		def apply(ts: (TracingTarget, List[String])) = {
+			"api" :: ts._1.id.num.toString :: ts._2
+		}
+	}
+
 	protected object NotificationPath extends PathMatcher[(NotificationId, List[String])] {
 		def unapply(path: List[String]): Option[(NotificationId, List[String])] = path match {
 			case "api" :: "notifications" :: AsInt(id) :: tail => Some(NotificationId(id) -> tail)
@@ -167,6 +179,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	}
 
 	protected def simpleTargetPath(tail: String): PathMatcher[TracingTarget] = TargetPath.map[TracingTarget](
+		{ case (target, List(`tail`)) => target },
+		(_, List(tail)))
+
+	protected def simpleInclusiveTargetPath(tail: String): PathMatcher[TracingTarget] = InclusiveTargetPath.map[TracingTarget](
 		{ case (target, List(`tail`)) => target },
 		(_, List(tail)))
 
@@ -197,11 +213,13 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 	  */
 	object Paths {
 
+		val Project = simpleTargetPath("project-data")
+
 		/** /api/<target.id>/end */
 		val End = simpleTargetPath("end")
 
 		/** /api/<target.id>/status */
-		val Status = simpleTargetPath("status")
+		val Status = simpleInclusiveTargetPath("status")
 
 		/** /api/<target.id>/dcstatus */
 		val DepCheckStatus = simpleTargetPath("dcstatus")
@@ -365,6 +383,12 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		case List("api", "agent-string") Get req =>
 			PlainTextResponse(ConnectionHelp.traceAgentCommand)
 
+		case List("api", "iis-agent-string") Get req =>
+			PlainTextResponse(DotNETIISHelp.dotNETTraceCommandForIIS)
+
+		case List("api", "executable-agent-string") Get req =>
+			PlainTextResponse(DotNETExecutableHelp.dotNETTraceCommandForExecutable)
+
 		// POST an acknowledgment of an agent connection
 		case Paths.Acknowledgment(ack) Post req => ack match {
 			case TraceConnectionAcknowledgment.Acknowledged(target) =>
@@ -379,8 +403,29 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// DELETE a project (actually schedules it for deletion later)
 		case TargetPath(target, Nil) Delete req =>
-			manager.scheduleProjectDeletion(target)
+			manager.removeProject(target)
 			OkResponse()
+
+		case Paths.Project(target) Get req =>
+			val localDateFormatPattern = DateTimeFormat.patternForStyle("SS", Locale.getDefault)
+			val dateFormat = DateTimeFormat.forPattern(localDateFormatPattern)
+			def prettyDate(d: Long) = dateFormat.print(d)
+			val data = target.projectData
+			val href = ProjectDetailsPage.projectHref(target.id)
+
+			val project = for (traceState <- target.getState) yield ("id" -> target.id.num) ~
+				("name" -> data.metadata.name) ~
+				("hasCustomName" -> data.metadata.hasCustomName) ~
+				("created" -> prettyDate(data.metadata.creationDate)) ~
+				("imported" -> data.metadata.importDate.map(prettyDate)) ~
+				("href" -> href) ~
+				("exportHref" -> Paths.Export.toHref(target)) ~
+				("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
+				("state" -> traceState.name) ~
+				("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
+
+			project.map(JsonResponse(_))
+
 
 		// UNDO a project deletion (only works within a short time after requesting the delete)
 		case Paths.UndoDelete(target) Post req =>
@@ -396,7 +441,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		// GET the current status of the trace
 		case Paths.Status(target) Get req =>
-			target.getState map { state => PlainTextResponse(state.name) }
+			target.getState map { state =>
+				val status: JObject = ("name" -> state.name) ~ ("information" -> state.information)
+				JsonResponse(status)
+			}
 
 		// GET the current dependency check status for the trace
 		case Paths.DepCheckStatus(target) Get req =>

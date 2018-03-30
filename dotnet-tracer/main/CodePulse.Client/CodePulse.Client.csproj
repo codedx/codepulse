@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8AF8D48F-4ABC-48DD-8B62-91DB60632E4F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CodePulse.Client</RootNamespace>
+    <AssemblyName>CodePulse.Client</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)..\build\Version\opencover.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.10.0-beta6\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.10.0-beta6\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.10.0-beta6\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.10.0.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.10.0-beta6\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Agent\DefaultTraceAgent.cs" />
+    <Compile Include="Agent\ITraceAgent.cs" />
+    <Compile Include="Config\RuntimeAgentConfiguration.cs" />
+    <Compile Include="Config\StaticAgentConfiguration.cs" />
+    <Compile Include="Connect\IConnection.cs" />
+    <Compile Include="Connect\SocketConnection.cs" />
+    <Compile Include="Control\ConfigurationReader.cs" />
+    <Compile Include="Control\Controller.cs" />
+    <Compile Include="Control\ControlMessageProcessor.cs" />
+    <Compile Include="Control\IConfigurationHandler.cs" />
+    <Compile Include="Control\IConfigurationReader.cs" />
+    <Compile Include="Control\IControlMessageHandler.cs" />
+    <Compile Include="Control\IControlMessageProcessor.cs" />
+    <Compile Include="Control\IHeartbeatInformer.cs" />
+    <Compile Include="Control\IModeChangeListener.cs" />
+    <Compile Include="Control\StateManager.cs" />
+    <Compile Include="Data\TraceDataCollector.cs" />
+    <Compile Include="Errors\ErrorHandler.cs" />
+    <Compile Include="Errors\IErrorHandler.cs" />
+    <Compile Include="Init\ControlConnectionHandshake.cs" />
+    <Compile Include="Init\DataConnectionHandshake.cs" />
+    <Compile Include="Init\HandshakeException.cs" />
+    <Compile Include="Init\IControlConnectionHandshake.cs" />
+    <Compile Include="Init\IDataConnectionHandshake.cs" />
+    <Compile Include="Instrumentation\ClassInformation.cs" />
+    <Compile Include="Instrumentation\Id\ClassIdentifier.cs" />
+    <Compile Include="Instrumentation\Id\MethodIdentifier.cs" />
+    <Compile Include="Instrumentation\MethodInformation.cs" />
+    <Compile Include="Message\AgentOperationMode.cs" />
+    <Compile Include="Message\BufferService.cs" />
+    <Compile Include="Message\IMessageProtocol.cs" />
+    <Compile Include="Message\MessageProtocol.cs" />
+    <Compile Include="Message\MessageSenderManager.cs" />
+    <Compile Include="Message\MessageTypes.cs" />
+    <Compile Include="Message\PooledBufferService.cs" />
+    <Compile Include="Message\PooledMessageSender.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol\IProtocolVersion.cs" />
+    <Compile Include="Protocol\ProtocolVersion.cs" />
+    <Compile Include="Queue\BufferPool.cs" />
+    <Compile Include="Trace\IMethodSignatureBuilder.cs" />
+    <Compile Include="Trace\ITraceDataCollector.cs" />
+    <Compile Include="Trace\ITraceMessage.cs" />
+    <Compile Include="Trace\MethodVisitTraceMessage.cs" />
+    <Compile Include="Trace\MethodSignatureBuilder.cs" />
+    <Compile Include="Util\BinaryReaderExtensions.cs" />
+    <Compile Include="Util\BinaryWriterExtensions.cs" />
+    <Compile Include="Util\MemoryStreamExtensions.cs" />
+    <Compile Include="Util\SocketFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

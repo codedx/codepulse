@@ -55,14 +55,18 @@ $(document).ready(function(){
 			})
 
 		Trace.status.onValue(function(status){
-			if(status == 'loading-failed'){
-				alert('Processing data failed. You will be redirected to the home screen.')
+			if(status.name == 'loading-failed'){
+				let reason = "Unknown reason."
+				if(status.information) {
+					reason = status.information
+				}
+				alert('Processing data failed. Reason:\n' + reason + '\n\nYou will be redirected to the home screen.')
 				window.location.href = '/'
-			}
-
-			if(status == 'delete-pending'){
+			} else if(status.name == 'delete-pending'){
 				// just redirect. There will be a notification waiting on the home page
 				window.location.href = '/'
+			} else {
+				console.log("Project received unhandled trace status (this is not necessarily an error)", status)
 			}
 		})
 	})()
@@ -500,4 +504,13 @@ $(document).ready(function(){
 		$('h1.editable').editable('open')
 	})
 
+	function requestProject() {
+        API.getProjectData(function(reply, error){
+            if(!error && reply){
+                $('.edit-content').text(reply.name)
+            }
+        })
+	}
+
+    $(document).on('projectUpdated', requestProject)
 })

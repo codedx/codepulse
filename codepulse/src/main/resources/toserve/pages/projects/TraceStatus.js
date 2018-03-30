@@ -27,7 +27,7 @@
 
 	// Property that shows if the Trace is currently running, based on the status
 	var runningProp = statusProp.map(function(status){
-		switch(status){
+		switch(status.name){
 			case 'running':
 			case 'ending':
 				return true
@@ -39,7 +39,7 @@
 	Trace.isLoadingProp = statusProp.scan(true, function(previous, nextState){
 		// prop remains true while the state is 'loading'.
 		// once the state enters the first non-loading state, this prop becomes false
-		return previous && nextState == 'loading'
+		return previous && nextState.name == 'loading'
 	}).skipDuplicates()
 
 	/*
@@ -60,9 +60,16 @@
 	Trace.running = runningProp.noLazy()
 
 	Trace.ready = function(f){
+        API.requestStatus(function(status, error){
+            console.log('ready status:', status, error)
+			// if there is an error at this point, we simply want to fail loading
+            if(error) statusBus.error(status)
+            else statusBus.push(status)
+        })
+
 		$(document).ready(function(){
 			Trace.status
-				.takeWhile(function(status){ return status == 'loading' })
+				.takeWhile(function(status){ return status.name == 'loading' })
 				.onEnd(f)
 		})
 	}

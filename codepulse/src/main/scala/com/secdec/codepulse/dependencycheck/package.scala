@@ -20,13 +20,16 @@
 package com.secdec.codepulse
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
+import com.secdec.codepulse.components.dependencycheck.Updates
+import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.processing.ProcessStatus
 
 package object dependencycheck {
 
 	class BootVar[T] {
 		private var _value: Option[T] = None
 		def apply() = _value getOrElse {
-			throw new IllegalStateException("Code Pulse has not booted yet")
+			throw new IllegalStateException("depCode Pulse has not booted yet")
 		}
 		private[dependencycheck] def set(value: T) = {
 			_value = Some(value)
@@ -35,9 +38,18 @@ package object dependencycheck {
 
 	val dependencyCheckActor = new BootVar[ActorRef]
 
-	def boot(actorSystem: ActorSystem) {
+	def boot(actorSystem: ActorSystem, eventBus: GeneralEventBus) {
 		val dca = actorSystem actorOf Props[DependencyCheckActor]
+		actorSystem.eventStream.subscribe(dca, classOf[ProcessStatus])
 		dca ! DependencyCheckActor.Update
 		dependencyCheckActor set dca
+
+		val updates = actorSystem actorOf Props[Updates]
+		eventBus.subscribe(updates, "Queued")
+		eventBus.subscribe(updates, "Running")
+		eventBus.subscribe(updates, "Finished")
+		eventBus.subscribe(updates, "Failed")
+		eventBus.subscribe(updates, "NotRun")
+		eventBus.subscribe(updates, "Unknown")
 	}
 }

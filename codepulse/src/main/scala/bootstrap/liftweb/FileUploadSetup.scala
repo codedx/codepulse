@@ -40,7 +40,7 @@ import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
 
 object FileUploadSetup extends Loggable {
 
-	val MaxFileSize = 200 * 1024 * 1024
+	val MaxFileSize = 500 * 1024 * 1024
 
 	def init(liftRules: LiftRules) = {
 		setupMimeHandler(liftRules)

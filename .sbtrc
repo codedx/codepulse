@@ -1,0 +1,2 @@
+# load 'CodePulse' project by default
+alias boot = ;reload ;project CodePulse ;iflast shell

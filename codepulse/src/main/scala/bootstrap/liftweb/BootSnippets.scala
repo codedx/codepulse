@@ -41,6 +41,8 @@ private[liftweb] object BootSnippets {
 			case SnippetRequest("VersionSnippet", _) => new VersionSnippet
 			case SnippetRequest("ProjectWidgetry", Full(target: TracingTarget)) => new ProjectWidgetry(projectManager, target)
 			case SnippetRequest("ConnectionHelp", _) => ConnectionHelp
+			case SnippetRequest("DotNETIISHelp", _) => DotNETIISHelp
+			case SnippetRequest("DotNETExecutableHelp", _) => DotNETExecutableHelp
 			case SnippetRequest("Notifications", _) => Notifications
 			case SnippetRequest("TraceConnectorState", _) => TraceConnectorState
 		}
@@ -48,6 +50,7 @@ private[liftweb] object BootSnippets {
 		val cometActorsByName: PartialFunction[String, PublicCometInit] = {
 			case CometTracerUI.className => new CometTracerUI
 			case "ProjectListUpdates" => new ProjectListUpdates(projectManager)
+			case "ProjectUpdated" => new ProjectUpdated(projectManager)
 			case "Notifications" => Notifications
 			case "TraceConnectorStateChanges" => new TraceConnectorStateChanges
 			case "DependencyCheck" => DependencyCheckUpdates

@@ -35,6 +35,6 @@ class VersionSnippet extends DispatchSnippet {
 	def dispatch = {
 		case "render" => (xhtml: NodeSeq) => bind("v", xhtml,
 			"number" -> version.number,
-			"date" -> dateFormat.format(version.date))
+			"date" -> (version.date.map { dateFormat.format(_) } getOrElse version.dateRaw))
 	}
 }

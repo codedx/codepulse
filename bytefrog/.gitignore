@@ -1,0 +1,12 @@
+.DS_Store
+.java-version
+.scala_dependencies
+.settings/
+.classpath
+.cache
+.project
+.idea
+.idea_modules
+*.sublime-workspace
+target/
+outputs/

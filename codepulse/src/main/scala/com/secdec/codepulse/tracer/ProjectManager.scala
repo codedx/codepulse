@@ -23,23 +23,15 @@ import scala.collection.mutable.{ Map => MutableMap }
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.util.Failure
-import scala.util.Success
-
-import com.secdec.codepulse.components.notifications.NotificationMessage
-import com.secdec.codepulse.components.notifications.NotificationSettings
-import com.secdec.codepulse.components.notifications.Notifications
-import com.secdec.codepulse.data.jsp.JasperJspMapper
-import com.secdec.codepulse.data.jsp.JspMapper
-import com.secdec.codepulse.data.model.ProjectData
-import com.secdec.codepulse.data.model.ProjectDataProvider
-import com.secdec.codepulse.data.model.ProjectId
+import scala.util.{ Failure, Success }
 
 import akka.actor.ActorSystem
+import com.secdec.codepulse.components.notifications.{ NotificationMessage, NotificationSettings, Notifications }
+import com.secdec.codepulse.data.jsp.{ JasperJspMapper, JspMapper }
+import com.secdec.codepulse.data.model.{ ProjectData, ProjectDataProvider, ProjectId }
+import reactive.{ EventSource, Observing }
+
 import bootstrap.liftweb.AppCleanup
-import reactive.EventSource
-import reactive.EventStream
-import reactive.Observing
 
 object ProjectManager {
 	lazy val defaultActorSystem = {
@@ -56,6 +48,8 @@ object ProjectManager {
 class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 	private val projects = MutableMap.empty[ProjectId, TracingTarget]
+	private val allSessionProjects = MutableMap.empty[ProjectId, TracingTarget]
+	private val pendingProjectDeletions = MutableMap.empty[TracingTarget, DeletionKey]
 	private val dataProvider: ProjectDataProvider = projectDataProvider
 	private val transientDataProvider: TransientTraceDataProvider = transientTraceDataProvider
 	val projectListUpdates = new EventSource[Unit]
@@ -63,9 +57,11 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 	/** Looks up a TracingTarget from the given `traceId` */
 	def getProject(projectId: ProjectId): Option[TracingTarget] = projects.get(projectId)
 
+	def getInclusiveProject(projectId: ProjectId): Option[TracingTarget] = allSessionProjects.get(projectId)
+
 	def projectsIterator: Iterator[TracingTarget] = projects.valuesIterator
 
-	private var nextProjectNum = 0
+	private var nextProjectNum = dataProvider.maxProjectId + 1
 	private val nextProjectNumLock = new Object {}
 	private def getNextProjectId(): ProjectId = nextProjectNumLock.synchronized {
 		var id = ProjectId(nextProjectNum)
@@ -98,6 +94,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 		val target = AkkaTracingTarget(actorSystem, projectId, projectData, transientDataProvider get projectId, jspMapper)
 		projects.put(projectId, target)
+		allSessionProjects.put(projectId, target)
 
 		// cause a projectListUpdate when this project's name changes
 		projectData.metadata.nameChanges ->> { projectListUpdates fire () }
@@ -108,16 +105,6 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 		val subscriptionMade = target.subscribeToStateChanges { stateUpdates =>
 			// trigger an update when the target state updates
 			stateUpdates ->> { projectListUpdates fire () }
-
-			// when the state becomes 'deleted', send a notification about it
-			stateUpdates foreach {
-				case TracingTargetState.DeletePending =>
-					val projectName = projectData.metadata.name
-					val undoHref = apiServer.Paths.UndoDelete.toHref(target)
-					val msg = NotificationMessage.ProjectDeletion(projectName, undoHref)
-					Notifications.enqueueNotification(msg, NotificationSettings.defaultDelayed(13000), persist = true)
-				case _ =>
-			}
 		}
 
 		// wait up to 1 second for the subscription to be acknowledged
@@ -126,17 +113,29 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 		target
 	}
 
-	def removeUnloadedProject(projectId: ProjectId): Option[TracingTarget] = {
+	def removeUnloadedProject(projectId: ProjectId, reason: String): Option[TracingTarget] = {
 		dataProvider removeProject projectId
 		for (project <- projects remove projectId) yield {
-			project.notifyLoadingFailed()
+			project.notifyLoadingFailed(reason)
 			project
 		}
+	}
 
+	def removeProject(project: TracingTarget) = {
+		val (deletionKey, deletionFuture) = project.setDeletePending()
+
+		val id = project.id
+		projects remove id
+		dataProvider removeProject id
+		pendingProjectDeletions.remove(project)
+
+		projectListUpdates.fire()
+		project.finalizeDeletion(deletionKey)
 	}
 
 	def scheduleProjectDeletion(project: TracingTarget) = {
 		val (deletionKey, deletionFuture) = project.setDeletePending()
+		pendingProjectDeletions.put(project, deletionKey)
 
 		// in 10 seconds, actually delete the project
 		val finalizer = actorSystem.scheduler.scheduleOnce(15.seconds) {
@@ -155,12 +154,14 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 				// actually perform the deletion at this point
 				projects remove project.id
 				dataProvider removeProject project.id
+				pendingProjectDeletions.remove(project)
 				projectListUpdates fire ()
 
 			case Failure(e) =>
 				// the deletion was probably canceled
 				println(s"Deletion failed or maybe canceled. Message says '${e.getMessage}'")
 				finalizer.cancel()
+				pendingProjectDeletions.remove(project)
 		}
 
 		deletionFuture

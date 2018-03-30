@@ -57,12 +57,13 @@ package object codepulse {
 		}
 
 		lazy val number = versionInfo.version
-		lazy val date = new SimpleDateFormat("M/d/yyyy").parse(versionInfo.releaseDate)
+		lazy val date = Try { new SimpleDateFormat("M/d/yyyy").parse(versionInfo.releaseDate) }.toOption
+		lazy val dateRaw = versionInfo.releaseDate
 	}
 
 	object paths {
-		val appData = ApplicationData.getApplicationDataFolder("Secure Decisions", "Code Pulse", "codepulse")
-		val localAppData = ApplicationData.getLocalApplicationDataFolder("Secure Decisions", "Code Pulse", "codepulse")
+		val appData = ApplicationData.getApplicationDataFolder("Code Dx", "Code Pulse", "codepulse")
+		val localAppData = ApplicationData.getLocalApplicationDataFolder("Code Dx", "Code Pulse", "codepulse")
 		val logFiles = appData / "log-files"
 
 		logFiles.mkdirs

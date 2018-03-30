@@ -20,14 +20,15 @@
 package com.secdec.codepulse.tracer
 
 import java.util.concurrent.TimeoutException
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Failure
 import scala.util.Success
-import com.secdec.bytefrog.hq.trace.Trace
-import com.secdec.bytefrog.hq.trace.TraceEndReason
+import com.codedx.codepulse.hq.trace.Trace
+import com.codedx.codepulse.hq.trace.TraceEndReason
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.model.ProjectId
@@ -36,12 +37,12 @@ import akka.pattern.AskSupport
 import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
-import com.secdec.bytefrog.hq.config.AgentConfiguration
+import com.codedx.codepulse.hq.config.AgentConfiguration
 
-sealed abstract class TracingTargetState(val name: String)
+sealed abstract class TracingTargetState(val name: String, val information: String = "")
 object TracingTargetState {
 	case object Loading extends TracingTargetState("loading")
-	case object LoadingFailed extends TracingTargetState("loading-failed")
+	case class LoadingFailed(val reason: String) extends TracingTargetState("loading-failed", reason)
 	case object Idle extends TracingTargetState("idle")
 	case object Running extends TracingTargetState("running")
 	case object Ending extends TracingTargetState("ending")
@@ -88,7 +89,7 @@ trait TracingTarget {
 	def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext): Future[Unit]
 
 	def notifyLoadingFinished()(implicit exc: ExecutionContext): Future[Unit]
-	def notifyLoadingFailed()(implicit exc: ExecutionContext): Future[Unit]
+	def notifyLoadingFailed(reason: String)(implicit exc: ExecutionContext): Future[Unit]
 
 	/** Get the state of this trace. Since the operation is normally asynchronous,
 	  * this method will block for up to 1 second to wait for the result of the
@@ -119,7 +120,7 @@ object AkkaTracingTarget {
 	// Messages handled internally by the StateMachine actor
 	// ----
 	private case object LoadingFinished extends TargetRequest
-	private case object LoadingFailed extends TargetRequest
+	private case class LoadingFailed(val reason: String) extends TargetRequest
 	private case object RequestTraceEnd extends TargetRequest
 	private case class Subscribe(f: EventStream[TracingTargetState] => Unit) extends TargetRequest
 	private case object RequestState extends TargetRequest
@@ -169,20 +170,24 @@ object AkkaTracingTarget {
 			deletionKey -> deletionFuture
 		}
 
-		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = getAckFuture(TraceConnected(trace))
+		def connectTrace(trace: Trace)(implicit exc: ExecutionContext) = {
+			// TraceSettingsCreator.generateTraceSettings may take a long time to complete if
+			// there are many records in the tree_node_data table. Use a timeout duration of
+			// 10 minutes to move between the Initializing and Tracing states
+			getAckFuture(TraceConnected(trace))(exc = exc, timeout = new Timeout(10.minutes))
+		}
 
 		def cancelPendingDeletion()(implicit exc: ExecutionContext) = getAckFuture(CancelPendingDeletion)
 		def finalizeDeletion(key: DeletionKey)(implicit exc: ExecutionContext) = getAckFuture(FinalizeDeletion(key))
 		def notifyLoadingFinished()(implicit exc: ExecutionContext) = getAckFuture(LoadingFinished)
-		def notifyLoadingFailed()(implicit exc: ExecutionContext) = getAckFuture(LoadingFailed)
+		def notifyLoadingFailed(reason: String)(implicit exc: ExecutionContext) = getAckFuture(LoadingFailed(reason))
 
 		/** Create a message 'ask' future that expects an `Ack` message in return.
 		  * If an AntiAck is sent with a message, the future fails with an exception
 		  * containing that message. If any other message is sent, the future fails
 		  * with no exception message.
 		  */
-		private def getAckFuture(msg: TargetRequest)(implicit exc: ExecutionContext) = {
-			implicit val timeout = new Timeout(5.seconds)
+		private def getAckFuture(msg: TargetRequest)(implicit exc: ExecutionContext, timeout: Timeout = new Timeout(5.seconds)) = {
 			val future = actor ? msg
 			future flatMap {
 				case Ack => Future successful ()
@@ -273,13 +278,13 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 			changeState(StateIdle)
 			sender ! Ack
 
-		case LoadingFailed =>
-			changeState(StateLoadingFailed)
-			self ! PoisonPill
+		case LoadingFailed(reason) =>
+			changeState(StateLoadingFailed(reason))
+//			self ! PoisonPill
 			sender ! Ack
 	})
 
-	val StateLoadingFailed = State(TracingTargetState.LoadingFailed, PartialFunction.empty)
+	def StateLoadingFailed(reason: String) = State(TracingTargetState.LoadingFailed(reason), PartialFunction.empty)
 
 	/** No activity currently going on.
 	  * The state may be advanced by sending a `TraceRequested` message,

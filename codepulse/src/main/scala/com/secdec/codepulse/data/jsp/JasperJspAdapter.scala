@@ -50,7 +50,7 @@ class JasperJspAdapter extends JspAdapter {
 		}
 
 		// build up
-		jspClasses.result.toList map {
+		jsps map {
 			case (clazz, size) =>
 				val jspClassName = JasperUtils.makeJavaClass(clazz)
 				val displayName = clazz.split('/').filter(!_.isEmpty).toList

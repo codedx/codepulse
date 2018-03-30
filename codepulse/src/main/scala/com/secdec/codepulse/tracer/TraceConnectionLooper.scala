@@ -23,12 +23,12 @@ import scala.concurrent.duration.DurationInt
 import scala.util.Failure
 import scala.util.Success
 
-import com.secdec.bytefrog.hq.data.processing.DataRouter
-import com.secdec.bytefrog.hq.trace.DefaultSegmentAccess
-import com.secdec.bytefrog.hq.trace.Trace
-import com.secdec.bytefrog.hq.trace.TraceDataManager
-import com.secdec.bytefrog.hq.trace.TraceEndReason
-import com.secdec.bytefrog.hq.trace.TraceSegmentManager
+import com.codedx.codepulse.hq.data.processing.DataRouter
+import com.codedx.codepulse.hq.trace.DefaultSegmentAccess
+import com.codedx.codepulse.hq.trace.Trace
+import com.codedx.codepulse.hq.trace.TraceDataManager
+import com.codedx.codepulse.hq.trace.TraceEndReason
+import com.codedx.codepulse.hq.trace.TraceSegmentManager
 import com.secdec.codepulse.components.notifications.NotificationMessage
 import com.secdec.codepulse.components.notifications.NotificationSettings
 import com.secdec.codepulse.components.notifications.Notifications

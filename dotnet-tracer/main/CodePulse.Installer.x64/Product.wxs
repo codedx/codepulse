@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?define Version = "1.0.0.0" ?>
+  <?define OutputFolder = "..\bin\Release\" ?>
+  <?define x64OutputFolder = "$(var.OutputFolder)x64\" ?>
+  
+	<Product Id="*" Name="Code Pulse .NET Tracer (x64 Profiler)" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="00bd7e54-e424-49bb-8e3c-151a75affda0">
+	  <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+
+	  <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
+	  <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+
+	  <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+	  <MediaTemplate EmbedCab="yes"/>
+
+	  <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+	  <UIRef Id="WixUI_InstallDir" />
+	  <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <Property Id="CODEPULSEDOTNETTRACERINSTALLED">
+      <RegistrySearch Id="CodePulseDotNetTracerInstalledRegistrySearch" Root="HKLM" Key="SOFTWARE\WOW6432Node\Code Dx, Inc.\Code Pulse .NET Tracer" Name="ApplicationPath" Type="raw" Win64="yes" />
+    </Property>
+
+    <Condition Message="[ProductName] requires you to first install the 32-bit Code Pulse .NET Tracer application.">
+      <![CDATA[Installed OR CODEPULSEDOTNETTRACERINSTALLED]]>
+    </Condition>
+    
+	  <Feature Id="TracerFeature" Title="Code Pulse .NET Tracer (x64 Profiler)" Level="1">
+	    <ComponentGroupRef Id="ProfilerComponentGroup" />
+	  </Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFiles64Folder">
+			  <Directory Id="INSTALLFOLDER" Name="Code Pulse .NET Tracer">
+			    <Directory Id="X64" Name="x64" />
+			  </Directory>
+			</Directory>
+		</Directory>
+	</Fragment>
+
+  <Fragment>
+    <Component Id="x64OpenCoverProfilerComponent" Directory="X64" Guid="{48788daf-68c0-4da5-9b3b-dcadb39424db}" Win64="yes">
+      <File Id="x64OpenCoverProfilerDll" Source="$(var.x64OutputFolder)OpenCover.Profiler.dll" KeyPath="yes">
+        <TypeLib Id="{437C5B7B-DA44-4DE8-8629-CC994EA549EC}" Description="OpenCoverProfilerLib" HelpDirectory="X64" Language="0" MajorVersion="1" MinorVersion="0">
+          <Class Id="{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}" Context="InprocServer32" Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
+            <ProgId Id="OpenCover.CodeCoverage.1" Description="OpenCover CodeCoverage Class">
+              <ProgId Id="OpenCover.CodeCoverage" Description="OpenCover CodeCoverage Class" />
+            </ProgId>
+          </Class>
+        </TypeLib>
+      </File>
+      <File Id="x64OpenCoverProfilerPdb" Source="$(var.x64OutputFolder)OpenCover.Profiler.pdb"/>
+    </Component>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProfilerComponentGroup">
+      <ComponentRef Id="x64OpenCoverProfilerComponent"/>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

@@ -86,6 +86,9 @@
 		/** checks `release`, firing off the appropriate events as necessary */
 		function checkRelease(release) {
 			getVersion(function (ourVersion) {
+                if (ourVersion == "UNVERSIONED") {
+                    return;
+                }
 				var releaseVersion = release.tag_name.replace(/^v/, '')
 				self.releaseVersion = releaseVersion
 

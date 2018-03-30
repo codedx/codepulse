@@ -38,7 +38,7 @@ object ConnectionHelp extends DispatchSnippet {
 	def traceAgentCommand = {
 		// embedded versions will be running in "some/install/dir/backend", and
 		// the agent jar will be located at "some/install/dir/agent.jar"
-		val agentPath = new File("../agent.jar").getCanonicalPath
+		val agentPath = new File("../tracers/java/agent.jar").getCanonicalPath
 
 		val hqAddress = "localhost"
 		val hqPort = com.secdec.codepulse.userSettings.tracePort
@@ -47,5 +47,42 @@ object ConnectionHelp extends DispatchSnippet {
 
 		// if `cmd` has spaces, wrap it in "quotes"
 		if (cmd.contains(" ")) '"' + cmd + '"' else cmd
+	}
+}
+
+object DotNETIISHelp extends DispatchSnippet {
+
+	def dispatch = {
+		case "render" => doRender
+	}
+
+	def doRender(template: NodeSeq): NodeSeq = bind("help", template, {
+		"dotnetiisagentcommand" -> { (xml: NodeSeq) => Text(dotNETTraceCommandForIIS) }
+	})
+
+	def dotNETTraceCommandForIIS = {
+		val hqPort = com.secdec.codepulse.userSettings.tracePort
+		val backslash = "\\"
+		val cmd = s"""CodePulse.DotNet.Tracer.exe -IIS "-TargetDir:<targetdir>" "-IISAppPoolIdentity:<domain${backslash}username>" -CodePulsePort:$hqPort"""
+
+		cmd
+	}
+}
+
+object DotNETExecutableHelp extends DispatchSnippet {
+
+	def dispatch = {
+		case "render" => doRender
+	}
+
+	def doRender(template: NodeSeq): NodeSeq = bind("help", template, {
+		"dotnetexecutableagentcommand" -> { (xml: NodeSeq) => Text(dotNETTraceCommandForExecutable) }
+	})
+
+	def dotNETTraceCommandForExecutable = {
+		val hqPort = com.secdec.codepulse.userSettings.tracePort
+		val cmd = s"""CodePulse.DotNet.Tracer.exe "-Target:<target application>" -SendVisitPointsTimerInterval:<milliseconds> -CodePulsePort:$hqPort"""
+
+		cmd
 	}
 }

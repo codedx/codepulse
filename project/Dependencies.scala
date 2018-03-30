@@ -28,18 +28,25 @@ object Dependencies {
 	lazy val logback = "ch.qos.logback" % "logback-classic" % "0.9.26" % "compile->default"
 	lazy val slf4j = "org.slf4j" % "jcl-over-slf4j" % "1.6.4"
 
-	// testing
-	lazy val junit = "junit" % "junit" % "4.5" % "test->default"
-	lazy val specs = "org.scala-tools.testing" % "specs_2.9.0" % "1.6.8" % "test"
-	lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.4" % "test"
+	// for testing
+	lazy val scalactic = "org.scalactic" %% "scalactic" % "3.0.4" % Test
+	lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
+	lazy val scalaMock = "org.scalamock" %% "scalamock" % "4.0.0" % Test
 
 	// extra libraries
 	lazy val akka = "com.typesafe.akka" %% "akka-actor" % "2.2.3"
 	lazy val reactive = "cc.co.scala-reactive" %% "reactive-core"	% "0.3.2.1"
 	lazy val concLinkedHashMap = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.2_jdk5"
+	lazy val minlog = "com.esotericsoftware" % "minlog" % "1.3.0"
 	lazy val asm = Seq(
-		"org.ow2.asm" % "asm" % "5.1",
-		"org.ow2.asm" % "asm-commons" % "5.1"
+		"org.ow2.asm" % "asm" % "6.0",
+		"org.ow2.asm" % "asm-commons" % "6.0"
+	)
+	lazy val jsonb = Seq(
+		"javax.json" % "javax.json-api" % "1.1",
+		"javax.json.bind" % "javax.json.bind-api" % "1.0",
+		"org.glassfish" % "javax.json" % "1.1",
+		"org.eclipse" % "yasson" % "1.0"
 	)
 	lazy val jna = Seq(
 		"net.java.dev.jna" % "jna" % "4.1.0",
@@ -61,5 +68,8 @@ object Dependencies {
 	}
 
 	// dependency-check
-	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "3.0.2"
+	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "3.1.1"
+
+	// dispatch, Scala wrapper for Java AsyncHttpClient https://github.com/dispatch/reboot
+	lazy val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.4"
 }

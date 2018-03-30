@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define TracersWin64SourceFolder = "..\Files\Win64\tracers" ?>
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Directory Id="dirC9569A3AA35221BCEE254B19D1874FD5" Name="tracers" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="Tracers">
+            <Component Id="cmpBC54D614809FFA8B0EA9918ACAEF8243" Directory="dir7415E8BC643AF6D21E1EB5173B15D68F" Guid="*">
+                <File Id="fil5253A467A9E0FD3FD99E4D7005EC1E1C" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\dotnet\CodePulse.DotNet.Tracer.Installer.html" />
+            </Component>
+            <Component Id="cmpB1CDA33B9AF6A2BE1484F90221B6DCDC" Directory="dirD950C6731FD9FF9FABF8E19EA953FF38" Guid="*">
+                <File Id="fil2FEEA9209CA27D068F28521FF90E7EC0" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\dotnet\img\CodePulse.DotNet.Tracer.Installer.Setup.png" />
+            </Component>
+            <Component Id="cmpFE3DDD1A3D976133F5B1C680ABEEE0FC" Directory="dirD950C6731FD9FF9FABF8E19EA953FF38" Guid="*">
+                <File Id="fil57686115801872730A62BBDAB4D4110F" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\dotnet\img\icon.png" />
+            </Component>
+            <Component Id="cmp79DDE8B86EF01A8CA5C4972287965C4F" Directory="dirBD36B0B3BC81A30E46ED205BA3B8ECD2" Guid="*">
+                <File Id="fil4F19EF22B82575CD1093661E44F432A4" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\agent.jar" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirC9569A3AA35221BCEE254B19D1874FD5">
+            <Directory Id="dir7415E8BC643AF6D21E1EB5173B15D68F" Name="dotnet" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirC9569A3AA35221BCEE254B19D1874FD5">
+            <Directory Id="dirBD36B0B3BC81A30E46ED205BA3B8ECD2" Name="java" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dir7415E8BC643AF6D21E1EB5173B15D68F">
+            <Directory Id="dirD950C6731FD9FF9FABF8E19EA953FF38" Name="img" />
+        </DirectoryRef>
+    </Fragment>
+</Wix>
