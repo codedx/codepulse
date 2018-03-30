@@ -190,6 +190,7 @@ $zipFilePath = join-path $toolsPath 'ZipFile\bin\ZipFile.exe'
 $dotNetSymbolServicePath = join-path $codePulsePath 'dotnet-symbol-service'
 $dotNetTracerPath = join-path $codePulsePath 'dotnet-tracer'
 $dotNetTracerMainPath = join-path $dotNetTracerPath 'main'
+$signToolPath = 'C:\Program Files (x86)\Windows Kits\10\bin\10.0.16299.0\x86\signtool.exe'
 
 $buildConfiguration = 'Release'
 

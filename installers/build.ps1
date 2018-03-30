@@ -7,15 +7,15 @@
 # 4. locate generated Code Pulse packages in this directory
 #
 param (
-	[switch] $skipInit,
+    [switch] $skipInit,
     [switch] $skipDotNetTracer,
-	[switch] $skipWindows,
-	[switch] $skipMac,
-	[switch] $skipLinux,
+    [switch] $skipWindows,
+    [switch] $skipMac,
+    [switch] $skipLinux,
     [switch] $signOutput,
     [switch] $useGitHubDotNetTracerWindowsDownloadUrl,
-	[string] $version='1.0.0',
-	[string] $versionForDotNetTracerWindowsDownloadUrl='1.0.0',
+    [string] $version='1.0.0',
+    [string] $versionForDotNetTracerWindowsDownloadUrl='1.0.0',
     [string] $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 

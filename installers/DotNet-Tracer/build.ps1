@@ -17,6 +17,11 @@ Push-Location $PSScriptRoot
 
 . ..\Scripts\common.ps1
 
+if ($signOutput -and (-not(test-path $signToolPath))) {
+    Write-Error "Unable to find signtool.exe at $signToolPath"
+    exit 1
+}
+
 $filesFolderPath = join-path $PSScriptRoot 'Files\codepulse'
 $filesDownloadFolderPath = join-path $PSScriptRoot 'Files\codepulse-download'
 $filesDownloadFolderImgPath = join-path $filesDownloadFolderPath 'img'
@@ -184,7 +189,7 @@ Press Enter *after* you have signed the bundle...
     $bundlePath = join-path $dotNetTracerMainPath "CodePulse.Bundle\bin\$buildConfiguration\CodePulse.DotNet.Tracer.Installer.exe"
 
 	Write-Verbose 'Verifying that the bundle is signed...'
-	signtool.exe verify /pa /tw $bundlePath
+	& $signToolPath verify /pa /tw $bundlePath
 	if ($lastexitcode -ne 0) {
 		Write-Verbose 'Cannot continue because the bundle is not signed.'
 		exit $lastexitcode

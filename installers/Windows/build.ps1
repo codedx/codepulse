@@ -2,8 +2,8 @@
 # This script creates the Windows Code Pulse package
 #
 param (
-	[switch] $signOutput,
-	[string] $version='1.0.0',
+    [switch] $signOutput,
+    [string] $version='1.0.0',
     [string] $releaseDate=([DateTime]::Now.ToShortDateString())
 )
 
@@ -14,6 +14,11 @@ $VerbosePreference = 'Continue'
 Push-Location $PSScriptRoot
 
 . ..\Scripts\common.ps1
+
+if ($signOutput -and (-not(test-path $signToolPath))) {
+    Write-Error "Unable to find signtool.exe at $signToolPath"
+    exit 1
+}
 
 if (-not (Test-MsBuild)) {
     exit 1
@@ -78,7 +83,7 @@ Press Enter *after* you have signed the bundle...
     Write-Host $signingInstructions; Read-Host
 
     Write-Verbose 'Verifying that the MSI is signed...'
-    signtool.exe verify /pa /tw $msiPath
+    & $signToolPath verify /pa /tw $msiPath
     if ($lastexitcode -ne 0) {
         Write-Verbose 'Cannot continue because the MSI is not signed.'
         exit $lastexitcode
