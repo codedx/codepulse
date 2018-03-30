@@ -546,7 +546,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// POST changes to a recording's metadata
 		// query: [color=newColor][label=newLabel][running=newRunning] (all optional)
 		case Paths.Recording(target, recording) Post req =>
-			println(s"update recording with params: ${req.params}")
+			logger.debug(s"update recording with params: ${req.params}")
 			for (color <- req.param("color")) recording.clientColor = Some(color)
 			for (label <- req.param("label")) recording.clientLabel = Some(label)
 			for (AsBoolean(running) <- req.param("running")) recording.running = running

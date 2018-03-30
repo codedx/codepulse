@@ -35,10 +35,9 @@ lazy val Shared = Project("Shared", file("shared"))
 		baseSettings,
 		scalaSettings,
 		javaSettings,
-		javaOnly,
 		withTesting,
 
-		libraryDependencies ++= Dependencies.jsonb
+		libraryDependencies ++= Dependencies.jsonb ++ Dependencies.logging
 	)
 
 lazy val Agent = Project("Agent", file("agent"))
@@ -132,7 +131,8 @@ lazy val HQ = Project("HQ", file("hq"))
 		scalaSettings,
 		withTesting,
 
-		libraryDependencies ++= Seq(Dependencies.reactive, Dependencies.dispatch) ++ Dependencies.jsonb
+		libraryDependencies += Dependencies.commons.lang,
+		libraryDependencies ++= Seq(Dependencies.reactive, Dependencies.dispatch) ++ Dependencies.jsonb ++ Dependencies.logging
 	)
 
 lazy val CodePulse = Project("CodePulse", file("codepulse"))
@@ -150,8 +150,10 @@ lazy val CodePulse = Project("CodePulse", file("codepulse"))
 
 		libraryDependencies ++= Seq(
 			Dependencies.jettyWebapp, Dependencies.jettyOrbit, Dependencies.servletApi,
-			Dependencies.lift_webkit, Dependencies.logback, Dependencies.slf4j,
-			Dependencies.akka, Dependencies.reactive, Dependencies.commons.io, Dependencies.concLinkedHashMap, Dependencies.juniversalchardet, Dependencies.dependencyCheckCore,
+			Dependencies.lift_webkit,
+			Dependencies.akka, Dependencies.reactive,
+			Dependencies.commons.io, Dependencies.commons.lang,
+			Dependencies.concLinkedHashMap, Dependencies.juniversalchardet, Dependencies.dependencyCheckCore,
 			Dependencies.slick, Dependencies.h2
-		) ++ Dependencies.asm ++ Dependencies.jackson ++ Dependencies.jna
+		) ++ Dependencies.asm ++ Dependencies.jackson ++ Dependencies.jna ++ Dependencies.logging
 	)

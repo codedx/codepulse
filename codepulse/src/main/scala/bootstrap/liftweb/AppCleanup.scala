@@ -19,7 +19,9 @@
 
 package bootstrap.liftweb
 
-object AppCleanup {
+import com.codedx.codepulse.utility.Loggable
+
+object AppCleanup extends Loggable {
 	private var preShutdownHooks: List[() => Unit] = Nil
 
 	private var shutdownHooks: List[() => Unit] = Nil
@@ -30,10 +32,10 @@ object AppCleanup {
 
 	def runCleanup() = {
 		try {
-			println("Running PreShutdownHooks")
+			logger.debug("Running PreShutdownHooks")
 			preShutdownHooks.reverseIterator.foreach { _() }
 
-			println("Running ShutdownHooks")
+			logger.debug("Running ShutdownHooks")
 			shutdownHooks.reverseIterator.foreach { _() }
 		} catch {
 			case e: Throwable => e.printStackTrace

@@ -139,7 +139,7 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 	}
 	protected def becomeState(newSR: StateReceive, discardOld: Boolean = true) = {
 		context.become(newSR.receive, discardOld)
-		println(s"Connection Looper becoming state ${newSR.state}")
+		logger.debug(s"Connection Looper becoming state ${newSR.state}")
 		stateChanges fire newSR.state
 	}
 

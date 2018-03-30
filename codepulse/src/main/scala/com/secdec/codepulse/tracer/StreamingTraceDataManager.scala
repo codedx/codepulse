@@ -26,6 +26,7 @@ import com.codedx.codepulse.hq.trace.TraceEndReason
 import com.codedx.codepulse.hq.trace.TraceSegmentManager
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
+import com.codedx.codepulse.utility.Loggable
 
 /** A TraceDataManager that records events through the `TraceRecorderServer`,
   * which will make the events available through a REST api for use by the
@@ -35,7 +36,7 @@ import com.secdec.codepulse.data.model.ProjectData
   * done at constructor time by creating a "PrecalculatedMethodCorrelator" for the
   * given analysis.
   */
-class StreamingTraceDataManager(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends TraceDataManager {
+class StreamingTraceDataManager(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends TraceDataManager with Loggable {
 
 	/** Set up listeners for the various trace segment builder events,
 	  * adapt them to LiveSegmentData instances,
@@ -54,6 +55,6 @@ class StreamingTraceDataManager(projectData: ProjectData, transientData: Transie
 
 	def finish(reason: TraceEndReason, traceWasStarted: Boolean): Unit = {
 		val t = if (traceWasStarted) "Trace" else "An unstarted trace"
-		println(s"$t stopped because $reason")
+		logger.debug(s"$t stopped because $reason")
 	}
 }

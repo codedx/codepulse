@@ -31,21 +31,23 @@ import com.secdec.codepulse.data.jsp.{ JasperJspMapper, JspMapper }
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectDataProvider, ProjectId }
 import reactive.{ EventSource, Observing }
 
+import com.codedx.codepulse.utility.Loggable
+
 import bootstrap.liftweb.AppCleanup
 
-object ProjectManager {
+object ProjectManager extends Loggable {
 	lazy val defaultActorSystem = {
 		val sys = ActorSystem("ProjectManagerSystem")
 		AppCleanup.addShutdownHook { () =>
 			sys.shutdown()
 			sys.awaitTermination()
-			println("Shutdown ProjectManager's ActorSystem")
+			logger.debug("Shutdown ProjectManager's ActorSystem")
 		}
 		sys
 	}
 }
 
-class ProjectManager(val actorSystem: ActorSystem) extends Observing {
+class ProjectManager(val actorSystem: ActorSystem) extends Observing with Loggable {
 
 	private val projects = MutableMap.empty[ProjectId, TracingTarget]
 	private val allSessionProjects = MutableMap.empty[ProjectId, TracingTarget]
@@ -145,7 +147,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 			// transitioned to the Deleted state, or fail if the deletion
 			// was canceled.
 			project.finalizeDeletion(deletionKey) onComplete { result =>
-				println(s"project.finalizeDeletion() finished with $result")
+				logger.debug(s"project.finalizeDeletion() finished with $result")
 			}
 		}
 
@@ -159,7 +161,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 
 			case Failure(e) =>
 				// the deletion was probably canceled
-				println(s"Deletion failed or maybe canceled. Message says '${e.getMessage}'")
+				logger.error(s"Deletion failed or maybe canceled. Message says '${e.getMessage}'")
 				finalizer.cancel()
 				pendingProjectDeletions.remove(project)
 		}
@@ -177,7 +179,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 				val msg = NotificationMessage.ProjectUndeletion(projectName)
 				Notifications.enqueueNotification(msg, NotificationSettings.defaultDelayed(3000), persist = false)
 			case Failure(e) =>
-				println(s"Canceling delete failed. Message says '${e.getMessage}'")
+				logger.error(s"Canceling delete failed. Message says '${e.getMessage}'")
 		}
 
 		ack
@@ -194,7 +196,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 		id <- dataProvider.projectList
 		data = dataProvider getProject id
 	} {
-		println(s"loaded project $id")
+		logger.debug(s"loaded project $id")
 		//TODO: make jspmapper configurable somehow
 		val target = registerProject(id, data, Some(JasperJspMapper(data.treeNodeData)))
 		target.notifyLoadingFinished()
@@ -203,7 +205,7 @@ class ProjectManager(val actorSystem: ActorSystem) extends Observing {
 	// Also make sure any dirty projects are saved when exiting
 	AppCleanup.addPreShutdownHook { () =>
 		flushProjects
-		println("Flushed ProjectManager projects")
+		logger.debug("Flushed ProjectManager projects")
 	}
 
 }

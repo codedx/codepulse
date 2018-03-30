@@ -39,13 +39,14 @@ import net.liftweb.json.JsonAST.JField
 import net.liftweb.json.JsonAST.JObject
 import net.liftweb.json.JsonAST.JString
 import net.liftweb.http.DispatchSnippet
+import com.codedx.codepulse.utility.Loggable
 
 /** Entry point for sending notifications from the server to the front end
   * for use with the Notification.js script. The main public method to use
   * is `enqueueNotification`, which sends a new message and optionally saves
   * it for a limited time so that it can be seen on a newly-loaded page.
   */
-object Notifications extends CometActor with PublicCometInit with DispatchSnippet {
+object Notifications extends CometActor with PublicCometInit with DispatchSnippet with Loggable {
 
 	case class NotificationId(num: Int) extends AnyVal
 	private val notificationIdGenerator = Iterator.from(0).map { NotificationId(_) }
@@ -91,7 +92,7 @@ object Notifications extends CometActor with PublicCometInit with DispatchSnippe
 
 	def dismissNotification(noteId: NotificationId): Unit = {
 		modifyQueue { q =>
-			println(s"Dismiss notification $noteId")
+			logger.debug(s"Dismiss notification $noteId")
 			q.filterNot { _.id == noteId }
 		}
 	}
@@ -161,7 +162,7 @@ object Notifications extends CometActor with PublicCometInit with DispatchSnippe
 		for (dismissTime <- note.autoDismissTime) {
 			val now = System.currentTimeMillis
 			val delay = dismissTime - now
-			println(s"Getting autoDismissDelay. now=$now, dismissTime=$dismissTime, delay=$delay")
+			logger.debug(s"Getting autoDismissDelay. now=$now, dismissTime=$dismissTime, delay=$delay")
 			if (delay > 0) {
 				attribs += "autoDismissDelay" -> delay.toString
 			}

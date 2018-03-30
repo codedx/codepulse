@@ -24,6 +24,7 @@ import com.codedx.codepulse.hq.errors.UnexpectedError
 import com.codedx.codepulse.hq.protocol.DataMessageContent
 import com.codedx.codepulse.hq.trace.Cleanup
 import com.codedx.codepulse.hq.util.CompletionHooks
+import com.codedx.codepulse.utility.Loggable
 
 /** DataRouter is responsible for receiving all data as it comes off the DataCollector and relaying it
   * back out to whatever DataProcessors are registered.
@@ -33,7 +34,7 @@ import com.codedx.codepulse.hq.util.CompletionHooks
   *
   * @author robertf
   */
-class DataRouter(traceErrorController: TraceErrorController) extends CompletionHooks with Cleanup {
+class DataRouter(traceErrorController: TraceErrorController) extends CompletionHooks with Cleanup with Loggable {
 	private val processors = ArrayBuffer.empty[DataProcessor]
 
 	private var _messagesRouted = 0L
@@ -55,8 +56,8 @@ class DataRouter(traceErrorController: TraceErrorController) extends CompletionH
 	def routeDataBreak() = processors.foreach(_.processDataBreak)
 
 	def finish = try {
-		println("Finishing processors...")
-		for (p <- processors) println(s"  to finish: $p")
+		logger.debug("Finishing processors...")
+		for (p <- processors) logger.debug(s"  to finish: $p")
 		processors.foreach(_.finishProcessing)
 		complete
 	} catch {
