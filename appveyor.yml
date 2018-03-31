@@ -2,7 +2,7 @@ version: 2.0.{build}
 image: Visual Studio 2017
 clone_folder: C:\CodePulse
 build_script:
-- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version %APPVEYOR_BUILD_VERSION% -versionForDotNetTracerWindowsDownloadUrl %APPVEYOR_JOB_ID%
+- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version 2.0.0 -versionForDotNetTracerWindowsDownloadUrl 2.0.0 -useGitHubDotNetTracerWindowsDownloadUrl
 before_test:
 - cmd: >-
     C:\Windows\System32\regsvr32.exe C:\CodePulse\dotnet-tracer\main\bin\Release\x64\OpenCover.Profiler.dll /s
