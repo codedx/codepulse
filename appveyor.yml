@@ -30,11 +30,11 @@ after_test:
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", "C:\CodePulse\OpenCover.Test.Profiler.x64.xml")
 artifacts:
-- path: installers\CodePulse-$(APPVEYOR_BUILD_VERSION)-Linux-x64.zip
+- path: installers\CodePulse-2.0.0-Linux-x64.zip
   name: Code Pulse Linux
-- path: installers\CodePulse-$(APPVEYOR_BUILD_VERSION)-macOS-x64.zip
+- path: installers\CodePulse-2.0.0-macOS-x64.zip
   name: Code Pulse Mac
-- path: installers\CodePulse-$(APPVEYOR_BUILD_VERSION)-Windows-x64.zip
+- path: installers\CodePulse-2.0.0-Windows-x64.zip
   name: Code Pulse Windows
-- path: installers\CodePulse-DotNetTracer-$(APPVEYOR_BUILD_VERSION)-Windows.zip
+- path: installers\CodePulse-DotNetTracer-2.0.0-Windows.zip
   name: Code Pulse .NET Tracer
