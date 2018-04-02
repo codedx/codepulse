@@ -76,7 +76,8 @@ function Invoke-CodePulsePackaging(
     }
 
     write-verbose "Packaging Code Pulse ($osRID)..."
-    if (-not (Invoke-Sbt $packageCommand 3 ([timespan]::FromMinutes(1)))) {
+    Invoke-Sbt $packageCommand 3 ([timespan]::FromMinutes(1))
+    if ($lastexitcode -ne 0) {
         write-verbose 'Packaging failed'
         exit 1
     }
