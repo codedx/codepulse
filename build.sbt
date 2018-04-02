@@ -81,8 +81,13 @@ lazy val Agent = Project("Agent", file("agent"))
 					!fileStartsWith(dest, "beans_1_1.xsd") &&
 					!fileStartsWith(dest, "beans_2_0.xsd") &&
 					!fileStartsWith(dest, "messages.properties") &&
+					!fileStartsWith(dest, "library.properties") &&
+					!fileStartsWith(dest, "overview.html") &&
+					!fileStartsWith(dest, "overviewj.html") &&
+					!fileStartsWith(dest, "rootdoc.txt") &&
 					!fileStartsWith(dest, "com/codedx/bytefrog/") &&
-					!fileStartsWith(dest, "com/codedx/codepulse/agent/")
+					!fileStartsWith(dest, "com/codedx/codepulse/agent/") &&
+					!fileStartsWith(dest, "com/codedx/codepulse/utility/")
 			} yield dest
 
 			if (warnItems.nonEmpty) sys.error(s"Items outside of our namespace (do they need to be shaded?): ${warnItems mkString ", "}")
@@ -91,17 +96,27 @@ lazy val Agent = Project("Agent", file("agent"))
 		},
 
 		assemblyShadeRules in assembly := Seq(
+			ShadeRule.rename("ch.qos.logback.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("com.esotericsoftware.minlog.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("fm.ua.ikysil.smap.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("groovy.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("groovyjarjarantlr.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("groovyjarjarasm.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("groovyjarjarcommonscli.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("javax.decorator.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("javax.el.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("javax.enterprise.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("javax.inject.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("javax.interceptor.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("javax.json.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("org.apache.commons.logging.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("org.apache.groovy.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("org.codehaus.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("org.eclipse.yasson.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
 			ShadeRule.rename("org.glassfish.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
-			ShadeRule.rename("org.objectweb.asm.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll
+			ShadeRule.rename("org.objectweb.asm.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("org.slf4j.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll,
+			ShadeRule.rename("scala.**" -> "com.codedx.codepulse.agent.thirdparty.@0").inAll
 		),
 
 		assemblyMergeStrategy in assembly := {
