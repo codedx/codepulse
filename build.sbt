@@ -153,6 +153,26 @@ lazy val HQ = Project("HQ", file("hq"))
 lazy val CodePulse = Project("CodePulse", file("codepulse"))
 	.dependsOn(Shared, HQ)
 	.settings(
+		compile in Compile := (Def.taskDyn {
+      			val c = (compile in Compile).value
+      			Def.task {
+				import sys.process._
+                
+                var powershellCmd = "powershell"
+                if (System.getProperty("os.name") == "Linux") {
+	                powershellCmd = "pwsh"
+                }
+
+                val publishCmd = powershellCmd + " -file publish-symbol-service.ps1"
+                println("Running: " + publishCmd)
+
+				val exitCode = publishCmd.!
+
+				val msg = if (exitCode == 0) "The .NET Symbol Service is up-to-date" else "ERROR: UNABLE TO PUBLISH .NET SYMBOL SERVICE!!!"
+				println(msg)
+				c
+      			}
+    		}).value,
 		baseSettings,
 		scalaSettings,
 		withTesting,
