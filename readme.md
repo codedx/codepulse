@@ -1,5 +1,7 @@
 # Code Pulse
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GitHub release](https://img.shields.io/github/release/codedx/codepulse.svg)](https://github.com/codedx/codepulse/releases) [![Build status](https://ci.appveyor.com/api/projects/status/ifckp12pjgi96jxs?svg=true)](https://ci.appveyor.com/project/CodeDx/codepulse) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1760/badge)](https://bestpractices.coreinfrastructure.org/projects/1760) [![Github All Releases](https://img.shields.io/github/downloads/codedx/codepulse/total.svg)](https://github.com/codedx/codepulse) [![OWASP Labs](https://img.shields.io/badge/owasp-labs%20project-f7b73c.svg)](https://www.owasp.org/index.php/OWASP_Project_Inventory#tab=Labs_Projects)
+
 Code Pulse is a code coverage tool that works on running programs in real time. It uses the [bytefrog](https://github.com/codedx/bytefrog) tracing framework to monitor your Java applications, and displays its findings on a web-based UI.
 
 <sub>[![Build Status](https://travis-ci.org/codedx/codepulse.svg?branch=master)](https://travis-ci.org/codedx/codepulse)</sub> (master branch)
