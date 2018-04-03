@@ -73,7 +73,7 @@ object Dependencies {
 	}
 
 	// dependency-check
-	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "3.1.1"
+	lazy val dependencyCheckCore = "org.owasp" % "dependency-check-core" % "3.1.2"
 
 	// dispatch, Scala wrapper for Java AsyncHttpClient https://github.com/dispatch/reboot
 	lazy val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.4"
