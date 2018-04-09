@@ -34,6 +34,9 @@ Invoke-CodePulsePackaging `
     'SymbolService' `
     'Code Pulse.app\Contents\Resources\app.nw\agent.jar'
 
+# store agent.jar in Code Pulse.app package so that Connection Help screen contains a valid -javaagent string
+copy '.\Files\macOS\codepulse\tracers' '.\Files\macOS\codepulse\Code Pulse.app\Contents\Resources\app.nw' -Recurse
+
 if ($signOutput) {
     $signingInstructions = @'
 

@@ -38,10 +38,6 @@ object ConnectionHelp extends DispatchSnippet {
 	def traceAgentCommand = {
 
 		var agentPath = new File("../tracers/java/agent.jar").getCanonicalPath
-		if (agentPath.contains("/app.nw")) {
-			// on macOS, the tracers folder sits alongside the "Code Pulse.app" folder
-			agentPath = new File("../../../../../tracers/java/agent.jar").getCanonicalPath
-		}
 
 		val hqAddress = "localhost"
 		val hqPort = com.secdec.codepulse.userSettings.tracePort
