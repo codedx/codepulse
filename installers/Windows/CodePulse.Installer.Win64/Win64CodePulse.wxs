@@ -861,8 +861,8 @@
       <Component Id="cmp36050222B1DE60CD7DCE84B75E2E531C" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil4AB79B89690D573B2C7E608BBF1160D0" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\cdi-api-2.0.jar" />
       </Component>
-      <Component Id="cmp7D456B59E13775B7716A849E679BBEBC" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="fil6856530236DA2D3E02B0BB78AC663B0E" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\CodePulse-2.0.0-webapp-classes.jar" />
+      <Component Id="cmpF185F908D5CAF1A61E37F36D6F9891E0" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="filCCDD47DBCDE7883B59F976D5BCC51D59" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\CodePulse-2.5.0-webapp-classes.jar" />
       </Component>
       <Component Id="cmp65EB9CA567BCE9D6B665546AF4D27735" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil30B8981337A059102AB200BF46B2AF2E" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-codec-1.6.jar" />
@@ -870,8 +870,8 @@
       <Component Id="cmp83E0F7B2ED0ACB084B208E85F9A6012D" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil99B74AF775AAB2C519A8595A56FD2056" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-collections-3.2.1.jar" />
       </Component>
-      <Component Id="cmpE2CA8D772BD39AC02BA0ED02DAEADB78" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="filD54E2A484AFE3067A9F91C7C344DCCCC" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-compress-1.15.jar" />
+      <Component Id="cmpAFBC5EC4DE857BBD70E073BA47C728C9" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="fil77A398C7F3120F4E4EE2602389531573" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-compress-1.16.1.jar" />
       </Component>
       <Component Id="cmpCB7F4BE48D41290478D0DAA8DEB3505C" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil8F20F27B860C0CD55B8C392DB8BC593D" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-fileupload-1.2.2.jar" />
@@ -882,8 +882,8 @@
       <Component Id="cmpFF89F56C609CF7E223B33BB9BC1CFF5F" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="filF68A9A967615D0D7456DA67B42974ADB" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-lang-2.4.jar" />
       </Component>
-      <Component Id="cmpD69DBDC4789C23F6117A6A1E899C1378" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="fil8F0440CD4A690EFB6976E76931E65C29" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-lang3-3.4.jar" />
+      <Component Id="cmp1A624112068DDA7C7F0DACD4B85C0800" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="fil0B7C314C41B9B085B256B79A5AF58C8C" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\commons-lang3-3.7.jar" />
       </Component>
       <Component Id="cmp0FF45822550A24779492415A9A916910" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="filAC94F3633EE608779F5B3E883597E9E7" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\concurrentlinkedhashmap-lru-1.2_jdk5.jar" />
@@ -891,14 +891,17 @@
       <Component Id="cmp4649172C51624924EEE113C297453112" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil389AC8323EF7EEC065CF4849EF1696BC" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\config-1.0.2.jar" />
       </Component>
-      <Component Id="cmp03898AB452BCBE4E54D3D62753FFAFB2" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="fil94CE72058DE491F9B27209B8FEA2A5D3" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\dependency-check-core-3.1.1.jar" />
+      <Component Id="cmpBBED153901F4624A57756FA4177A5787" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="filEBDBABD1144E02C5CF9593671E648B1B" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\dependency-check-core-3.1.2.jar" />
       </Component>
-      <Component Id="cmpD5B7F5789D0C7E03F15C84836E141397" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="fil1693B87BF59FA38301E905D4D315A58C" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\dependency-check-utils-3.1.1.jar" />
+      <Component Id="cmpD2046FB67300CC57450AF3514C84E4AA" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="fil4E61D645BC46016C237C47B94DDA8BC9" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\dependency-check-utils-3.1.2.jar" />
       </Component>
       <Component Id="cmp8E79F179BE68CFCEFF1177F9699B34E4" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="filBAEFCD81A8E032E16746A88DD38D91A5" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\dispatch-core_2.10-0.11.4.jar" />
+      </Component>
+      <Component Id="cmpBD927267DAE40226798DCB3ACD8F3165" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="filE0CA07152C2977854D1B4809E08C252A" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\groovy-all-2.4.13.jar" />
       </Component>
       <Component Id="cmp71E44DBB70856693ADD190555AA82881" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="filCC9FA99BF225CC67A75FC310F3ED98ED" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\gson-2.8.2.jar" />
@@ -1008,8 +1011,8 @@
       <Component Id="cmp8E9500CF956E4076DE914CE1D84A9F7F" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil0D6CFC3ADC3A10D43931AF8E1549EDD4" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\mail-1.4.4.jar" />
       </Component>
-      <Component Id="cmpB31DA4005829CD6F1B9CB293715BA241" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
-        <File Id="filB437294028CDD25738863626EF7EA684" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\mailapi-1.6.0.jar" />
+      <Component Id="cmp156EDA4EF3EE495E078535139EBA0554" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="filB67FD1C6F5D870460DF9DA6A257954D2" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\mailapi-1.6.1.jar" />
       </Component>
       <Component Id="cmp86AD1086CDBE5EE1B70D1E2C9D8B2994" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="fil3983F45B4B2402A62E069FCBC3E68770" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\netty-3.10.6.Final.jar" />
