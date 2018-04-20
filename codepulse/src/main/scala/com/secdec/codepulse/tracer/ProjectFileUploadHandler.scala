@@ -84,7 +84,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 							projectData.metadata.creationDate = createDate
 						}
 					}
-					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, post))
+					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, projectData.sourceData, post))
 				})).mapTo[ProjectData], Duration.Inf)
 
 				val failure = NotFoundResponse("Failed to process data input")

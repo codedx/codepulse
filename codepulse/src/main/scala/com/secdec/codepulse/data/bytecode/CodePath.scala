@@ -50,11 +50,11 @@ object CodePath {
 	case class Class(name: String, child: ChildOfClass) extends CodePath with ChildOfPackage with ChildOfClass
 	case class Method(name: String) extends CodePath with ChildOfClass
 
-	def parse(rawJvmSignature: String): Option[Package] = {
-		MethodSignatureParser.parseSignature(rawJvmSignature) map { parse }
+	def parse(rawJvmSignature: String, file: String): Option[Package] = {
+		MethodSignatureParser.parseSignature(rawJvmSignature, file) map { parse(_, file) }
 	}
 
-	def parse(methodSignature: MethodSignature): Package = {
+	def parse(methodSignature: MethodSignature, file: String): Package = {
 		val (className :: packageParts) = methodSignature.containingClass.split('.').toList.reverse
 		val classNameParts = className.split('$').toList.reverse
 

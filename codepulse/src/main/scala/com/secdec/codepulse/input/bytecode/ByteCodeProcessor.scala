@@ -24,7 +24,7 @@ import java.io.File
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
-import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeImporter }
+import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
@@ -37,12 +37,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 
 	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
+		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, sourceData, post)) => {
 			try {
 				if(canProcess(file)) {
-					process(file, treeNodeData)
+					process(file, treeNodeData, sourceData)
 					post()
-					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
+					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData, sourceData))
 				}
 			} catch {
 				case exception: Exception => eventBus.publish(ProcessStatus.asEnvelope(ProcessStatus.Failed(identifier, "Java ByteCode Processor", Some(exception))))
@@ -60,7 +60,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		}
 	}
 
-	def process(file: File, treeNodeData: TreeNodeDataAccess): Unit = {
+	def process(file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
 		val RootGroupName = "Classes"
 		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
@@ -79,7 +79,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
 						for {
 							(name, size) <- methods
-							treeNode <- builder.getOrAddMethod(groupName, name, size)
+							treeNode <- builder.getOrAddMethod(groupName, name, size, entry.getName)
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
 					case "jsp" =>
@@ -93,6 +93,8 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 				jspAdapter addWebinf entry.getName
 			}
 		}
+
+		sourceData.importSourceFiles(builder.sourceFiles)
 
 		val jspCorrelations = jspAdapter build builder
 		val treemapNodes = builder.condensePathNodes().result

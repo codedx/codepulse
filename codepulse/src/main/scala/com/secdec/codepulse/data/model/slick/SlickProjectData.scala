@@ -35,6 +35,9 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 	private val treeNodeDataDao = new TreeNodeDataDao(driver)
 	private val treeNodeDataAccess = new SlickTreeNodeDataAccess(treeNodeDataDao, db)
 
+	private val sourceDataDao = new SourceDataDao(driver)
+	private val sourceDataAccess = new SlickSourceDataAccess(sourceDataDao, db)
+
 	private val recordingMetadataDao = new RecordingMetadataDao(driver)
 	private val recordingMetadataAccess = new SlickRecordingMetadataAccess(recordingMetadataDao, db)
 
@@ -43,12 +46,14 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 
 	def metadata: ProjectMetadata = metadataAccess
 	def treeNodeData: TreeNodeDataAccess = treeNodeDataAccess
+	def sourceData: SourceDataAccess = sourceDataAccess
 	def recordings: RecordingMetadataAccess = recordingMetadataAccess
 	def encounters: TraceEncounterDataAccess = encountersAccess
 
 	/** Initialize a blank DB for use. */
 	private[slick] def init() = db withTransaction { implicit transaction =>
 		treeNodeDataDao.create
+		sourceDataDao.create
 		recordingMetadataDao.create
 		encountersDao.create
 	}
