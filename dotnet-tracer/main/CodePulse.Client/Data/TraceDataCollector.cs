@@ -101,7 +101,12 @@ namespace CodePulse.Client.Data
                 lines = $"Lines: {startLineNumber}-{endLineNumber}";
             }
 
-            _logger.Debug($"Added MethodVisitTraceMessage:\r\n\tClass: {className}\r\n\tFile: {sourceFile}\r\n\tMethod: {methodName}\r\n\tSignature: {methodSignature}\r\n\t{lines}");
+            _logger.DebugFormat("Added MethodVisitTraceMessage:\r\n\tClass: {0}\r\n\tFile: {1}\r\n\tMethod: {2}\r\n\tSignature: {3}\r\n\t{4}",
+                className,
+                sourceFile,
+                methodName,
+                methodSignature,
+                lines);
         }
 
         public void Shutdown()
@@ -203,7 +208,7 @@ namespace CodePulse.Client.Data
                         throw new InvalidOperationException();
                     }
 
-                    _logger.Debug($"MethodEntry: {methodSignature} ({methodId})");
+                    _logger.DebugFormat("MethodEntry: {0} ({1})", methodSignature, methodId);
                     _messageProtocol.WriteMethodEntry(writer, timestamp, nextSequenceId, methodIdentifier, threadId);
                 });
             }
@@ -225,7 +230,7 @@ namespace CodePulse.Client.Data
             var bufferStartPosition = buffer.Position;
             try
             {
-                _logger.Debug($"SendMapMethodSignature: {signature} ({id})");
+                _logger.DebugFormat("SendMapMethodSignature: {0} ({1})", signature, id);
                 _messageProtocol.WriteMapMethodSignature(writer, id, signature);
                 wrote = true;
             }

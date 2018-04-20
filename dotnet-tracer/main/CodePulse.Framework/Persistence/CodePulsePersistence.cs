@@ -169,7 +169,7 @@ namespace CodePulse.Framework.Persistence
         /// <inheritdoc />
         protected override void OnContextEnd(Guid contextId, HashSet<uint> relatedSpids)
         {
-            _logger.Debug($"Context {contextId} ended with a related spid count of {relatedSpids?.Count}.");
+            _logger.DebugFormat("Context {0} ended with a related spid count of {1}.", contextId, relatedSpids?.Count);
 
             AddToTrace(relatedSpids);
         }

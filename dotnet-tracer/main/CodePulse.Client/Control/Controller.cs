@@ -146,7 +146,7 @@ namespace CodePulse.Client.Control
                     do
                     {
                     }
-                    while (ProcessIncomingMessage(100, _cancellationTokenSource.Token));
+                    while (ProcessIncomingMessage(100, _cancellationTokenSource.Token, true));
 
                     if (DateTime.UtcNow > nextHeartbeat)
                     {
@@ -155,7 +155,7 @@ namespace CodePulse.Client.Control
                     }
 
                     var timeout = Math.Max(nextHeartbeat.Subtract(DateTime.UtcNow).TotalMilliseconds, 1);
-                    ProcessIncomingMessage((int)timeout, _cancellationTokenSource.Token);
+                    ProcessIncomingMessage((int)timeout, _cancellationTokenSource.Token, false);
                 }
 
                 _logger.Info("Controller received token cancellation request.");
@@ -178,12 +178,17 @@ namespace CodePulse.Client.Control
             }
         }
 
-        private bool ProcessIncomingMessage(int timeout, CancellationToken token)
+        private bool ProcessIncomingMessage(int timeout, CancellationToken token, bool availableDataOnly)
         {
             if (timeout <= 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(timeout));
             }
+
+			if (availableDataOnly && !_socketConnection.IsDataAvailable)
+	        {
+		        return false;
+	        }
 
             _socketConnection.SetReceiveTimeout(timeout);
             try

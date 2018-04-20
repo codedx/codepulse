@@ -113,12 +113,12 @@ namespace CodePulse.Console
 
                     try
                     {
-                        Logger.Debug($"32-bit Profiler Path: {parser.Profiler32Path}");
+                        Logger.DebugFormat("32-bit Profiler Path: {0}", parser.Profiler32Path);
                         if (Environment.Is64BitOperatingSystem)
                         {
-                            Logger.Debug($"64-bit Profiler Path: {parser.Profiler64Path}");
+                            Logger.DebugFormat("64-bit Profiler Path: {0}", parser.Profiler64Path);
                         }
-                        Logger.Debug($"Expected owner of application under test: {parser.ExpectedOwnerOfApplicationUnderTest}");
+                        Logger.DebugFormat("Expected owner of application under test: {0}", parser.ExpectedOwnerOfApplicationUnderTest);
 
                         Logger.Info("Starting...");
 
@@ -269,7 +269,7 @@ namespace CodePulse.Console
                 var servicePrincipalList = new List<string>();
                 if (parser.Iis)
                 {
-                    Logger.Debug($"Profiler configuration will use App Pool identity '{parser.IisAppPoolIdentity}'.");
+                    Logger.DebugFormat("Profiler configuration will use App Pool identity '{0}'.", parser.IisAppPoolIdentity);
                     servicePrincipalList.Add(parser.IisAppPoolIdentity);
                 }
 

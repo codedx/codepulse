@@ -147,7 +147,7 @@ public: // ICorProfilerInfo
 	virtual HRESULT STDMETHODCALLTYPE SetEventMask(
 		/* [in] */ DWORD dwEvents) override
 	{
-		ATLTRACE(_T("CProfilerInfoBase::SetEventMask(0x%X)"), dwEvents);
+		//ATLTRACE(_T("CProfilerInfoBase::SetEventMask(0x%X)"), dwEvents);
 		return m_pProfilerInfo->SetEventMask(dwEvents);
 	}
 
