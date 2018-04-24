@@ -64,7 +64,7 @@ object Distributor extends BuildExtra {
 	object dependencies {
 		object java {
 			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-			private val trimPathRegex = raw"^\Qjre1.8.0_162\E(?:\.jre)?/".r
+			private val trimPathRegex = raw"^\Qjre1.8.0_172\E(?:\.jre)?/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
 			val win32 = Dependency("jre.win32", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-windows-i586.tar.gz")

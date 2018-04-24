@@ -36,8 +36,13 @@ Push-Location $PSScriptRoot
 . .\Scripts\common.ps1
 
 if (-not $skipInit) {
-	Write-Verbose 'Initializing...'
-	.\Scripts\init.ps1
+    Write-Verbose 'Initializing...'
+    .\Scripts\init.ps1
+
+    if (test-path ..\fetch-cache -type container) { 
+        Write-Verbose 'Removing fetch-cache...'
+        Remove-Item ..\fetch-cache -Recurse -Force 
+    }
 }
 
 if (-not $skipDotNetTracer) {

@@ -28,6 +28,7 @@
     
 	  <Feature Id="TracerFeature" Title="Code Pulse .NET Tracer (x64 Profiler)" Level="1">
 	    <ComponentGroupRef Id="ProfilerComponentGroup" />
+	    <ComponentGroupRef Id="LicensesComponentGroup" />
 	  </Feature>
 	</Product>
 

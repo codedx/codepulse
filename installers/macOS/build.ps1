@@ -17,7 +17,7 @@ Push-Location $PSScriptRoot
 
 if (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))
 {
-    Write-Error 'Code Pulse .NET Tracer does not exist. Run installers\dotnet-tracers\build.ps1 first'
+    Write-Error 'Code Pulse .NET Tracer does not exist. Run installers\dotnet-tracer\build.ps1 first'
     exit 1
 }
 

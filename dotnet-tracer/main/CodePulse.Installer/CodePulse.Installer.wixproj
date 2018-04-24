@@ -20,17 +20,67 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Licenses.wxs" />
     <Compile Include="Product.wxs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="AppIcon.ico" />
     <Content Include="License.rtf" />
+    <Content Include="Licenses\Autofac.Configuration\LICENSE" />
+    <Content Include="Licenses\Autofac\LICENSE" />
+    <Content Include="Licenses\Castle\LICENSE" />
+    <Content Include="Licenses\cecil\LICENSE.txt" />
+    <Content Include="Licenses\CommonServiceLocator\LICENSE" />
+    <Content Include="Licenses\CrashReporter.NET\LICENSE" />
+    <Content Include="Licenses\DotNetZip\License.txt" />
+    <Content Include="Licenses\log4net\LICENSE" />
+    <Content Include="Licenses\log4net\NOTICE" />
+    <Content Include="Licenses\Mono Tools\LICENSE" />
+    <Content Include="Licenses\moq\LICENSE" />
+    <Content Include="Licenses\Newtonsoft.Json\LICENSE.md" />
+    <Content Include="Licenses\NUnit\LICENSE.txt" />
+    <Content Include="Licenses\NUnit\NOTICES.txt" />
+    <Content Include="Licenses\SpecFlow\LICENSE.txt" />
+    <Content Include="Licenses\Unity.Abstractions\LICENSE" />
+    <Content Include="Licenses\Unity.Configuration\LICENSE" />
+    <Content Include="Licenses\Unity.Container\LICENSE" />
+    <Content Include="Licenses\Unity.Interception.Configuration\LICENSE" />
+    <Content Include="Licenses\Unity.Interception\LICENSE" />
+    <Content Include="Licenses\Unity.RegistrationByConvention\LICENSE" />
+    <Content Include="Licenses\Unity.ServiceLocation\LICENSE" />
+    <Content Include="Licenses\WiX Toolset\LICENSE.TXT" />
+    <Content Include="Licenses\xunit\license.txt" />
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUIExtension">
       <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
       <Name>WixUIExtension</Name>
     </WixExtension>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Licenses\" />
+    <Folder Include="Licenses\Autofac.Configuration\" />
+    <Folder Include="Licenses\Autofac\" />
+    <Folder Include="Licenses\Castle\" />
+    <Folder Include="Licenses\cecil\" />
+    <Folder Include="Licenses\CommonServiceLocator\" />
+    <Folder Include="Licenses\CrashReporter.NET\" />
+    <Folder Include="Licenses\DotNetZip\" />
+    <Folder Include="Licenses\log4net\" />
+    <Folder Include="Licenses\Mono Tools\" />
+    <Folder Include="Licenses\moq\" />
+    <Folder Include="Licenses\Newtonsoft.Json\" />
+    <Folder Include="Licenses\NUnit\" />
+    <Folder Include="Licenses\SpecFlow\" />
+    <Folder Include="Licenses\Unity.Abstractions\" />
+    <Folder Include="Licenses\Unity.Configuration\" />
+    <Folder Include="Licenses\Unity.Container\" />
+    <Folder Include="Licenses\Unity.Interception.Configuration\" />
+    <Folder Include="Licenses\Unity.Interception\" />
+    <Folder Include="Licenses\Unity.RegistrationByConvention\" />
+    <Folder Include="Licenses\Unity.ServiceLocation\" />
+    <Folder Include="Licenses\WiX Toolset\" />
+    <Folder Include="Licenses\xunit\" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
