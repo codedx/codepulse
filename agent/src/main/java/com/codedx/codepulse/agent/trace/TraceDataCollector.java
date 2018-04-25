@@ -35,4 +35,13 @@ public interface TraceDataCollector
 	 * @param exThrown whether an exception was thrown to force the method to exit
 	 */
 	void methodExit(int methodId, boolean exThrown);
+
+	/**
+	 * Reports a line level trace
+	 * @param methodId the ID of the method being run
+	 * @param startLine the start line
+	 * @param endLine the end line
+	 * @param lineMap offsets from start line
+	 */
+	void recordLineLevelTrace(int methodId, int startLine, int endLine, java.util.BitSet lineMap);
 }

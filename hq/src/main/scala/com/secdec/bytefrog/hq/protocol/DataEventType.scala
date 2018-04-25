@@ -28,12 +28,14 @@ sealed trait DataEventType
 
 object DataEventType {
 	case object MethodEntry extends DataEventType
+	case object MethodVisit extends DataEventType
 	case object MethodExit extends DataEventType
 	case object ExceptionEvent extends DataEventType
 	case object ExceptionBubbleEvent extends DataEventType
 	case object MapMethodName extends DataEventType
 	case object MapThreadName extends DataEventType
 	case object Marker extends DataEventType
+	case object MapSourceLocation extends DataEventType
 
 	case object Unknown extends DataEventType
 	case object EOF extends DataEventType

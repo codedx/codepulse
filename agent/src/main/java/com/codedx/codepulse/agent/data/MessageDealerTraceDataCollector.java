@@ -60,4 +60,17 @@ public class MessageDealerTraceDataCollector implements TraceDataCollector
 			ErrorHandler.handleError("error sending method exit", e);
 		}
 	}
+
+	@Override
+	public void recordLineLevelTrace(int methodId, int startLine, int endLine, java.util.BitSet lineMap)
+	{
+		try
+		{
+			messageDealer.recordLineLevelTrace(methodId, startLine, endLine, lineMap);
+		}
+		catch (Exception e)
+		{
+			ErrorHandler.handleError("error recording line level trace", e);
+		}
+	}
 }

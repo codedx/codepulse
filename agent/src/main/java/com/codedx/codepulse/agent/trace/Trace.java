@@ -61,5 +61,6 @@ public class Trace
 
 	public static void recordLineLevelTrace(int methodId, int startLine, int endLine, java.util.BitSet lineMap)
 	{
+		traceDataCollector.recordLineLevelTrace(methodId, startLine, endLine, lineMap);
 	}
 }

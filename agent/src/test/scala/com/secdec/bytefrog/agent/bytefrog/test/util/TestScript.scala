@@ -47,6 +47,9 @@ class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], classIdentifier:
 		val ci = classIdentifier.get(mi.getClassId)
 		data += TestScriptEntry.MethodExit(s"${ci.getName}.${mi.getName}", exThrown)
 	}
+
+	def recordLineLevelTrace(methodId: Int, startLine: Int, endLine: Int, lineMap: java.util.BitSet): Unit = {
+	}
 }
 
 /** A helper class that defines a bytefrog test script, i.e., expected results
