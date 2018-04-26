@@ -29,6 +29,7 @@ sealed trait TestScriptEntry
 object TestScriptEntry {
 	case class MethodEntry(method: String) extends TestScriptEntry
 	case class MethodExit(method: String, exThrown: Boolean) extends TestScriptEntry
+	case class MethodVisit(methodId: Int, line: Int) extends TestScriptEntry
 }
 
 object TestScript {
@@ -49,6 +50,13 @@ class TraceDataCollectorImpl(data: ListBuffer[TestScriptEntry], classIdentifier:
 	}
 
 	def recordLineLevelTrace(methodId: Int, startLine: Int, endLine: Int, lineMap: java.util.BitSet): Unit = {
+		var i = lineMap.nextSetBit(0)
+		while ( {
+			i >= 0
+		}) {
+			data += TestScriptEntry.MethodVisit(methodId, startLine + i)
+			i = lineMap.nextSetBit(i + 1)
+		}
 	}
 }
 
