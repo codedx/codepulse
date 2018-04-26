@@ -331,17 +331,26 @@ namespace OpenCover.Framework.Symbols
                 return method;
             }
 
+	        string firstFile = null;
             if (alreadySkippedDueToAttr || filter.ExcludeByAttribute(methodDefinition))
                 method.MarkAsSkipped(SkippedMethod.Attribute);
-            else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
-                method.MarkAsSkipped(SkippedMethod.File);
-            else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition))
-                method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);
-            else if (filter.IsFSharpInternal(methodDefinition))
-                method.MarkAsSkipped(SkippedMethod.FSharpInternal);
+            else
+            {
+	            firstFile = GetFirstFile(methodDefinition);
+	            if (filter.ExcludeByFile(firstFile))
+		            method.MarkAsSkipped(SkippedMethod.File);
+	            else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition))
+		            method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);
+	            else if (filter.IsFSharpInternal(methodDefinition))
+		            method.MarkAsSkipped(SkippedMethod.FSharpInternal);
+            }
 
-            var definition = methodDefinition;
-            method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
+	        if (firstFile == null)
+	        {
+				firstFile = GetFirstFile(methodDefinition);
+			}
+
+            method.FileRef = files.Where(x => x.FullPath == firstFile)
                 .Select(x => new FileRef {UniqueId = x.UniqueId}).FirstOrDefault();
             return method;
         }

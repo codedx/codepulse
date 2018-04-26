@@ -42,13 +42,17 @@ class DataMessageReaderV1 extends DataMessageReader {
 				case MsgException => Data { readException(stream) }
 				case MsgExceptionBubble => Data { readExceptionBubble(stream) }
 				case MsgMarker => Data { readMarker(stream) }
-				case _ => Error {
-					new IOException(s"Unexpected message type id: $typeId")
-				}
+				case _ => readOtherMessageType(typeId, stream)
 			}
 		} catch {
 			case e: EOFException => EOF
 			case e: IOException => Error(e)
+		}
+	}
+
+	protected def readOtherMessageType(typeId: Byte, stream: DataInputStream): Input[DataMessage] = {
+		Error {
+			new IOException(s"Unexpected message type id: $typeId")
 		}
 	}
 

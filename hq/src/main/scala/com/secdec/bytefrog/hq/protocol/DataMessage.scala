@@ -48,6 +48,15 @@ object DataMessageContent {
 		methodId: Int)
 		extends DataMessageContent
 
+	case class MapSourceLocation(
+		methodId: Int,
+		startLine: Int,
+		endLine: Int,
+		startCharacter: Short,
+		endCharacter: Short,
+		sourceLocationId: Int)
+		extends DataMessageContent
+
 	case class MapException(
 		exception: String,
 		exceptionId: Int)
@@ -55,6 +64,13 @@ object DataMessageContent {
 
 	case class MethodEntry(
 		methodId: Int,
+		timestamp: Int,
+		threadId: Int)
+		extends DataMessageContent
+
+	case class MethodVisit(
+		methodId: Int,
+		sourceLocationId: Int,
 		timestamp: Int,
 		threadId: Int)
 		extends DataMessageContent

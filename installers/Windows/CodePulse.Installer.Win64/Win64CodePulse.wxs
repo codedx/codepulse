@@ -1773,6 +1773,153 @@
       <Component Id="cmp4891ACB0B529214269BCBD2DCE658C20" Directory="dirEA15430EBB981D3EE66F28484116382C" Guid="*">
         <File Id="filB037EB8410E2676B6EF7CF2F05DC9DC4" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\jre\lib\security\policy\unlimited\US_export_policy.jar" />
       </Component>
+      <Component Id="cmp9A2C1F1A8705D9336E866CB8C4BE0EF2" Directory="dir7A7859B3CF38E46D0872CB7ABF00BFA9" Guid="*">
+        <File Id="filC3D5B473A4A329061AE332623243F4E2" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\akka-actor\LICENSE" />
+      </Component>
+      <Component Id="cmpCAA32A02F5F2C861B27725ADEF7CD9A7" Directory="dir45AE793E5066FF43740FE7185DECB069" Guid="*">
+        <File Id="filBCA7DABC70C6AEE16DA3BC760165D257" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\ASM\License.txt" />
+      </Component>
+      <Component Id="cmp706CAED5D51129E65648CA71F268AC6E" Directory="dir3800213E9617F42BE3EF9CA13719A797" Guid="*">
+        <File Id="fil5B11147A1F1D1FF8F659AC3EF84739CF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\commons-compress\LICENSE.txt" />
+      </Component>
+      <Component Id="cmpED330317B5157F76E360040E2F8B8224" Directory="dir3800213E9617F42BE3EF9CA13719A797" Guid="*">
+        <File Id="fil1786F1F685B31762FEA3B39BD1D62223" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\commons-compress\NOTICE.txt" />
+      </Component>
+      <Component Id="cmp877E51C53412C5F252A266703FF5B495" Directory="dir5586A216BC1D2D70AF46AC3B63979973" Guid="*">
+        <File Id="filA3F7AC767BDABCD5B2AEBACA28BF9189" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\commons-io\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp0B64821FC150B52698637C2BE37B7434" Directory="dir5586A216BC1D2D70AF46AC3B63979973" Guid="*">
+        <File Id="fil5D953EBB19E0232D5A0AC4E851B7B0CE" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\commons-io\NOTICE.txt" />
+      </Component>
+      <Component Id="cmp97BE5CF2E9CF2106C6155F27D51D92B3" Directory="dirE5F60BFC4D501606BD74601CC2B97C96" Guid="*">
+        <File Id="filC20ED5E297AEE2BC388C8FAD2F3FD4D3" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\commons-lang3\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp0F62AF8FFF0568860F22FA9BFDE4D56B" Directory="dirE5F60BFC4D501606BD74601CC2B97C96" Guid="*">
+        <File Id="filC96D21769F19970B4217392D6EF02A37" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\commons-lang3\NOTICE.txt" />
+      </Component>
+      <Component Id="cmp4697187DA36C99AD075EDE0E01FC210C" Directory="dir79D3D527D63D29318BEFD3CB8BBE7C82" Guid="*">
+        <File Id="fil64D21B6D00A2F9EE820E5A92313980B1" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\concurrentlinkedhashmap-lru\LICENSE-2.0.txt" />
+      </Component>
+      <Component Id="cmp5184E5FA5ABBB3F83D0C24821BC8C810" Directory="dir12CB8DD912DEA2DA562245ED46083A4F" Guid="*">
+        <File Id="filEDD5DF1E0BB605941813FAE66584DAEF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\DependencyCheck\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp8B050A8BCB38F823D09BEBFE768D3903" Directory="dir12CB8DD912DEA2DA562245ED46083A4F" Guid="*">
+        <File Id="filBBC016325D3F0E040A819A07E8F1AB08" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\DependencyCheck\NOTICE.txt" />
+      </Component>
+      <Component Id="cmpD274A7504FA2CAE6B84400A958DBF501" Directory="dirF0731B43AEE40D412FADBDCE20AF11EB" Guid="*">
+        <File Id="filB25DE8D4744AE37D79F360F592E7DCAF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\dispatch-core\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp3AB3EC2D452F7C036C09DCBE20EF5C9B" Directory="dir5E6761C77BB74B216303959809045A43" Guid="*">
+        <File Id="fil5FF2061695BBBE4A19AA6034EE19D2DF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\groovy-all\ANTLR-LICENSE.txt" />
+      </Component>
+      <Component Id="cmp7CE4D7A9E3E94E75834EAEB8A7E415EA" Directory="dir5E6761C77BB74B216303959809045A43" Guid="*">
+        <File Id="filAB5E6040BA9E32C5A5D18BFDA6BF8C87" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\groovy-all\ASM-LICENSE.txt" />
+      </Component>
+      <Component Id="cmp4F683CB6FF76C6DBF8394E216F54CB3A" Directory="dir5E6761C77BB74B216303959809045A43" Guid="*">
+        <File Id="filBBDB202546EF1840D3325BE089B44736" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\groovy-all\CLI-LICENSE.txt" />
+      </Component>
+      <Component Id="cmp77BA1F115BC435E8BD6CEB213D4DB6F8" Directory="dir5E6761C77BB74B216303959809045A43" Guid="*">
+        <File Id="filA915BC6E25DC5B5ADA7054D8D0718992" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\groovy-all\JSR223-LICENSE.txt" />
+      </Component>
+      <Component Id="cmpBB1E03D3B5FBC9F26E9908AA38A379BF" Directory="dir5E6761C77BB74B216303959809045A43" Guid="*">
+        <File Id="filCBF6317C623596FB5A8F44B6901F9CE9" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\groovy-all\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp5DE31213B94937B106C610B9F6A09276" Directory="dir5E6761C77BB74B216303959809045A43" Guid="*">
+        <File Id="fil483058C1BE50938798AEC4342565BEBD" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\groovy-all\NOTICE.txt" />
+      </Component>
+      <Component Id="cmp0F612AC7056E14EF59D94181F36A4A30" Directory="dir75C1CA92495992A59CA180F1E9938E9A" Guid="*">
+        <File Id="fil44F3E8DF4CEF4CF31F9D3A59798049C2" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\h2\License-EPL-1.0.txt" />
+      </Component>
+      <Component Id="cmp61A5507E1D69B1AD0E64AB7E586A8F66" Directory="dir75C1CA92495992A59CA180F1E9938E9A" Guid="*">
+        <File Id="filDE99178839431DDD37D6067A6945F0CF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\h2\License-MPL.txt" />
+      </Component>
+      <Component Id="cmp88478B6DC462A463245CE3441CAC58E9" Directory="dir4C774721D99688E1DB816AA32EB6D10E" Guid="*">
+        <File Id="fil7A263B7B712DD87B5EDFD74A692BE554" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jackson-core\LICENSE" />
+      </Component>
+      <Component Id="cmp50663CFC9EDF3658DC66250C2FB6B660" Directory="dir4C774721D99688E1DB816AA32EB6D10E" Guid="*">
+        <File Id="filDCAD825C2E5CBBBDF1E9E029F0194B7E" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jackson-core\NOTICE" />
+      </Component>
+      <Component Id="cmpF4AA41CB45EC8EA8759DF058D3C4E820" Directory="dir84BC80714871FB3E3569688CA9099969" Guid="*">
+        <File Id="filF220E41A441ED0CC0737FFC7EC3B6C33" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jackson-module-scala\LICENSE" />
+      </Component>
+      <Component Id="cmpB044F79F9C973DA7D0111C777EAAFEF6" Directory="dir2504645A49053E20B348D8702421F344" Guid="*">
+        <File Id="filD048E632E3B60D4C7F720C0865E45E17" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\javax.servlet-api\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp56E1A3775BBFE44A4A2CA43084F0E1B1" Directory="dir4B96D41B022C26043FF3541E7D3BCE33" Guid="*">
+        <File Id="filB075286F0BEDC527176E5B38099568D4" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jcl-over-slf4j\License.txt" />
+      </Component>
+      <Component Id="cmp2E607878AC413A41C4DE28B1B3C9D3DE" Directory="dirD398186EA4EA75A1372B7407551EFC08" Guid="*">
+        <File Id="fil715AC368BCDEC5D2ACDFD0F32DF78176" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jetty-orbit\License.txt" />
+      </Component>
+      <Component Id="cmpACAA140400246627C51FE5507735E645" Directory="dir23180F318ACE924D1877C83E924ACA3E" Guid="*">
+        <File Id="fil308A101250E7B9A6B2311B2E6A4F7A91" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jetty-webapp\License.txt" />
+      </Component>
+      <Component Id="cmp89D2F6735989B2E899C96A72D19C4C5F" Directory="dir712E83592970C3532F69A382AF1C19C2" Guid="*">
+        <File Id="fil0320DC00E5567602962D64E8ACC8307D" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jna\LGPL2.1" />
+      </Component>
+      <Component Id="cmpD971B8612F12449D30E4C2B565772CF0" Directory="dir712E83592970C3532F69A382AF1C19C2" Guid="*">
+        <File Id="fil720C28439C58EE5CD595E7A69F605F6A" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jna\LICENSE" />
+      </Component>
+      <Component Id="cmp5C125FCFE88E68F661C142411CF5DC87" Directory="dir712E83592970C3532F69A382AF1C19C2" Guid="*">
+        <File Id="filFB94861BD9334EFA10FD7531EE5131FA" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jna\LICENSE.ASL" />
+      </Component>
+      <Component Id="cmp5AB67E1B23276A9218FDEAF2AE187443" Directory="dir712E83592970C3532F69A382AF1C19C2" Guid="*">
+        <File Id="filE2F5D6C0735FA36F62BFC6E5FDDD8E50" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jna\LICENSE.LGPL" />
+      </Component>
+      <Component Id="cmp11D9A44E0F6B0A9BFBA5A96F959CBBEC" Directory="dirE29E195CD6422F46455B7BC5F1343729" Guid="*">
+        <File Id="fil0D2ECD9E7E759DEC7D8721037AD5FBF7" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jsonb\LICENCE.txt" />
+      </Component>
+      <Component Id="cmpF3209578B611427668FD9B9961D8517A" Directory="dirC9D80B35D6D8379339635F0C9F9437AA" Guid="*">
+        <File Id="filC7B24D4FC9FBFA31F385C66FBA4A509E" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\jsonp\LICENSE.md" />
+      </Component>
+      <Component Id="cmp30E26385807F3224A86979CFF4D53851" Directory="dir619EA39CB364F6A7E0CBDB4F12EF48FE" Guid="*">
+        <File Id="filC9F15CEC16C7C7796844079939F1BEC3" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\juniversalchardet\MPL-1.1.txt" />
+      </Component>
+      <Component Id="cmpB20F80049772255F89405ED69D3052B8" Directory="dir67D95AE358AB0FE38072BE486AF1455C" Guid="*">
+        <File Id="filC709BF0B95E675BFCF33F8D899688174" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\lift-webkit\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp06963DCEC22ABF5E822961E5686E8BEE" Directory="dir628C1B942283C9695F76626E73D065B7" Guid="*">
+        <File Id="fil6E23AA59CD26860907F98D18D1E02849" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\logback-classic\License.txt" />
+      </Component>
+      <Component Id="cmp24497ADFC6990BC66DA7AEC319F24A30" Directory="dirE703D135D537439421E685F2EF38C0FC" Guid="*">
+        <File Id="filDF7CE88BB3825FB3B562706AE081AECF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\minlog\license.txt" />
+      </Component>
+      <Component Id="cmp7AD81D3A55C9D5BA82F5137672E79BC9" Directory="dir294DF4FA24249893C1D5E4E6F757BBCC" Guid="*">
+        <File Id="fil5A65ABCD6A5C72EFA87B62941E64211C" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\OpenCover\License.rtf" />
+      </Component>
+      <Component Id="cmp90BCC453242C511864E9688FE49ACFC4" Directory="dirBB783A366AE3F65CCBE24B7BA4C87D02" Guid="*">
+        <File Id="filE3CE766C5BE86A3DF26B455D407A078D" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\paranamer\LICENSE.txt" />
+      </Component>
+      <Component Id="cmp070F66CE56D98B433E47E1CCB5D9B617" Directory="dirA34C0A5B732D4A0F492533FE9A7978CD" Guid="*">
+        <File Id="fil31D13F6C6B9002736BA9CE1B6E4B6CDB" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\reactive-core\LICENSE.txt" />
+      </Component>
+      <Component Id="cmpD8CA174E90ED4A031AA30859F061CB64" Directory="dir14A3B1B501506023F5B17F52590FB010" Guid="*">
+        <File Id="fil691F9EAE4788F6A29BEB4FE360131359" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\sbt\LICENSE" />
+      </Component>
+      <Component Id="cmpE5995C0F3E109E949941CD2A44787861" Directory="dir14A3B1B501506023F5B17F52590FB010" Guid="*">
+        <File Id="fil81188CEBA979D076A8FA3ACC94664459" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\sbt\NOTICE" />
+      </Component>
+      <Component Id="cmp2CDB83865A411CBA09F79F02D1E1D658" Directory="dirB14321F776176A98C5CC9B02C1028E18" Guid="*">
+        <File Id="fil2D92F68F991E7E91A1153EBC82E40CAD" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\scala\License-BSD-3-Clause.txt" />
+      </Component>
+      <Component Id="cmpC119B8C0447FCCAB47AC85453030114E" Directory="dirB14321F776176A98C5CC9B02C1028E18" Guid="*">
+        <File Id="fil86CCE223AC9C5B90B3F6708577031B83" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\scala\License.txt" />
+      </Component>
+      <Component Id="cmp0ACC02267F0684231653AB4A98ABCC7E" Directory="dir1681BC3C1F95A16CAF197CCD6F4AAFD8" Guid="*">
+        <File Id="fil4D2BEE0A1113A440F31B8FBEC2C68B53" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\scalactic\License.txt" />
+      </Component>
+      <Component Id="cmp96A2D2AE715DDDAB81596CF2B92F4F87" Directory="dir03B1D8499935F43E2B70EC6B6189C62D" Guid="*">
+        <File Id="fil780CE64C4157DBF14671FA3A8D8B78C5" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\scalamock\LICENCE" />
+      </Component>
+      <Component Id="cmpBAB4B7A570E7E3B4B0B51056D5810307" Directory="dirBE52F26F231486E894B71EEA93956C69" Guid="*">
+        <File Id="fil6B89498D91E2CEF369A0E8E9DAFC9B0D" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\scalatest\License.txt" />
+      </Component>
+      <Component Id="cmp1F4FFCFDB3BCCB16B621D0DFBB170C0A" Directory="dir003AFFC75FB111FA14F3EBF4D683D3C2" Guid="*">
+        <File Id="fil958B5C6F9C405657FECED64C80F995DF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\slick\LICENSE.txt" />
+      </Component>
+      <Component Id="cmpC0FD90226379F36646FC5E1EF3BF8409" Directory="dirB22060E7258AB9BF51C50C27ADF72648" Guid="*">
+        <File Id="filF16F3B9448A27F0490DE9D061913DE6D" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\yasson\LICENSE" />
+      </Component>
       <Component Id="cmp311BA692225848CB97E7CCBBF14A94C0" Directory="dir31B9FDD5DDA79BF6280CBA8E94B5F7F4" Guid="*">
         <File Id="fil686BEA0BD895704F4FCA542E340D4405" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\locales\am.pak" />
       </Component>
@@ -1935,6 +2082,11 @@
     </ComponentGroup>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir003AFFC75FB111FA14F3EBF4D683D3C2" Name="slick" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirD8E2C3913864294B5191549C6BEB5AE5">
       <Directory Id="dir00526229775CBF1B8ACE44A41141376B" Name="ext" />
     </DirectoryRef>
@@ -1942,6 +2094,11 @@
   <Fragment>
     <DirectoryRef Id="dir1179BF6E5AB8A6C6AE2E21DF1E3ADA01">
       <Directory Id="dir02E3358F288FAC3B9D9C2466870C9990" Name="resources" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir03B1D8499935F43E2B70EC6B6189C62D" Name="scalamock" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -1975,8 +2132,23 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir12CB8DD912DEA2DA562245ED46083A4F" Name="DependencyCheck" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirA89E13040EB94497D66D1EED2A63F7B3">
       <Directory Id="dir140F6C05C8D64D218E51C7DD32AFA67F" Name="cmm" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir14A3B1B501506023F5B17F52590FB010" Name="sbt" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir1681BC3C1F95A16CAF197CCD6F4AAFD8" Name="scalactic" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -1995,6 +2167,11 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir23180F318ACE924D1877C83E924ACA3E" Name="jetty-webapp" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dir3455DF23E2F873685E412C1DE9618424">
       <Directory Id="dir2347DF75EE6DC933AE6570702D844B70" Name="WEB-INF" />
     </DirectoryRef>
@@ -2010,6 +2187,11 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir2504645A49053E20B348D8702421F344" Name="javax.servlet-api" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirD8E2C3913864294B5191549C6BEB5AE5">
       <Directory Id="dir25B04BC7E14A422EEF6C658A395EC6AB" Name="apache-jsp" />
     </DirectoryRef>
@@ -2017,6 +2199,11 @@
   <Fragment>
     <DirectoryRef Id="dirC408AC8998C77D55C4B2F004285DFA23">
       <Directory Id="dir2859AB326CD40E14FF854B9E58690AB1" Name="webapps" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir294DF4FA24249893C1D5E4E6F757BBCC" Name="OpenCover" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2040,6 +2227,16 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir3800213E9617F42BE3EF9CA13719A797" Name="commons-compress" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Directory Id="dir38D963CA90694D9F68F2E2A952412F5D" Name="licenses" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirC3403397DEE54EAA7D7C62C96BC037D9">
       <Directory Id="dir3B831C6BDA417785BEB012F1DC432A2E" Name="jamon" />
     </DirectoryRef>
@@ -2060,6 +2257,11 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir45AE793E5066FF43740FE7185DECB069" Name="ASM" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirC3403397DEE54EAA7D7C62C96BC037D9">
       <Directory Id="dir4698859CAAF4A831F320BEAA70D7A455" Name="ssl" />
     </DirectoryRef>
@@ -2075,6 +2277,16 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir4B96D41B022C26043FF3541E7D3BCE33" Name="jcl-over-slf4j" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir4C774721D99688E1DB816AA32EB6D10E" Name="jackson-core" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirEE7F826D096AC0DA1358A56AEC36FD56">
       <Directory Id="dir51FF12529E9A2C27E9D564C533D33FF2" Name="etc" />
     </DirectoryRef>
@@ -2087,6 +2299,11 @@
   <Fragment>
     <DirectoryRef Id="dirC408AC8998C77D55C4B2F004285DFA23">
       <Directory Id="dir549BA8A5EADE73305F932CF3617B80DB" Name="logs" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir5586A216BC1D2D70AF46AC3B63979973" Name="commons-io" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2110,8 +2327,28 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir5E6761C77BB74B216303959809045A43" Name="groovy-all" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir619EA39CB364F6A7E0CBDB4F12EF48FE" Name="juniversalchardet" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirD8E2C3913864294B5191549C6BEB5AE5">
       <Directory Id="dir6266F1989B5134F7738D4FFAB904A8CD" Name="http2" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir628C1B942283C9695F76626E73D065B7" Name="logback-classic" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir67D95AE358AB0FE38072BE486AF1455C" Name="lift-webkit" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2125,8 +2362,28 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir712E83592970C3532F69A382AF1C19C2" Name="jna" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dir961E0508AB712CB6A56EE1CF7F476C9D">
       <Directory Id="dir7369AA5DC2998E038D6A000E2B2D1C06" Name="limited" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir75C1CA92495992A59CA180F1E9938E9A" Name="h2" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir79D3D527D63D29318BEFD3CB8BBE7C82" Name="concurrentlinkedhashmap-lru" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir7A7859B3CF38E46D0872CB7ABF00BFA9" Name="akka-actor" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2142,6 +2399,11 @@
   <Fragment>
     <DirectoryRef Id="dirC3403397DEE54EAA7D7C62C96BC037D9">
       <Directory Id="dir80E1F17F6D0A4D2AC9ACB88DB728928A" Name="gcloud" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dir84BC80714871FB3E3569688CA9099969" Name="jackson-module-scala" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2190,6 +2452,11 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirA34C0A5B732D4A0F492533FE9A7978CD" Name="reactive-core" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirD8E2C3913864294B5191549C6BEB5AE5">
       <Directory Id="dirA6232403D6102DB73B10BBA4F220CDF8" Name="websocket" />
     </DirectoryRef>
@@ -2205,6 +2472,16 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirB14321F776176A98C5CC9B02C1028E18" Name="scala" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirB22060E7258AB9BF51C50C27ADF72648" Name="yasson" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirA89E13040EB94497D66D1EED2A63F7B3">
       <Directory Id="dirB2690A0F80FA49585A998B2D3E89EDC1" Name="deploy" />
     </DirectoryRef>
@@ -2217,6 +2494,16 @@
   <Fragment>
     <DirectoryRef Id="dirC3403397DEE54EAA7D7C62C96BC037D9">
       <Directory Id="dirB832E1899139D0055507D4BE48528F3F" Name="logging-jetty" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirBB783A366AE3F65CCBE24B7BA4C87D02" Name="paranamer" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirBE52F26F231486E894B71EEA93956C69" Name="scalatest" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2240,8 +2527,18 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirC9D80B35D6D8379339635F0C9F9437AA" Name="jsonp" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dirD8E2C3913864294B5191549C6BEB5AE5">
       <Directory Id="dirCEED468F45B333DC5F53EBF457AD4781" Name="mail" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirD398186EA4EA75A1372B7407551EFC08" Name="jetty-orbit" />
     </DirectoryRef>
   </Fragment>
   <Fragment>
@@ -2265,6 +2562,21 @@
     </DirectoryRef>
   </Fragment>
   <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirE29E195CD6422F46455B7BC5F1343729" Name="jsonb" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirE5F60BFC4D501606BD74601CC2B97C96" Name="commons-lang3" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirE703D135D537439421E685F2EF38C0FC" Name="minlog" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
     <DirectoryRef Id="dir961E0508AB712CB6A56EE1CF7F476C9D">
       <Directory Id="dirEA15430EBB981D3EE66F28484116382C" Name="unlimited" />
     </DirectoryRef>
@@ -2277,6 +2589,11 @@
   <Fragment>
     <DirectoryRef Id="dirC3403397DEE54EAA7D7C62C96BC037D9">
       <Directory Id="dirEE7F826D096AC0DA1358A56AEC36FD56" Name="jul-slf4j" />
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
+      <Directory Id="dirF0731B43AEE40D412FADBDCE20AF11EB" Name="dispatch-core" />
     </DirectoryRef>
   </Fragment>
   <Fragment>

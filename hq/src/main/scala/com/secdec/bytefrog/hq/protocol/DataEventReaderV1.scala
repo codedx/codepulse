@@ -29,10 +29,10 @@ import com.codedx.codepulse.agent.common.message.MessageConstantsV1
 class DataEventReaderV1 extends DataEventReader {
 
 	private val bufferSize = 1024
-	private val buffer = new Array[Byte](bufferSize)
+	protected val buffer = new Array[Byte](bufferSize)
 
 	//helper
-	@tailrec private def copyBytes(n: Int, from: DataInputStream, to: DataOutputStream): Unit = {
+	@tailrec protected final def copyBytes(n: Int, from: DataInputStream, to: DataOutputStream): Unit = {
 		if (n > 0) {
 			val num = n % bufferSize
 			from.readFully(buffer, 0, num)

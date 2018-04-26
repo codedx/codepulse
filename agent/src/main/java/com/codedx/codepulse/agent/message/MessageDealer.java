@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.codedx.bytefrog.instrumentation.id.*;
 
 import com.codedx.codepulse.agent.common.message.MessageProtocol;
+import com.codedx.codepulse.agent.common.message.NotSupportedException;
 import com.codedx.codepulse.agent.common.queue.DataBufferOutputStream;
 
 /**
@@ -211,6 +212,33 @@ public class MessageDealer
 		}
 	}
 
+	public void recordLineLevelTrace(int methodId, int startLine, int endLine, java.util.BitSet lineMap)  throws IOException,
+			FailedToObtainBufferException, FailedToSendBufferException, NotSupportedException
+	{
+		DataBufferOutputStream buffer = bufferService.obtainBuffer();
+		if (buffer != null)
+		{
+			boolean wrote = false;
+			try
+			{
+				int timestamp = getTimeOffset();
+
+				int threadId = threadIdMapper.getCurrent();
+				for (int i = lineMap.nextSetBit(0); i >= 0; i = lineMap.nextSetBit(i+1)) {
+					int sourceLocationId = methodIdAdapter.markSourceLocation(methodId, startLine+i, startLine+i, buffer);
+					messageProtocol.writeMethodVisit(buffer, timestamp, sequencer.getSequence(), methodId, sourceLocationId, threadId);
+				}
+				wrote = true;
+			}
+			finally
+			{
+				if (!wrote)
+					buffer.reset();
+				bufferService.sendBuffer(buffer);
+			}
+		}
+	}
+
 	private class MethodIdAdapter
 	{
 		private final ClassIdentifier classIdentifier;
@@ -218,10 +246,37 @@ public class MessageDealer
 
 		private final ConcurrentMap<Integer, Boolean> observedIds = new ConcurrentHashMap<Integer, Boolean>();
 
+		private final AtomicInteger nextSourceLocationId = new AtomicInteger();
+		protected final ConcurrentHashMap<String, Integer> sourceLocationMap = new ConcurrentHashMap<>();
+
 		public MethodIdAdapter(ClassIdentifier classIdentifier, MethodIdentifier methodIdentifier)
 		{
 			this.classIdentifier = classIdentifier;
 			this.methodIdentifier = methodIdentifier;
+		}
+
+		public int markSourceLocation(int methodId, int startLine, int endLine, DataBufferOutputStream buffer)
+				throws IOException, NotSupportedException, FailedToObtainBufferException, FailedToSendBufferException {
+
+			mark(methodId, buffer);
+
+			String key = String.format("%d-%d-%d", methodId, startLine, endLine);
+			Integer id = sourceLocationMap.get(key);
+			if (id != null)
+			{
+				return id;
+			}
+
+			Integer newId = nextSourceLocationId.getAndIncrement();
+			id = sourceLocationMap.putIfAbsent(key, newId);
+
+			if (id == null)
+			{
+				short ignored = -1;
+				messageProtocol.writeMapSourceLocation(buffer, newId, methodId, startLine, endLine, ignored, ignored);
+				return newId;
+			}
+			return id;
 		}
 
 		public void mark(int methodId, DataBufferOutputStream buffer) throws IOException, FailedToObtainBufferException, FailedToSendBufferException

@@ -38,18 +38,24 @@ function Invoke-CodePulsePackaging(
     # Files
     # ├───$osName
     # │   ├───codepulse
+    #     └───licenses
     #     └───tracers
     #         ├───dotnet
     #         └───java
+    #             ├───licenses
     #
     $filesFolderCodePulsePath = join-path $filesFolderPath 'codepulse'
+    $filesFolderLicensesPath = join-path $filesFolderCodePulsePath 'licenses'
     $filesFolderJavaTracerPath = join-path $filesFolderCodePulsePath 'tracers\java'
+    $filesFolderJavaTracerLicensesPath = join-path $filesFolderJavaTracerPath 'licenses'
     $filesFolderDotNetTracerPath = join-path $filesFolderCodePulsePath 'tracers\dotnet'
     $filesFolderDotNetTracerImgPath = join-path $filesFolderDotNetTracerPath 'img'
 
     New-Item -Path $filesFolderPath -ItemType Directory | Out-Null
+    New-Item -Path $filesFolderLicensesPath -ItemType Directory | Out-Null
     New-Item -Path $filesFolderJavaTracerPath -ItemType Directory | Out-Null
     New-Item -Path $filesFolderDotNetTracerPath -ItemType Directory | Out-Null
+    New-Item -Path $filesFolderJavaTracerLicensesPath -ItemType Directory | Out-Null
     New-Item -Path $filesFolderDotNetTracerImgPath -ItemType Directory | Out-Null
 
     Push-Location $codePulsePath
@@ -91,8 +97,14 @@ function Invoke-CodePulsePackaging(
     write-verbose 'Restoring original build.sbt contents...'
     Set-TextContent $buildSbtPath $buildSbt
 
-    write-verbose 'Moving Java agent (Linux)...'
+    write-verbose 'Moving Java agent...'
     move-item (join-path $filesFolderCodePulsePath $agentJarRelativePath) $filesFolderJavaTracerPath
+
+    write-verbose 'Copying Java agent licenses...'
+    copy-item .\installers\Licenses\tracers\java\* $filesFolderJavaTracerLicensesPath -Recurse
+
+    write-verbose 'Copying license files...'
+    copy-item .\installers\Licenses\codepulse\* $filesFolderLicensesPath -Recurse
 
     Pop-Location; Push-Location $dotNetSymbolServicePath
 

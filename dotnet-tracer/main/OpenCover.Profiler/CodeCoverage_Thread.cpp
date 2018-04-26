@@ -6,7 +6,9 @@
 HRESULT STDMETHODCALLTYPE CCodeCoverage::ThreadDestroyed(
     /* [in] */ ThreadID threadId)
 {
-    ATLTRACE(_T("::ThreadDestroyed(%d)"), threadId);
+	#ifdef TRACE_ENABLED
+	ATLTRACE(_T("::ThreadDestroyed(%d)"), threadId);
+	#endif
 
 	return ChainCall([&]() { return CProfilerBase::ThreadDestroyed(threadId); },
 		[&]() {
@@ -21,7 +23,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ThreadAssignedToOSThread(
     /* [in] */ ThreadID managedThreadId,
     /* [in] */ DWORD osThreadId)
 {
+	#ifdef TRACE_ENABLED
     ATLTRACE(_T("::ThreadAssignedToOSThread(%d, %d)"), managedThreadId, osThreadId);
+	#endif
 	return ChainCall([&]() { return CProfilerBase::ThreadAssignedToOSThread(managedThreadId, osThreadId); },
 		[&]() {
 		if (!safe_mode_) {

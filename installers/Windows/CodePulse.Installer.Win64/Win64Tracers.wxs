@@ -20,11 +20,69 @@
             <Component Id="cmp79DDE8B86EF01A8CA5C4972287965C4F" Directory="dirBD36B0B3BC81A30E46ED205BA3B8ECD2" Guid="*">
                 <File Id="fil4F19EF22B82575CD1093661E44F432A4" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\agent.jar" />
             </Component>
+            <Component Id="cmp4EEC8D026A00D37BD773EC8E96B526F4" Directory="dirB46FB70190F0BE9EA10662990572EC9B" Guid="*">
+                <File Id="fil513E7E8C98BBA87E2569B447E9650750" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\groovy-all\ANTLR-LICENSE.txt" />
+            </Component>
+            <Component Id="cmp3CF1F7447B44C2D73FF39BF93D5C3CB2" Directory="dirB46FB70190F0BE9EA10662990572EC9B" Guid="*">
+                <File Id="fil4B6F9871E3629F48FC02E532E00CD8C8" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\groovy-all\ASM-LICENSE.txt" />
+            </Component>
+            <Component Id="cmp8D97F0D129C76090AE8516C6FD1A3AAD" Directory="dirB46FB70190F0BE9EA10662990572EC9B" Guid="*">
+                <File Id="filEE1D534AFE1E39164741A3479B8F895B" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\groovy-all\CLI-LICENSE.txt" />
+            </Component>
+            <Component Id="cmp8C0981327A1C103F763EAF308FBD258C" Directory="dirB46FB70190F0BE9EA10662990572EC9B" Guid="*">
+                <File Id="fil058542B5AF535360CFE7D80DA24BEC63" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\groovy-all\JSR223-LICENSE.txt" />
+            </Component>
+            <Component Id="cmp5DF7F69EBFDD9E410894B5FB451183AF" Directory="dirB46FB70190F0BE9EA10662990572EC9B" Guid="*">
+                <File Id="filEC7F20A63AE2A9AA82A85B16F17F6DC7" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\groovy-all\LICENSE.txt" />
+            </Component>
+            <Component Id="cmp158F959F946FDF5F3A5605B33D02B17D" Directory="dirB46FB70190F0BE9EA10662990572EC9B" Guid="*">
+                <File Id="filAE65655CB6DF9E58481D5A64FF1B26E6" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\groovy-all\NOTICE.txt" />
+            </Component>
+            <Component Id="cmpA386DE03354AC99EC670B8B890DDCB8B" Directory="dir3B52E57093A52A62A7CCF002C05147B3" Guid="*">
+                <File Id="fil89A3829097B5BE7F78AFAF794DEE8C89" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\jcl-over-slf4j\License.txt" />
+            </Component>
+            <Component Id="cmpE8BEF97E8B236DC799694080A0B99AE0" Directory="dirD1F269EAFB8BE5EFE5272AFE9B39F65E" Guid="*">
+                <File Id="fil374CB59FBAD1B65F4B05359977690F5A" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\jsonb\LICENCE.txt" />
+            </Component>
+            <Component Id="cmpCA5C237076277B4A3E9B96668B6926D4" Directory="dir4673F71F7A3F2C47A2791CC6778EE73A" Guid="*">
+                <File Id="filE0E994FE4E0E96E84F23584260D1F97D" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\jsonp\LICENSE.md" />
+            </Component>
+            <Component Id="cmp295CD19E3EB6CCC6EA944591C789CF10" Directory="dirA51D6EA2411BE57DC3AB026945484274" Guid="*">
+                <File Id="fil1EF6F6CA39E4BB2210809AF0F511F181" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\logback-classic\License.txt" />
+            </Component>
+            <Component Id="cmpCC7111202E835FA6E6DA4ABAEC0A370B" Directory="dir9A41093BCA4F004D65B9E2B70D52FC9D" Guid="*">
+                <File Id="fil91787BA4559B7B89D520AD54C3357B4B" KeyPath="yes" Source="$(var.TracersWin64SourceFolder)\java\licenses\yasson\LICENSE" />
+            </Component>
         </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE927E611E366C69240D0C9B41E53CEA4">
+            <Directory Id="dir3B52E57093A52A62A7CCF002C05147B3" Name="jcl-over-slf4j" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE927E611E366C69240D0C9B41E53CEA4">
+            <Directory Id="dir4673F71F7A3F2C47A2791CC6778EE73A" Name="jsonp" />
+        </DirectoryRef>
     </Fragment>
     <Fragment>
         <DirectoryRef Id="dirC9569A3AA35221BCEE254B19D1874FD5">
             <Directory Id="dir7415E8BC643AF6D21E1EB5173B15D68F" Name="dotnet" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE927E611E366C69240D0C9B41E53CEA4">
+            <Directory Id="dir9A41093BCA4F004D65B9E2B70D52FC9D" Name="yasson" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE927E611E366C69240D0C9B41E53CEA4">
+            <Directory Id="dirA51D6EA2411BE57DC3AB026945484274" Name="logback-classic" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirE927E611E366C69240D0C9B41E53CEA4">
+            <Directory Id="dirB46FB70190F0BE9EA10662990572EC9B" Name="groovy-all" />
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -33,8 +91,18 @@
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <DirectoryRef Id="dirE927E611E366C69240D0C9B41E53CEA4">
+            <Directory Id="dirD1F269EAFB8BE5EFE5272AFE9B39F65E" Name="jsonb" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
         <DirectoryRef Id="dir7415E8BC643AF6D21E1EB5173B15D68F">
             <Directory Id="dirD950C6731FD9FF9FABF8E19EA953FF38" Name="img" />
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <DirectoryRef Id="dirBD36B0B3BC81A30E46ED205BA3B8ECD2">
+            <Directory Id="dirE927E611E366C69240D0C9B41E53CEA4" Name="licenses" />
         </DirectoryRef>
     </Fragment>
 </Wix>

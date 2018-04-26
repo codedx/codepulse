@@ -56,12 +56,16 @@ namespace Synchronization
 				LONG prevCount = -1;
 				if (::ReleaseSemaphore(getSemaphore(), 1, &prevCount) && prevCount == 0) { // +1
 					if (::WaitForSingleObject(getSemaphore(), 1000) == WAIT_TIMEOUT) {     // -1
+						#ifdef TRACE_ENABLED
 						RELTRACE(_T("Semaphore wait timed out => %s"), getHandleName().c_str());
+						#endif
 						return -1;
 					}
 				}
 				else {
+					#ifdef TRACE_ENABLED
 					RELTRACE(_T("Semaphore count failed => %s, %d"), getHandleName().c_str(), prevCount);
+					#endif
 				}
 				return prevCount;
 			}

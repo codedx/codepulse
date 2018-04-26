@@ -64,30 +64,30 @@ object Distributor extends BuildExtra {
 	object dependencies {
 		object java {
 			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-			private val trimPathRegex = raw"^\Qjre1.8.0_162\E(?:\.jre)?/".r
+			private val trimPathRegex = raw"^\Qjre1.8.0_172\E(?:\.jre)?/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win32 = Dependency("jre.win32", "8u162", "http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jre-8u162-windows-i586.tar.gz")
+			val win32 = Dependency("jre.win32", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-windows-i586.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "win32" / "jre" }
 
-			val win64 = Dependency("jre.win64", "8u162", "http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jre-8u162-windows-x64.tar.gz")
+			val win64 = Dependency("jre.win64", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-windows-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "win64" / "jre" }
 
-			val linuxX86 = Dependency("jre.linux-x86", "8u162", "http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jre-8u162-linux-i586.tar.gz")
+			val linuxX86 = Dependency("jre.linux-x86", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-linux-i586.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x86" / "jre" }
 
-			val linuxX64 = Dependency("jre.linux-x64", "8u162", "http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jre-8u162-linux-x64.tar.gz")
+			val linuxX64 = Dependency("jre.linux-x64", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-linux-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x64" / "jre" }
 
-			val osx = Dependency("jre.osx", "8u162", "http://download.oracle.com/otn-pub/java/jdk/8u162-b12/0da788060d494f5095bf8624735fa2f1/jre-8u162-macosx-x64.tar.gz")
+			val osx = Dependency("jre.osx", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-macosx-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "osx" / "jre" }

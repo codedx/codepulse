@@ -36,7 +36,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 		// handle method encounters
 		case DataMessageContent.MethodEntry(methodId, timestamp, _) =>
 			val runningRecordings = projectData.recordings.all.filter(_.running).map(_.id)
-
+			println(s"Entered method $methodId")
 			for (nodeId <- methodCor get methodId) {
 				projectData.encounters.record(runningRecordings, nodeId :: Nil)
 				transientData addEncounter nodeId
@@ -44,8 +44,15 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 
 		// make method correlations
 		case DataMessageContent.MapMethodSignature(sig, id) =>
+			println(s"Method $id -> Signature: $sig")
 			val node = projectData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
 			for (treemapNodeId <- node) methodCor.put(id, treemapNodeId)
+
+		case DataMessageContent.MapSourceLocation(sig, startLine, endLine, startCharacter, endCharacter, sourceLocationId) =>
+			println(s"Source Location $sourceLocationId -> MethodId: $sig Lines: $startLine-$endLine Characters: $startCharacter $endCharacter")
+
+		case DataMessageContent.MethodVisit(methodId, sourceLocationId, _, _) =>
+			println(s"Visited method $methodId at location $sourceLocationId")
 
 		// ignore everything else
 		case _ => ()
