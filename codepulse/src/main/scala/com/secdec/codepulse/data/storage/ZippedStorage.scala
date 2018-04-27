@@ -18,19 +18,95 @@
  * (DHS S&T/CSD) via contract number HHSP233201600058C.
  */
 package com.secdec.codepulse.data.storage
-import java.io.InputStream
-import java.util.zip.ZipFile
+
+import java.io.{ BufferedInputStream, FileInputStream, InputStream }
+import java.util.zip.{ ZipEntry, ZipFile, ZipInputStream }
+import collection.JavaConversions._
+import scala.util.Try
+
+import org.apache.commons.io.input.CloseShieldInputStream
+
+import com.secdec.codepulse.util.{ SmartLoader, ZipCleaner }
+import com.secdec.codepulse.util.SmartLoader.Success
 
 class ZippedStorage(zipFile: ZipFile) extends Storage {
+	override def name = zipFile.getName
+
+	override def getEntries(filter: ZipEntry => Boolean): List[String] = {
+		zipFile.entries.filter(filter).map(_.getName).toList
+	}
+
 	override def loadEntry(path: String): Option[String] = {
-		???
+		val content = readEntry(path){ stream =>
+			SmartLoader.loadStream(stream) match {
+				case Success(content, _) => Some(content)
+				case _ => None
+			}
+		}
+
+		content
 	}
 
-	override def readEntry[T](path: String)(read: (InputStream) => T): Option[T] = {
-		???
+	override def readEntry[T](path: String)(read: (InputStream) => Option[T]): Option[T] = {
+		val entry = zipFile.getEntry(path)
+		read(zipFile.getInputStream(entry))
 	}
 
-	override def readEntries[T](read: (String, InputStream) => T): Option[T] = {
-		???
+	override def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit) = {
+		val stream = new BufferedInputStream(new FileInputStream(zipFile.getName))
+		try {
+			readEntries(zipFile.getName, stream, recursive)(read)
+		} finally {
+			stream.close
+		}
+	}
+
+	override def readEntries[T](filename: String, stream: InputStream, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit) = {
+		val zipStream = new ZipInputStream(stream)
+		try {
+			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
+				.map(_.toOption.flatMap { Option(_) })
+				.takeWhile(_.isDefined)
+				.flatten
+
+			for {
+				entry <- entryStream
+				if !ZipCleaner.shouldFilter(entry)
+			} {
+				if (entry.isDirectory || (Storage.isZip(entry.getName) && recursive))
+					readEntries(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
+				else
+					read(filename, entry, zipStream)
+			}
+		} finally {
+			zipStream.close
+		}
+	}
+
+	override def find(recursive: Boolean = true)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+		val stream = new BufferedInputStream(new FileInputStream(zipFile.getName))
+
+		try find(zipFile.getName, stream, recursive)(predicate) finally stream.close
+	}
+
+	override def find(filename: String, stream: InputStream, recursive: Boolean)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+		val zipStream = new ZipInputStream(stream)
+		try {
+			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
+				.map(_.toOption.flatMap { Option(_) })
+				.takeWhile(_.isDefined)
+				.flatten
+				.filterNot(ZipCleaner.shouldFilter)
+
+			entryStream.exists { entry =>
+				lazy val recurse = entry.isDirectory || (recursive &&
+					Storage.isZip(entry.getName) &&
+					find(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(predicate))
+
+				predicate(filename, entry, zipStream) || recurse
+			}
+		} finally {
+			zipStream.close
+		}
 	}
 }

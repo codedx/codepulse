@@ -73,7 +73,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 				}
 				name <- req.param("name") ?~ "You must specify a name"
 			} yield {
-				val project = Await.result((projectInput() ? CreateProject(processors, (projectData, eventBus) => {
+				val project = Await.result((projectInput() ? CreateProject(processors, inputFile, (projectData, storage, eventBus) => {
 					projectData.metadata.name = name
 					projectData.metadata.creationDate = System.currentTimeMillis
 
@@ -84,7 +84,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 							projectData.metadata.creationDate = createDate
 						}
 					}
-					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, inputFile, projectData.treeNodeData, projectData.sourceData, post))
+					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, storage, projectData.treeNodeData, projectData.sourceData, post))
 				})).mapTo[ProjectData], Duration.Inf)
 
 				val failure = NotFoundResponse("Failed to process data input")

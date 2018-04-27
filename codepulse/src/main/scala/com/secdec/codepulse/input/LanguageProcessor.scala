@@ -22,10 +22,11 @@ package com.secdec.codepulse.input
 import java.io.File
 
 import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess }
+import com.secdec.codepulse.data.storage.Storage
 
 case class CanProcessFile(file: File)
 
 trait LanguageProcessor {
-	def canProcess(file: File): Boolean
-	def process(file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit
+	def canProcess(storage: Storage): Boolean
+	def process(storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit
 }

@@ -25,6 +25,7 @@ import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
+import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
@@ -38,12 +39,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 
 	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, sourceData, post)) => {
+		case ProcessEnvelope(_, DataInputAvailable(identifier, storage, treeNodeData, sourceData, post)) => {
 			try {
-				if(canProcess(file)) {
-					process(file, treeNodeData, sourceData)
+				if(canProcess(storage)) {
+					process(storage, treeNodeData, sourceData)
 					post()
-					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData, sourceData))
+					eventBus.publish(ProcessDataAvailable(identifier, storage, treeNodeData, sourceData))
 				}
 			} catch {
 				case exception: Exception => eventBus.publish(ProcessStatus.asEnvelope(ProcessStatus.Failed(identifier, "Java ByteCode Processor", Some(exception))))
@@ -51,17 +52,20 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		}
 
 		case CanProcessFile(file) => {
-			sender ! canProcess(file)
+			Storage(file) match {
+				case Some(storage) => sender ! canProcess(storage)
+				case _ => sender ! false
+			}
 		}
 	}
 
-	def canProcess(file: File): Boolean = {
-		ZipEntryChecker.findFirstEntry(file) { (filename, entry, contents) =>
+	def canProcess(storage: Storage): Boolean = {
+		storage.find() { (filename, entry, contents) =>
 			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
 		}
 	}
 
-	def process(file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
+	def process(storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
 		val RootGroupName = "Classes"
 		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
@@ -72,8 +76,8 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 
 		val loader = SmartLoader
 
-		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-			val groupName = if (filename == file.getName) RootGroupName else s"JARs/${filename substring file.getName.length + 1}"
+		storage.readEntries() { (filename, entry, contents) =>
+			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>

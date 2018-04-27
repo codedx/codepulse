@@ -19,12 +19,40 @@
  */
 package com.secdec.codepulse.data.storage
 
-import java.io.InputStream
+import java.io.{ File, InputStream }
+import java.util.zip.{ ZipEntry, ZipFile }
+
+import org.apache.commons.io.FilenameUtils
 
 trait Storage {
+	def name: String
+
+	def getEntries(filter: ZipEntry => Boolean): List[String]
+
 	def loadEntry(path: String): Option[String]
 
-	def readEntry[T](path: String)(read: InputStream => T): Option[T]
+	def readEntry[T](path: String)(read: InputStream => Option[T]): Option[T]
 
-	def readEntries[T](read: (String, InputStream) => T): Option[T]
+	def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit)
+
+	def readEntries[T](filename: String, stream: InputStream, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit)
+
+	def find(recursive: Boolean = true)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean
+
+	def find(filename: String, stream: InputStream, recursive: Boolean)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean
+}
+
+object Storage {
+	def apply(file: File): Option[Storage] = {
+		if(file.canRead && isZip(file.getName)) {
+			Option(new ZippedStorage(new ZipFile(file)))
+		} else {
+			None
+		}
+	}
+
+	def isZip(name: String): Boolean = FilenameUtils.getExtension(name) match {
+		case "zip" | "ear" | "jar" | "war" => true
+		case _ => false
+	}
 }
