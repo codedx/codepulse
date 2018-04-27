@@ -38,10 +38,11 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 	class SourceLocationData(tag: Tag) extends Table[SourceLocation](tag, "source_location") {
 		def id = column[Int]("id", O.PrimaryKey, O.NotNull)
 		def sourceFileId = column[Int]("source_file_id", O.NotNull)
-		def line = column[Int]("line", O.NotNull)
+		def startLine = column[Int]("start_line", O.NotNull)
+		def endLine = column[Int]("end_line", O.NotNull)
 		def startCharacter = column[Option[Int]]("start_character")
 		def endCharacter = column[Option[Int]]("end_character")
-		def * = (id, sourceFileId, line, startCharacter, endCharacter) <> (SourceLocation.tupled, SourceLocation.unapply)
+		def * = (id, sourceFileId, startLine, endLine, startCharacter, endCharacter) <> (SourceLocation.tupled, SourceLocation.unapply)
 
 		def sourceFile = foreignKey("source_location_to_source_file", sourceFileId, sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
 	}

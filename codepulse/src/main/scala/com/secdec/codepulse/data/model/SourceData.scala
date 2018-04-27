@@ -21,7 +21,7 @@ package com.secdec.codepulse.data.model
 
 case class SourceFile(id: Int, path: String)
 
-case class SourceLocation(id: Int, sourceFileId: Int, line: Int, startCharacter: Option[Int], endCharacter: Option[Int])
+case class SourceLocation(id: Int, sourceFileId: Int, startLine: Int, endLine:Int, startCharacter: Option[Int], endCharacter: Option[Int])
 
 trait SourceDataAccess {
 	def importSourceFiles(sourceFileMap: Map[String, Int])
