@@ -26,7 +26,7 @@ import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend.Database
 
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.util.RichFile.RichFile
+import com.secdec.codepulse.util.Implicits._
 
 import akka.actor.ActorSystem
 

@@ -27,7 +27,7 @@ import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.paths
 import com.secdec.codepulse.tracer.projectDataProvider
-import com.secdec.codepulse.util.RichFile._
+import com.secdec.codepulse.util.Implicits._
 import net.liftweb.util.Helpers.AsInt
 
 sealed abstract class ReportFormat(val value: String)

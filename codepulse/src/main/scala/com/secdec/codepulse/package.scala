@@ -24,7 +24,7 @@ import java.util.Properties
 import scala.collection.JavaConverters.propertiesAsScalaMapConverter
 import scala.util.Try
 import com.secdec.codepulse.util.ApplicationData
-import com.secdec.codepulse.util.RichFile._
+import com.secdec.codepulse.util.Implicits._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import java.io.File

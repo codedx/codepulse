@@ -29,6 +29,7 @@ import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.{ SmartLoader, ZipEntryChecker }
 import org.apache.commons.io.FilenameUtils
 
@@ -69,7 +70,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
 
-		val loader = new SmartLoader
+		val loader = SmartLoader
 
 		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
 			val groupName = if (filename == file.getName) RootGroupName else s"JARs/${filename substring file.getName.length + 1}"
@@ -84,8 +85,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 
 					case "jsp" =>
 						val jspContents = loader loadStream contents
-						val jspSize = JspAnalyzer analyze jspContents
-						jspAdapter.addJsp(entry.getName, jspSize)
+						jspContents match {
+							case Success(content, _) =>
+								val jspSize = JspAnalyzer analyze content
+								jspAdapter.addJsp(entry.getName, jspSize)
+							case _ =>
+						}
 
 					case _ => // nothing
 				}

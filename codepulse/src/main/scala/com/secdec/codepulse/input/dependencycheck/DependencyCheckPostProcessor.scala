@@ -53,7 +53,7 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 		try {
 			import scala.xml._
 
-			import com.secdec.codepulse.util.RichFile._
+			import com.secdec.codepulse.util.Implicits._
 			import treeNodeData.ExtendedTreeNodeData
 
 			val reportDir = DependencyCheck.runScan(scanSettings)
