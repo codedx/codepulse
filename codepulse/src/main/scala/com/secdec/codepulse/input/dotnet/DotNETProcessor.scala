@@ -34,6 +34,7 @@ import org.apache.commons.io.FilenameUtils
 
 class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
 	val group = "Classes"
+	val pathForUnknownFile = "?"
 	val traceGroups = (group :: Nil).toSet
 
 	val symbolService = new SymbolService
@@ -78,7 +79,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
 						for {
 							(sig, size) <- methods
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, sig.file))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, if (sig.file != null) sig.file else pathForUnknownFile))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 
