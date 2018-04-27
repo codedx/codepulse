@@ -31,7 +31,7 @@ import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (String, File) => ScanSettings) extends Actor with Stash {
 	def receive = {
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData, sourceData)) => {
 			def status(processStatus: ProcessStatus): Unit = {
 				eventBus.publish(processStatus)
 			}

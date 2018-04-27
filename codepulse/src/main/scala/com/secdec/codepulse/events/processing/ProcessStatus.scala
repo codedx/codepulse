@@ -21,7 +21,7 @@ package com.secdec.codepulse.processing
 
 import java.io.File
 
-import com.secdec.codepulse.data.model.TreeNodeDataAccess
+import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess }
 
 sealed trait ProcessStatus
 sealed trait TransientProcessStatus extends ProcessStatus
@@ -35,8 +35,8 @@ object ProcessStatus {
 	case class NotRun(identifier: String) extends ProcessStatus
 	case class Unknown(identifier: String) extends ProcessStatus
 
-	case class DataInputAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess, post: () => Unit) extends ProcessStatus
-	case class ProcessDataAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess) extends ProcessStatus
+	case class DataInputAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, post: () => Unit) extends ProcessStatus
+	case class ProcessDataAvailable(identifier: String, file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess) extends ProcessStatus
 	case class PostProcessDataAvailable(identifier: String, payload: Option[AnyRef]) extends ProcessStatus
 
 	implicit def asEnvelope(processStatus: ProcessStatus): ProcessEnvelope = {

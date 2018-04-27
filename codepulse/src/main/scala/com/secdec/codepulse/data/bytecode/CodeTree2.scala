@@ -30,6 +30,7 @@ trait CodeTreeNode {
 	def name: String
 	def kind: CodeTreeNodeKind
 	def size: Option[Int]
+	def sourceFile: Option[String]
 
 	def parentId = parent map { _.id }
 
@@ -116,26 +117,30 @@ object CodeTreeNode {
 trait CodeTreeNodeFactory {
 	def createGroupNode(name: String): CodeTreeNode
 	def createPackageNode(name: String): CodeTreeNode
-	def createClassNode(name: String): CodeTreeNode
-	def createMethodNode(name: String, size: Int): CodeTreeNode
+	def createClassNode(name: String, sourceFile: String): CodeTreeNode
+	def createMethodNode(name: String, size: Int, sourceFile: String): CodeTreeNode
 }
 
 object CodeTreeNodeFactory {
 	private case class GroupNode(id: Int, name: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Grp
 		def size = None
+		def sourceFile = None
 	}
 	private case class PackageNode(id: Int, name: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Pkg
 		def size = None
+		def sourceFile = None
 	}
-	private case class ClassNode(id: Int, name: String) extends CodeTreeNode {
+	private case class ClassNode(id: Int, name: String, sourceFilePath: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Cls
 		def size = None
+		def sourceFile = Some(sourceFilePath)
 	}
-	private case class MethodNode(id: Int, name: String, methodSize: Int) extends CodeTreeNode {
+	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Mth
 		def size = Some(methodSize)
+		def sourceFile = Some(sourceFilePath)
 	}
 
 	def mkDefaultFactory: CodeTreeNodeFactory = new DefaultImpl
@@ -145,8 +150,8 @@ object CodeTreeNodeFactory {
 
 		def createGroupNode(name: String): CodeTreeNode = GroupNode(ids.next, name)
 		def createPackageNode(name: String): CodeTreeNode = PackageNode(ids.next, name)
-		def createClassNode(name: String): CodeTreeNode = ClassNode(ids.next, name)
-		def createMethodNode(name: String, size: Int): CodeTreeNode = MethodNode(ids.next, name, size)
+		def createClassNode(name: String, sourceFile: String): CodeTreeNode = ClassNode(ids.next, name, sourceFile)
+		def createMethodNode(name: String, size: Int, sourceFile: String): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile)
 	}
 }
 sealed abstract class CodeTreeNodeKind(val label: String)

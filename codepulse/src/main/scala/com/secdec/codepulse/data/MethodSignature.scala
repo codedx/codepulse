@@ -48,6 +48,7 @@ import java.lang.reflect.Modifier
 case class MethodSignature(
 	name: String,
 	containingClass: String,
+	file: String,
 	modifiers: Int,
 	params: List[MethodTypeParam],
 	returnType: MethodTypeParam,

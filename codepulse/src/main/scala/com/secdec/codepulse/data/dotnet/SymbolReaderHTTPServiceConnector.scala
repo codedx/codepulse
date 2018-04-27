@@ -47,6 +47,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 			(methodInfo.id, methodInfo.surrogateFor, methodInfo.instructions, (new MethodSignature(
 				methodInfo.fullyQualifiedName,
 				methodInfo.containingClass,
+				methodInfo.file,
 				methodInfo.accessModifiers,
 				methodInfo.parameters.map(parameter => MethodTypeParam.ReferenceType(parameter)),
 				MethodTypeParam.ReferenceType(methodInfo.returnType)

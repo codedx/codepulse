@@ -56,7 +56,7 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 
 			sender ! projectData
 		}
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData, sourceData)) => {
 			val numberOfProcessors = projectCreationProcessors.get(identifier).get.length
 			val succeeded = projectProcessorSucceeded(identifier)
 			val failed = projectProcessingFailures.get(identifier).get

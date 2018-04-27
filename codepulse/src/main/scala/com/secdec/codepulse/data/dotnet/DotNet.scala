@@ -34,6 +34,7 @@ case class MethodInfo(
 	id: String,
 	fullyQualifiedName: String,
 	containingClass: String,
+	file: String,
 	accessModifiers: Int,
 	parameters: List[String],
 	returnType: String,

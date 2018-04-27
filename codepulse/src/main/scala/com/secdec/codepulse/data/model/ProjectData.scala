@@ -52,6 +52,7 @@ trait ProjectData {
 
 	def metadata: ProjectMetadata
 	def treeNodeData: TreeNodeDataAccess
+	def sourceData: SourceDataAccess
 	def recordings: RecordingMetadataAccess
 	def encounters: TraceEncounterDataAccess
 

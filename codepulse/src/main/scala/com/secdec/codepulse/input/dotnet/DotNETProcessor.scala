@@ -24,7 +24,7 @@ import java.io.File
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector, SymbolService }
-import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeImporter }
+import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
@@ -40,12 +40,12 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 	symbolService.create
 
 	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
+		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, sourceData, post)) => {
 			try {
 				if(canProcess(file)) {
-					process(file, treeNodeData)
+					process(file, treeNodeData, sourceData)
 					post()
-					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
+					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData, sourceData))
 				}
 			} catch {
 				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, "dotNET Processor", Some(exception)))
@@ -64,7 +64,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 		}
 	}
 
-	def process(file: File, treeNodeData: TreeNodeDataAccess): Unit = {
+	def process(file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(file) _
@@ -78,7 +78,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
 						for {
 							(sig, size) <- methods
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, sig.file))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 
@@ -86,6 +86,8 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 				}
 			}
 		}
+
+		sourceData.importSourceFiles(builder.sourceFiles)
 
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
