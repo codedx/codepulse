@@ -27,6 +27,8 @@ namespace SymbolService.Model
 
 		public String ContainingClass { get; set; }
 
+		public String File { get; set; }
+
 		public int AccessModifiers { get; set; }
 
 		public IEnumerable<String> Parameters { get; set; }

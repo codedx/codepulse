@@ -161,6 +161,7 @@ namespace SymbolService.Controllers
             {
                 FullyQualifiedName = method.Name,
                 ContainingClass = method.DeclaringType?.FullName,
+				File = method.DebugInformation.SequencePoints.First().Document.Url,
                 AccessModifiers = GetAccessModifiers(method),
                 Parameters = GetParameters(method),
                 ReturnType = method.ReturnType.FullName,
