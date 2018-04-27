@@ -95,6 +95,15 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 		softDelete
 	}
 
+	def input = db withSession { implicit session =>
+		get("input")
+	} getOrElse ("")
+
+	def input_=(newInput: String) = db withTransaction { implicit transaction =>
+		set("input", newInput)
+		newInput
+	}
+
 	private object DependencyCheckStatusHelpers {
 		private val FinishedStatus = raw"finished\((\d+), (\d+)\)".r
 		private def finishedStatus(numDeps: Int, numFlagged: Int) = s"finished($numDeps, $numFlagged)"
