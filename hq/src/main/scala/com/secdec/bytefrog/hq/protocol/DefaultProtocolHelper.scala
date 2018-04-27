@@ -18,7 +18,7 @@
 package com.codedx.codepulse.hq.protocol
 
 import com.codedx.codepulse.agent.common.message.{MessageProtocol, MessageProtocolV1, MessageProtocolV2, MessageProtocolV3}
-import com.secdec.bytefrog.hq.protocol.{DataEventReaderV2, DataMessageParserV2, DataMessageReaderV2}
+import com.secdec.bytefrog.hq.protocol.{DataMessageParserV2}
 
 object DefaultProtocolHelper extends ProtocolHelper {
 
@@ -54,21 +54,6 @@ object DefaultProtocolHelper extends ProtocolHelper {
 		case 1 => Some(ControlMessageReaderV1)
 		case 2 => Some(ControlMessageReaderV1)
 		case 3 => Some(ControlMessageReaderV1)
-		case _ => None
-	}
-
-	def getDataEventReader(version: Int): Option[DataEventReader] = version match {
-		//event reader V1 isn't thread safe, so return a new instance each time
-		case 1 => Some(new DataEventReaderV1)
-		case 2 => Some(new DataEventReaderV1)
-		case 3 => Some(new DataEventReaderV2)
-		case _ => None
-	}
-
-	def getDataMessageReader(version: Int): Option[DataMessageReader] = version match {
-		case 1 => Some(DataMessageReaderV1)
-		case 2 => Some(DataMessageReaderV1)
-		case 3 => Some(DataMessageReaderV2)
 		case _ => None
 	}
 

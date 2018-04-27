@@ -32,8 +32,6 @@ public class MethodInspector extends MethodVisitor {
 	private final String methodName, methodDesc;
 	private int startLine = 0, endLine = 0;
 
-	private BitSet lines = new BitSet();
-
 	public MethodInspector(String methodName, String methodDesc) {
 		super(Opcodes.ASM5);
 		this.methodName = methodName;
@@ -42,7 +40,6 @@ public class MethodInspector extends MethodVisitor {
 
 	@Override public void visitLineNumber(int line, Label label) {
 		super.visitLineNumber(line, label);
-		lines.set(line);
 		if (line < startLine || startLine == 0) startLine = line;
 		if (line > endLine) endLine = line;
 	}
@@ -52,7 +49,6 @@ public class MethodInspector extends MethodVisitor {
 		private final ClassInspector.Result clazz;
 		private final String methodName, methodDesc;
 		private final int startLine, endLine;
-		private final BitSet lines;
 
 		public ClassInspector.Result getClassInspection() { return clazz; }
 
@@ -62,21 +58,18 @@ public class MethodInspector extends MethodVisitor {
 		public int getStartLine() { return startLine; }
 		public int getEndLine() { return endLine; }
 
-		public BitSet getLines() { return lines; }
-
 		public boolean hasLineInformation() { return startLine > 0; }
 
-		public Result(ClassInspector.Result clazz, String methodName, String methodDesc, int startLine, int endLine, BitSet lines) {
+		public Result(ClassInspector.Result clazz, String methodName, String methodDesc, int startLine, int endLine) {
 			this.clazz = clazz;
 			this.methodName = methodName;
 			this.methodDesc = methodDesc;
 			this.startLine = startLine;
 			this.endLine = endLine;
-			this.lines = lines;
 		}
 	}
 
 	public Result getResult(ClassInspector.Result clazz) {
-		return new Result(clazz, methodName, methodDesc, startLine, endLine, lines);
+		return new Result(clazz, methodName, methodDesc, startLine, endLine);
 	}
 }

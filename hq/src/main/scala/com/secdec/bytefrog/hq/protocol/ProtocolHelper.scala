@@ -26,8 +26,6 @@ trait ProtocolHelper {
 	def getMessageProtocol(protocolVersion: Int): Option[MessageProtocol]
 	def getControlMessageSender(protocolVersion: Int): Option[ControlMessageSender]
 	def getControlMessageReader(protocolVersion: Int): Option[ControlMessageReader]
-	def getDataEventReader(version: Int): Option[DataEventReader]
-	def getDataMessageReader(version: Int): Option[DataMessageReader]
 	def getDataMessageParser(version: Int): Option[DataMessageParser]
 
 	def latestProtocol = getMessageProtocol(latestProtocolVersion) getOrElse {
