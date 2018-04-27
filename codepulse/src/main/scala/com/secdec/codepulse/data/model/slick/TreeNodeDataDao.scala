@@ -50,7 +50,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		def label = column[String]("label", O.NotNull)
 		def kind = column[CodeTreeNodeKind]("kind", O.NotNull)
 		def size = column[Option[Int]]("size", O.Nullable)
-		def * = (id, parentId, label, kind, size) <> (TreeNode.tupled, TreeNode.unapply)
+		def sourceFileId = column[Option[Int]]("source_file_id", O.Nullable)
+		def * = (id, parentId, label, kind, size, sourceFileId) <> (TreeNode.tupled, TreeNode.unapply)
 		def labelIndex = index("tnd_label_index", label)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
