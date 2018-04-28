@@ -86,12 +86,12 @@ namespace OpenCover.Framework.Model
         }
 
         /// <summary>
-        /// Gets line numbers associated with instrumentation point.
+        /// Gets source location associated with instrumentation point.
         /// </summary>
-        /// <returns>A tuple consisting of optional start and end line.</returns>
-        public static Tuple<int?,int?> GetLineNumbers(uint spid)
+        /// <returns>A tuple consisting of optional source location.</returns>
+        public static Tuple<int?,int?,int?, int?> GetSourceLocation(uint spid)
         {
-            return InstrumentPoints[(int) spid].GetLineNumbers();
+            return InstrumentPoints[(int) spid].GetSourceLocation();
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace OpenCover.Framework.Model
         /// Gets line numbers associated with instrumentation point.
         /// </summary>
         /// <returns>A tuple consisting of optional start and end line.</returns>
-        public virtual Tuple<int?, int?> GetLineNumbers()
+        public virtual Tuple<int?, int?, int?, int?> GetSourceLocation()
         {
             return null;
         }

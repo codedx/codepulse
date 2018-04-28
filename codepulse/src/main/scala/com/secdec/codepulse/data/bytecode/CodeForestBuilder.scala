@@ -76,13 +76,17 @@ class CodeForestBuilder {
 	}
 
 	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: String): Option[CodeTreeNode] = {
-		addSourceFile(sourceFile)
+		if (sourceFile != null) {
+			addSourceFile(sourceFile)
+		}
 
 		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile) }
 	}
 
 	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: String): CodeTreeNode = {
-		addSourceFile(sourceFile)
+		if (sourceFile != null) {
+			addSourceFile(sourceFile)
+		}
 
 		val treePath = CodePath.parse(sig, sourceFile)
 		val startNode = addRootGroup(group)
@@ -97,7 +101,9 @@ class CodeForestBuilder {
 	}
 
 	def getOrAddJsp(path: List[String], size: Int, sourceFile: String): CodeTreeNode = {
-		addSourceFile(sourceFile)
+		if (sourceFile != null) {
+			addSourceFile(sourceFile)
+		}
 
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
 			case className :: Nil => addChildMethod(parent, className, size, sourceFile)

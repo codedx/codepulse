@@ -106,7 +106,7 @@ namespace OpenCover.Test.Framework.Model
             var sequencePoint = new SequencePoint {StartLine = 1, EndLine = 2};
 
             // act
-            var lineNumbers = sequencePoint.GetLineNumbers();
+            var lineNumbers = sequencePoint.GetSourceLocation();
 
             // assert
             Assert.AreEqual(1, lineNumbers.Item1);

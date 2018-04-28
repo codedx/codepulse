@@ -31,7 +31,7 @@ namespace CodePulse.Client.Instrumentation.Id
         private readonly Dictionary<int, MethodInformation> _methodsById = new Dictionary<int, MethodInformation>();
         private readonly Dictionary<string, MethodInformation> _methodsBySignature = new Dictionary<string, MethodInformation>();
 
-        public int Record(int classId, string name, string signature, int startLine, int endLine)
+        public int Record(int classId, string name, string signature)
         {
             if (_methodsBySignature.TryGetValue(signature, out var methodInformation))
             {
@@ -39,7 +39,7 @@ namespace CodePulse.Client.Instrumentation.Id
             }
 
             var methodId = _nextMethodId++;
-            var newMethodInformation = new MethodInformation(methodId, classId, name, signature, startLine, endLine);
+            var newMethodInformation = new MethodInformation(methodId, classId, name, signature);
 
             _methodsById[methodId] = newMethodInformation;
             _methodsBySignature[signature] = newMethodInformation;

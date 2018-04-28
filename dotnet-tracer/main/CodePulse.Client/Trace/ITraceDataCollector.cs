@@ -26,9 +26,10 @@ namespace CodePulse.Client.Trace
     {
         int SequenceId { get; }
 
-        void AddMethodVisit(string className, string sourceFile,
+        void AddMethodVisit(int spid, string className, string sourceFile,
             string methodName, string methodSignature,
-            int startLineNumber, int endLineNumber);
+            int startLineNumber, int endLineNumber,
+	        short startCharacter, short endCharacter);
 
         void Shutdown();
     }

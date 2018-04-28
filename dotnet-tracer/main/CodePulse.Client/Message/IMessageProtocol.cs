@@ -35,5 +35,8 @@ namespace CodePulse.Client.Message
         void WriteDataBreak(BinaryWriter writer, int sequenceId);
         void WriteMapMethodSignature(BinaryWriter writer, int sigId, string signature);
         void WriteMethodEntry(BinaryWriter writer, int relTime, int seq, int sigId, ushort threadId);
+
+		void WriteMapSourceLocation(BinaryWriter writer, int sourceLocationId, int sigId, int startLine, int endLine, short startCharacter, short endCharacter);
+	    void WriteMethodVisit(BinaryWriter writer, int relTime, int seq, int sigId, int sourceLocationId, ushort threadId);
     }
 }
