@@ -20,6 +20,7 @@
 package com.secdec.codepulse.input.dotnet
 
 import java.io.File
+import scala.collection.mutable.{ HashMap, Set, MultiMap }
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ CodeForestBuilder, CodeTreeNodeKind }
@@ -30,6 +31,7 @@ import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalization }
 import com.secdec.codepulse.util.ZipEntryChecker
 import org.apache.commons.io.FilenameUtils
 
@@ -72,6 +74,21 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(new File(storage.name)) _
+		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
+
+		storage.readEntries() { (filename, entry, contents) =>
+			val entryPath = FilePath(entry.getName)
+			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
+		}
+
+		def authoritativePath(filePath: FilePath): Option[FilePath] = {
+			pathStore.get(filePath.name) match {
+				case None => None
+				case Some(fps) => {
+					fps.flatten.find { authority => PathNormalization.isLocalizedSameAsAuthority(authority, filePath) }
+				}
+			}
+		}
 
 		storage.readEntries() { (filename, entry, contents) =>
 			val groupName = if (filename == storage.name) group else s"Assemblies/${filename substring storage.name.length + 1}"
@@ -82,7 +99,9 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
 						for {
 							(sig, size) <- methods
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, sig.file))
+							filePath = FilePath(sig.file)
+							authority = filePath.flatMap(authoritativePath).map(_.toString)
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 

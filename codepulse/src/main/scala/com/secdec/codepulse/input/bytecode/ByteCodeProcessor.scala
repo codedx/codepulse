@@ -84,7 +84,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
 						for {
 							(name, size) <- methods
-							treeNode <- builder.getOrAddMethod(groupName, name, size, entry.getName)
+							treeNode <- builder.getOrAddMethod(groupName, name, size, Some(entry.getName))
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
 					case "jsp" =>

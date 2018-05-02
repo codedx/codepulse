@@ -49,7 +49,12 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 
 	override def readEntry[T](path: String)(read: (InputStream) => Option[T]): Option[T] = {
 		val entry = zipFile.getEntry(path)
-		read(zipFile.getInputStream(entry))
+		val stream = zipFile.getInputStream(entry)
+		try {
+			read(stream)
+		} finally {
+			stream.close
+		}
 	}
 
 	override def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit) = {

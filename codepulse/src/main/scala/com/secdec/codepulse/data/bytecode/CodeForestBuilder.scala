@@ -37,7 +37,7 @@ class CodeForestBuilder {
 	private val roots = SortedSet.empty[CodeTreeNode]
 	private var nodeFactory = CodeTreeNodeFactory.mkDefaultFactory
 	private val sourceFileIdMap = collection.mutable.Map.empty[String, Int]
-	private val sourceFileIds = Iterator from 0
+	private val sourceFileIds = Iterator from 1
 
 	def clear(): this.type = {
 		roots.clear()
@@ -75,16 +75,16 @@ class CodeForestBuilder {
 		this
 	}
 
-	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: String): Option[CodeTreeNode] = {
-		addSourceFile(sourceFile)
+	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: Option[String]): Option[CodeTreeNode] = {
+		sourceFile.foreach(addSourceFile)
 
 		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile) }
 	}
 
-	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: String): CodeTreeNode = {
-		addSourceFile(sourceFile)
+	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: Option[String]): CodeTreeNode = {
+		sourceFile.foreach(addSourceFile)
 
-		val treePath = CodePath.parse(sig, sourceFile)
+		val treePath = CodePath.parse(sig)
 		val startNode = addRootGroup(group)
 
 		def recurse(parent: CodeTreeNode, path: CodePath): CodeTreeNode = path match {
@@ -96,8 +96,8 @@ class CodeForestBuilder {
 		recurse(startNode, treePath)
 	}
 
-	def getOrAddJsp(path: List[String], size: Int, sourceFile: String): CodeTreeNode = {
-		addSourceFile(sourceFile)
+	def getOrAddJsp(path: List[String], size: Int, sourceFile: Option[String]): CodeTreeNode = {
+		sourceFile.foreach(addSourceFile)
 
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
 			case className :: Nil => addChildMethod(parent, className, size, sourceFile)
@@ -158,7 +158,7 @@ class CodeForestBuilder {
 		}
 	}
 
-	protected def addChildClass(parent: CodeTreeNode, name: String, sourceFile: String) = {
+	protected def addChildClass(parent: CodeTreeNode, name: String, sourceFile: Option[String]) = {
 		val className =
 			if (parent.kind == CodeTreeNodeKind.Cls) parent.name + '.' + name
 			else name
@@ -172,7 +172,7 @@ class CodeForestBuilder {
 		}
 	}
 
-	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int, sourceFile: String) = parent.findChild { node =>
+	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int, sourceFile: Option[String]) = parent.findChild { node =>
 		node.name == name && node.kind == CodeTreeNodeKind.Mth
 	} getOrElse {
 		val node = nodeFactory.createMethodNode(name, size, sourceFile)
