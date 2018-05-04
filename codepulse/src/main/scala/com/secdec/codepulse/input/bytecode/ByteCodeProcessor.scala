@@ -20,6 +20,7 @@
 package com.secdec.codepulse.input.bytecode
 
 import java.io.File
+import java.util.zip.ZipEntry
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
 import akka.actor.{ Actor, Stash }
@@ -39,6 +40,7 @@ import org.apache.commons.io.FilenameUtils
 class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
+	val sourceExtensions = List("java", "jsp")
 
 	def receive = {
 		case ProcessEnvelope(_, DataInputAvailable(identifier, storage, treeNodeData, sourceData, post)) => {
@@ -79,7 +81,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		val loader = SmartLoader
 		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
 
-		storage.readEntries() { (filename, entry, contents) =>
+		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
 			val entryPath = FilePath(entry.getName)
 			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
 		}

@@ -27,19 +27,19 @@ import org.apache.commons.io.FilenameUtils
 trait Storage {
 	def name: String
 
+	def close
+
 	def getEntries(filter: ZipEntry => Boolean): List[String]
 
 	def loadEntry(path: String): Option[String]
 
 	def readEntry[T](path: String)(read: InputStream => Option[T]): Option[T]
 
-	def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit)
+	def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit): Unit
 
-	def readEntries[T](filename: String, stream: InputStream, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit)
+	def readEntries[T](filter: ZipEntry => Boolean, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit): Unit
 
 	def find(recursive: Boolean = true)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean
-
-	def find(filename: String, stream: InputStream, recursive: Boolean)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean
 }
 
 object Storage {

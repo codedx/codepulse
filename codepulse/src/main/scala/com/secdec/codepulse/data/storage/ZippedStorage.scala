@@ -32,6 +32,8 @@ import com.secdec.codepulse.util.SmartLoader.Success
 class ZippedStorage(zipFile: ZipFile) extends Storage {
 	override def name = zipFile.getName
 
+	override def close = zipFile.close()
+
 	override def getEntries(filter: ZipEntry => Boolean): List[String] = {
 		zipFile.entries.filter(filter).map(_.getName).toList
 	}
@@ -60,13 +62,22 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 	override def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit) = {
 		val stream = new BufferedInputStream(new FileInputStream(zipFile.getName))
 		try {
-			readEntries(zipFile.getName, stream, recursive)(read)
+			readEntries(_ => true, zipFile.getName, stream, recursive)(read)
 		} finally {
 			stream.close
 		}
 	}
 
-	override def readEntries[T](filename: String, stream: InputStream, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit) = {
+	override def readEntries[T](filter: ZipEntry => Boolean, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit): Unit = {
+		val stream = new BufferedInputStream(new FileInputStream(zipFile.getName))
+		try {
+			readEntries(filter, zipFile.getName, stream, recursive)(read)
+		} finally {
+			stream.close
+		}
+	}
+
+	protected def readEntries[T](filter: ZipEntry => Boolean, filename: String, stream: InputStream, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit): Unit = {
 		val zipStream = new ZipInputStream(stream)
 		try {
 			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
@@ -79,8 +90,8 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 				if !ZipCleaner.shouldFilter(entry)
 			} {
 				if (entry.isDirectory || (Storage.isZip(entry.getName) && recursive))
-					readEntries(s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
-				else
+					readEntries(filter, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
+				else if(filter(entry))
 					read(filename, entry, zipStream)
 			}
 		} finally {
@@ -94,7 +105,7 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 		try find(zipFile.getName, stream, recursive)(predicate) finally stream.close
 	}
 
-	override def find(filename: String, stream: InputStream, recursive: Boolean)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean = {
+	protected def find(filename: String, stream: InputStream, recursive: Boolean)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean = {
 		val zipStream = new ZipInputStream(stream)
 		try {
 			val entryStream = Stream.continually(Try { zipStream.getNextEntry })

@@ -38,6 +38,7 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 
 			try {
 				process(identifier, scanSettings(identifier, new File(storage.name)), treeNodeData, status)
+				storage.close
 				eventBus.publish(PostProcessDataAvailable(identifier, None))
 			} catch {
 				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, "Dependency Check", Some(exception)))

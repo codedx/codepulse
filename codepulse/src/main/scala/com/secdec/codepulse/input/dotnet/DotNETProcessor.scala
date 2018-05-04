@@ -38,6 +38,7 @@ import org.apache.commons.io.FilenameUtils
 class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: Nil).toSet
+	val sourceExtensions = List("cs", "vb", "fs", "fsi", "fsx", "fsscript", "cpp")
 
 	val symbolService = new SymbolService
 	symbolService.create
@@ -76,7 +77,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(new File(storage.name)) _
 		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
 
-		storage.readEntries() { (filename, entry, contents) =>
+		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
 			val entryPath = FilePath(entry.getName)
 			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
 		}
