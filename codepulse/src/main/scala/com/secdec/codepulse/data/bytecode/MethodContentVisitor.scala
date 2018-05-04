@@ -28,12 +28,12 @@ object AsmVisitors {
 	type CounterCallback = Int => Unit
 
 	// methodCallback(methodSignature, instructionCount)
-	type MethodCallback = (String, Int) => Unit
+	type MethodCallback = (String, String, Int) => Unit
 
 	def parseMethodsFromClass(classBytes: InputStream) = {
 		val reader = new ClassReader(classBytes)
-		val builder = List.newBuilder[(String, Int)]
-		val visitor = new ClassStructureVisitor2({ (sig, size) => builder += (sig -> size) })
+		val builder = List.newBuilder[(String, String, Int)]
+		val visitor = new ClassStructureVisitor2({ (file, sig, size) => builder += ((file, sig, size)) })
 		reader.accept(visitor, ClassReader.SKIP_FRAMES)
 		builder.result()
 	}
@@ -63,15 +63,20 @@ class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends
 
 class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends ClassVisitor(Opcodes.ASM5) {
 	private var classSignature = ""
+	private var classFile = ""
 
 	override def visit(version: Int, access: Int, name: String, signature: String, superName: String, interfaces: Array[String]) = {
 		classSignature = name
 	}
 
+	override def visitSource(source: String, debug: String) = {
+		classFile = source
+	}
+
 	override def visitMethod(access: Int, name: String, desc: String, sig: String, exceptions: Array[String]): MethodVisitor = {
 		val methodSignature = classSignature + "." + name + ";" + access + ";" + desc
 		val counterCallback: AsmVisitors.CounterCallback = (insnCount) => {
-			methodCallback(methodSignature, insnCount)
+			methodCallback(classFile, methodSignature, insnCount)
 		}
 		new MethodContentVisitor(counterCallback)
 	}

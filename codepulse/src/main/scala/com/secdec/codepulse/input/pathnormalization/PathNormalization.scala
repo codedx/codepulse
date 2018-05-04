@@ -57,4 +57,20 @@ object PathNormalization {
 			false
 		}
 	}
+
+	def isLocalizedInAuthorityPath(authority: FilePath, localized: FilePath): Boolean = {
+		if(authority.name == localized.name) {
+			localized.parent match {
+				case None => true
+				case Some(_) => (for {
+					authorityParent <- authority.parent
+					localizedParent <- localized.parent
+				} yield {
+					isLocalizedInAuthorityPath(authorityParent, localizedParent)
+				}) getOrElse(false)
+			}
+		} else {
+			false
+		}
+	}
 }

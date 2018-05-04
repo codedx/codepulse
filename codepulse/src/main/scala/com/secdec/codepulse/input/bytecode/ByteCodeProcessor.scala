@@ -20,6 +20,7 @@
 package com.secdec.codepulse.input.bytecode
 
 import java.io.File
+import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
@@ -27,6 +28,7 @@ import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalization }
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
@@ -75,6 +77,28 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		val jspAdapter = new JasperJspAdapter
 
 		val loader = SmartLoader
+		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
+
+		storage.readEntries() { (filename, entry, contents) =>
+			val entryPath = FilePath(entry.getName)
+			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
+		}
+
+		def getPackageFromSig(sig: String): String = {
+			val packageContainer = sig.split(";").take(1)
+			val packagePart = packageContainer(0).split("/").dropRight(1)
+
+			packagePart.mkString("/")
+		}
+
+		def authoritativePath(filePath: FilePath): Option[FilePath] = {
+			pathStore.get(filePath.name) match {
+				case None => None
+				case Some(fps) => {
+					fps.flatten.find { authority => PathNormalization.isLocalizedInAuthorityPath(authority, filePath) }
+				}
+			}
+		}
 
 		storage.readEntries() { (filename, entry, contents) =>
 			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
@@ -83,8 +107,11 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
 						for {
-							(name, size) <- methods
-							treeNode <- builder.getOrAddMethod(groupName, name, size, Some(entry.getName))
+							(file, name, size) <- methods
+							pkg = getPackageFromSig(name)
+							filePath = FilePath(Array(pkg, file).mkString("/"))
+							authority = filePath.flatMap(authoritativePath).map(_.toString)
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority)
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
 					case "jsp" =>
