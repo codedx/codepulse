@@ -47,7 +47,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 			(methodInfo.id, methodInfo.surrogateFor, methodInfo.instructions, (new MethodSignature(
 				methodInfo.fullyQualifiedName,
 				methodInfo.containingClass,
-				Some(methodInfo.file),
+				Option(methodInfo.file),
 				methodInfo.accessModifiers,
 				methodInfo.parameters.map(parameter => MethodTypeParam.ReferenceType(parameter)),
 				MethodTypeParam.ReferenceType(methodInfo.returnType)
@@ -60,7 +60,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 			if (methodInfo._2 != "00000000-0000-0000-0000-000000000000") {
 				val method = methodSignaturesById(methodInfo._2)
 				val surrogateMethod = methodSignaturesById(methodInfo._1)
-				surrogateMethod.surrogateFor = Some(method)
+				surrogateMethod.surrogateFor = Option(method)
 				if (method.file == null) {
 					method.file = surrogateMethod.file
 				}
