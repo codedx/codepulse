@@ -81,7 +81,7 @@ object MethodSignatureParser extends RegexParsers {
 	/** Accepts a full method signature in the form of
 	  * classIdentifier.methodName;modifiers;(paramsList)returnType
 	  */
-	def methodSignature(file: String) = {
+	def methodSignature(file: Option[String]) = {
 		classIdentifier ~
 			("." ~> methodName <~ ";") ~
 			(number <~ ";") ~
@@ -96,7 +96,7 @@ object MethodSignatureParser extends RegexParsers {
 	/** Parses an entire MethodSignature, returning the result as an Option
 	  * (instead of the `ParseResult` class).
 	  */
-	def parseSignature(signatureString: String, file: String): Option[MethodSignature] = {
+	def parseSignature(signatureString: String, file: Option[String]): Option[MethodSignature] = {
 		parse(methodSignature(file), signatureString) match {
 			case Success(sig, _) => Some(sig)
 			case _ => None

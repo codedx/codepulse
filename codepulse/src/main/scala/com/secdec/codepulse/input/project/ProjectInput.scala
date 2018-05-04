@@ -19,11 +19,14 @@
 
 package com.secdec.codepulse.input.project
 
+import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.actor.{ Actor, ActorRef, Stash }
 import scala.collection.mutable.{ Map => MutableMap }
+
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
+import com.secdec.codepulse.data.storage.{ Storage, StorageManager }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.processing.ProcessEnvelope
@@ -34,7 +37,7 @@ trait ProjectLoader {
 	protected def createProject: ProjectData
 }
 
-case class CreateProject(processors: List[BootVar[ActorRef]], load: (ProjectData, GeneralEventBus) => Unit)
+case class CreateProject(processors: List[BootVar[ActorRef]], inputFile: File, load: (ProjectData, Storage, GeneralEventBus) => Unit)
 
 class ProjectInputActor extends Actor with Stash with ProjectLoader {
 
@@ -48,13 +51,16 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 	// TODO: capture failed state to cause a failed message and redirect (as necessary) for the user
 
 	def receive = {
-		case CreateProject(processors, load) => {
+		case CreateProject(processors, inputFile, load) => {
 			val projectData = createProject
 			addProjectCreators(projectData, processors)
 
-			load(projectData, generalEventBus)
-
-			sender ! projectData
+			StorageManager.storeInput(projectData.id, inputFile) match {
+				case Some(storage) =>
+					load(projectData, storage, generalEventBus)
+					sender ! projectData
+				case _ => throw new IllegalStateException(s"Unable to create storage for project ${projectData.id.num}")
+			}
 		}
 		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData, sourceData)) => {
 			val numberOfProcessors = projectCreationProcessors.get(identifier).get.length

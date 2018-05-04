@@ -27,7 +27,7 @@ import net.liftweb.json.JsonDSL._
 
 import com.secdec.codepulse.data.model.{ ProjectData, TreeNodeData, TreeNodeFlag }
 import com.secdec.codepulse.paths
-import com.secdec.codepulse.util.RichFile._
+import com.secdec.codepulse.util.Implicits._
 
 /** Helper for generating report data for dependency check reports.
   *

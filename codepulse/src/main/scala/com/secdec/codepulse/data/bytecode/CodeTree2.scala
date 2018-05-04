@@ -117,8 +117,8 @@ object CodeTreeNode {
 trait CodeTreeNodeFactory {
 	def createGroupNode(name: String): CodeTreeNode
 	def createPackageNode(name: String): CodeTreeNode
-	def createClassNode(name: String, sourceFile: String): CodeTreeNode
-	def createMethodNode(name: String, size: Int, sourceFile: String): CodeTreeNode
+	def createClassNode(name: String, sourceFile: Option[String]): CodeTreeNode
+	def createMethodNode(name: String, size: Int, sourceFile: Option[String]): CodeTreeNode
 }
 
 object CodeTreeNodeFactory {
@@ -132,15 +132,15 @@ object CodeTreeNodeFactory {
 		def size = None
 		def sourceFile = None
 	}
-	private case class ClassNode(id: Int, name: String, sourceFilePath: String) extends CodeTreeNode {
+	private case class ClassNode(id: Int, name: String, sourceFilePath: Option[String]) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Cls
 		def size = None
-		def sourceFile = Some(sourceFilePath)
+		def sourceFile = sourceFilePath
 	}
-	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: String) extends CodeTreeNode {
+	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: Option[String]) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Mth
 		def size = Some(methodSize)
-		def sourceFile = Some(sourceFilePath)
+		def sourceFile = sourceFilePath
 	}
 
 	def mkDefaultFactory: CodeTreeNodeFactory = new DefaultImpl
@@ -150,8 +150,8 @@ object CodeTreeNodeFactory {
 
 		def createGroupNode(name: String): CodeTreeNode = GroupNode(ids.next, name)
 		def createPackageNode(name: String): CodeTreeNode = PackageNode(ids.next, name)
-		def createClassNode(name: String, sourceFile: String): CodeTreeNode = ClassNode(ids.next, name, sourceFile)
-		def createMethodNode(name: String, size: Int, sourceFile: String): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile)
+		def createClassNode(name: String, sourceFile: Option[String]): CodeTreeNode = ClassNode(ids.next, name, sourceFile)
+		def createMethodNode(name: String, size: Int, sourceFile: Option[String]): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile)
 	}
 }
 sealed abstract class CodeTreeNodeKind(val label: String)

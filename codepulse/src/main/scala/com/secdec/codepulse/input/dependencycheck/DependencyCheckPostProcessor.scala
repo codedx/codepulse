@@ -31,18 +31,17 @@ import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (String, File) => ScanSettings) extends Actor with Stash {
 	def receive = {
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData, sourceData)) => {
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, treeNodeData, sourceData)) => {
 			def status(processStatus: ProcessStatus): Unit = {
 				eventBus.publish(processStatus)
 			}
 
 			try {
-				process(identifier, scanSettings(identifier, file), treeNodeData, status)
+				process(identifier, scanSettings(identifier, new File(storage.name)), treeNodeData, status)
+				storage.close
 				eventBus.publish(PostProcessDataAvailable(identifier, None))
 			} catch {
 				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, "Dependency Check", Some(exception)))
-			} finally {
-				file.delete()
 			}
 		}
 	}
@@ -53,7 +52,7 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 		try {
 			import scala.xml._
 
-			import com.secdec.codepulse.util.RichFile._
+			import com.secdec.codepulse.util.Implicits._
 			import treeNodeData.ExtendedTreeNodeData
 
 			val reportDir = DependencyCheck.runScan(scanSettings)

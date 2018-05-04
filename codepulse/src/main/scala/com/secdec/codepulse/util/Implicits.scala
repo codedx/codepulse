@@ -20,16 +20,19 @@
 package com.secdec.codepulse.util
 
 import language.implicitConversions
-import scala.util.{ Try, Success => TrySuccess, Failure => TryFailure }
-import net.liftweb.common.{ Box, Full => BoxFull, Failure => BoxFailure, Empty => BoxEmpty }
+import scala.util.{ Try, Failure => TryFailure, Success => TrySuccess }
+
+import net.liftweb.common.{ Box, Empty => BoxEmpty, Failure => BoxFailure, Full => BoxFull }
 import scala.util.matching.Regex
 import java.io.Closeable
+
+import com.avi.codedx.util.RichFile
 
 object Implicits {
 	implicit def intToPluralizer(i: Int) = new Pluralizer(i)
 	implicit def longToPluralizer(l: Long) = new Pluralizer(l)
 	implicit def stringToPluralizer(str: String) = new StringPluralizer(str)
-	implicit def pimpFile(file: java.io.File) = new RichFile.RichFile(file)
+	implicit def pimpFile(file: java.io.File) = new RichFile(file)
 
 	/** Adds the `nonEmptyList` method to Lists */
 	implicit class NonEmptyList[A](list: List[A]) {

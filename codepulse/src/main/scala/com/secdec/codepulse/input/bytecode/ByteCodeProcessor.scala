@@ -20,29 +20,35 @@
 package com.secdec.codepulse.input.bytecode
 
 import java.io.File
+import java.util.zip.ZipEntry
+import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
+import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalization }
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.{ SmartLoader, ZipEntryChecker }
 import org.apache.commons.io.FilenameUtils
 
 class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
+	val sourceExtensions = List("java", "jsp")
 
 	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, sourceData, post)) => {
+		case ProcessEnvelope(_, DataInputAvailable(identifier, storage, treeNodeData, sourceData, post)) => {
 			try {
-				if(canProcess(file)) {
-					process(file, treeNodeData, sourceData)
+				if(canProcess(storage)) {
+					process(storage, treeNodeData, sourceData)
 					post()
-					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData, sourceData))
+					eventBus.publish(ProcessDataAvailable(identifier, storage, treeNodeData, sourceData))
 				}
 			} catch {
 				case exception: Exception => eventBus.publish(ProcessStatus.asEnvelope(ProcessStatus.Failed(identifier, "Java ByteCode Processor", Some(exception))))
@@ -50,17 +56,20 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		}
 
 		case CanProcessFile(file) => {
-			sender ! canProcess(file)
+			Storage(file) match {
+				case Some(storage) => sender ! canProcess(storage)
+				case _ => sender ! false
+			}
 		}
 	}
 
-	def canProcess(file: File): Boolean = {
-		ZipEntryChecker.findFirstEntry(file) { (filename, entry, contents) =>
+	def canProcess(storage: Storage): Boolean = {
+		storage.find() { (filename, entry, contents) =>
 			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
 		}
 	}
 
-	def process(file: File, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
+	def process(storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
 		val RootGroupName = "Classes"
 		val tracedGroups = (RootGroupName :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 		val builder = new CodeForestBuilder
@@ -69,23 +78,52 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		//TODO: make this configurable somehow
 		val jspAdapter = new JasperJspAdapter
 
-		val loader = new SmartLoader
+		val loader = SmartLoader
+		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
 
-		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-			val groupName = if (filename == file.getName) RootGroupName else s"JARs/${filename substring file.getName.length + 1}"
+		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
+			val entryPath = FilePath(entry.getName)
+			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
+		}
+
+		def getPackageFromSig(sig: String): String = {
+			val packageContainer = sig.split(";").take(1)
+			val packagePart = packageContainer(0).split("/").dropRight(1)
+
+			packagePart.mkString("/")
+		}
+
+		def authoritativePath(filePath: FilePath): Option[FilePath] = {
+			pathStore.get(filePath.name) match {
+				case None => None
+				case Some(fps) => {
+					fps.flatten.find { authority => PathNormalization.isLocalizedInAuthorityPath(authority, filePath) }
+				}
+			}
+		}
+
+		storage.readEntries() { (filename, entry, contents) =>
+			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
 						for {
-							(name, size) <- methods
-							treeNode <- builder.getOrAddMethod(groupName, name, size, entry.getName)
+							(file, name, size) <- methods
+							pkg = getPackageFromSig(name)
+							filePath = FilePath(Array(pkg, file).mkString("/"))
+							authority = filePath.flatMap(authoritativePath).map(_.toString)
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority)
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
 					case "jsp" =>
 						val jspContents = loader loadStream contents
-						val jspSize = JspAnalyzer analyze jspContents
-						jspAdapter.addJsp(entry.getName, jspSize)
+						jspContents match {
+							case Success(content, _) =>
+								val jspSize = JspAnalyzer analyze content
+								jspAdapter.addJsp(entry.getName, jspSize)
+							case _ =>
+						}
 
 					case _ => // nothing
 				}

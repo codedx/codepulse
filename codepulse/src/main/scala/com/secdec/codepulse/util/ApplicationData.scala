@@ -25,7 +25,7 @@ import java.io.File
   * based on the current platform.
   */
 object ApplicationData {
-	import RichFile._
+	import Implicits._
 
 	private def getAppData(companyName: String, appName: String, appShortName: String, local: Boolean) = OperatingSystem.current match {
 		case OperatingSystem.Windows =>
