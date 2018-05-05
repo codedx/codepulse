@@ -41,7 +41,7 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 	private val recordingMetadataDao = new RecordingMetadataDao(driver)
 	private val recordingMetadataAccess = new SlickRecordingMetadataAccess(recordingMetadataDao, db)
 
-	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao)
+	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao, sourceDataDao)
 	private val encountersAccess = new SlickTraceEncounterDataAccess(encountersDao, db, encounterBufferSize, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem)
 
 	def metadata: ProjectMetadata = metadataAccess

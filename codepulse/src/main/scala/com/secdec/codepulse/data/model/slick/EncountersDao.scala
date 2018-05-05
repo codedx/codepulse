@@ -27,29 +27,32 @@ import com.secdec.codepulse.data.model._
   *
   * @author robertf
   */
-private[slick] class EncountersDao(val driver: JdbcProfile, val recordingMetadata: RecordingMetadataDao, val treeNodeData: TreeNodeDataDao) extends SlickHelpers {
+private[slick] class EncountersDao(val driver: JdbcProfile, val recordingMetadata: RecordingMetadataDao, val treeNodeData: TreeNodeDataDao, val sourceLocation: SourceDataDao) extends SlickHelpers {
 	import driver.simple._
 
-	class Encounters(tag: Tag) extends Table[(Option[Int], Int)](tag, "node_encounters") {
+	class Encounters(tag: Tag) extends Table[(Option[Int], Int, Option[Int])](tag, "node_encounters") {
 		def recordingId = column[Option[Int]]("recording_id", O.Nullable)
 		def nodeId = column[Int]("node_id", O.NotNull)
-		def * = (recordingId, nodeId)
+		def sourceLocationId = column[Option[Int]]("source_location_id")
+		def * = (recordingId, nodeId, sourceLocationId)
 
 		def recording = foreignKey("ne_recording", recordingId, recordingMetadata.recordings)(_.id, onDelete = ForeignKeyAction.Cascade)
 		def node = foreignKey("ne_node", nodeId, treeNodeData.treeNodeData)(_.id, onDelete = ForeignKeyAction.Cascade)
+		def sourceLocationKey = foreignKey("ne_sourcelocation", sourceLocationId, sourceLocation.sourceLocationsQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
 	}
 	val encounters = TableQuery[Encounters]
 
 	def create(implicit session: Session) = encounters.ddl.create
 
-	def iterateWith[T](f: Iterator[(Option[Int], Int)] => T)(implicit session: Session): T = {
+	def iterateWith[T](f: Iterator[(Option[Int], Int, Option[Int])] => T)(implicit session: Session): T = {
 		val it = encounters.iterator
 		try {
 			f(it)
 		} finally it.close
 	}
 
-	def store(entries: Iterable[(Option[Int], Int)])(implicit session: Session) {
-		fastImport { encounters ++= entries }
+	def store(entries: Iterable[(Option[Int], (Int, Option[Int]))])(implicit session: Session) {
+		val entriesToStore = entries.map(x => (x._1, x._2._1, x._2._2))
+		fastImport { encounters ++= entriesToStore }
 	}
 }

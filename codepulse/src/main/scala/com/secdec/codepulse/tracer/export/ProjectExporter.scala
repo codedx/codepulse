@@ -40,7 +40,7 @@ import net.liftweb.http.OutputStreamResponse
   * @author robertf
   */
 object ProjectExporter extends JsonHelpers {
-	val Version = 1
+	val Version = 2
 
 	/** Export `data` to `export` */
 	def exportTo(out: OutputStream, data: ProjectData) {
@@ -50,10 +50,12 @@ object ProjectExporter extends JsonHelpers {
 		try {
 			write(zout, ".manifest") { writeManifest(_) }
 			write(zout, "project.json") { writeMetadata(_, data.metadata) }
+			write(zout, "sourceFiles.json") { writeSourceFiles(_, data.sourceData) }
 			write(zout, "nodes.json") { writeTreeNodeData(_, data.treeNodeData) }
 			write(zout, "method-mappings.json") { writeMethodMappings(_, data.treeNodeData) }
 			write(zout, "jsp-mappings.json") { writeJspMappings(_, data.treeNodeData) }
 			write(zout, "recordings.json") { writeRecordings(_, data.recordings) }
+			write(zout, "sourceLocations.json") { writeSourceLocations(_, data.sourceData) }
 			write(zout, "encounters.json") { writeEncounters(_, data.recordings, data.encounters) }
 		} finally {
 			zout.finish
@@ -110,6 +112,7 @@ object ProjectExporter extends JsonHelpers {
 				jg.writeStringField("kind", node.kind.label)
 				for (size <- node.size) jg.writeNumberField("size", size)
 				for (traced <- node.traced) jg.writeBooleanField("traced", traced)
+				for (sourceFileId <- node.sourceFileId) jg.writeNumberField("sourceFileId", sourceFileId)
 
 				jg.writeEndObject
 			}
@@ -165,19 +168,64 @@ object ProjectExporter extends JsonHelpers {
 		}
 	}
 
+	private def writeSourceFiles(out: OutputStream, sourceDataAccess: SourceDataAccess): Unit = {
+		streamJson(out) { jg =>
+			jg.writeStartArray
+
+			sourceDataAccess.foreachSourceFile { file =>
+				jg.writeStartObject
+				jg.writeNumberField("id", file.id)
+				jg.writeStringField("path", file.path)
+				jg.writeEndObject
+			}
+
+			jg.writeEndArray
+		}
+	}
+
+	private def writeSourceLocations(out: OutputStream, sourceDataAccess: SourceDataAccess) = {
+		streamJson(out) { jg =>
+			jg.writeStartArray
+
+			sourceDataAccess.foreachSourceLocation { location =>
+				jg.writeStartObject
+				jg.writeNumberField("id", location.id)
+				jg.writeNumberField("sourceFileId", location.sourceFileId)
+				jg.writeNumberField("startLine", location.startLine)
+				jg.writeNumberField("endLine", location.endLine)
+				for (startCharacter <- location.startCharacter) jg.writeNumberField("startCharacter", startCharacter)
+				for (endCharacter <- location.endCharacter) jg.writeNumberField("endCharacter", endCharacter)
+				jg.writeEndObject
+			}
+
+			jg.writeEndArray
+		}
+	}
+
 	private def writeEncounters(out: OutputStream, recordings: RecordingMetadataAccess, encounters: TraceEncounterDataAccess) {
 		streamJson(out) { jg =>
 			jg.writeStartObject
 
 			jg writeFieldName "all"
 			jg.writeStartArray
-			encounters.get.foreach(jg.writeNumber)
+			val allEncounters = encounters.getAllEncounters()
+			allEncounters.foreach(encounter => {
+				jg.writeStartObject()
+				jg.writeNumberField("nodeId", encounter._1)
+				for (sourceLocationId <- encounter._2) jg.writeNumberField("sourceLocationId", sourceLocationId)
+				jg.writeEndObject()
+			})
 			jg.writeEndArray
 
 			for (recording <- recordings.all.map(_.id)) {
 				jg writeFieldName recording.toString
 				jg.writeStartArray
-				encounters.get(recording).foreach(jg.writeNumber)
+				encounters.getRecordingEncounters(recording).foreach(recordingEncounter => {
+					jg.writeStartObject()
+					jg.writeNumberField("nodeId", recordingEncounter._1)
+					for (sourceLocationId <- recordingEncounter._2) jg.writeNumberField("sourceLocationId", sourceLocationId)
+					jg.writeEndObject()
+				})
 				jg.writeEndArray
 			}
 

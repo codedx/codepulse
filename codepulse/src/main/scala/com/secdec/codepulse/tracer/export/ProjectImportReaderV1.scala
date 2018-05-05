@@ -294,14 +294,15 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 					case AsInt(recId) =>
 						val result = values.result
 						inRec ++= result
-						encounters.record(recId :: Nil, result)
+
+						encounters.record(recId :: Nil, result.map(x => x -> None))
 
 					case _ => throw new ProjectImportException("Invalid recording ID for encounters map.")
 				}
 			}
 
 			// we only need to store (all - inRec)
-			encounters.record(Nil, (all.toSet -- inRec).toList)
+			encounters.record(Nil, (all.toSet -- inRec).toList.map(x => x -> None))
 
 			if (jp.nextToken != null)
 				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected EOF.")

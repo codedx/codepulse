@@ -29,30 +29,55 @@ import com.secdec.codepulse.data.jsp.JspMapper
 class TraceRecorderDataProcessor(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor {
 
 	val methodCor = collection.mutable.Map[Int, Int]()
+	val unknownAndIgnoredMethodCor = collection.mutable.Set[Int]()
+	val sourceLocationCor = collection.mutable.Map[Int, Option[Int]]()
 
 	/** Process a single data message */
 	def processMessage(message: DataMessageContent): Unit = message match {
 
 		// handle method encounters
 		case DataMessageContent.MethodEntry(methodId, timestamp, _) =>
-			val runningRecordings = projectData.recordings.all.filter(_.running).map(_.id)
-			println(s"Entered method $methodId")
-			for (nodeId <- methodCor get methodId) {
-				projectData.encounters.record(runningRecordings, nodeId :: Nil)
-				transientData addEncounter nodeId
-			}
+			methodVisit(methodId, None)
 
 		// make method correlations
 		case DataMessageContent.MapMethodSignature(sig, id) =>
-			println(s"Method $id -> Signature: $sig")
 			val node = projectData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
-			for (treemapNodeId <- node) methodCor.put(id, treemapNodeId)
+			if (node.isEmpty) {
+				println(s"*** Ignoring signature missing from application inventory: $sig")
+				unknownAndIgnoredMethodCor.add(id)
+			}
+			else {
+				for (treemapNodeId <- node) {
+					methodCor.put(id, treemapNodeId)
+				}
+			}
 
-		case DataMessageContent.MapSourceLocation(sig, startLine, endLine, startCharacter, endCharacter, sourceLocationId) =>
-			println(s"Source Location $sourceLocationId -> MethodId: $sig Lines: $startLine-$endLine Characters: $startCharacter $endCharacter")
+		case DataMessageContent.MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, id) =>
+			val nodeId = methodCor get methodId
+			if (nodeId.isEmpty) {
+				if (!unknownAndIgnoredMethodCor.contains(methodId)) {
+					throw new IllegalArgumentException(s"Source Location $id refers to unknown method with ID $methodId")
+				}
+			}
+			else {
+				var startChar: Option[Int] = None
+				if (startCharacter != -1) startChar = Option(startCharacter.toInt)
+
+				var endChar: Option[Int] = None
+				if (endCharacter != -1) endChar = Option(endCharacter.toInt)
+
+				var sourceLocationId: Option[Int] = None
+				val sourceFileId = projectData.treeNodeData.getNode(nodeId.get).get.sourceFileId
+				if (!sourceFileId.isEmpty) {
+					sourceLocationId = Option(projectData.sourceData.getSourceLocationId(sourceFileId.get, startLine, endLine, startChar, endChar))
+				}
+
+				sourceLocationCor.put(id, sourceLocationId)
+			}
 
 		case DataMessageContent.MethodVisit(methodId, sourceLocationId, _, _) =>
-			println(s"Visited method $methodId at location $sourceLocationId")
+			val mappedId = sourceLocationCor.get(sourceLocationId)
+			methodVisit(methodId, mappedId.get)
 
 		// ignore everything else
 		case _ => ()
@@ -65,4 +90,12 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 	def finishProcessing(): Unit = ()
 
 	def cleanup() = ()
+
+	def methodVisit(methodId: Int,  sourceLocationId: Option[Int]): Unit = {
+		val runningRecordings = projectData.recordings.all.filter (_.running).map (_.id)
+		for (nodeId <- methodCor get methodId) {
+			projectData.encounters.record (runningRecordings, (nodeId, sourceLocationId) :: Nil)
+			transientData addEncounter nodeId
+		}
+	}
 }

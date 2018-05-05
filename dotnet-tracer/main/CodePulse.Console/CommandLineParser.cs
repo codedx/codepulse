@@ -123,6 +123,11 @@ namespace CodePulse.Console
         /// </summary>
         public bool ShowUnvisited { get; private set; }
 
+		/// <summary>
+		/// Log the modules, classes, and methods at the end of the coverage run (uses Info log level).
+		/// </summary>
+		public bool LogModules { get; private set; }
+
         /// <summary>
         /// Show the unvisited classes/methods at the end of the coverage run
         /// </summary>
@@ -292,7 +297,8 @@ namespace CodePulse.Console
             builder.AppendLine("[-Regex]");
             builder.AppendLine("[-MergeByHash]");
             builder.AppendLine("[-ShowUnvisited]");
-            builder.AppendLine("[-ReturnTargetCode[:<returncodeoffset>]]");
+            builder.AppendLine("[-LogModules]");
+			builder.AppendLine("[-ReturnTargetCode[:<returncodeoffset>]]");
             builder.AppendLine("[-ExcludeByAttribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("[-ExcludeByFile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("[-CoverByTest:<filter>[;<filter>][;<filter>]]");
@@ -392,7 +398,10 @@ namespace CodePulse.Console
                     case "showunvisited":
                         ShowUnvisited = true;
                         break;
-                    case "returntargetcode":
+					case "logmodules":
+						LogModules = true;
+						break;
+					case "returntargetcode":
                         ReturnTargetCode = true;
                         ReturnCodeOffset = ExtractValue("returntargetcode", 0, int.MaxValue, error => throw new InvalidOperationException($"The return target code offset must be an integer. {error}."));
                         break;

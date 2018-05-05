@@ -223,11 +223,10 @@ namespace CodePulse.Client.Data
 		            var timestamp = GetTimeOffsetInMilliseconds();
 		            const ushort threadId = 1;
 
-		            _methodIdAdapter.Mark(methodId);
+		            _methodIdAdapter.Mark(writer, methodId);
+		            _methodSourceLocationIdAdapter.Mark(writer, spid, methodId, startLineNumber, endLineNumber, startCharacter, endCharacter);
 
 		            _logger.DebugFormat("MethodVisit: {0} ({1} - {2})", methodSignature, methodId, spid);
-
-					_methodSourceLocationIdAdapter.Mark(spid, methodId, startLineNumber, endLineNumber, startCharacter, endCharacter);
 		            _messageProtocol.WriteMethodVisit(writer, timestamp, nextSequenceId, methodId, spid, threadId);
 
 					wrote = true;
@@ -247,57 +246,18 @@ namespace CodePulse.Client.Data
             }
         }
 
-        private void SendMapMethodSignature(string signature, int id)
+        private void SendMapMethodSignature(BinaryWriter writer, string signature, int id)
         {
-            var buffer = _bufferService.ObtainBuffer();
-            if (buffer == null)
-            {
-                return;
-            }
-            var writer = new BinaryWriter(buffer);
-            var wrote = false;
-            var bufferStartPosition = buffer.Position;
-            try
-            {
-                _logger.DebugFormat("SendMapMethodSignature: {0} ({1})", signature, id);
-                _messageProtocol.WriteMapMethodSignature(writer, id, signature);
-                wrote = true;
-            }
-            finally
-            {
-                if (!wrote)
-                {
-                    buffer.Position = bufferStartPosition;
-                }
-                _bufferService.RelinquishBuffer(buffer);
-            }
-        }
+			_logger.DebugFormat("SendMapMethodSignature: {0} ({1})", signature, id);
+	        _messageProtocol.WriteMapMethodSignature(writer, id, signature);
+		}
 
-	    private void SendMapMethodSourceLocation(int methodId, int startLine, int endLine, short startCharacter, short endCharacter, int spid)
+	    private void SendMapMethodSourceLocation(BinaryWriter writer, int methodId, int startLine, int endLine, short startCharacter, short endCharacter, int spid)
 	    {
-		    var buffer = _bufferService.ObtainBuffer();
-		    if (buffer == null)
-		    {
-			    return;
-		    }
-		    var writer = new BinaryWriter(buffer);
-		    var wrote = false;
-		    var bufferStartPosition = buffer.Position;
-		    try
-		    {
-			    _logger.DebugFormat("SendMapMethodSourceLocation: {0} {1}-{2} {3}-{4} ({5})", methodId, startLine, startCharacter, endLine, endCharacter, spid);
-			    _messageProtocol.WriteMapSourceLocation(writer, spid, methodId, startLine, endLine, startCharacter, endCharacter);
-			    wrote = true;
-		    }
-		    finally
-		    {
-			    if (!wrote)
-			    {
-				    buffer.Position = bufferStartPosition;
-			    }
-			    _bufferService.RelinquishBuffer(buffer);
-		    }
-	    }
+			_logger.DebugFormat("SendMapMethodSourceLocation: {0} {1}-{2} {3}-{4} ({5})", methodId, startLine, startCharacter, endLine, endCharacter, spid);
+		    _messageProtocol.WriteMapSourceLocation(writer, spid, methodId, startLine, endLine, startCharacter, endCharacter);
+
+		}
 
 		private int GetNextSequenceId()
         {
@@ -319,7 +279,7 @@ namespace CodePulse.Client.Data
                 _traceDataCollector = traceDataCollector;
             }
 
-            public void Mark(int methodId)
+            public void Mark(BinaryWriter writer, int methodId)
             {
                 var added = _observedIds.TryAdd(methodId, true);
                 if (!added)
@@ -333,7 +293,7 @@ namespace CodePulse.Client.Data
                     throw new ArgumentException($"Unable to find method information for method ID {methodId}.", nameof(methodId));
                 }
 
-                _traceDataCollector.SendMapMethodSignature(methodInformation.Signature, methodId);
+                _traceDataCollector.SendMapMethodSignature(writer, methodInformation.Signature, methodId);
             }
         }
 
@@ -347,14 +307,14 @@ namespace CodePulse.Client.Data
 			    _traceDataCollector = traceDataCollector;
 		    }
 
-		    public void Mark(int spid, int methodId, int startLine, int endLine, short startCharacter, short endCharacter)
+		    public void Mark(BinaryWriter writer, int spid, int methodId, int startLine, int endLine, short startCharacter, short endCharacter)
 		    {
 			    var added = _observedIds.TryAdd(spid, true);
 			    if (!added)
 			    {
 				    return;
 			    }
-			    _traceDataCollector.SendMapMethodSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, spid);
+			    _traceDataCollector.SendMapMethodSourceLocation(writer, methodId, startLine, endLine, startCharacter, endCharacter, spid);
 		    }
 	    }
 	}

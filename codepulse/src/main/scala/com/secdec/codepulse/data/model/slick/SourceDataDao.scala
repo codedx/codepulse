@@ -36,7 +36,7 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 	val sourceFilesQuery = TableQuery[SourceFileData]
 
 	class SourceLocationData(tag: Tag) extends Table[SourceLocation](tag, "source_location") {
-		def id = column[Int]("id", O.PrimaryKey, O.NotNull)
+		def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 		def sourceFileId = column[Int]("source_file_id", O.NotNull)
 		def startLine = column[Int]("start_line", O.NotNull)
 		def endLine = column[Int]("end_line", O.NotNull)
@@ -45,6 +45,7 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 		def * = (id, sourceFileId, startLine, endLine, startCharacter, endCharacter) <> (SourceLocation.tupled, SourceLocation.unapply)
 
 		def sourceFile = foreignKey("source_location_to_source_file", sourceFileId, sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
+		def sourceLocationIndex = index("tnd_source_location_index", (sourceFileId, startLine, endLine, startCharacter, endCharacter), unique = true)
 	}
 
 	val sourceLocationsQuery = TableQuery[SourceLocationData]
@@ -53,5 +54,48 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 
 	def storeSourceFiles(sourceFiles: Iterable[SourceFile])(implicit session: Session) = {
 		fastImport { sourceFilesQuery ++= sourceFiles }
+	}
+
+	def getOrInsertSourceLocation(sourceFileId: Int, startLine: Int, endLine: Int, startCharacter: Option[Int], endCharacter: Option[Int])(implicit session: Session): Int = {
+
+		val sourceLocation = getSourceLocationId(sourceFileId, startLine, endLine, startCharacter, endCharacter)
+		if (sourceLocation == None) {
+			try {
+				return sourceLocationsQuery += SourceLocation(0, sourceFileId, startLine, endLine, startCharacter, endCharacter)
+			} catch {
+				case _: Throwable => {
+					// assume race condition occurred
+					return getSourceLocationId(sourceFileId, startLine, endLine, startCharacter, endCharacter).get
+				}
+			}
+		}
+
+		sourceLocation.get
+	}
+
+	def getSourceLocationId(sourceFileId: Int, startLine: Int, endLine: Int, startCharacter: Option[Int], endCharacter: Option[Int])(implicit session: Session): Option[Int] = {
+		val sourceLocation = (for {x <- sourceLocationsQuery
+															 if x.sourceFileId === sourceFileId &&
+																 x.startLine === startLine &&
+																 x.endLine === endLine &&
+																 x.startCharacter === startCharacter &&
+																 x.endCharacter === endCharacter}
+			yield x).firstOption
+
+		if (sourceLocation == None) { None } else { Option(sourceLocation.get.id) }
+	}
+
+	def iterateSourceFileWith[T](f: Iterator[SourceFile] => T)(implicit session: Session): T = {
+		val it = sourceFilesQuery.iterator
+		try {
+			f(it)
+		} finally it.close
+	}
+
+	def iterateSourceLocationWith[T](f: Iterator[SourceLocation] => T)(implicit session: Session): T = {
+		val it = sourceLocationsQuery.iterator
+		try {
+			f(it)
+		} finally it.close
 	}
 }

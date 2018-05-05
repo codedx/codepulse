@@ -20,12 +20,35 @@
 package com.secdec.codepulse.data.model.slick
 
 import scala.slick.jdbc.JdbcBackend.Database
-
-import com.secdec.codepulse.data.model.{ SourceDataAccess, SourceFile }
+import com.secdec.codepulse.data.model.{SourceDataAccess, SourceFile, SourceLocation}
 
 private[slick] class SlickSourceDataAccess(dao: SourceDataDao, db: Database) extends SourceDataAccess {
 	def importSourceFiles(sourceFileMap: Map[String, Int]) = {
 		val sourceFiles = sourceFileMap.map { case (file, id) => SourceFile(id, file) }
 		db withTransaction { implicit transaction => dao.storeSourceFiles(sourceFiles) }
+	}
+
+	def getSourceLocationId(sourceFileId: Int, startLine: Int, endLine: Int, startCharacter: Option[Int], endCharacter: Option[Int]): Int = {
+		db withTransaction { implicit transaction => dao.getOrInsertSourceLocation(sourceFileId, startLine, endLine, startCharacter, endCharacter) }
+	}
+
+	def foreachSourceFile(f: SourceFile => Unit) {
+		iterateSourceFile { _.foreach(f) }
+	}
+
+	def foreachSourceLocation(f: SourceLocation => Unit) {
+		iterateSourceLocation { _.foreach(f) }
+	}
+
+	def iterateSourceFile[T](f: Iterator[SourceFile] => T): T = {
+		db withSession { implicit session =>
+			dao.iterateSourceFileWith(f)
+		}
+	}
+
+	def iterateSourceLocation[T](f: Iterator[SourceLocation] => T): T = {
+		db withSession { implicit session =>
+			dao.iterateSourceLocationWith(f)
+		}
 	}
 }

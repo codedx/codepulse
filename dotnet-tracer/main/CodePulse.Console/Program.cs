@@ -595,7 +595,7 @@ namespace CodePulse.Console
             public readonly List<string> UnvisitedMethods = new List<string>();
         }
 
-        private static void CalculateAndDisplayResults(CoverageSession coverageSession, ICommandLine parser)
+        private static void CalculateAndDisplayResults(CoverageSession coverageSession, CommandLineParser parser)
         {
             if (!Logger.IsInfoEnabled)
                 return;
@@ -605,10 +605,26 @@ namespace CodePulse.Console
             if (coverageSession.Modules != null)
             {
                 CalculateResults(coverageSession, results);
-            }
+
+	            if (parser.LogModules)
+	            {
+					foreach (var module in coverageSession.Modules)
+					{
+						Logger.InfoFormat("A: {0}", module.ModuleName);
+						foreach (var @class in module.Classes)
+						{
+							Logger.InfoFormat("  C: {0}", @class.FullName);
+							foreach (var method in @class.Methods)
+							{
+								Logger.InfoFormat("    M: {0}", method.FullName);
+							}
+						}
+					}
+				}
+			}
 
             DisplayResults(coverageSession, parser, results);
-        }
+		}
 
         private static void CalculateResults(CoverageSession coverageSession, Results results)
         {
@@ -650,7 +666,7 @@ namespace CodePulse.Console
             }
         }
 
-        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, Results results)
+        private static void DisplayResults(CoverageSession coverageSession, CommandLineParser parser, Results results)
         {
             if (coverageSession.Summary.NumClasses > 0)
             {
