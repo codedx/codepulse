@@ -38,7 +38,7 @@ namespace CodePulse.Client.Test
         public void WhenSenderStartsItRunsUntilShutdown()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
             var binaryWriter = new Mock<BinaryWriter>();
             var errorHandler = new Mock<IErrorHandler>();
             var logger = new Mock<ILog>();

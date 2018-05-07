@@ -24,7 +24,9 @@ using System;
 using System.Threading.Tasks;
 using CodePulse.Client.Message;
 using CodePulse.Client.Queue;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace CodePulse.Client.Test
 {
@@ -35,7 +37,7 @@ namespace CodePulse.Client.Test
         public void WhenServiceIsSuspendedObtainBufferReturnsNull()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
             var service = new PooledBufferService(bufferPool);
 
             // act
@@ -51,7 +53,7 @@ namespace CodePulse.Client.Test
         public void WhenServiceIsPausedObtainBufferBlocks()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
             var service = new PooledBufferService(bufferPool);
 
             // act
@@ -86,7 +88,7 @@ namespace CodePulse.Client.Test
         public void WhenServiceIsNotSuspendedBufferIsReturned()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
             var service = new PooledBufferService(bufferPool);
 
             // act
@@ -100,7 +102,7 @@ namespace CodePulse.Client.Test
         public void WhenBufferRelinquishedReadableBufferCountIncreases()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
             var service = new PooledBufferService(bufferPool);
             var readableBuffersBefore = bufferPool.ReadableBuffers;
 

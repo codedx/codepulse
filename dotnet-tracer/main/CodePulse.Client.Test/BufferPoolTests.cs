@@ -25,7 +25,9 @@ using System.IO;
 using System.Threading.Tasks;
 using CodePulse.Client.Queue;
 using CodePulse.Client.Util;
+using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace CodePulse.Client.Test
 {
@@ -36,7 +38,7 @@ namespace CodePulse.Client.Test
         public void WhenDataReadTheTotalReadableBuffersCountIsZero()
         {
             // arrange
-            var bufferPool = new BufferPool(1, 9);
+            var bufferPool = new BufferPool(1, 9, new Mock<ILog>().Object);
             var memoryStream = bufferPool.AcquireForWriting();
             memoryStream.Write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8}, 0, 9);
             bufferPool.Release(memoryStream);
@@ -63,7 +65,7 @@ namespace CodePulse.Client.Test
         public void WhenOneBufferIsFullOtherPartialBufferIsNotReturnedForReading()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
 
             var fullBuffer = bufferPool.AcquireForWriting();
             fullBuffer.Write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8}, 0, 9);
@@ -84,7 +86,7 @@ namespace CodePulse.Client.Test
         public void WhenOneBufferIsFullOtherPartialBufferReturnedForWriting()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
 
             var fullBuffer = bufferPool.AcquireForWriting();
             fullBuffer.Write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8}, 0, 9);
@@ -105,7 +107,7 @@ namespace CodePulse.Client.Test
         public void WhenAllBuffersReadAndReturnedPoolIsEmpty()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 9);
+            var bufferPool = new BufferPool(2, 9, new Mock<ILog>().Object);
 
             var fullBuffer = bufferPool.AcquireForWriting();
             fullBuffer.Write(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8}, 0, 9);
@@ -132,7 +134,7 @@ namespace CodePulse.Client.Test
         public void WhenWriteDisabledCannotAcquireForWriting()
         {
             // arrange
-            var bufferPool = new BufferPool(1, 10);
+            var bufferPool = new BufferPool(1, 10, new Mock<ILog>().Object);
 
             var memoryStream = bufferPool.AcquireForWriting();
             memoryStream.WriteByte(1);
@@ -152,7 +154,7 @@ namespace CodePulse.Client.Test
         public void WhenAllBuffersFilledBlockingOccurs()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 5);
+            var bufferPool = new BufferPool(2, 5, new Mock<ILog>().Object);
 
             var stream1 = bufferPool.AcquireForWriting();
             stream1.Write(new byte[] {0, 1, 2, 3, 4}, 0, 5);
@@ -177,7 +179,7 @@ namespace CodePulse.Client.Test
         public void WhenNoDataBlockingOccurs()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 5);
+            var bufferPool = new BufferPool(2, 5, new Mock<ILog>().Object);
 
             // act
             var task = Task.Run(() =>
@@ -194,7 +196,7 @@ namespace CodePulse.Client.Test
         public void WhenDataBecomesAvailableBlockingClears()
         {
             // arrange
-            var bufferPool = new BufferPool(2, 5);
+            var bufferPool = new BufferPool(2, 5, new Mock<ILog>().Object);
 
             // act
             var task = Task.Run(() =>
