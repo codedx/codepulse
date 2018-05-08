@@ -61,7 +61,7 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 		val sourceLocation = getSourceLocationId(sourceFileId, startLine, endLine, startCharacter, endCharacter)
 		if (sourceLocation == None) {
 			try {
-				return sourceLocationsQuery += SourceLocation(0, sourceFileId, startLine, endLine, startCharacter, endCharacter)
+				return sourceLocationsQuery returning sourceLocationsQuery.map(_.id) += SourceLocation(0, sourceFileId, startLine, endLine, startCharacter, endCharacter)
 			} catch {
 				case _: Throwable => {
 					// assume race condition occurred

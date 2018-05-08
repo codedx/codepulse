@@ -142,11 +142,9 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 	def getAllEncounters(): List[(Int, Option[Int])] = // get all encounters
 		bufferLock.synchronized {
 			var encounterList = collection.mutable.ListBuffer.empty[(Int, Option[Int])]
-			val nodeMaps = recordingEncounters.map(_._2)
 			for {
-				nodeMap <- nodeMaps
-				nodeId <- nodeMap.keys
-				sourceLocationId <- nodeMap.get(nodeId).get // what if sourceLocationId is NULL?
+				nodeId <- unassociatedEncounters.keys
+				sourceLocationId <- unassociatedEncounters.get(nodeId).get
 			}
 			{
 				val sourceLocationEncounter = (nodeId, sourceLocationId)
