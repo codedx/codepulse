@@ -31,7 +31,7 @@ import com.secdec.codepulse.data.model._
   *
   * @author robertf
   */
-private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val driver: JdbcProfile, metadataAccess: SlickProjectMetadataAccess with ProjectMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends ProjectData {
+class SlickProjectData(val id: ProjectId, val db: Database, val driver: JdbcProfile, metadataAccess: SlickProjectMetadataAccess with ProjectMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends ProjectData {
 	private val treeNodeDataDao = new TreeNodeDataDao(driver)
 	private val treeNodeDataAccess = new SlickTreeNodeDataAccess(treeNodeDataDao, db)
 
@@ -51,7 +51,7 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 	def encounters: TraceEncounterDataAccess = encountersAccess
 
 	/** Initialize a blank DB for use. */
-	private[slick] def init() = db withTransaction { implicit transaction =>
+	def init() = db withTransaction { implicit transaction =>
 		treeNodeDataDao.create
 		sourceDataDao.create
 		recordingMetadataDao.create

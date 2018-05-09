@@ -150,7 +150,8 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 				val sourceLocationEncounter = (nodeId, sourceLocationId)
 				encounterList += sourceLocationEncounter
 			}
-			encounterList.toList
+			encounterList ++= recordingEncounters.keys.flatMap(x => getRecordingEncounters(x))
+			encounterList.toSet.toList
 		}
 
 	def getAllNodeEncountersSet(): Set[Int] = // get all encounters

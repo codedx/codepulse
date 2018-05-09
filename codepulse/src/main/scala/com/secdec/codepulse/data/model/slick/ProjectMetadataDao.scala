@@ -26,7 +26,7 @@ import com.secdec.codepulse.data.model._
   *
   * @author robertf
   */
-private[slick] class ProjectMetadataDao(val driver: JdbcProfile) {
+class ProjectMetadataDao(val driver: JdbcProfile) {
 	import driver.simple._
 
 	class ProjectMetadata(tag: Tag) extends Table[(Int, String, String)](tag, "project_metadata") {
