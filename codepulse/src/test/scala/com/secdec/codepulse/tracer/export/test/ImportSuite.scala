@@ -335,8 +335,8 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
       }
     }
 
-    projectsDb = makeDb(projectsDb, "projects")
-    projectDb = makeDb(projectDb, "project")
+    projectsDb = makeDb(projectsDb, "projects-for-import")
+    projectDb = makeDb(projectDb, "project-for-import")
 
     val projectMetadataDao = new ProjectMetadataDao(H2Driver)
 

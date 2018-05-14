@@ -223,8 +223,8 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
       }
     }
 
-    projectsDb = makeDb(projectsDb, "projects")
-    projectDb = makeDb(projectDb, "project")
+    projectsDb = makeDb(projectsDb, "projects-for-export")
+    projectDb = makeDb(projectDb, "project-for-export")
 
     val projectMetadataDao = new ProjectMetadataDao(H2Driver)
 

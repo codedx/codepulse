@@ -112,7 +112,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 			}
 		}
 
-		sourceData.importSourceFiles(builder.sourceFiles)
+		sourceData.importSourceFiles(builder.sourceFiles.map((x:((String,String),Int)) => x._1._2 -> x._2))
 
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
