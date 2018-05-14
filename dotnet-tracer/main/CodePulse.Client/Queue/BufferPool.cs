@@ -22,17 +22,21 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.IO;
+using log4net;
 
 namespace CodePulse.Client.Queue
 {
     public class BufferPool
     {
-        private readonly BlockingCollection<MemoryStream> _emptyBuffers;
-        private readonly BlockingCollection<MemoryStream> _partialBuffers;
-        private readonly BlockingCollection<MemoryStream> _fullBuffers;
+	    private readonly object _readLock = new object();
+
+		private readonly BlockingCollection<NamedMemoryStream> _emptyBuffers;
+        private readonly BlockingCollection<NamedMemoryStream> _partialBuffers;
+        private readonly BlockingCollection<NamedMemoryStream> _fullBuffers;
 
         private readonly int _fullThreshold;
+	    private readonly ILog _logger;
+
         private volatile bool _writeDisabled;
 
         public int ReadableBuffers => _fullBuffers.Count + _partialBuffers.Count;
@@ -40,21 +44,25 @@ namespace CodePulse.Client.Queue
         public bool IsEmpty => _emptyBuffers.Count == _emptyBuffers.BoundedCapacity &&
                                _partialBuffers.Count == 0 && _fullBuffers.Count == 0;
 
-        public BufferPool(int numBuffers, int initialBufferCapacity)
+        public BufferPool(int numBuffers, int initialBufferCapacity, ILog logger)
         {
-            _fullThreshold = (int) (initialBufferCapacity * 0.9);
+	        _fullThreshold = (int) (initialBufferCapacity * 0.9);
+	        _logger = logger;
 
-            _emptyBuffers = new BlockingCollection<MemoryStream>(numBuffers);
-            _partialBuffers = new BlockingCollection<MemoryStream>(numBuffers);
-            _fullBuffers = new BlockingCollection<MemoryStream>(numBuffers);
+            _emptyBuffers = new BlockingCollection<NamedMemoryStream>(numBuffers);
+            _partialBuffers = new BlockingCollection<NamedMemoryStream>(numBuffers);
+            _fullBuffers = new BlockingCollection<NamedMemoryStream>(numBuffers);
 
             for (var i = 0; i < numBuffers; i++)
             {
-                _emptyBuffers.Add(new MemoryStream(initialBufferCapacity));
+	            var stream = new NamedMemoryStream(initialBufferCapacity);
+
+				_logger.DebugFormat("Created stream {0}", stream.Name);
+				_emptyBuffers.Add(stream);
             }
         }
 
-        public MemoryStream AcquireForWriting()
+        public NamedMemoryStream AcquireForWriting()
         {
             while (true)
             {
@@ -63,50 +71,66 @@ namespace CodePulse.Client.Queue
                     return null;
                 }
 
-                if (_partialBuffers.TryTake(out MemoryStream partialStream))
+                if (_partialBuffers.TryTake(out var partialStream))
                 {
-                    return partialStream;
+	                _logger.DebugFormat("Partial stream {0} acquired for writing", partialStream.Name);
+					return partialStream;
                 }
 
-                if (_emptyBuffers.TryTake(out MemoryStream emptyStream, 1))
+                if (_emptyBuffers.TryTake(out var emptyStream, 1))
                 {
-                    return emptyStream;
+	                _logger.DebugFormat("Empty stream {0} acquired for writing", emptyStream.Name);
+					return emptyStream;
                 }
             }
         }
 
-        public MemoryStream AcquireForReading(TimeSpan timeout)
+        public NamedMemoryStream AcquireForReading(TimeSpan timeout)
         {
             var now = DateTime.UtcNow;
             while (timeout == TimeSpan.MaxValue || DateTime.UtcNow.Subtract(now).TotalMilliseconds < timeout.TotalMilliseconds)
             {
-                if (_fullBuffers.TryTake(out MemoryStream fullStream))
-                {
-                    return fullStream;
-                }
+    	        lock (_readLock) // avoid potential race condition where partial buffer read before full buffer
+    	        {
+			        if (_fullBuffers.TryTake(out var fullStream))
+			        {
+						_logger.DebugFormat("Full stream {0} acquired for reading", fullStream.Name);
+						return fullStream;
+			        }
 
-                if (_partialBuffers.TryTake(out MemoryStream partialStream, 1))
-                {
-                    return partialStream;
-                }
-            }
-            return null;
-        }
+			        if (_partialBuffers.TryTake(out var partialStream, 1))
+			        {
+						_logger.DebugFormat("Partial stream {0} acquired for reading", partialStream.Name);
+						return partialStream;
+			        }
+		        }
+	        }
+	        return null;
+		}
 
-        public void Release(MemoryStream stream)
+		public void Release(NamedMemoryStream stream)
         {
             var bufferSize = stream.Length;
             if (bufferSize == 0)
             {
                 _emptyBuffers.Add(stream);
+                _logger.DebugFormat("Stream {0} returned empty", stream.Name);
             }
             else if (bufferSize < _fullThreshold)
             {
-                _partialBuffers.Add(stream);
+			    lock (_readLock)
+			    {
+				    _partialBuffers.Add(stream);
+				}
+			    _logger.DebugFormat("Stream {0} returned partially full", stream.Name);
             }
             else
             {
-                _fullBuffers.Add(stream);
+			    lock (_readLock)
+			    {
+				    _fullBuffers.Add(stream);
+			    }
+			    _logger.DebugFormat("Stream {0} returned full", stream.Name);
             }
         }
 

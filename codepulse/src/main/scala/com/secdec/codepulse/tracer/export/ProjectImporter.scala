@@ -66,7 +66,8 @@ class ProjectImportException(msg: String, cause: Exception = null) extends IOExc
   */
 object ProjectImporter {
 	val Importers = Map[Int, ProjectImportReader](
-		1 -> ProjectImportReaderV1)
+		1 -> new ProjectImportReaderV1,
+		2 -> new ProjectImportReaderV2)
 
 	def canImportFrom(file: File) = {
 		val zip = new ZipFile(file)

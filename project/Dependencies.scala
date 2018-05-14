@@ -28,6 +28,7 @@ object Dependencies {
 
 	lazy val logging = Seq(
 		"ch.qos.logback" % "logback-classic" % "0.9.26" % "compile->default",
+		"org.slf4j" % "slf4j-api" % "1.6.4",
 		"org.slf4j" % "jcl-over-slf4j" % "1.6.4",
 		"org.codehaus.groovy" % "groovy-all" % "2.4.13"
 	)

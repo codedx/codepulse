@@ -635,7 +635,7 @@ object ActivityRequest {
 
 	case class RecordingActivity(recordingId: Int) extends ActivityRequest {
 		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
-			projectData.encounters.get(recordingId)
+			projectData.encounters.getRecordingNodeEncountersSet(recordingId)
 		}
 	}
 	case class RecentActivity(windowDuration: Int) extends ActivityRequest {
@@ -646,7 +646,7 @@ object ActivityRequest {
 	}
 	case object AllActivity extends ActivityRequest {
 		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
-			projectData.encounters.get
+			projectData.encounters.getAllNodeEncountersSet()
 		}
 	}
 

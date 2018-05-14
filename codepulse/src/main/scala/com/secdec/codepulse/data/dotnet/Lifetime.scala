@@ -23,8 +23,9 @@ import java.io.File
 import java.nio.file.Paths
 import scala.sys.process._
 
-import com.typesafe.config.ConfigFactory
 import net.liftweb.common.Loggable
+import com.secdec.codepulse.userSettings
+import com.secdec.codepulse.systemSettings
 
 import bootstrap.liftweb.AppCleanup
 
@@ -39,11 +40,11 @@ class SymbolService extends Lifetime with Loggable {
 	override def create: Unit = {
 		logger.debug("attempt to create SymbolService")
 		try {
-			val config = ConfigFactory.load()
-			val symbolServiceBinary = config.getString("cp.symbol_service.binary")
-			val symbolServiceLocation = config.getString("cp.symbol_service.location")
+			val symbolServiceBinary = systemSettings.symbolServiceBinary
+			val symbolServiceLocation = systemSettings.symbolServiceLocation
+
 			val binaryPath = Paths.get(symbolServiceLocation, symbolServiceBinary).toString
-			val port = config.getString("cp.symbol_service.port")
+			val port = userSettings.symbolServicePort
 			var url = s"http://*:$port"
 
 			var binaryCanonical = new File(binaryPath).getCanonicalPath

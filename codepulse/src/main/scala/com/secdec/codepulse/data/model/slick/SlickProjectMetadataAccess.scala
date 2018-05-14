@@ -29,7 +29,7 @@ import net.liftweb.util.Helpers.AsBoolean
   *
   * @author robertf
   */
-private[slick] class SlickProjectMetadataMaster(dao: ProjectMetadataDao, db: Database) {
+class SlickProjectMetadataMaster(dao: ProjectMetadataDao, db: Database) {
 	def get(projectId: Int) = new SlickProjectMetadataAccess(projectId, dao, db) with DefaultProjectMetadataUpdates with ProjectMetadata
 }
 

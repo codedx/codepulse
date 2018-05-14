@@ -31,7 +31,7 @@ import com.secdec.codepulse.data.model._
   *
   * @author robertf
   */
-private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val driver: JdbcProfile, metadataAccess: SlickProjectMetadataAccess with ProjectMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends ProjectData {
+class SlickProjectData(val id: ProjectId, val db: Database, val driver: JdbcProfile, metadataAccess: SlickProjectMetadataAccess with ProjectMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends ProjectData {
 	private val treeNodeDataDao = new TreeNodeDataDao(driver)
 	private val treeNodeDataAccess = new SlickTreeNodeDataAccess(treeNodeDataDao, db)
 
@@ -41,7 +41,7 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 	private val recordingMetadataDao = new RecordingMetadataDao(driver)
 	private val recordingMetadataAccess = new SlickRecordingMetadataAccess(recordingMetadataDao, db)
 
-	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao)
+	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao, sourceDataDao)
 	private val encountersAccess = new SlickTraceEncounterDataAccess(encountersDao, db, encounterBufferSize, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem)
 
 	def metadata: ProjectMetadata = metadataAccess
@@ -51,7 +51,7 @@ private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val d
 	def encounters: TraceEncounterDataAccess = encountersAccess
 
 	/** Initialize a blank DB for use. */
-	private[slick] def init() = db withTransaction { implicit transaction =>
+	def init() = db withTransaction { implicit transaction =>
 		treeNodeDataDao.create
 		sourceDataDao.create
 		recordingMetadataDao.create

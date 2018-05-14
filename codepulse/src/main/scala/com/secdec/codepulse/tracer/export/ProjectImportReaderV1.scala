@@ -32,13 +32,38 @@ import net.liftweb.util.Helpers.AsInt
   *
   * @author robertf
   */
-object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpers with JsonHelpers {
+class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpers with JsonHelpers {
+
 	def doImport(zip: ZipFile, destination: ProjectData) {
+		readProjectJson(zip, destination)
+		readNodesJson(zip, destination)
+		readMethodMappingsJson(zip, destination)
+		readJspMappingsJson(zip, destination)
+		val recMap = readRecordingsJson(zip, destination)
+		readEncountersJson(zip, recMap, destination)
+	}
+
+	protected def readProjectJson(zip:ZipFile, destination: ProjectData): Unit = {
 		read(zip, "project.json") { readMetadata(_, destination.metadata) }
+	}
+
+	protected def readNodesJson(zip:ZipFile, destination: ProjectData): Unit = {
 		read(zip, "nodes.json") { readTreeNodeData(_, destination.treeNodeData) }
+	}
+
+	protected def readMethodMappingsJson(zip:ZipFile, destination: ProjectData): Unit = {
 		read(zip, "method-mappings.json") { readMethodMappings(_, destination.treeNodeData) }
+	}
+
+	protected def readJspMappingsJson(zip: ZipFile, destination: ProjectData): Unit = {
 		read(zip, "jsp-mappings.json") { readJspMappings(_, destination.treeNodeData) }
-		val recMap = read(zip, "recordings.json", Map.empty[Int, Int]) { readRecordings(_, destination.recordings) }
+	}
+
+	protected def readRecordingsJson(zip: ZipFile, destination: ProjectData): Map[Int, Int] = {
+		read(zip, "recordings.json", Map.empty[Int, Int]) { readRecordings(_, destination.recordings) }
+	}
+
+	protected def readEncountersJson(zip: ZipFile, recMap: Map[Int,Int], destination: ProjectData): Unit = {
 		read(zip, "encounters.json") { readEncounters(_, recMap, destination.encounters) }
 	}
 
@@ -64,7 +89,6 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 	}
 
 	private def readTreeNodeData(in: InputStream, treeNodeData: TreeNodeDataAccess) {
-		import treeNodeData.ExtendedTreeNodeData
 		import JsonToken._
 
 		readJson(in) { jp =>
@@ -271,7 +295,7 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 
 		readJson(in) { jp =>
 			if (jp.nextToken != START_OBJECT)
-				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
+				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_OBJECT.")
 
 			var all = Nil: List[Int]
 			var inRec = collection.mutable.Set.empty[Int]
@@ -280,7 +304,7 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 				val rec = jp.getCurrentName
 
 				if (jp.getCurrentToken != START_ARRAY)
-					throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_OBJECT.")
+					throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
 				val values = collection.mutable.ListBuffer.empty[Int]
 
@@ -294,14 +318,16 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 					case AsInt(recId) =>
 						val result = values.result
 						inRec ++= result
-						encounters.record(recId :: Nil, result)
+
+						val newRecordingId = recordingMap(recId)
+						encounters.record(newRecordingId :: Nil, result.map(x => x -> None))
 
 					case _ => throw new ProjectImportException("Invalid recording ID for encounters map.")
 				}
 			}
 
 			// we only need to store (all - inRec)
-			encounters.record(Nil, (all.toSet -- inRec).toList)
+			encounters.record(Nil, (all.toSet -- inRec).toList.map(x => x -> None))
 
 			if (jp.nextToken != null)
 				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected EOF.")

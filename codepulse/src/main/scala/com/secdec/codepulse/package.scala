@@ -30,6 +30,7 @@ import com.typesafe.config.ConfigFactory
 import java.io.File
 import com.typesafe.config.ConfigRenderOptions
 import java.io.FileWriter
+import ch.qos.logback.classic.Level
 import com.typesafe.config.ConfigValueFactory
 
 /** @author dylanh
@@ -70,18 +71,61 @@ package object codepulse {
 	}
 
 	object userSettings {
-		private val configFile = paths.appData / "codepulse.conf"
+		private val configFile = paths.appData / "codepulseSettings.conf"
 		private var config =
 			ConfigFactory
 				.parseFile(configFile)
 				.withFallback(ConfigFactory.load())
-				.withOnlyPath("cp")
+				.withOnlyPath("cp.userSettings") // do not return systemSettings, which could get persisted to disk later on
 
-		def tracePort = config.getInt("cp.trace_port")
+		def tracePort = config.getInt("cp.userSettings.tracePort")
 		def tracePort_=(newPort: Integer) = {
-			config = config.withValue("cp.trace_port", ConfigValueFactory.fromAnyRef(newPort, "specified value"))
+			config = config.withValue("cp.userSettings.tracePort", ConfigValueFactory.fromAnyRef(newPort, "specified value"))
 			saveToAppData
 			newPort
+		}
+
+		def symbolServicePort = config.getString("cp.userSettings.symbolService.port")
+
+		def secdecLoggingLevel: Option[Level] = {
+			getLogLevel(config, "cp.userSettings.logging.secdecLoggingLevel")
+		}
+
+		def codedxLoggingLevel: Option[Level] = {
+			getLogLevel(config, "cp.userSettings.logging.codedxLoggingLevel")
+		}
+
+		def bootstrapLoggingLevel: Option[Level] = {
+			getLogLevel(config, "cp.userSettings.logging.bootstrapLoggingLevel")
+		}
+
+		def liftwebLoggingLevel: Option[Level] = {
+			getLogLevel(config, "cp.userSettings.logging.liftwebLoggingLevel")
+		}
+
+		def rootLoggingLevel: Option[Level] = {
+			getLogLevel(config, "cp.userSettings.logging.rootLoggingLevel")
+		}
+
+		private def getLogLevel(config: Config, setting: String): Option[Level] = {
+			if (!config.hasPath(setting)) return None
+
+			var logLevel = config.getString(setting)
+			if (logLevel == null) return None
+
+			logLevel = logLevel.trim().toUpperCase()
+			if (logLevel.isEmpty()) return None
+
+			logLevel match {
+				case "OFF" => Option(Level.OFF)
+				case "ERROR" => Option(Level.ERROR)
+				case "WARN" => Option(Level.WARN)
+				case "INFO" => Option(Level.INFO)
+				case "DEBUG" => Option(Level.DEBUG)
+				case "TRACE" => Option(Level.TRACE)
+				case "ALL" => Option(Level.ALL)
+				case _ => None
+			}
 		}
 
 		if (!configFile.exists())
@@ -95,5 +139,12 @@ package object codepulse {
 			writer.write(output)
 			writer.close()
 		}
+	}
+
+	object systemSettings {
+		private var config = ConfigFactory.load().withOnlyPath("cp.systemSettings")
+
+		def symbolServiceBinary = config.getString("cp.systemSettings.symbolService.binary")
+		def symbolServiceLocation = config.getString("cp.systemSettings.symbolService.location")
 	}
 }

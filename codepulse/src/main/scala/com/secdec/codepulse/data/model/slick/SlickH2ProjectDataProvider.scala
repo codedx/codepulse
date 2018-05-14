@@ -41,7 +41,7 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 
 	private val cache = collection.mutable.Map.empty[ProjectId, SlickProjectData]
 
-	val MasterDbName = "master"
+	val MasterDbName = "projects"
 	val PageStoreFileSuffix = ".h2.db"
 	val MultiVersionStoreFileSuffix = ".mv.db"
 

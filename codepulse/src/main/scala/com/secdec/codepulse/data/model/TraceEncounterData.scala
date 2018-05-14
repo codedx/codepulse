@@ -24,7 +24,9 @@ package com.secdec.codepulse.data.model
   * @author robertf
   */
 trait TraceEncounterDataAccess {
-	def record(recordings: List[Int], encounteredNodes: List[Int]): Unit
-	def get(): Set[Int]
-	def get(recording: Int): Set[Int]
+	def record(recordings: List[Int], encounteredNodes: List[(Int, Option[Int])]): Unit
+	def getAllEncounters(): List[(Int, Option[Int])]
+	def getAllNodeEncountersSet(): Set[Int]
+	def getRecordingEncounters(recordingId: Int): List[(Int, Option[Int])]
+	def getRecordingNodeEncountersSet(recordingId: Int): Set[Int]
 }
