@@ -79,11 +79,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		val jspAdapter = new JasperJspAdapter
 
 		val loader = SmartLoader
-		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
+		val pathStore = new HashMap[(String, String), Set[Option[FilePath]]] with MultiMap[(String, String), Option[FilePath]]
 
 		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
 			val entryPath = FilePath(entry.getName)
-			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
+			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
+			entryPath.foreach(ep => pathStore.addBinding((groupName, ep.name), Some(ep)))
 		}
 
 		def getPackageFromSig(sig: String): String = {
@@ -93,8 +94,8 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			packagePart.mkString("/")
 		}
 
-		def authoritativePath(filePath: FilePath): Option[FilePath] = {
-			pathStore.get(filePath.name) match {
+		def authoritativePath(group: String, filePath: FilePath): Option[FilePath] = {
+			pathStore.get((group, filePath.name)) match {
 				case None => None
 				case Some(fps) => {
 					fps.flatten.find { authority => PathNormalization.isLocalizedInAuthorityPath(authority, filePath) }
@@ -112,7 +113,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 							(file, name, size) <- methods
 							pkg = getPackageFromSig(name)
 							filePath = FilePath(Array(pkg, file).mkString("/"))
-							authority = filePath.flatMap(authoritativePath).map(_.toString)
+							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
 							treeNode <- builder.getOrAddMethod(groupName, name, size, authority)
 						} methodCorrelationsBuilder += (name -> treeNode.id)
 
@@ -132,11 +133,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			}
 		}
 
-		sourceData.importSourceFiles(builder.sourceFiles)
 
 		val jspCorrelations = jspAdapter build builder
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
+
+		sourceData.importSourceFiles(builder.sourceFiles)
 
 		if (treemapNodes.isEmpty) {
 			throw new NoSuchElementException("No method data found in analyzed upload file.")

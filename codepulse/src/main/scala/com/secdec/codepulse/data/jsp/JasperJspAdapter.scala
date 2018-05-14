@@ -49,6 +49,12 @@ class JasperJspAdapter extends JspAdapter {
 				.map { case (clazz, size) => clazz.substring(parentLen) -> size }
 		}
 
+		val sourceFiles = jsps map {
+			case (clazz, size) => clazz
+		}
+
+		codeForestBuilder.addExternalSourceFiles(CodeForestBuilder.JSPGroupName, sourceFiles)
+
 		// build up
 		jsps map {
 			case (clazz, size) =>

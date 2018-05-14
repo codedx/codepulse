@@ -49,6 +49,8 @@ trait CodeTreeNode {
 		didAdd
 	}
 
+	def getParent = parent
+
 	/* Recursively call the `callback` function on this node and all of its descendants */
 	def visitTree(callback: CodeTreeNode => Unit): Unit = {
 		callback(this)

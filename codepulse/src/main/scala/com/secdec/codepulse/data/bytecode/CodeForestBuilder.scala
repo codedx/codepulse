@@ -36,7 +36,7 @@ class CodeForestBuilder {
 
 	private val roots = SortedSet.empty[CodeTreeNode]
 	private var nodeFactory = CodeTreeNodeFactory.mkDefaultFactory
-	private val sourceFileIdMap = collection.mutable.Map.empty[String, Int]
+	private val sourceFileIdMap = collection.mutable.Map.empty[(String, String), Int]
 	private val sourceFileIds = Iterator from 1
 
 	def clear(): this.type = {
@@ -55,9 +55,29 @@ class CodeForestBuilder {
 			val parentId = node.parentId
 			val kind = node.kind
 			val size = node.size
-			val sourceFileId = node.sourceFile.flatMap(sourceFileIdMap.get(_))
+			val rootGroup = getRootGroup(Some(node))
+			val sourceF = node.sourceFile
+			val sourceFileId = node.sourceFile.flatMap(source => getSourceFileId(rootGroup, source))
 			root -> TreeNodeData(id, parentId, name, kind, size, sourceFileId)
 		}
+	}
+
+	def getSourceFileId(group: String, sourceFile: String): Option[Int] = {
+		sourceFileIdMap.get(group, sourceFile) match {
+			case Some(v) => Some(v)
+			case None => None
+		}
+	}
+
+	def getRootGroup(node: Option[CodeTreeNode]): String = {
+		(for {
+			n <- node
+		} yield {
+			n.kind match {
+				case CodeTreeNodeKind.Grp => n.name
+				case _ => getRootGroup(n.getParent)
+			}
+		}) getOrElse ("")
 	}
 
 	def sourceFiles = sourceFileIdMap.toMap
@@ -76,13 +96,13 @@ class CodeForestBuilder {
 	}
 
 	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: Option[String]): Option[CodeTreeNode] = {
-		sourceFile.foreach(addSourceFile)
+		sourceFile.foreach(addSourceFile(group, _))
 
 		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile) }
 	}
 
 	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: Option[String]): CodeTreeNode = {
-		sourceFile.foreach(addSourceFile)
+		sourceFile.foreach(addSourceFile(group, _))
 
 		val treePath = CodePath.parse(sig)
 		val startNode = addRootGroup(group)
@@ -97,7 +117,7 @@ class CodeForestBuilder {
 	}
 
 	def getOrAddJsp(path: List[String], size: Int, sourceFile: Option[String]): CodeTreeNode = {
-		sourceFile.foreach(addSourceFile)
+		sourceFile.foreach(addSourceFile(JSPGroupName, _))
 
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
 			case className :: Nil => addChildMethod(parent, className, size, sourceFile)
@@ -107,11 +127,15 @@ class CodeForestBuilder {
 		recurse(addRootGroup(JSPGroupName), path)
 	}
 
-	protected def addSourceFile(sourceFile: String) = {
-		sourceFileIdMap.get(sourceFile) match {
+	protected def addSourceFile(group: String, sourceFile: String) = {
+		sourceFileIdMap.get((group, sourceFile)) match {
 			case Some(id) =>
-			case None => sourceFileIdMap.put(sourceFile, sourceFileIds.next)
+			case None => sourceFileIdMap.put((group, sourceFile), sourceFileIds.next)
 		}
+	}
+
+	def addExternalSourceFiles(group: String, sourceFiles: List[String]) = {
+		sourceFiles.foreach(addSourceFile(group, _))
 	}
 
 	protected def addRootGroup(name: String) = {
@@ -134,7 +158,7 @@ class CodeForestBuilder {
 	}
 
 	protected def addFolder(parent: CodeTreeNode, name: String) = {
-		val grpName = parent.name + " / " + name
+		val grpName = parent.name + "/" + name
 		parent.findChild { node =>
 			node.name == grpName && node.kind == CodeTreeNodeKind.Grp
 		} getOrElse {

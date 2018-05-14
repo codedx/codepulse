@@ -75,15 +75,16 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
 		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(new File(storage.name)) _
-		val pathStore = new HashMap[String, Set[Option[FilePath]]] with MultiMap[String, Option[FilePath]]
+		val pathStore = new HashMap[(String, String), Set[Option[FilePath]]] with MultiMap[(String, String), Option[FilePath]]
 
 		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
 			val entryPath = FilePath(entry.getName)
-			entryPath.foreach(ep => pathStore.addBinding(ep.name, Some(ep)))
+			val groupName = if (filename == storage.name) group else s"JARs/${filename substring storage.name.length + 1}"
+			entryPath.foreach(ep => pathStore.addBinding((groupName, ep.name), Some(ep)))
 		}
 
-		def authoritativePath(filePath: FilePath): Option[FilePath] = {
-			pathStore.get(filePath.name) match {
+		def authoritativePath(group: String, filePath: FilePath): Option[FilePath] = {
+			pathStore.get((group, filePath.name)) match {
 				case None => None
 				case Some(fps) => {
 					fps.flatten.find { authority => PathNormalization.isLocalizedSameAsAuthority(authority, filePath) }
@@ -101,7 +102,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						for {
 							(sig, size) <- methods
 							filePath = FilePath(sig.file)
-							authority = filePath.flatMap(authoritativePath).map(_.toString)
+							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
 							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
