@@ -25,7 +25,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
       val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.pulse").getPath)
       val importer = new ProjectImportReaderV2()
       importer.doImport(file, data)
-      data.flush()
+      data.flush(); Thread.sleep(5000)
 
       assertMethodSignature(Set[(String,Int)](
         "com/codedx/invokeamethod/Main.<init>;1;()V" ->	5,
@@ -154,7 +154,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
       val file = new ZipFile(getClass.getResource("InvokeAMethod.v1.pulse").getPath)
       val importer = new ProjectImportReaderV1()
       importer.doImport(file, data)
-      data.flush()
+      data.flush(); Thread.sleep(5000)
 
       assertMethodSignature(Set[(String,Int)](
         "com/codedx/invokeamethod/Main.<init>;1;()V" ->	5,
@@ -335,8 +335,8 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
       }
     }
 
-    projectsDb = makeDb(projectsDb, "projects")
-    projectDb = makeDb(projectDb, "project")
+    projectsDb = makeDb(projectsDb, "projects-for-import")
+    projectDb = makeDb(projectDb, "project-for-import")
 
     val projectMetadataDao = new ProjectMetadataDao(H2Driver)
 

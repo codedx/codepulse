@@ -64,16 +64,12 @@ trait MockedSendingHelpers { self: MockFactory =>
 	class MockedProtocolHelper(val latestProtocolVersion: Int = 1) extends ProtocolHelper {
 		val controlReader = mock[ControlMessageReader]
 		val controlWriter = mock[ControlMessageSender]
-		val dataReader = mock[DataEventReader]
 		val protocol = mock[MessageProtocol]
-		val dataMsgReader = mock[DataMessageReader]
 		val dataMsgParser = mock[DataMessageParser]
 
 		def getControlMessageReader(pv: Int) = Some(controlReader)
 		def getControlMessageSender(pv: Int) = Some(controlWriter)
-		def getDataEventReader(pv: Int) = Some(dataReader)
 		def getMessageProtocol(pv: Int) = Some(protocol)
-		def getDataMessageReader(pv: Int) = Some(dataMsgReader)
 		def getDataMessageParser(pv: Int) = Some(dataMsgParser)
 	}
 }
