@@ -83,6 +83,7 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			sameContent should equal(true)
 		}
 
+		// TODO: Need nested file support in load entry - need a path representation
 //		it("should be able to load the contents of a nested file") {
 //			val path = "5.e"
 //			val expectedContent = "This is 5.e"

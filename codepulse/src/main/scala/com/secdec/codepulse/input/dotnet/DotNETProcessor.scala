@@ -79,7 +79,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 
 		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
 			val entryPath = FilePath(entry.getName)
-			val groupName = if (filename == storage.name) group else s"JARs/${filename substring storage.name.length + 1}"
+			val groupName = if (filename == storage.name) group else s"Assemblies/${filename substring storage.name.length + 1}"
 			entryPath.foreach(ep => pathStore.addBinding((groupName, ep.name), Some(ep)))
 		}
 
