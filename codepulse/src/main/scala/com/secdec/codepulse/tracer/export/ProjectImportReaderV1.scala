@@ -25,7 +25,7 @@ import java.util.zip.ZipFile
 import com.fasterxml.jackson.core.JsonToken
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.model._
-
+import com.secdec.codepulse.data.storage.InputStore
 import net.liftweb.util.Helpers.AsInt
 
 /** Reader for version 1 of the .pulse project export files.
@@ -34,7 +34,7 @@ import net.liftweb.util.Helpers.AsInt
   */
 class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpers with JsonHelpers {
 
-	def doImport(zip: ZipFile, destination: ProjectData) {
+	def doImport(inputStore: InputStore, zip: ZipFile, destination: ProjectData) {
 		readProjectJson(zip, destination)
 		readNodesJson(zip, destination)
 		readMethodMappingsJson(zip, destination)

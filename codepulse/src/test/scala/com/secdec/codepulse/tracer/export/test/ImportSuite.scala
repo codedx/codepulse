@@ -23,8 +23,10 @@ import java.util.zip.ZipFile
 
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.data.model.slick.{ProjectMetadataDao, SlickProjectData, SlickProjectMetadataMaster}
+import com.secdec.codepulse.data.storage.{InputStore, StorageManager}
 import com.secdec.codepulse.tracer.ProjectManager
 import com.secdec.codepulse.tracer.export.{ProjectImportReaderV1, ProjectImportReaderV2}
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSpec}
 
 import scala.concurrent.duration._
@@ -33,38 +35,24 @@ import scala.slick.jdbc.JdbcBackend
 import scala.slick.jdbc.JdbcBackend.Database
 import scala.slick.jdbc.{StaticQuery => Q}
 
-class ImportSuite extends FunSpec with BeforeAndAfter {
+class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
 
   var data: SlickProjectData = _
   var projectsDb: JdbcBackend.DatabaseDef = _
   var projectDb: JdbcBackend.DatabaseDef = _
 
   describe("Version v2 of a project export file") {
-    it("should import source file and location data") {
-      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.pulse").getPath)
-      val importer = new ProjectImportReaderV2()
-      importer.doImport(file, data)
-      data.flush(); Thread.sleep(5000)
+    it("should import source file, location data, and include input file") {
+      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.WithSourceFile.pulse").getPath)
 
-      assertMethodSignature(Set[(String,Int)](
-        "com/codedx/invokeamethod/Main.<init>;1;()V" ->	5,
-        "com/codedx/invokeamethod/Main.Method1;9;()V" -> 6,
-        "com/codedx/invokeamethod/Main.Method2;9;()V" -> 7,
-        "com/codedx/invokeamethod/Main.Method3;9;()V" -> 8,
-        "com/codedx/invokeamethod/Main.Method4;9;()V" -> 9,
-        "com/codedx/invokeamethod/Main.Method5;9;()V" -> 10,
-        "com/codedx/invokeamethod/Main.Method6;9;()V" -> 11,
-        "com/codedx/invokeamethod/Main.Method7;9;()V" -> 12,
-        "com/codedx/invokeamethod/Main.Method8;9;()V" -> 13,
-        "com/codedx/invokeamethod/Main.Method9;9;()V" -> 14,
-        "com/codedx/invokeamethod/Main.MethodInvoked;9;(I)V" -> 15,
-        "com/codedx/invokeamethod/Main.main;9;([Ljava/lang/String;)V" -> 16))
+      val mockInputStore = mock[InputStore]
+      (mockInputStore.storeInput(_,_)).expects(*,*).once()
 
-      assertSourceFile(Set[(Int,String)](
+      val sourceFileSet = Set[(Int,String)](
         1 -> "com/codedx/invokeamethod/Main.java"
-      ))
+      )
 
-      assertSourceLocation(Set[(Int,Int,Int,Int,Option[Int],Option[Int])](
+      val sourceLocationSet = Set[(Int,Int,Int,Int,Option[Int],Option[Int])](
         (1, 1, 52, 52, None, None),
         (2, 1, 53, 53, None, None),
         (3, 1, 7, 7, None, None),
@@ -89,20 +77,9 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
         (22, 1, 99, 99, None, None),
         (23, 1, 103, 103, None, None),
         (24, 1, 107, 107, None, None)
-      ))
+      )
 
-      assertRecordings(Set[Int](1,2))
-
-      assertRecordingMetadata(Set[(Int,String,String)](
-        (1,"running","false"),
-        (2,"running","false"),
-        (1,"clientLabel", "Recording 1"),
-        (2,"clientLabel", "Recording 2"),
-        (1,"clientColor", "#8cd98c"),
-        (2,"clientColor", "#8cd9d9")
-      ))
-
-      assertTreeNodeData(Set[(Int,Option[Int], String, String, Option[Int], Option[Int])](
+      val treeNodeDataSet = Set[(Int,Option[Int], String, String, Option[Int], Option[Int])](
         (0,  None,		  "Classes",									              "g",	None,		    None),
         (3,  Option(0),	"com.codedx.invokeamethod",					      "p",	None,		    None),
         (4,  Option(3),	"Main",							                      "c",	None,		    Option(1)),
@@ -117,19 +94,9 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
         (13, Option(4),	"public static void Method8()",				    "m",	Option(2),	Option(1)),
         (14, Option(4),	"public static void Method9()",				    "m",	Option(2),	Option(1)),
         (15, Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	Option(1)),
-        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	Option(1))
-      ))
+        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	Option(1)))
 
-      assertTraceNodes(Set[(Int,Boolean)](
-        0 -> true,
-        3 -> true
-      ))
-
-      assertJspNodeMap(Set.empty[(String,Int)])
-
-      assertTraceNodeFlags(Set.empty[(Int,String)])
-
-      assertNodeEncounters(Set[(Option[Int],Int,Option[Int])](
+      val nodeEncountersSet = Set[(Option[Int],Int,Option[Int])](
         (Option(1),	10,	Option(10)),
         (Option(1),	10,  None),
         (Option(1),	10,	Option(9)),
@@ -164,15 +131,118 @@ class ImportSuite extends FunSpec with BeforeAndAfter {
         (None,	7,	Option(5)),
         (None,	16,	Option(23)),
         (None,	8,	Option(7))
-      ))
+      )
+
+      assertV2Import(mockInputStore, file, sourceFileSet,sourceLocationSet, treeNodeDataSet, nodeEncountersSet)
     }
+  }
+
+  describe("Version v2 of a project created from a legacy export file") {
+    it("should not include input file") {
+      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.legacy.pulse").getPath)
+
+      val mockInputStore2 = mock[InputStore]
+      (mockInputStore2.storeInput(_,_)).expects(*,*).never()
+
+      val sourceFileSet = Set.empty[(Int,String)]
+
+      val sourceLocationsSet = Set.empty[(Int,Int,Int,Int,Option[Int],Option[Int])]
+
+      val treeNodeDataSet = Set[(Int,Option[Int], String, String, Option[Int], Option[Int])](
+        (0,  None,		  "Classes",									              "g",	None,		    None),
+        (3,  Option(0),	"com.codedx.invokeamethod",					      "p",	None,		    None),
+        (4,  Option(3),	"Main",							                      "c",	None,		    None),
+        (5,  Option(4),	"public void <init>()",						        "m",	Option(2),	None),
+        (6,  Option(4),	"public static void Method1()",				    "m",	Option(2),	None),
+        (7,  Option(4),	"public static void Method2()",				    "m",	Option(2),	None),
+        (8,  Option(4),	"public static void Method3()",				    "m",	Option(2),	None),
+        (9,  Option(4),	"public static void Method4()",				    "m",	Option(2),	None),
+        (10, Option(4),	"public static void Method5()",				    "m",	Option(2),	None),
+        (11, Option(4),	"public static void Method6()",				    "m",	Option(2),	None),
+        (12, Option(4),	"public static void Method7()",				    "m",	Option(2),	None),
+        (13, Option(4),	"public static void Method8()",				    "m",	Option(2),	None),
+        (14, Option(4),	"public static void Method9()",				    "m",	Option(2),	None),
+        (15, Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	None),
+        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	None))
+
+      val nodeEncountersSet = Set[(Option[Int],Int,Option[Int])](
+        (Option(1),	10,  None),
+        (Option(1),	15,  None),
+        (Option(1),	6,  None),
+        (Option(2),	14,  None),
+        (Option(2),	15,	None),
+        (None,	8,  None),
+        (None,	7,  None),
+        (None,	16,  None)
+      )
+
+      assertV2Import(mockInputStore2, file, sourceFileSet, sourceLocationsSet, treeNodeDataSet, nodeEncountersSet)
+    }
+  }
+
+  def assertV2Import(inputStore: InputStore, file: ZipFile,
+                     sourceFileSet: Set[(Int,String)],
+                     sourceLocationSet: Set[(Int,Int,Int,Int,Option[Int],Option[Int])],
+                     treeNodeDataSet: Set[(Int,Option[Int], String, String, Option[Int], Option[Int])],
+                     nodeEncountersSet: Set[(Option[Int],Int,Option[Int])]): Unit = {
+
+    //beforeTest()
+
+    val importer = new ProjectImportReaderV2()
+    importer.doImport(inputStore, file, data)
+    data.flush(); Thread.sleep(5000)
+
+    assertMethodSignature(Set[(String,Int)](
+      "com/codedx/invokeamethod/Main.<init>;1;()V" ->	5,
+      "com/codedx/invokeamethod/Main.Method1;9;()V" -> 6,
+      "com/codedx/invokeamethod/Main.Method2;9;()V" -> 7,
+      "com/codedx/invokeamethod/Main.Method3;9;()V" -> 8,
+      "com/codedx/invokeamethod/Main.Method4;9;()V" -> 9,
+      "com/codedx/invokeamethod/Main.Method5;9;()V" -> 10,
+      "com/codedx/invokeamethod/Main.Method6;9;()V" -> 11,
+      "com/codedx/invokeamethod/Main.Method7;9;()V" -> 12,
+      "com/codedx/invokeamethod/Main.Method8;9;()V" -> 13,
+      "com/codedx/invokeamethod/Main.Method9;9;()V" -> 14,
+      "com/codedx/invokeamethod/Main.MethodInvoked;9;(I)V" -> 15,
+      "com/codedx/invokeamethod/Main.main;9;([Ljava/lang/String;)V" -> 16))
+
+    assertSourceFile(sourceFileSet)
+
+    assertSourceLocation(sourceLocationSet)
+
+    assertRecordings(Set[Int](1,2))
+
+    assertRecordingMetadata(Set[(Int,String,String)](
+      (1,"running","false"),
+      (2,"running","false"),
+      (1,"clientLabel", "Recording 1"),
+      (2,"clientLabel", "Recording 2"),
+      (1,"clientColor", "#8cd98c"),
+      (2,"clientColor", "#8cd9d9")
+    ))
+
+    assertTreeNodeData(treeNodeDataSet)
+
+    assertTraceNodes(Set[(Int,Boolean)](
+      0 -> true,
+      3 -> true
+    ))
+
+    assertJspNodeMap(Set.empty[(String,Int)])
+
+    assertTraceNodeFlags(Set.empty[(Int,String)])
+
+    assertNodeEncounters(nodeEncountersSet)
   }
 
   describe("Version v1 of a project export file") {
     it("should import with no source file and source location data") {
+
+      //beforeTest()
+
       val file = new ZipFile(getClass.getResource("InvokeAMethod.v1.pulse").getPath)
       val importer = new ProjectImportReaderV1()
-      importer.doImport(file, data)
+      importer.doImport(StorageManager, file, data)
       data.flush(); Thread.sleep(5000)
 
       assertMethodSignature(Set[(String,Int)](

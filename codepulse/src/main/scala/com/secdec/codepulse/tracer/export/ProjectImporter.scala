@@ -26,6 +26,7 @@ import java.util.Properties
 import java.util.zip.ZipFile
 
 import com.secdec.codepulse.data.model.ProjectData
+import com.secdec.codepulse.data.storage.{InputStore, StorageManager}
 import net.liftweb.util.Helpers.AsInt
 
 /** The actual guts of the import process. Handles the actual reading. This is
@@ -34,7 +35,7 @@ import net.liftweb.util.Helpers.AsInt
   * @author robertf
   */
 trait ProjectImportReader {
-	def doImport(zip: ZipFile, destination: ProjectData)
+	def doImport(inputStore: InputStore, zip: ZipFile, destination: ProjectData)
 }
 
 /** Helpers for reading project export files.
@@ -91,7 +92,7 @@ object ProjectImporter {
 
 		try {
 			val importer = getImporter(zip) getOrElse { throw new IOException(s"Cannot import ${file.getName}") }
-			importer.doImport(zip, destination)
+			importer.doImport(StorageManager, zip, destination)
 		} finally zip.close
 	}
 }

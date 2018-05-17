@@ -42,6 +42,8 @@ import net.liftweb.http.OutputStreamResponse
 object ProjectExporter extends JsonHelpers {
 	val Version = 2
 
+	def zipEntryInputFilePrefix = "input-file_"
+
 	/** Export `data` to `export` */
 	def exportTo(out: OutputStream, data: ProjectData) {
 		val bos = new BufferedOutputStream(out)
@@ -57,6 +59,13 @@ object ProjectExporter extends JsonHelpers {
 			write(zout, "recordings.json") { writeRecordings(_, data.recordings) }
 			write(zout, "sourceLocations.json") { writeSourceLocations(_, data.sourceData) }
 			write(zout, "encounters.json") { writeEncounters(_, data.recordings, data.encounters) }
+
+			val inputFilePath = data.metadata.input
+			val inputFilePathMissing = inputFilePath == null || inputFilePath.trim().isEmpty()
+			if (inputFilePathMissing) return
+
+			val inputFileName = new java.io.File(inputFilePath).getName()
+			write(zout, zipEntryInputFilePrefix + inputFileName) { writeInputFile(_, data.metadata.input) }
 		} finally {
 			zout.finish
 			bos.flush
@@ -231,5 +240,10 @@ object ProjectExporter extends JsonHelpers {
 
 			jg.writeEndObject
 		}
+	}
+
+	private def writeInputFile(out:OutputStream, input: String): Unit = {
+		val file = new java.io.File(input)
+		org.apache.commons.io.FileUtils.copyFile(file, out)
 	}
 }

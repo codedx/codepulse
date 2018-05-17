@@ -19,7 +19,7 @@
  */
 package com.secdec.codepulse.tracer.export.test
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, FileNotFoundException}
 import java.util.zip.ZipInputStream
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
@@ -232,6 +232,22 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
     }
   }
 
+  describe("Project containing input file path") {
+    it("should try to export file path") {
+      projectsDb.withSession {
+        implicit session =>
+          projectMetadataDao.set(1, "input", "invalidDrive:\\file")
+      }
+      val outputStream = new ByteArrayOutputStream()
+      val caught = intercept[FileNotFoundException] {
+        ProjectExporter.exportTo(outputStream, data)
+      }
+      assert(caught.getMessage() == "invalidDrive:\\file (The filename, directory name, or volume label syntax is incorrect)")
+    }
+  }
+
+  var projectMetadataDao:ProjectMetadataDao = null
+
   before {
     def makeDb(db: JdbcBackend.DatabaseDef, dbName: String): JdbcBackend.DatabaseDef = {
       if (db == null) {
@@ -245,7 +261,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
     projectsDb = makeDb(projectsDb, "projects-for-export")
     projectDb = makeDb(projectDb, "project-for-export")
 
-    val projectMetadataDao = new ProjectMetadataDao(H2Driver)
+    projectMetadataDao = new ProjectMetadataDao(H2Driver)
 
     val projectId = ProjectId(1)
     projectsDb.withSession {

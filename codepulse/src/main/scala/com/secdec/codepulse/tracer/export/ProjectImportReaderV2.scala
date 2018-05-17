@@ -5,10 +5,13 @@ import java.util.zip.ZipFile
 
 import com.fasterxml.jackson.core.JsonToken
 import com.secdec.codepulse.data.model._
+import com.secdec.codepulse.data.storage.InputStore
+import com.secdec.codepulse.data.storage.StorageManager
 import net.liftweb.util.Helpers.AsInt
 
 class ProjectImportReaderV2 extends ProjectImportReaderV1 with ProjectImportHelpers with JsonHelpers {
-  override def doImport(zip: ZipFile, destination: ProjectData): Unit = {
+
+  override def doImport(inputStore: InputStore, zip: ZipFile, destination: ProjectData): Unit = {
 
     readSourceFilesJson(zip, destination)
     val sourceLocationMap = readSourceLocationsJson(zip, destination)
@@ -19,6 +22,8 @@ class ProjectImportReaderV2 extends ProjectImportReaderV1 with ProjectImportHelp
     readJspMappingsJson(zip, destination)
     val recMap = readRecordingsJson(zip, destination)
     readEncountersJsonWithSourceLocation(zip, recMap, sourceLocationMap, destination)
+
+    readInputFiles(inputStore, zip, destination.id)
   }
 
   protected def readSourceFilesJson(zip: ZipFile, destination: ProjectData): Unit = {
@@ -31,6 +36,17 @@ class ProjectImportReaderV2 extends ProjectImportReaderV1 with ProjectImportHelp
 
   protected def readEncountersJsonWithSourceLocation(zip: ZipFile, recMap: Map[Int,Int], sourceLocations: Map[Int, Int], destination: ProjectData): Unit = {
     read(zip, "encounters.json") { readEncounters(_, recMap, sourceLocations, destination.encounters) }
+  }
+
+  protected def readInputFiles(inputStore: InputStore, zip: ZipFile, projectId: ProjectId): Unit = {
+    val enum = zip.entries()
+    while (enum.hasMoreElements) {
+      val entry = enum.nextElement
+      val entryName = entry.getName()
+      if (entryName.startsWith(ProjectExporter.zipEntryInputFilePrefix)) {
+        read(zip, entryName) { storeInputFile(inputStore, _, entryName, projectId) }
+      }
+    }
   }
 
   private def readEncounters(in: InputStream, recordingMap: Map[Int, Int], sourceLocations: Map[Int, Int], encounters: TraceEncounterDataAccess) {
@@ -173,5 +189,23 @@ class ProjectImportReaderV2 extends ProjectImportReaderV1 with ProjectImportHelp
     }
 
     idMap.toMap
+  }
+
+  protected def storeInputFile(storageManager: InputStore, in: InputStream, zipEntryName: String, projectId: ProjectId): Unit = {
+    val inputFileName = zipEntryName.replaceAll(ProjectExporter.zipEntryInputFilePrefix, "")
+    val inputFileWorkingDirectory = java.nio.file.Files.createTempDirectory("CP_"): java.nio.file.Path
+    try {
+      val inputFile = new java.io.File(inputFileWorkingDirectory.toString(), inputFileName)
+      org.apache.commons.io.FileUtils.copyInputStreamToFile(in, inputFile)
+      try {
+        storageManager.storeInput(projectId, inputFile)
+      }
+      finally {
+        inputFile.delete()
+      }
+    }
+    finally {
+      java.nio.file.Files.delete(inputFileWorkingDirectory)
+    }
   }
 }
