@@ -120,7 +120,7 @@ class ProjectImportReaderV2 extends ProjectImportReaderV1 with ProjectImportHelp
       if (jp.nextToken != START_ARRAY)
         throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
-      val sourceFiles = collection.mutable.Map.empty[String, Int]
+      val sourceFiles = collection.mutable.Map.empty[Int,String]
       def flushBuffer() { sourceDataAccess.importSourceFiles(sourceFiles.toMap); sourceFiles.clear }
       def checkAndFlush() { if (sourceFiles.size >= 500) flushBuffer() }
 
@@ -138,7 +138,7 @@ class ProjectImportReaderV2 extends ProjectImportReaderV1 with ProjectImportHelp
           }
         }
 
-        sourceFiles.put(path.get, id.get)
+        sourceFiles.put(id.get, path.get)
         checkAndFlush()
       }
 

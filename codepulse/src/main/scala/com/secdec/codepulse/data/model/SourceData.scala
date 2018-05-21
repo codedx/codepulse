@@ -24,7 +24,7 @@ case class SourceFile(id: Int, path: String)
 case class SourceLocation(id: Int, sourceFileId: Int, startLine: Int, endLine:Int, startCharacter: Option[Int], endCharacter: Option[Int])
 
 trait SourceDataAccess {
-	def importSourceFiles(sourceFileMap: Map[String, Int])
+	def importSourceFiles(sourceFileMap: Map[Int, String])
 	def getSourceLocationId(sourceFileId: Int, startLine: Int, endLine: Int, startCharacter: Option[Int], endCharacter: Option[Int]): Int
 	def foreachSourceFile(f: SourceFile => Unit): Unit
 	def foreachSourceLocation(f: SourceLocation => Unit): Unit

@@ -23,8 +23,8 @@ import scala.slick.jdbc.JdbcBackend.Database
 import com.secdec.codepulse.data.model.{SourceDataAccess, SourceFile, SourceLocation}
 
 private[slick] class SlickSourceDataAccess(dao: SourceDataDao, db: Database) extends SourceDataAccess {
-	def importSourceFiles(sourceFileMap: Map[String, Int]) = {
-		val sourceFiles = sourceFileMap.map { case (file, id) => SourceFile(id, file) }
+	def importSourceFiles(sourceFileMap: Map[Int, String]) = {
+		val sourceFiles = sourceFileMap.map { case (id, file) => SourceFile(id, file) }
 		db withTransaction { implicit transaction => dao.storeSourceFiles(sourceFiles) }
 	}
 
