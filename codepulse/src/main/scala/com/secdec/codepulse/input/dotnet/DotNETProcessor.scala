@@ -99,8 +99,19 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 				dotNETAssemblyFinder(entry) match {
 					case Some((assembly, symbols)) => {
 						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
+
+						// process surrogate methods first to establish source file for the method they support
+						val methodsSorted = methods sortWith ((left,right) => {
+							if ((left._1.isSurrogate && right._1.isSurrogate) ||
+								(!left._1.isSurrogate && !right._1.isSurrogate))
+							{
+								left._1.name > right._1.name
+							}
+							left._1.isSurrogate
+						})
+
 						for {
-							(sig, size) <- methods
+							(sig, size) <- methodsSorted
 							filePath = FilePath(sig.file)
 							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
 							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority))
