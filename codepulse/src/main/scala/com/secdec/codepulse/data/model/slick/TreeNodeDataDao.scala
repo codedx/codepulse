@@ -24,13 +24,13 @@ import scala.slick.model.ForeignKeyAction
 import scala.util.Try
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.model.{ TreeNodeData => TreeNode, _ }
+import com.secdec.codepulse.data.model.{TreeNodeData => TreeNode, _}
 
 /** The Slick DAO for tree node data.
   *
   * @author robertf
   */
-private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpers {
+private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao: SourceDataDao) extends SlickHelpers {
 	import driver.simple._
 
 	class TreeNodeData(tag: Tag) extends Table[TreeNode](tag, "tree_node_data") {
@@ -53,6 +53,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		def sourceFileId = column[Option[Int]]("source_file_id", O.Nullable)
 		def * = (id, parentId, label, kind, size, sourceFileId) <> (TreeNode.tupled, TreeNode.unapply)
 		def labelIndex = index("tnd_label_index", label)
+
+		def sourceFile = foreignKey("tree_node_data_to_source_file", sourceFileId, sourceDataDao.sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
 
