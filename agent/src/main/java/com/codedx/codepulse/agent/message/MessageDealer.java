@@ -46,7 +46,6 @@ public class MessageDealer
 	private final BufferService bufferService;
 
 	private final long startTime = System.currentTimeMillis();
-	private final ExceptionId exceptionIdMapper = new ExceptionId();
 	private final ThreadId threadIdMapper = new ThreadId();
 	private final Sequencer sequencer = new Sequencer();
 
@@ -84,66 +83,6 @@ public class MessageDealer
 	// ===============================
 	// API METHODS:
 	// ===============================
-
-	/**
-	 * MAP EXCEPTION (EVENT) MESSAGE
-	 *
-	 * @param exception
-	 * @param id
-	 * @throws IOException
-	 * @throws FailedToObtainBufferException
-	 * @throws FailedToSendBufferException
-	 */
-	public void sendMapException(String exception, int id) throws IOException,
-			FailedToObtainBufferException, FailedToSendBufferException
-	{
-		DataBufferOutputStream buffer = bufferService.obtainBuffer();
-		if (buffer != null)
-		{
-			boolean wrote = false;
-			try
-			{
-				messageProtocol.writeMapException(buffer, id, exception);
-				wrote = true;
-			}
-			finally
-			{
-				if (!wrote)
-					buffer.reset();
-				bufferService.sendBuffer(buffer);
-			}
-		}
-	}
-
-	/**
-	 * MAP THREAD NAME (EVENT) MESSAGE
-	 *
-	 * @param name
-	 * @param id
-	 * @throws IOException
-	 * @throws FailedToObtainBufferException
-	 * @throws FailedToSendBufferException
-	 */
-	public void sendMapThreadName(String name, int id) throws IOException,
-			FailedToObtainBufferException, FailedToSendBufferException
-	{
-		DataBufferOutputStream buffer = bufferService.obtainBuffer();
-		if (buffer != null)
-		{
-			boolean wrote = false;
-			try
-			{
-				messageProtocol.writeMapThreadName(buffer, id, getTimeOffset(), name);
-				wrote = true;
-			}
-			finally
-			{
-				if (!wrote)
-					buffer.reset();
-				bufferService.sendBuffer(buffer);
-			}
-		}
-	}
 
 	/**
 	 * METHOD ENTRY (EVENT) MESSAGE
@@ -294,27 +233,6 @@ public class MessageDealer
 		}
 	}
 
-	private class ExceptionId
-	{
-		private final AtomicInteger idGen = new AtomicInteger(1);
-		private final ConcurrentMap<String, Integer> ids = new ConcurrentHashMap<String, Integer>();
-
-		public int getId(String exception) throws IOException, FailedToObtainBufferException,
-				FailedToSendBufferException
-		{
-			Integer id = ids.putIfAbsent(exception, 0);
-			if (id == null || id == 0)
-			{
-				id = idGen.getAndIncrement();
-				if (ids.replace(exception, 0, id))
-				{
-					sendMapException(exception, id);
-				}
-			}
-			return ids.get(exception);
-		}
-	}
-
 	/**
 	 * Creates a monotonically-incrementing unique id for each thread. The id
 	 * for the currently-running thread is available via {@link #getCurrent()}
@@ -365,9 +283,7 @@ public class MessageDealer
 		};
 
 		/**
-		 * Get the unique id of the currently-running thread. When necessary,
-		 * this method will automatically send a MapMethodName message to the
-		 * message queue.
+		 * Get the unique id of the currently-running thread.
 		 *
 		 * @return The unique id for the currently-running thread.
 		 * @throws InterruptedException
@@ -378,14 +294,12 @@ public class MessageDealer
 		public int getCurrent() throws IOException, FailedToObtainBufferException,
 				FailedToSendBufferException
 		{
-			boolean updated = false;
 			int id = threadId.get();
 
 			// check if the id is "new"
 			if (!threadHasId.get())
 			{
 				threadHasId.set(true);
-				updated = true;
 			}
 
 			// check if the name has changed
@@ -399,14 +313,8 @@ public class MessageDealer
 			if (!nowName.equals(oldName))
 			{
 				threadName.set(nowName);
-				updated = true;
 			}
 
-			// when updated, send a MapThreadName message
-			if (updated)
-			{
-				sendMapThreadName(nowName, id);
-			}
 			return id;
 		}
 	}

@@ -21,66 +21,124 @@ package com.secdec.codepulse.tracer
 
 import com.codedx.codepulse.hq.data.processing.DataProcessor
 import com.codedx.codepulse.hq.protocol.DataMessageContent
-import com.secdec.codepulse.data.MethodSignature
-import com.secdec.codepulse.data.MethodSignatureParser
+import com.codedx.codepulse.utility.Loggable
 import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.jsp.JspMapper
 
-class TraceRecorderDataProcessor(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor {
+case class DeferredMapSourceLocation(sourceLocationId: Int, message: DataMessageContent.MapSourceLocation)
+
+case class DeferredMethodVisit(methodId: Int, message: DataMessageContent.MethodVisit)
+
+case class DeferredMethodEntry(methodId: Int, message: DataMessageContent.MethodEntry)
+
+class TraceRecorderDataProcessor(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor with Loggable {
 
 	val methodCor = collection.mutable.Map[Int, Int]()
 	val unknownAndIgnoredMethodCor = collection.mutable.Set[Int]()
 	val sourceLocationCor = collection.mutable.Map[Int, Option[Int]]()
 
+	val deferredMethodEntries = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MethodEntry]]
+	val deferredMapSourceLocations = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MapSourceLocation]]
+	val deferredMethodVisits = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MethodVisit]]
+
 	/** Process a single data message */
-	def processMessage(message: DataMessageContent): Unit = message match {
+	def processMessage(message: DataMessageContent): Unit = {
 
-		// handle method encounters
-		case DataMessageContent.MethodEntry(methodId, timestamp, _) =>
-			methodVisit(methodId, None)
+		message match {
 
-		// make method correlations
-		case DataMessageContent.MapMethodSignature(sig, id) =>
-			val node = projectData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
-			if (node.isEmpty) {
-				println(s"*** Ignoring signature missing from application inventory: $sig")
-				unknownAndIgnoredMethodCor.add(id)
-			}
-			else {
-				for (treemapNodeId <- node) {
-					methodCor.put(id, treemapNodeId)
-				}
-			}
+			// handle method encounters
+			case methodEntryMessage @ DataMessageContent.MethodEntry(methodId, timestamp, _) => {
 
-		case DataMessageContent.MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, id) =>
-			val nodeId = methodCor get methodId
-			if (nodeId.isEmpty) {
-				if (!unknownAndIgnoredMethodCor.contains(methodId)) {
-					throw new IllegalArgumentException(s"Source Location $id refers to unknown method with ID $methodId")
-				}
-			}
-			else {
-				var startChar: Option[Int] = None
-				if (startCharacter != -1) startChar = Option(startCharacter.toInt)
-
-				var endChar: Option[Int] = None
-				if (endCharacter != -1) endChar = Option(endCharacter.toInt)
-
-				var sourceLocationId: Option[Int] = None
-				val sourceFileId = projectData.treeNodeData.getNode(nodeId.get).get.sourceFileId
-				if (!sourceFileId.isEmpty) {
-					sourceLocationId = Option(projectData.sourceData.getSourceLocationId(sourceFileId.get, startLine, endLine, startChar, endChar))
+				if (methodCor.get(methodId).nonEmpty) {
+					methodVisit(methodId, None)
+					return
 				}
 
-				sourceLocationCor.put(id, sourceLocationId)
+				logger.info(s"Deferring method entry for unknown method $methodId...")
+
+				var methodEntries = deferredMethodEntries.get(methodId)
+				if (methodEntries.isEmpty) {
+					methodEntries = Option(collection.mutable.ListBuffer.empty[DataMessageContent.MethodEntry])
+					deferredMethodEntries.put(methodId, methodEntries.get)
+				}
+				methodEntries.get.append(methodEntryMessage)
 			}
 
-		case DataMessageContent.MethodVisit(methodId, sourceLocationId, _, _) =>
-			val mappedId = sourceLocationCor.get(sourceLocationId)
-			methodVisit(methodId, mappedId.get)
+			// make method correlations
+			case DataMessageContent.MapMethodSignature(sig, id) =>
+				val node = projectData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
+				if (node.isEmpty) {
+					logger.warn(s"*** Ignoring signature missing from application inventory: $sig")
+					unknownAndIgnoredMethodCor.add(id)
+				}
+				else {
+					for (treemapNodeId <- node) {
+						methodCor.put(id, treemapNodeId)
+						deferredMethodEntries.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodEntry]).foreach(x => {
+							logger.info(s"Processing deferred method entry for method ${x.methodId}...")
+							processMessage(x)
+						})
+						deferredMapSourceLocations.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MapSourceLocation]).foreach(x => {
+							logger.info(s"Processing deferred map source location for source location ${x.sourceLocationId} in method ${x.methodId}...")
+							processMessage(x)
+						})
+					}
+				}
 
-		// ignore everything else
-		case _ => ()
+			case mapSourceLocationMessage @ DataMessageContent.MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, id) =>
+				val nodeId = methodCor.get(methodId)
+				if (nodeId.isEmpty) {
+					if (unknownAndIgnoredMethodCor.contains(methodId)) return
+
+					logger.info(s"Deferring map source location $id for unknown method $methodId...")
+
+					var methodMapSourceLocations = deferredMapSourceLocations.get(methodId)
+					if (methodMapSourceLocations.isEmpty) {
+						methodMapSourceLocations = Option(collection.mutable.ListBuffer.empty[DataMessageContent.MapSourceLocation])
+						deferredMapSourceLocations.put(methodId, methodMapSourceLocations.get)
+					}
+					methodMapSourceLocations.get.append(mapSourceLocationMessage)
+				}
+				else {
+					var startChar: Option[Int] = None
+					if (startCharacter != -1) startChar = Option(startCharacter.toInt)
+
+					var endChar: Option[Int] = None
+					if (endCharacter != -1) endChar = Option(endCharacter.toInt)
+
+					var sourceLocationIdFromDatabase: Option[Int] = None
+					val sourceFileId = projectData.treeNodeData.getNode(nodeId.get).get.sourceFileId
+					if (!sourceFileId.isEmpty) {
+						sourceLocationIdFromDatabase = Option(projectData.sourceData.getSourceLocationId(sourceFileId.get, startLine, endLine, startChar, endChar))
+					}
+
+					sourceLocationCor.put(id, sourceLocationIdFromDatabase)
+
+					deferredMethodVisits.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit]).foreach(x => {
+						logger.info(s"Processing deferred method visit for source location ${x.sourceLocationId} in method ${x.methodId}")
+						processMessage(x)
+					})
+				}
+
+			case methodVisitMessage @ DataMessageContent.MethodVisit(methodId, sourceLocationId, _, _) =>
+				val mappedId = sourceLocationCor.get(sourceLocationId)
+				if (mappedId.nonEmpty) {
+					methodVisit(methodId, mappedId.get)
+					return
+				}
+
+				logger.info(s"Deferring method visit for unknown source location $sourceLocationId of method $methodId...")
+
+				var sourceLocationMethodVisits = deferredMethodVisits.get(sourceLocationId)
+				if (sourceLocationMethodVisits.isEmpty) {
+					sourceLocationMethodVisits = Option(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit])
+					deferredMethodVisits.put(sourceLocationId, sourceLocationMethodVisits.get)
+				}
+				sourceLocationMethodVisits.get.append(methodVisitMessage)
+
+			// ignore everything else
+			case _ => ()
+		}
 	}
 
 	/** Process a break in the data */
