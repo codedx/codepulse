@@ -89,7 +89,11 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 				entry <- entryStream
 				if !ZipCleaner.shouldFilter(entry)
 			} {
-				if (entry.isDirectory || (Storage.isZip(entry.getName) && recursive))
+				if (entry.isDirectory) {
+					read(filename, entry, zipStream) // caller may need to process directories, too
+					readEntries(filter, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
+				}
+				else if (Storage.isZip(entry.getName) && recursive)
 					readEntries(filter, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
 				else if(filter(entry))
 					read(filename, entry, zipStream)

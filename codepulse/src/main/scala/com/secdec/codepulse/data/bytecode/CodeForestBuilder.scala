@@ -55,8 +55,7 @@ class CodeForestBuilder {
 			val parentId = node.parentId
 			val kind = node.kind
 			val size = node.size
-			val rootGroup = getRootGroup(Some(node))
-			val sourceF = node.sourceFile
+			val rootGroup = if (isJspNode(node)) JSPGroupName else getRootGroup(Some(node))
 			val sourceFileId = node.sourceFile.flatMap(source => getSourceFileId(rootGroup, source))
 			root -> TreeNodeData(id, parentId, name, kind, size, sourceFileId)
 		}
@@ -114,6 +113,10 @@ class CodeForestBuilder {
 		}
 
 		recurse(startNode, treePath)
+	}
+
+	def isJspNode(node: CodeTreeNode): Boolean = {
+		node.kind == CodeTreeNodeKind.Mth && node.name.toLowerCase.endsWith(".jsp")
 	}
 
 	def getOrAddJsp(path: List[String], size: Int, sourceFile: Option[String]): CodeTreeNode = {

@@ -19,8 +19,6 @@
 
 package com.secdec.codepulse.input.bytecode
 
-import java.io.File
-import java.util.zip.ZipEntry
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
 import akka.actor.{ Actor, Stash }
@@ -34,10 +32,11 @@ import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.util.SmartLoader.Success
-import com.secdec.codepulse.util.{ SmartLoader, ZipEntryChecker }
+import com.secdec.codepulse.util.{ SmartLoader }
 import org.apache.commons.io.FilenameUtils
+import net.liftweb.common.Loggable
 
-class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
+class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor with Loggable {
 	val group = "Classes"
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 	val sourceExtensions = List("java", "jsp")
@@ -115,7 +114,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 							filePath = FilePath(Array(pkg, file).mkString("/"))
 							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
 							treeNode <- builder.getOrAddMethod(groupName, name, size, authority)
-						} methodCorrelationsBuilder += (name -> treeNode.id)
+						} {
+							if (methodCorrelationsBuilder.get(name).getOrElse(treeNode.id) != treeNode.id) {
+								logger.warn(s"Encountered duplicate method signature: $name. An input file cannot contain duplicate methods for the same type name (${treeNode.getParent.map(x => x.name).getOrElse("?")}).")
+							}
+							methodCorrelationsBuilder += (name -> treeNode.id)
+						}
 
 					case "jsp" =>
 						val jspContents = loader loadStream contents
@@ -133,8 +137,20 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			}
 		}
 
+		def getFirstDuplicateJspPath(jspPaths: List[(String, Int)]): Option[String] = {
+			val seen = scala.collection.mutable.HashSet[String]()
+			for (x <- jspPaths) {
+				if (seen(x._1)) return Option(x._1) else seen += x._1
+			}
+			None
+		}
 
 		val jspCorrelations = jspAdapter build builder
+		val firstDuplicateJspPath = getFirstDuplicateJspPath(jspCorrelations)
+		if (firstDuplicateJspPath.nonEmpty) {
+			logger.warn(s"Encountered a duplicate JSP path: ${firstDuplicateJspPath.get}. An input file cannot contain duplicate JSP files.")
+		}
+
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
 
