@@ -167,7 +167,9 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
 			val buffer = collection.mutable.ListBuffer.empty[(String, Int)]
-			def flushBuffer() { treeNodeData.mapMethodSignatures(buffer); buffer.clear }
+			def flushBuffer() {
+				treeNodeData.mapMethodSignatures(buffer.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
+			}
 			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
 
 			while (jp.nextValue != END_ARRAY) {

@@ -20,7 +20,7 @@
 package com.secdec.codepulse.data.model.slick
 
 import scala.slick.jdbc.JdbcBackend.Database
-import com.secdec.codepulse.data.model.{ TreeNodeData, TreeNodeDataAccess, TreeNodeFlag }
+import com.secdec.codepulse.data.model.{MethodSignatureNode, TreeNodeData, TreeNodeDataAccess, TreeNodeFlag}
 
 /** Slick-based TreeNodeDataAccess implementation.
   *
@@ -45,29 +45,29 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao get label
 	}
 
-	def getNodeForSignature(sig: String): Option[TreeNodeData] = db withSession { implicit session =>
+	def getNodesForSignature(sig: String): List[TreeNodeData] = db withSession { implicit session =>
 		dao getForSignature sig
 	}
 
-	def getNodeIdForSignature(sig: String): Option[Int] = db withSession { implicit session =>
-		dao getIdForSignature sig
+	def getNodeIdsForSignature(sig: String): List[Int] = db withSession { implicit session =>
+		dao getIdsForSignature sig
 	}
 
-	def foreachMethodMapping(f: (String, Int) => Unit) {
-		iterateMethodMappings { _.foreach { case (method, nodeId) => f(method, nodeId) } }
+	def foreachMethodMapping(f: MethodSignatureNode => Unit) {
+		iterateMethodMappings { _.foreach(f) }
 	}
 
-	def iterateMethodMappings[T](f: Iterator[(String, Int)] => T): T = {
+	def iterateMethodMappings[T](f: Iterator[MethodSignatureNode] => T): T = {
 		db withSession { implicit session =>
-			dao iterateMethodMappingsWith f
+			dao.iterateMethodMappingsWith(f)
 		}
 	}
 
-	def mapMethodSignature(sig: String, nodeId: Int) = db withTransaction { implicit transaction =>
-		dao.storeMethodSignature(sig, nodeId)
+	def mapMethodSignature(methodSignatureNode: MethodSignatureNode) = db withTransaction { implicit transaction =>
+		dao.storeMethodSignature(methodSignatureNode)
 	}
 
-	override def mapMethodSignatures(signatures: Iterable[(String, Int)]) = db withTransaction { implicit transaction =>
+	override def mapMethodSignatures(signatures: Iterable[MethodSignatureNode]) = db withTransaction { implicit transaction =>
 		dao storeMethodSignatures signatures
 	}
 

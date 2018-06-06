@@ -134,10 +134,10 @@ object ProjectExporter extends JsonHelpers {
 		streamJson(out) { jg =>
 			jg.writeStartArray
 
-			treeNodeData.foreachMethodMapping { (sig, nodeId) =>
+			treeNodeData.foreachMethodMapping { (methodSignatureNode) =>
 				jg.writeStartObject
-				jg.writeStringField("signature", sig)
-				jg.writeNumberField("node", nodeId)
+				jg.writeStringField("signature", methodSignatureNode.signature)
+				jg.writeNumberField("node", methodSignatureNode.nodeId)
 				jg.writeEndObject
 			}
 

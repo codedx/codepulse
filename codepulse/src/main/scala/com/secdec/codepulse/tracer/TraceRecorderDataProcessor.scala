@@ -33,9 +33,14 @@ case class DeferredMethodEntry(methodId: Int, message: DataMessageContent.Method
 
 class TraceRecorderDataProcessor(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor with Loggable {
 
-	val methodCor = collection.mutable.Map[Int, Int]()
+	// list of client-side node IDs that are ignored for tracing because they refer to method signatures missing from the database
 	val unknownAndIgnoredMethodCor = collection.mutable.Set[Int]()
-	val sourceLocationCor = collection.mutable.Map[Int, Option[Int]]()
+
+	// links client-side node ID representing a signature to a list of server-side node IDs sharing the same method signature
+	val methodCor = new collection.mutable.HashMap[Int, collection.mutable.Set[Int]] with collection.mutable.MultiMap[Int, Int]
+
+	// links client-side source location ID to a node-specific server-side source location ID
+	val sourceLocationCor = new collection.mutable.HashMap[Int, collection.mutable.HashMap[Int, Option[Int]]]
 
 	val deferredMethodEntries = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MethodEntry]]
 	val deferredMapSourceLocations = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MapSourceLocation]]
@@ -66,28 +71,36 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 
 			// make method correlations
 			case DataMessageContent.MapMethodSignature(sig, id) =>
-				val node = projectData.treeNodeData.getNodeIdForSignature(sig).orElse(jspMapper.flatMap(_ map sig))
-				if (node.isEmpty) {
-					logger.warn(s"*** Ignoring signature missing from application inventory: $sig")
-					unknownAndIgnoredMethodCor.add(id)
-				}
-				else {
-					for (treemapNodeId <- node) {
-						methodCor.put(id, treemapNodeId)
-						deferredMethodEntries.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodEntry]).foreach(x => {
-							logger.info(s"Processing deferred method entry for method ${x.methodId}...")
-							processMessage(x)
-						})
-						deferredMapSourceLocations.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MapSourceLocation]).foreach(x => {
-							logger.info(s"Processing deferred map source location for source location ${x.sourceLocationId} in method ${x.methodId}...")
-							processMessage(x)
-						})
+				var nodeIds = projectData.treeNodeData.getNodeIdsForSignature(sig)
+				if (nodeIds.isEmpty) {
+					val jspNodeId = jspMapper.flatMap(_ map sig)
+					if (jspNodeId.nonEmpty) {
+						nodeIds = jspNodeId.get :: Nil
 					}
 				}
 
+				if (nodeIds.isEmpty) {
+					logger.warn(s"*** Ignoring signature missing from application inventory: $sig")
+					unknownAndIgnoredMethodCor.add(id)
+					return
+				}
+
+				nodeIds.foreach(nodeId => {
+					methodCor.addBinding(id, nodeId)
+				})
+
+				deferredMethodEntries.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodEntry]).foreach(x => {
+					logger.info(s"Processing deferred method entry for method ${x.methodId}...")
+					processMessage(x)
+				})
+				deferredMapSourceLocations.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MapSourceLocation]).foreach(x => {
+					logger.info(s"Processing deferred map source location for source location ${x.sourceLocationId} in method ${x.methodId}...")
+					processMessage(x)
+				})
+
 			case mapSourceLocationMessage @ DataMessageContent.MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, id) =>
-				val nodeId = methodCor.get(methodId)
-				if (nodeId.isEmpty) {
+				val nodeIds = methodCor.get(methodId)
+				if (nodeIds.isEmpty) {
 					if (unknownAndIgnoredMethodCor.contains(methodId)) return
 
 					logger.info(s"Deferring map source location $id for unknown method $methodId...")
@@ -98,8 +111,10 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 						deferredMapSourceLocations.put(methodId, methodMapSourceLocations.get)
 					}
 					methodMapSourceLocations.get.append(mapSourceLocationMessage)
+					return
 				}
-				else {
+
+				nodeIds.get.foreach(nodeId => {
 					var startChar: Option[Int] = None
 					if (startCharacter != -1) startChar = Option(startCharacter.toInt)
 
@@ -107,34 +122,40 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 					if (endCharacter != -1) endChar = Option(endCharacter.toInt)
 
 					var sourceLocationIdFromDatabase: Option[Int] = None
-					val sourceFileId = projectData.treeNodeData.getNode(nodeId.get).get.sourceFileId
+					val sourceFileId = projectData.treeNodeData.getNode(nodeId).get.sourceFileId
 					if (!sourceFileId.isEmpty) {
 						sourceLocationIdFromDatabase = Option(projectData.sourceData.getSourceLocationId(sourceFileId.get, startLine, endLine, startChar, endChar))
 					}
 
-					sourceLocationCor.put(id, sourceLocationIdFromDatabase)
+					var mapping = sourceLocationCor.get(id)
+					if (mapping.isEmpty) {
+						mapping = Option(new collection.mutable.HashMap[Int, Option[Int]])
+						sourceLocationCor.put(id, mapping.get)
+					}
+					mapping.get.put(nodeId, sourceLocationIdFromDatabase)
+				})
 
-					deferredMethodVisits.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit]).foreach(x => {
-						logger.info(s"Processing deferred method visit for source location ${x.sourceLocationId} in method ${x.methodId}")
-						processMessage(x)
-					})
-				}
+				deferredMethodVisits.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit]).foreach(x => {
+					logger.info(s"Processing deferred method visit for source location ${x.sourceLocationId} in method ${x.methodId}")
+					processMessage(x)
+				})
+
 
 			case methodVisitMessage @ DataMessageContent.MethodVisit(methodId, sourceLocationId, _, _) =>
-				val mappedId = sourceLocationCor.get(sourceLocationId)
-				if (mappedId.nonEmpty) {
-					methodVisit(methodId, mappedId.get)
+				val mappedIds = sourceLocationCor.get(sourceLocationId)
+				if (mappedIds.isEmpty) {
+					logger.info(s"Deferring method visit for unknown source location $sourceLocationId of method $methodId...")
+
+					var sourceLocationMethodVisits = deferredMethodVisits.get(sourceLocationId)
+					if (sourceLocationMethodVisits.isEmpty) {
+						sourceLocationMethodVisits = Option(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit])
+						deferredMethodVisits.put(sourceLocationId, sourceLocationMethodVisits.get)
+					}
+					sourceLocationMethodVisits.get.append(methodVisitMessage)
 					return
 				}
 
-				logger.info(s"Deferring method visit for unknown source location $sourceLocationId of method $methodId...")
-
-				var sourceLocationMethodVisits = deferredMethodVisits.get(sourceLocationId)
-				if (sourceLocationMethodVisits.isEmpty) {
-					sourceLocationMethodVisits = Option(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit])
-					deferredMethodVisits.put(sourceLocationId, sourceLocationMethodVisits.get)
-				}
-				sourceLocationMethodVisits.get.append(methodVisitMessage)
+				methodVisit(methodId, Option(sourceLocationId))
 
 			// ignore everything else
 			case _ => ()
@@ -150,9 +171,18 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 	def cleanup() = ()
 
 	def methodVisit(methodId: Int,  sourceLocationId: Option[Int]): Unit = {
+
+		var sourceLocationsByNode = collection.mutable.HashMap.empty[Int, Option[Int]]
+		if (sourceLocationId.nonEmpty) {
+			sourceLocationsByNode = sourceLocationCor.get(sourceLocationId.get).getOrElse(sourceLocationsByNode)
+		}
+
 		val runningRecordings = projectData.recordings.all.filter (_.running).map (_.id)
-		for (nodeId <- methodCor get methodId) {
-			projectData.encounters.record (runningRecordings, (nodeId, sourceLocationId) :: Nil)
+		for {
+			nodeIds <- methodCor get methodId
+			nodeId <- nodeIds
+		}{
+			projectData.encounters.record (runningRecordings, (nodeId, sourceLocationsByNode.get(nodeId).getOrElse(None)) :: Nil)
 			transientData addEncounter nodeId
 		}
 	}

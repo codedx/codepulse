@@ -317,7 +317,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
   def assertMethodSignature(expected: Set[(String,Int)]): Unit = {
     val actual = collection.mutable.ListBuffer.empty[(String,Int)]
     projectDb.withSession(implicit x => {
-      Q.queryNA[(String,Int)]("select * from \"method_signature_node_map\"").foreach( s => {
+      Q.queryNA[(String,Int)]("select \"sig\",\"node_id\" from \"method_signature_node_map\"").foreach( s => {
         actual.append(s._1 -> s._2)
       })
     })

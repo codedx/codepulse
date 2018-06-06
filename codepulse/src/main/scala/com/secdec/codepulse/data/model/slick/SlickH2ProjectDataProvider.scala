@@ -41,7 +41,9 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 
 	private val cache = collection.mutable.Map.empty[ProjectId, SlickProjectData]
 
-	val MasterDbName = "projects"
+	val MasterDbName = "projects-db"
+	val ProjectFolderName = "project"
+	val ProjectDbName = "project-db"
 	val PageStoreFileSuffix = ".h2.db"
 	val MultiVersionStoreFileSuffix = ".mv.db"
 
@@ -60,12 +62,12 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 		}
 
 		def getDbFolder(folder: File, projectId: ProjectId) = {
-			folder / s"project-${projectId.num}"
+			folder / s"$ProjectFolderName-${projectId.num}"
 		}
 
-		def getDbName(projectId: ProjectId) = s"project-${projectId.num}"
+		def getDbName(projectId: ProjectId) = s"$ProjectDbName-${projectId.num}"
 
-		val NameRegex = raw"project-(\d+)\.(?:h2|mv)\.db".r
+		val NameRegex = raw"$ProjectDbName-(\d+)\.(?:h2|mv)\.db".r
 
 		def unapply(filename: String): Option[ProjectId] = filename match {
 			case NameRegex(ProjectId(id)) => Some(id)

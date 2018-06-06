@@ -21,6 +21,8 @@ package com.secdec.codepulse.data.model
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 
+case class MethodSignatureNode(id: Int, signature: String, nodeId: Int)
+
 /** Represents a node in the code treemap.
   *
   * @param id The node's identifier, which should be unique within a tree.
@@ -49,14 +51,14 @@ trait TreeNodeDataAccess {
 	def getNode(id: Int): Option[TreeNodeData]
 	def getNode(label: String): Option[TreeNodeData]
 
-	def getNodeIdForSignature(signature: String): Option[Int]
-	def getNodeForSignature(signature: String): Option[TreeNodeData]
+	def getNodeIdsForSignature(signature: String): List[Int]
+	def getNodesForSignature(signature: String): List[TreeNodeData]
 
-	def foreachMethodMapping(f: (String, Int) => Unit): Unit
-	def iterateMethodMappings[T](f: Iterator[(String, Int)] => T): T
+	def foreachMethodMapping(f: MethodSignatureNode => Unit): Unit
+	def iterateMethodMappings[T](f: Iterator[MethodSignatureNode] => T): T
 
-	def mapMethodSignature(signature: String, nodeId: Int): Unit
-	def mapMethodSignatures(signatures: Iterable[(String, Int)]): Unit = signatures foreach { case (signature, nodeId) => mapMethodSignature(signature, nodeId) }
+	def mapMethodSignature(methodSignatureNode: MethodSignatureNode): Unit
+	def mapMethodSignatures(signatures: Iterable[MethodSignatureNode]): Unit = signatures foreach { mapMethodSignature }
 
 	def getNodeIdForJsp(jspClass: String): Option[Int]
 	def getNodeForJsp(jspClass: String): Option[TreeNodeData]

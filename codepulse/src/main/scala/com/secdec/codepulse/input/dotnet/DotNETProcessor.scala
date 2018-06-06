@@ -20,18 +20,18 @@
 package com.secdec.codepulse.input.dotnet
 
 import java.io.File
-import scala.collection.mutable.{ HashMap, Set, MultiMap }
 
-import akka.actor.{ Actor, Stash }
-import com.secdec.codepulse.data.bytecode.{ CodeForestBuilder, CodeTreeNodeKind }
-import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector, SymbolService }
-import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
+import scala.collection.mutable.{HashMap, MultiMap, Set}
+import akka.actor.{Actor, Stash}
+import com.secdec.codepulse.data.bytecode.{CodeForestBuilder, CodeTreeNodeKind}
+import com.secdec.codepulse.data.dotnet.{DotNet, SymbolReaderHTTPServiceConnector, SymbolService}
+import com.secdec.codepulse.data.model.{MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter}
 import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
-import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalization }
+import com.secdec.codepulse.input.{CanProcessFile, LanguageProcessor}
+import com.secdec.codepulse.processing.{ProcessEnvelope, ProcessStatus}
+import com.secdec.codepulse.processing.ProcessStatus.{DataInputAvailable, ProcessDataAvailable}
+import com.secdec.codepulse.input.pathnormalization.{FilePath, PathNormalization}
 import com.secdec.codepulse.util.ZipEntryChecker
 import org.apache.commons.io.FilenameUtils
 
@@ -143,7 +143,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 
 			importer.flush
 
-			treeNodeData.mapMethodSignatures(methodCorrelations)
+			treeNodeData.mapMethodSignatures(methodCorrelations.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
 		}
 	}
 }

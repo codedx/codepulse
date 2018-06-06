@@ -23,7 +23,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream, FileNotFoundExcepti
 import java.util.zip.ZipInputStream
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.model.{ProjectId, TreeNodeData}
+import com.secdec.codepulse.data.model.{MethodSignatureNode, ProjectId, TreeNodeData}
 import com.secdec.codepulse.data.model.slick.{ProjectMetadataDao, SlickProjectData, SlickProjectMetadataMaster}
 import com.secdec.codepulse.tracer.ProjectManager
 import com.secdec.codepulse.tracer.export.ProjectExporter
@@ -86,7 +86,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
   describe("Method mappings of exported project") {
     it("should include signature and node") {
       data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), None))
-      data.treeNodeData.mapMethodSignature("method1", 1)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "method1", 1))
 
       val outputStream = new ByteArrayOutputStream()
       ProjectExporter.exportTo(outputStream, data)

@@ -22,7 +22,7 @@ package com.secdec.codepulse.tracer
 
 import com.codedx.codepulse.hq.protocol.DataMessageContent
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.model.{ProjectId, TreeNodeData}
+import com.secdec.codepulse.data.model.{MethodSignatureNode, ProjectId, TreeNodeData}
 import com.secdec.codepulse.data.model.slick.{ProjectMetadataDao, SlickProjectData, SlickProjectMetadataMaster}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfter, FunSpec, Matchers}
@@ -45,7 +45,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val clientMethodId = 1
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MapMethodSignature("methodSig", clientMethodId))
@@ -68,7 +68,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MapMethodSignature("methodSig", clientMethodId))
@@ -88,7 +88,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val clientMethodId = 4
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MethodEntry(clientMethodId, 0, 0))
@@ -108,7 +108,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MapMethodSignature("methodSig", clientMethodId))
@@ -132,7 +132,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MapMethodSignature("methodSig", clientMethodId))
@@ -156,7 +156,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MethodVisit(methodId, clientMethodSourceLocationId, 0, 0))
@@ -182,7 +182,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
       data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
-      data.treeNodeData.mapMethodSignature("methodSig", methodId)
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
       recorder.processMessage(DataMessageContent.MapSourceLocation(clientMethodId, 1, 1, 1, 1, clientMethodSourceLocationId))
@@ -195,6 +195,93 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       assert(recorder.deferredMethodVisits.isEmpty, "Expected no deferred entries")
       assert(recorder.deferredMapSourceLocations.isEmpty, "Expected no deferred entries")
       data.flush(); Thread.sleep(2500)
+    }
+  }
+
+  describe("MethodVisit sent for shared method in two different source files") {
+    it("should have duplicate node encounter with duplicate source locations") {
+      val methodOneId = 30
+      val methodOneSourceFile = 31
+      val methodTwoId = 32
+      val methodTwoSourceFile = 33
+      val clientMethodId = 12
+      val clientMethodSourceLocationId = 13
+
+      val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
+      data.sourceData.importSourceFiles(Map(methodOneSourceFile -> "C:\\package1\\source.java"))
+      data.sourceData.importSourceFiles(Map(methodTwoSourceFile -> "C:\\package2\\source.java"))
+      data.treeNodeData.storeNode(new TreeNodeData(methodOneId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodOneSourceFile)))
+      data.treeNodeData.storeNode(new TreeNodeData(methodTwoId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodTwoSourceFile)))
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodOneId))
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodTwoId))
+      data.flush(); Thread.sleep(2500)
+
+      recorder.processMessage(DataMessageContent.MapMethodSignature("methodSig", clientMethodId))
+
+      recorder.processMessage(DataMessageContent.MapSourceLocation(clientMethodId, 1, 1, 1, 1, clientMethodSourceLocationId))
+      assert(recorder.deferredMapSourceLocations.isEmpty, "Expected no deferred entries")
+
+      recorder.processMessage(DataMessageContent.MethodVisit(clientMethodId, clientMethodSourceLocationId, 0, 0))
+      assert(recorder.deferredMethodVisits.isEmpty, "Expected no deferred entries")
+
+      data.flush(); Thread.sleep(2500)
+
+      var methodOneSourceLocations = 0
+      projectDb.withSession(implicit x => {
+        methodOneSourceLocations = Q.queryNA[(Int)]("select COUNT(*) from \"source_location\" where \"source_file_id\"=" + methodOneSourceFile).first
+      })
+      assert(methodOneSourceLocations == 1)
+
+      var methodTwoSourceLocations = 0
+      projectDb.withSession(implicit x => {
+        methodTwoSourceLocations = Q.queryNA[(Int)]("select COUNT(*) from \"source_location\" where \"source_file_id\"=" + methodTwoSourceFile).first
+      })
+      assert(methodTwoSourceLocations == 1)
+
+      var methodOneNodeEncounters = 0
+      projectDb.withSession(implicit x => {
+        methodOneNodeEncounters = Q.queryNA[(Int)]("select COUNT(*) from \"node_encounters\" where \"node_id\"=" + methodOneId + " and \"source_location_id\"=1").first
+      })
+      assert(methodOneNodeEncounters == 1)
+
+      var methodTwoNodeEncounters = 0
+      projectDb.withSession(implicit x => {
+        methodTwoNodeEncounters = Q.queryNA[(Int)]("select COUNT(*) from \"node_encounters\" where \"node_id\"=" + methodTwoId + " and \"source_location_id\"=2").first
+      })
+      assert(methodTwoNodeEncounters == 1)
+    }
+  }
+
+  describe("MethodEntry sent for shared method in two different source files") {
+    it("should have duplicate node encounter with no source locations") {
+      val methodOneId = 32
+      val methodTwoId = 34
+      val clientMethodId = 13
+
+      val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
+      data.treeNodeData.storeNode(new TreeNodeData(methodOneId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodTwoId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodOneId))
+      data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodTwoId))
+      data.flush(); Thread.sleep(2500)
+
+      recorder.processMessage(DataMessageContent.MapMethodSignature("methodSig", clientMethodId))
+      recorder.processMessage(DataMessageContent.MethodEntry(clientMethodId, 0, 0))
+      assert(recorder.deferredMethodEntries.isEmpty, "Expected no deferred entries")
+
+      data.flush(); Thread.sleep(2500)
+
+      var methodOneNodeEncounters = 0
+      projectDb.withSession(implicit x => {
+        methodOneNodeEncounters = Q.queryNA[(Int)]("select COUNT(*) from \"node_encounters\" where \"node_id\"=" + methodOneId).first
+      })
+      assert(methodOneNodeEncounters == 1)
+
+      var methodTwoNodeEncounters = 0
+      projectDb.withSession(implicit x => {
+        methodTwoNodeEncounters = Q.queryNA[(Int)]("select COUNT(*) from \"node_encounters\" where \"node_id\"=" + methodTwoId).first
+      })
+      assert(methodTwoNodeEncounters == 1)
     }
   }
 
