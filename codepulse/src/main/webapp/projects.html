@@ -2,6 +2,7 @@
 <lift:head>
 	<link class="lift:Includes.d3"></link>
 	<link class="lift:Includes.codetreemap"></link>
+	<link class="lift:Includes.sourceview"></link>
 	<link class="lift:Includes.projectsPage"></link>
 	<link rel="icon" href="../icon.png" />
 </lift:head>
@@ -141,7 +142,28 @@
 			</div>
 			
 			<div id="treemap-container">
-				<div class="widget-body"><!-- Treemap goes here --></div>
+				<div class="widget-body">
+					<!-- Treemap goes here -->
+					<div id="source-popout">
+						<script type="text/x-handlebars-template" id="source-popout-header-template">
+							<h2>
+								Related Source
+								<a class="close">&times;</a>
+							</h2>
+
+							{{!-- FILE --}}
+							<div class="text-hardwrap">
+								<strong>File</strong> {{path}}
+							</div>
+						</script>
+
+						<header></header>
+						<article>
+							<div class="codemirror-parent"></div>
+						</article>
+
+					</div>
+				</div>
 				<div class="no-selection-message">
 					Select packages from the list on the left to display them in more detail here
 				</div>

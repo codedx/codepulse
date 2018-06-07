@@ -49,6 +49,7 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 
 import DCJson._
+import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.version
 
 class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
@@ -276,6 +277,37 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		/** /api/connection/[reject|accept/<project.id>] */
 		val Acknowledgment = AcknowledgmentPath
+
+		val NodeSourceFile = TargetPath.map[(TracingTarget, SourceFile)](
+			{
+				case (target, List("node", AsInt(nodeId), "source-file")) =>
+					(for {
+						node <- target.projectData.treeNodeData.getNode(nodeId)
+						fileId <- node.sourceFileId
+						sourceFile <- target.projectData.sourceData.getSourceFile(fileId)
+					} yield {
+						(target, sourceFile)
+					}) getOrElse (target, SourceFile(-1, ""))
+			},
+			{ case (target, sourceFile) => (target, List("source-file", sourceFile.id.toString))}
+		)
+
+		val Source = TargetPath.map[(TracingTarget, String)](
+			{
+				case (target, List("source", AsInt(sourceFileId))) =>
+					val projectId = target.projectData.id
+
+					(for {
+						storage <- StorageManager.getStorageFor(projectId)
+						sourceFile <- target.projectData.sourceData.getSourceFile(sourceFileId)
+						content <- storage.loadEntry(sourceFile.path)
+					} yield {
+						storage.close
+						(target, content)
+					}) getOrElse ((target, "Source unavailable"))
+			},
+			{ case (target, source) => (target, List("source", source))}
+		)
 	}
 
 	private object DataPath {
@@ -599,6 +631,13 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					sendResponse(response)
 				}
 			}
+
+		case Paths.NodeSourceFile(target, sourceFile) Get req =>
+			val json = ("id" -> sourceFile.id) ~ ("path", sourceFile.path)
+			JsonResponse(json)
+
+		case Paths.Source(target, source) Get req =>
+			PlainTextResponse(source)
 	}
 }
 

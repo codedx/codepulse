@@ -32,6 +32,10 @@ private[slick] class SlickSourceDataAccess(dao: SourceDataDao, db: Database) ext
 		db withTransaction { implicit transaction => dao.getOrInsertSourceLocation(sourceFileId, startLine, endLine, startCharacter, endCharacter) }
 	}
 
+	def getSourceFile(sourceFileId: Int): Option[SourceFile] = {
+		db withSession { implicit session => dao.getSourceFile(sourceFileId) }
+	}
+
 	def foreachSourceFile(f: SourceFile => Unit) {
 		iterateSourceFile { _.foreach(f) }
 	}

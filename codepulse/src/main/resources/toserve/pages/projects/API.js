@@ -225,7 +225,15 @@
 
 		'getVulnerableNodes': function(callback) {
 			$.getJSON(commandPath('/vulnerableNodes'), callback)
-		}
+		},
+
+        'getNodeSourceFile': function(id, callback) {
+        	getCommand('/node/' + id + '/source-file', callback)
+        },
+
+        'getSource': function(id, callback) {
+        	getCommand('/source/' + id, callback)
+    	}
 	}
 
 })(this);

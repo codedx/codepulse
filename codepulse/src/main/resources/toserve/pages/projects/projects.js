@@ -71,7 +71,143 @@ $(document).ready(function(){
 		})
 	})()
 
-	// Set up the tooltip for the Code Treemap's info icon
+    // Source view setup
+    ;(function(){
+        let $container = $('#treemap-container .widget-body')
+
+        // grab a reference to the popout element
+        let $popout = $('#source-popout')
+        let $popoutHeader = $popout.find('header')
+        let $popoutBody = $popout.find('article')
+        let sourceView = new SourceView($popoutBody.find('.codemirror-parent')[0])
+        window.sourceView = sourceView
+        // var sourceView = new FindingSource(
+        //     FindingInfoManager.global,
+        //     $popoutBody.find('.codemirror-parent')[0],
+        //     { showLineCoverage: true }
+        // )
+        // window.sourceView = sourceView
+
+        // monitor clicks on treemap nodes (the 'rect' selector)
+        let treemapNodeClicks = $container.asEventStream('click', 'rect', function(e){
+            return {
+                elem: e.target,
+                data: d3.select(e.target).datum()
+            }
+        }).log('tree node click')
+
+        let popoutCloseClicks = $popout.asEventStream('click', '.close')
+
+        // Manage the 'resetting' and 'active' classes to make a nice zoom-in transition from the clicked node
+        function activatePopout(fromElem, callback){
+            var containerOffset = $container.offset()
+            var elemBounds = fromElem.getBoundingClientRect()
+
+            var transitionStartBounds = {
+                top: (elemBounds.top - containerOffset.top) + 'px',
+                left: (elemBounds.left - containerOffset.left) + 'px',
+                height: elemBounds.height + 'px',
+                width: elemBounds.width + 'px'
+            }
+
+            // set the intro position
+            $popout.addClass('resetting').css(transitionStartBounds)
+
+            // wait for that to take effect, then transition to the 'active' state
+            requestAnimationFrame(function(){
+                $popout.removeClass('resetting').addClass('active').css({
+                    // turn off the specific positioning so the stylesheet can kick in
+                    top: '',
+                    left: '',
+                    height: '',
+                    width: ''
+                })
+
+                // the css transition will take .3 seconds, then call the callback
+                setTimeout(callback, 300)
+            })
+        }
+
+        function deactivatePopout(){
+            $popoutHeader.empty()
+            sourceView.setSourceView(null, '')
+            $popout.removeClass('active')
+        }
+
+        let popoutHeaderTemplate = Handlebars.compile($('#source-popout-header-template').html())
+
+        // activate the popout from elements that are clicked in the treemap
+        treemapNodeClicks
+            .filter(function(click){
+                var t = click.data.kind
+                return t == 'method' || t == 'class'
+            })
+            .flatMapLatest(function(click){
+
+                // function requestProject() {
+                //     API.getProjectData(function(reply, error){
+                //         if(!error && reply){
+                //             $('.edit-content').text(reply.name)
+                //         }
+                //     })
+                // })
+
+                API.getNodeSourceFile(click.data.id, function(reply, error) {
+                    console.log(reply, error)
+                })
+
+                return Bacon.fromCallback(API.getNodeSourceFile, click.data.id).map(function(response){
+                    return _.extend({}, click, { location: response })
+                }).mapError(function(err){
+                    console.log('treemap click event could not be associated with source due to lookup error', err)
+                    return null
+                })
+
+                // use the API to find the associated file/lines
+                // return Bacon.fromNodeCallback(
+                //     cdx.jsonGet,
+                //     cdx.xapiUrl('/projects/' + PageMetadata.projectId + '/node/' + click.data.id + '/source-file')
+                // ).map(function(response){
+                //     return _.extend({}, click, { location: response })
+                // }).mapError(function(err){
+                //     console.log('treemap click event could not be associated with source due to lookup error', err)
+                //     return null
+                // })
+            })
+            .filter(_.identity) // stop the errors from getting this far
+            .flatMapFirst(function(selection){ return Bacon.fromCallback(activatePopout, selection.elem).map(selection) })
+            .onValue(function(selection){
+                // var inputPath = selection.location.inputPath
+                // var lines = selection.location.lines
+                // var name = selection.data.name
+                //
+                // // set up view components for the selection
+                var templateData = {}
+                _.extend(templateData, selection.location)
+                // if(selection.data.kind == 'method') templateData.method = name
+                // if(selection.data.kind == 'class') templateData.class = name
+                // templateData.multiline = lines.start != lines.end
+                var templateHtml = popoutHeaderTemplate(templateData)
+                $popoutHeader.html(templateHtml)
+
+                // API.getSource(selection.location.id, function(reply, callback) {
+                // 	console.log(reply)
+                // })
+
+                let dataProvider = new SourceDataProvider(selection.location)
+                sourceView.setDataProvider(dataProvider)
+
+                // // update the source view
+                // let dataProvider = new SourceDataProvider.ByInputPathWithSelectableSessionCoverage(inputPath, PageMetadata.projectId, selectedSessionIds)
+                // sourceView.setDataProvider(dataProvider)
+                //     .then(function(){ sourceView.scrollToLine(lines.start, 0) })
+            })
+
+        popoutCloseClicks.onValue(deactivatePopout)
+    })()
+
+
+    // Set up the tooltip for the Code Treemap's info icon
 	$('#treemap-help-tooltip-trigger').qtip({
 		content: {
 			text: $('#treemap-help-tooltip-content')
