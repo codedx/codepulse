@@ -103,6 +103,18 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 	val qtip2 = register("qtip2", JS("thirdparty/qtip2/jquery.qtip.min.js"), CSS("thirdparty/qtip2/jquery.qtip.min.css"))
 	val spinner = register("spinner", JS("thirdparty/spin/spin.min.js"))
 	val timeago = register("timeago", JS("thirdparty/timeago/jquery.timeago.js"))
+	val codemirror = register("codemirror",
+		JS("thirdparty/codemirror/lib/codemirror.js"),
+		CSS("thirdparty/codemirror/lib/codemirror.css"),
+		JS("thirdparty/codemirror/addon/scroll/simplescrollbars.js"),
+		CSS("thirdparty/codemirror/addon/scroll/simplescrollbars.css"),
+		JS("thirdparty/codemirror/mode/meta.js"),
+		JS("thirdparty/codemirror/mode/clike/clike.js"),
+		JS("thirdparty/codemirror/mode/javascript/javascript.js"),
+		JS("thirdparty/codemirror/mode/htmlmixed/htmlmixed.js"),
+		JS("thirdparty/codemirror/mode/htmlembedded/htmlembedded.js"))
+	val underscore = register("underscore", JS("thirdparty/underscore/underscore-min.js"))
+	val handlebars = register("handlebars", JS("thirdparty/handlebars/handlebars.js"))
 
 	/*
 	 * Hand-crafted-with-love dependencies:
@@ -144,7 +156,10 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("pages/projects/editable.js"),
 		JS("pages/projects/projects.js"),
 		CSS("pages/projects/projects.css"),
-		JS("pages/projects/DependencyCheck.js"))
+		JS("pages/projects/DependencyCheck.js"),
+		codemirror,
+		underscore,
+		handlebars)
 
 	val traceConnectionUI = register("TraceConnectorUI",
 		overlay,
