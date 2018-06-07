@@ -133,19 +133,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			}
 		}
 
-		def getFirstDuplicateJspPath(jspPaths: List[(String, Int)]): Option[String] = {
-			val seen = scala.collection.mutable.HashSet[String]()
-			for (x <- jspPaths) {
-				if (seen(x._1)) return Option(x._1) else seen += x._1
-			}
-			None
-		}
-
 		val jspCorrelations = jspAdapter build builder
-		val firstDuplicateJspPath = getFirstDuplicateJspPath(jspCorrelations)
-		if (firstDuplicateJspPath.nonEmpty) {
-			logger.warn(s"Encountered a duplicate JSP path: ${firstDuplicateJspPath.get}. An input file cannot contain duplicate JSP files.")
-		}
 
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
@@ -167,7 +155,12 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 
 			importer.flush
 
-			treeNodeData.mapJsps(jspCorrelations)
+			val jspCorrelationsDuplicatePaths = jspCorrelations.groupBy(identity).collect { case (x, List(_,_,_*)) => x }
+			jspCorrelationsDuplicatePaths.keys.foreach { path => {
+				logger.warn(s"An input file cannot contain duplicate JSP paths. Tracing for JSP path '$path' will not work correctly.")
+			}}
+
+			treeNodeData.mapJsps(if (jspCorrelationsDuplicatePaths.isEmpty) jspCorrelations else jspCorrelations.toMap)
 			treeNodeData.mapMethodSignatures(methodCorrelations.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
 		}
 	}
