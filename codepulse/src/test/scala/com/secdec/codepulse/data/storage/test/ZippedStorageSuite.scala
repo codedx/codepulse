@@ -83,23 +83,22 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			sameContent should equal(true)
 		}
 
-		// TODO: Need nested file support in load entry - need a path representation
-//		it("should be able to load the contents of a nested file") {
-//			val path = "5.e"
-//			val expectedContent = "This is 5.e"
-//			val zip = new ZipFile(NESTED_ARCHIVE)
-//			val storage = new ZippedStorage(zip)
-//
-//			val content = storage.loadEntry(path)
-//			zip.close()
-//
-//			val sameContent = content match {
-//				case Some(c) => c == expectedContent
-//				case None => false
-//			}
-//
-//			sameContent should equal(true)
-//		}
+		it("should be able to load the contents of a nested file") {
+			val path = "egg.zip;5.e"
+			val expectedContent = "This is 5.e"
+			val zip = new ZipFile(NESTED_ARCHIVE)
+			val storage = new ZippedStorage(zip)
+
+			val content = storage.loadEntry(path)
+			zip.close()
+
+			val sameContent = content match {
+				case Some(c) => c == expectedContent
+				case None => false
+			}
+
+			sameContent should equal(true)
+		}
 
 		it("should be able to read an entry for a given path") {
 			val path = "dir1/4.d"
@@ -125,7 +124,7 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			val storage = new ZippedStorage(zip)
 
 			var entries = List.empty[String]
-			storage.readEntries(false) { (filename, entry, stream) =>
+			storage.readEntries(false) { (filename, entryPath, entry, stream) =>
 				entries = entry.getName :: entries
 			}
 
@@ -143,7 +142,7 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			val storage = new ZippedStorage(zip)
 
 			var entries = List.empty[String]
-			storage.readEntries() { (filename, entry, stream) =>
+			storage.readEntries() { (filename, entryPath, entry, stream) =>
 				entries = entry.getName :: entries
 			}
 
@@ -161,7 +160,7 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			val storage = new ZippedStorage(zip)
 
 			var entries = List.empty[String]
-			storage.readEntries() { (filename, entry, stream) =>
+			storage.readEntries() { (filename, entryPath, entry, stream) =>
 				entries = entry.getName :: entries
 			}
 
@@ -178,7 +177,7 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			val zip = new ZipFile(SINGLE_LEVEL_ARCHIVE)
 			val storage = new ZippedStorage(zip)
 
-			val foundEntry = storage.find(false) { (filename, entry, stream) =>
+			val foundEntry = storage.find(false) { (filename, entryPath, entry, stream) =>
 				entry.getName == expectedEntry
 			}
 
@@ -192,7 +191,7 @@ class ZippedStorageSuite extends FunSpec with Matchers {
 			val zip = new ZipFile(NESTED_ARCHIVE)
 			val storage = new ZippedStorage(zip)
 
-			val foundEntry = storage.find() { (filename, entry, stream) =>
+			val foundEntry = storage.find() { (filename, entryPath, entry, stream) =>
 				entry.getName == expectedEntry
 			}
 
