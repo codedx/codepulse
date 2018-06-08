@@ -57,8 +57,7 @@ class JasperJspAdapter extends JspAdapter {
 
 		codeForestBuilder.addExternalSourceFiles(CodeForestBuilder.JSPGroupName, sourceFiles)
 
-		val filePaths = sourceFiles.flatMap(FilePath(_))
-
+		val filePaths = sourceFiles.flatMap(FilePath(_)).sortWith(_.toString.length < _.toString.length)
 
 		// build up - class name must match generated class name supporting JSP file; otherwise,
 		// the class name will not match the inclusion filter provided to the Java tracer
