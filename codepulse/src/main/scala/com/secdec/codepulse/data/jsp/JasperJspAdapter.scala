@@ -21,7 +21,9 @@ package com.secdec.codepulse.data.jsp
 
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import java.io.File
+
 import com.secdec.codepulse.data.bytecode.CodeTreeNode
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalization }
 
 /** Data adapter to help populate `CodeForestBuilder` with JSP info.
   * This implementation is specific to what Jasper does for JSP.
@@ -55,13 +57,26 @@ class JasperJspAdapter extends JspAdapter {
 
 		codeForestBuilder.addExternalSourceFiles(CodeForestBuilder.JSPGroupName, sourceFiles)
 
+		val filePaths = sourceFiles.flatMap(FilePath(_))
+
+
 		// build up - class name must match generated class name supporting JSP file; otherwise,
 		// the class name will not match the inclusion filter provided to the Java tracer
 		jspClasses.result.toList map {
 			case (clazz, size) =>
 				val jspClassName = JasperUtils.makeJavaClass(clazz)
 				val displayName = clazz.split('/').filter(!_.isEmpty).toList
-				val node = codeForestBuilder.getOrAddJsp(displayName, size, Some(clazz))
+				val authority = FilePath(clazz) match {
+					case Some(cz) => filePaths.find(PathNormalization.isLocalizedInAuthorityPath(_, cz))
+					case None => None
+				}
+
+				val node = authority match {
+					case Some(a) => codeForestBuilder.getOrAddJsp(displayName, size, Some(a.toString))
+					case None => codeForestBuilder.getOrAddJsp(displayName, size, Some(clazz))
+
+				}
+
 				jspClassName -> node.id
 		}
 	}

@@ -28,6 +28,15 @@ case class FilePath(name: String, parent: Option[FilePath]) {
 	}
 }
 
+case class NestedPath(paths: List[FilePath]) {
+	override def toString() = {
+		paths match {
+			case Nil => ""
+			case all => all.mkString(";")
+		}
+	}
+}
+
 object FilePath {
 	def apply(path: String): Option[FilePath] = {
 		path.split(raw"\\|\/").filter(!_.isEmpty).foldLeft[Option[FilePath]](None)((prev, cur) => Some(FilePath(cur, prev)))
@@ -58,6 +67,18 @@ object PathNormalization {
 		}
 	}
 
+	def isLocalisedSameAsAuthority(authority: NestedPath, localized: NestedPath): Boolean = {
+		if(authority.paths.length == localized.paths.length) {
+			val reversedAuthority = authority.paths.toArray.reverse
+			val reversedLocalized = localized.paths.reverse.view.zipWithIndex
+
+			reversedLocalized.forall(l => isLocalizedSameAsAuthority(reversedAuthority(l._2), l._1))
+
+		} else {
+			false
+		}
+	}
+
 	def isLocalizedInAuthorityPath(authority: FilePath, localized: FilePath): Boolean = {
 		if(authority.name == localized.name) {
 			localized.parent match {
@@ -69,6 +90,17 @@ object PathNormalization {
 					isLocalizedInAuthorityPath(authorityParent, localizedParent)
 				}) getOrElse(false)
 			}
+		} else {
+			false
+		}
+	}
+
+	def isLocalizedInAuthorityPath(authority: NestedPath, localized: NestedPath): Boolean = {
+		if(authority.paths.length == localized.paths.length) {
+			val reversedAuthority = authority.paths.toArray.reverse
+			val reversedLocalized = localized.paths.reverse.view.zipWithIndex
+
+			reversedLocalized.forall(l => isLocalizedInAuthorityPath(reversedAuthority(l._2), l._1))
 		} else {
 			false
 		}

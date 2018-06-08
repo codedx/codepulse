@@ -19,17 +19,18 @@
 
 package com.secdec.codepulse.input.bytecode
 
-import scala.collection.mutable.{HashMap, MultiMap, Set}
-import akka.actor.{Actor, Stash}
-import com.secdec.codepulse.data.bytecode.{AsmVisitors, CodeForestBuilder, CodeTreeNodeKind}
-import com.secdec.codepulse.data.jsp.{JasperJspAdapter, JspAnalyzer}
-import com.secdec.codepulse.data.model.{MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter}
+import scala.collection.mutable.{ HashMap, MultiMap, Set }
+
+import akka.actor.{ Actor, Stash }
+import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
+import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
+import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.pathnormalization.{FilePath, PathNormalization}
-import com.secdec.codepulse.input.{CanProcessFile, LanguageProcessor}
-import com.secdec.codepulse.processing.{ProcessEnvelope, ProcessStatus}
-import com.secdec.codepulse.processing.ProcessStatus.{DataInputAvailable, ProcessDataAvailable}
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
+import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
+import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
+import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
@@ -62,7 +63,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 	}
 
 	def canProcess(storage: Storage): Boolean = {
-		storage.find() { (filename, entry, contents) =>
+		storage.find() { (filename, entryPath, entry, contents) =>
 			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
 		}
 	}
@@ -77,12 +78,17 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 		val jspAdapter = new JasperJspAdapter
 
 		val loader = SmartLoader
-		val pathStore = new HashMap[(String, String), Set[Option[FilePath]]] with MultiMap[(String, String), Option[FilePath]]
+		val pathStore = new HashMap[(String, String), Set[Option[NestedPath]]] with MultiMap[(String, String), Option[NestedPath]]
 
-		storage.readEntries(sourceFiles _) { (filename, entry, contents) =>
-			val entryPath = FilePath(entry.getName)
+		storage.readEntries(sourceFiles _) { (filename, entryPath, entry, contents) =>
+			val entryFilePath = FilePath(entry.getName)
 			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
-			entryPath.foreach(ep => pathStore.addBinding((groupName, ep.name), Some(ep)))
+			entryFilePath.foreach(efp => {
+				entryPath match {
+					case Some(ep) => pathStore.addBinding((groupName, efp.name), Some(new NestedPath(ep.paths :+ efp)))
+					case None => pathStore.addBinding((groupName, efp.name), Some(new NestedPath(List(efp))))
+				}
+			})
 		}
 
 		def getPackageFromSig(sig: String): String = {
@@ -92,8 +98,8 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			packagePart.mkString("/")
 		}
 
-		def authoritativePath(group: String, filePath: FilePath): Option[FilePath] = {
-			pathStore.get((group, filePath.name)) match {
+		def authoritativePath(group: String, filePath: NestedPath): Option[NestedPath] = {
+			pathStore.get((group, filePath.paths.last.name)) match {
 				case None => None
 				case Some(fps) => {
 					fps.flatten.find { authority => PathNormalization.isLocalizedInAuthorityPath(authority, filePath) }
@@ -101,7 +107,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			}
 		}
 
-		storage.readEntries() { (filename, entry, contents) =>
+		storage.readEntries() { (filename, entryPath, entry, contents) =>
 			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
@@ -111,7 +117,14 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 							(file, name, size) <- methods
 							pkg = getPackageFromSig(name)
 							filePath = FilePath(Array(pkg, file).mkString("/"))
-							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
+							nestedPath = filePath.map(fp => entryPath match {
+								case Some(ep) => new NestedPath(ep.paths :+ fp)
+								case None => new NestedPath(List(fp))
+							})
+							authority = nestedPath match {
+								case Some(np) => authoritativePath(groupName, np).map (_.toString)
+								case None => None
+							}
 							treeNode <- builder.getOrAddMethod(groupName, name, size, authority)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
@@ -122,7 +135,13 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 						jspContents match {
 							case Success(content, _) =>
 								val jspSize = JspAnalyzer analyze content
-								jspAdapter.addJsp(entry.getName, jspSize)
+
+								val nestedPath = entryPath match {
+									case Some(ep) => new NestedPath(ep.paths :+ new FilePath(entry.getName, None))
+									case None => new NestedPath(List(new FilePath(entry.getName, None)))
+								}
+
+								jspAdapter.addJsp(nestedPath.toString, jspSize)
 							case _ =>
 						}
 

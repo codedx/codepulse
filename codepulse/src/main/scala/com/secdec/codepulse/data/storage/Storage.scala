@@ -22,6 +22,7 @@ package com.secdec.codepulse.data.storage
 import java.io.{ File, InputStream }
 import java.util.zip.{ ZipEntry, ZipFile }
 
+import com.secdec.codepulse.input.pathnormalization.NestedPath
 import org.apache.commons.io.FilenameUtils
 
 trait Storage {
@@ -35,11 +36,11 @@ trait Storage {
 
 	def readEntry[T](path: String)(read: InputStream => Option[T]): Option[T]
 
-	def readEntries[T](recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit): Unit
+	def readEntries[T](recursive: Boolean = true)(read: (String, Option[NestedPath], ZipEntry, InputStream) => Unit): Unit
 
-	def readEntries[T](filter: ZipEntry => Boolean, recursive: Boolean = true)(read: (String, ZipEntry, InputStream) => Unit): Unit
+	def readEntries[T](filter: ZipEntry => Boolean, recursive: Boolean = true)(read: (String, Option[NestedPath], ZipEntry, InputStream) => Unit): Unit
 
-	def find(recursive: Boolean = true)(predicate: (String, ZipEntry, InputStream) => Boolean): Boolean
+	def find(recursive: Boolean = true)(predicate: (String, Option[NestedPath], ZipEntry, InputStream) => Boolean): Boolean
 }
 
 object Storage {
