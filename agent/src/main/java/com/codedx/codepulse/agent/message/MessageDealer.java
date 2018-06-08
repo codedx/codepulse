@@ -18,10 +18,12 @@
 package com.codedx.codepulse.agent.message;
 
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.codedx.bytefrog.instrumentation.LineLevelMapper;
 import com.codedx.bytefrog.instrumentation.id.*;
 
 import com.codedx.codepulse.agent.common.message.MessageProtocol;
@@ -50,6 +52,8 @@ public class MessageDealer
 	private final Sequencer sequencer = new Sequencer();
 
 	private final MethodIdAdapter methodIdAdapter;
+
+	private static final int unavailableSourceLocationId = -1;
 
 	/**
 	 *
@@ -165,7 +169,9 @@ public class MessageDealer
 				int threadId = threadIdMapper.getCurrent();
 				for (int i = lineMap.nextSetBit(0); i >= 0; i = lineMap.nextSetBit(i+1)) {
 					int sourceLocationId = methodIdAdapter.markSourceLocation(methodId, startLine+i, startLine+i, buffer);
-					messageProtocol.writeMethodVisit(buffer, timestamp, sequencer.getSequence(), methodId, sourceLocationId, threadId);
+					if (sourceLocationId != unavailableSourceLocationId) {
+						messageProtocol.writeMethodVisit(buffer, timestamp, sequencer.getSequence(), methodId, sourceLocationId, threadId);
+					}
 				}
 				wrote = true;
 			}
@@ -204,6 +210,32 @@ public class MessageDealer
 			if (id != null)
 			{
 				return id;
+			}
+
+			int classId = methodIdentifier.get(methodId).getClassId();
+
+			LineLevelMapper llm = classIdentifier.get(classId).getLineLevelMapper();
+			if (llm != null) {
+				BitSet bitSet = new BitSet();
+				bitSet.set(0, endLine - startLine + 1);
+
+				LineLevelMapper.MappedCoverage mappedCoverage[] = llm.map(startLine, bitSet);
+				if (mappedCoverage == null) {
+					return unavailableSourceLocationId;
+				}
+
+				int newStartLine = Integer.MAX_VALUE;
+				int newEndLine = Integer.MIN_VALUE;
+				for (LineLevelMapper.MappedCoverage mappedCoverageItem: mappedCoverage){
+					for (int l = mappedCoverageItem.lines.nextSetBit(0); l >= 0; l = mappedCoverageItem.lines.nextSetBit(l + 1)) {
+						newStartLine = l < newStartLine ? l : newStartLine;
+						newEndLine = l > newEndLine ? l : newEndLine;
+					}
+				}
+
+				// adjust for zero-based line offset
+				startLine = newStartLine + 1;
+				endLine = newEndLine + 1;
 			}
 
 			Integer newId = nextSourceLocationId.getAndIncrement();
