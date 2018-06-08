@@ -93,7 +93,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 			pathStore.get((group, filePath.paths.last.name)) match {
 				case None => None
 				case Some(fps) => {
-					fps.flatten.find { authority => PathNormalization.isLocalizedInAuthorityPath(authority, filePath) }
+					fps.flatten.find { authority => PathNormalization.isLocalisedSameAsAuthority(authority, filePath) }
 				}
 			}
 		}
