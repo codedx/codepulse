@@ -32,7 +32,7 @@ import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
-import com.secdec.codepulse.util.ZipEntryChecker
+import scala.language.postfixOps
 import org.apache.commons.io.FilenameUtils
 
 class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
@@ -117,7 +117,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						})
 
 						for {
-							(sig, size) <- methodsSorted
+							(sig, size, sourceLocationCount) <- methodsSorted
 							filePath = FilePath(sig.file)
 							nestedPath = filePath.map(fp => entryPath match {
 								case Some(ep) => new NestedPath(ep.paths :+ fp)
@@ -128,7 +128,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 								case None => None
 							}
 //							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount)))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 

@@ -57,7 +57,8 @@ class CodeForestBuilder {
 			val size = node.size
 			val rootGroup = if (isJspNode(node)) JSPGroupName else getRootGroup(Some(node))
 			val sourceFileId = node.sourceFile.flatMap(source => getSourceFileId(rootGroup, source))
-			root -> TreeNodeData(id, parentId, name, kind, size, sourceFileId)
+			val sourceLocationCount = node.sourceLocationCount
+			root -> TreeNodeData(id, parentId, name, kind, size, sourceFileId, sourceLocationCount)
 		}
 	}
 
@@ -94,13 +95,13 @@ class CodeForestBuilder {
 		this
 	}
 
-	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: Option[String]): Option[CodeTreeNode] = {
+	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int]): Option[CodeTreeNode] = {
 		sourceFile.foreach(addSourceFile(group, _))
 
-		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile) }
+		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile, sourceLocationCnt) }
 	}
 
-	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: Option[String]): CodeTreeNode = {
+	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode = {
 		sourceFile.foreach(addSourceFile(group, _))
 
 		val treePath = CodePath.parse(sig)
@@ -108,8 +109,8 @@ class CodeForestBuilder {
 
 		def recurse(parent: CodeTreeNode, path: CodePath): CodeTreeNode = path match {
 			case CodePath.Package(name, childPath) => recurse(addChildPackage(parent, name), childPath)
-			case CodePath.Class(name, childPath) => recurse(addChildClass(parent, name, sourceFile), childPath)
-			case CodePath.Method(name) => addChildMethod(parent, name, size, sourceFile)
+			case CodePath.Class(name, childPath) => recurse(addChildClass(parent, name, sourceFile, sourceLocationCnt), childPath)
+			case CodePath.Method(name) => addChildMethod(parent, name, size, sourceFile, sourceLocationCnt)
 		}
 
 		recurse(startNode, treePath)
@@ -119,11 +120,11 @@ class CodeForestBuilder {
 		node.kind == CodeTreeNodeKind.Mth && node.name.toLowerCase.endsWith(".jsp")
 	}
 
-	def getOrAddJsp(path: List[String], size: Int, sourceFile: Option[String]): CodeTreeNode = {
+	def getOrAddJsp(path: List[String], size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode = {
 		sourceFile.foreach(addSourceFile(JSPGroupName, _))
 
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
-			case className :: Nil => addChildMethod(parent, className, size, sourceFile)
+			case className :: Nil => addChildMethod(parent, className, size, sourceFile, sourceLocationCnt)
 			case packageNode :: rest => recurse(addFolder(parent, packageNode), rest)
 		}
 
@@ -185,7 +186,7 @@ class CodeForestBuilder {
 		}
 	}
 
-	protected def addChildClass(parent: CodeTreeNode, name: String, sourceFile: Option[String]) = {
+	protected def addChildClass(parent: CodeTreeNode, name: String, sourceFile: Option[String], sourceLocationCnt: Option[Int]) = {
 		val className =
 			if (parent.kind == CodeTreeNodeKind.Cls) parent.name + '.' + name
 			else name
@@ -193,16 +194,16 @@ class CodeForestBuilder {
 		parent.findChild { node =>
 			node.name == className && node.kind == CodeTreeNodeKind.Cls
 		} getOrElse {
-			val node = nodeFactory.createClassNode(className, sourceFile)
+			val node = nodeFactory.createClassNode(className, sourceFile, sourceLocationCnt)
 			parent.addChild(node)
 			node
 		}
 	}
 
-	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int, sourceFile: Option[String]) = parent.findChild { node =>
+	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int]) = parent.findChild { node =>
 		node.name == name && node.kind == CodeTreeNodeKind.Mth
 	} getOrElse {
-		val node = nodeFactory.createMethodNode(name, size, sourceFile)
+		val node = nodeFactory.createMethodNode(name, size, sourceFile, sourceLocationCnt)
 		parent.addChild(node)
 		node
 	}

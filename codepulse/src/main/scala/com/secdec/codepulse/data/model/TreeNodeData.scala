@@ -32,7 +32,7 @@ case class MethodSignatureNode(id: Int, signature: String, nodeId: Int)
   * @param size A number indicating the size of the node (e.g. lines of code). If unspecified,
   * the size of a node is assumed to be the sum of its childrens' sizes.
   */
-case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], sourceFileId: Option[Int])
+case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], sourceFileId: Option[Int], sourceLocationCount: Option[Int])
 
 sealed trait TreeNodeFlag
 object TreeNodeFlag {

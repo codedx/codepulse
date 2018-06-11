@@ -71,8 +71,8 @@ class JasperJspAdapter extends JspAdapter {
 				}
 
 				val node = authority match {
-					case Some(a) => codeForestBuilder.getOrAddJsp(displayName, size, Some(a.toString))
-					case None => codeForestBuilder.getOrAddJsp(displayName, size, Some(clazz))
+					case Some(a) => codeForestBuilder.getOrAddJsp(displayName, size, Some(a.toString), None) // TODO: Get JSP source location count
+					case None => codeForestBuilder.getOrAddJsp(displayName, size, Some(clazz), None)
 
 				}
 

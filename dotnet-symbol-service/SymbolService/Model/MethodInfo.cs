@@ -39,7 +39,10 @@ namespace SymbolService.Model
 
         public Guid SurrogateFor { get; set; }
 
-	    public MethodInfo()
+		public int SequencePointCount { get; set; }
+
+
+		public MethodInfo()
 	    {
 	        Id = Guid.NewGuid();
 	    }

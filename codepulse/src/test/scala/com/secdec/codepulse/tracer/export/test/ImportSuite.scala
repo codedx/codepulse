@@ -79,22 +79,22 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
         (24, 1, 107, 107, None, None)
       )
 
-      val treeNodeDataSet = Set[(Int,Option[Int], String, String, Option[Int], Option[Int])](
-        (0,  None,		  "Classes",									              "g",	None,		    None),
-        (3,  Option(0),	"com.codedx.invokeamethod",					      "p",	None,		    None),
-        (4,  Option(3),	"Main",							                      "c",	None,		    Option(1)),
-        (5,  Option(4),	"public void <init>()",						        "m",	Option(2),	Option(1)),
-        (6,  Option(4),	"public static void Method1()",				    "m",	Option(2),	Option(1)),
-        (7,  Option(4),	"public static void Method2()",				    "m",	Option(2),	Option(1)),
-        (8,  Option(4),	"public static void Method3()",				    "m",	Option(2),	Option(1)),
-        (9,  Option(4),	"public static void Method4()",				    "m",	Option(2),	Option(1)),
-        (10, Option(4),	"public static void Method5()",				    "m",	Option(2),	Option(1)),
-        (11, Option(4),	"public static void Method6()",				    "m",	Option(2),	Option(1)),
-        (12, Option(4),	"public static void Method7()",				    "m",	Option(2),	Option(1)),
-        (13, Option(4),	"public static void Method8()",				    "m",	Option(2),	Option(1)),
-        (14, Option(4),	"public static void Method9()",				    "m",	Option(2),	Option(1)),
-        (15, Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	Option(1)),
-        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	Option(1)))
+      val treeNodeDataSet = Set[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])](
+        (0,  None,		  "Classes",									              "g",	None,		    None, None),
+        (3,  Option(0),	"com.codedx.invokeamethod",					      "p",	None,		    None, None),
+        (4,  Option(3),	"Main",							                      "c",	None,		    Option(1), Option(4)),
+        (5,  Option(4),	"public void <init>()",						        "m",	Option(2),	Option(1), Option(5)),
+        (6,  Option(4),	"public static void Method1()",				    "m",	Option(2),	Option(1), Option(6)),
+        (7,  Option(4),	"public static void Method2()",				    "m",	Option(2),	Option(1), Option(7)),
+        (8,  Option(4),	"public static void Method3()",				    "m",	Option(2),	Option(1), Option(8)),
+        (9,  Option(4),	"public static void Method4()",				    "m",	Option(2),	Option(1), Option(9)),
+        (10, Option(4),	"public static void Method5()",				    "m",	Option(2),	Option(1), Option(10)),
+        (11, Option(4),	"public static void Method6()",				    "m",	Option(2),	Option(1), Option(11)),
+        (12, Option(4),	"public static void Method7()",				    "m",	Option(2),	Option(1), Option(12)),
+        (13, Option(4),	"public static void Method8()",				    "m",	Option(2),	Option(1), Option(13)),
+        (14, Option(4),	"public static void Method9()",				    "m",	Option(2),	Option(1), Option(14)),
+        (15, Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	Option(1), Option(15)),
+        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	Option(1), Option(16)))
 
       val nodeEncountersSet = Set[(Option[Int],Int,Option[Int])](
         (Option(1),	10,	Option(10)),
@@ -148,22 +148,22 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
 
       val sourceLocationsSet = Set.empty[(Int,Int,Int,Int,Option[Int],Option[Int])]
 
-      val treeNodeDataSet = Set[(Int,Option[Int], String, String, Option[Int], Option[Int])](
-        (0,  None,		  "Classes",									              "g",	None,		    None),
-        (3,  Option(0),	"com.codedx.invokeamethod",					      "p",	None,		    None),
-        (4,  Option(3),	"Main",							                      "c",	None,		    None),
-        (5,  Option(4),	"public void <init>()",						        "m",	Option(2),	None),
-        (6,  Option(4),	"public static void Method1()",				    "m",	Option(2),	None),
-        (7,  Option(4),	"public static void Method2()",				    "m",	Option(2),	None),
-        (8,  Option(4),	"public static void Method3()",				    "m",	Option(2),	None),
-        (9,  Option(4),	"public static void Method4()",				    "m",	Option(2),	None),
-        (10, Option(4),	"public static void Method5()",				    "m",	Option(2),	None),
-        (11, Option(4),	"public static void Method6()",				    "m",	Option(2),	None),
-        (12, Option(4),	"public static void Method7()",				    "m",	Option(2),	None),
-        (13, Option(4),	"public static void Method8()",				    "m",	Option(2),	None),
-        (14, Option(4),	"public static void Method9()",				    "m",	Option(2),	None),
-        (15, Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	None),
-        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	None))
+      val treeNodeDataSet = Set[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])](
+        (0,  None,		  "Classes",									              "g",	None,		    None, None),
+        (3,  Option(0),	"com.codedx.invokeamethod",					      "p",	None,		    None, None),
+        (4,  Option(3),	"Main",							                      "c",	None,		    None, None),
+        (5,  Option(4),	"public void <init>()",						        "m",	Option(2),	None, None),
+        (6,  Option(4),	"public static void Method1()",				    "m",	Option(2),	None, None),
+        (7,  Option(4),	"public static void Method2()",				    "m",	Option(2),	None, None),
+        (8,  Option(4),	"public static void Method3()",				    "m",	Option(2),	None, None),
+        (9,  Option(4),	"public static void Method4()",				    "m",	Option(2),	None, None),
+        (10, Option(4),	"public static void Method5()",				    "m",	Option(2),	None, None),
+        (11, Option(4),	"public static void Method6()",				    "m",	Option(2),	None, None),
+        (12, Option(4),	"public static void Method7()",				    "m",	Option(2),	None, None),
+        (13, Option(4),	"public static void Method8()",				    "m",	Option(2),	None, None),
+        (14, Option(4),	"public static void Method9()",				    "m",	Option(2),	None, None),
+        (15, Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	None, None),
+        (16, Option(4),	"public static void main(String[])",		  "m",	Option(94),	None, None))
 
       val nodeEncountersSet = Set[(Option[Int],Int,Option[Int])](
         (Option(1),	10,  None),
@@ -183,7 +183,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
   def assertV2Import(inputStore: InputStore, file: ZipFile,
                      sourceFileSet: Set[(Int,String)],
                      sourceLocationSet: Set[(Int,Int,Int,Int,Option[Int],Option[Int])],
-                     treeNodeDataSet: Set[(Int,Option[Int], String, String, Option[Int], Option[Int])],
+                     treeNodeDataSet: Set[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])],
                      nodeEncountersSet: Set[(Option[Int],Int,Option[Int])]): Unit = {
 
     //beforeTest()
@@ -274,22 +274,22 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
         (2,"clientColor", "#8cd9d9")
       ))
 
-      assertTreeNodeData(Set[(Int,Option[Int], String, String, Option[Int], Option[Int])](
-        (0,		None,		    "Classes",								                "g",	None,		    None),
-        (3,		Option(0),	"com.codedx.invokeamethod",				        "p",	None,		    None),
-        (4,		Option(3),	"Main",									                  "c",	None,		    None),
-        (5,		Option(4),	"public void <init>()",				            "m",	Option(2),	None),
-        (6,		Option(4),	"public static void Method1()",			      "m",	Option(2),	None),
-        (7,		Option(4),	"public static void Method2()",			      "m",	Option(2),	None),
-        (8,		Option(4),	"public static void Method3()",			      "m",	Option(2),	None),
-        (9,		Option(4),	"public static void Method4()",			      "m",	Option(2),	None),
-        (10,	Option(4),	"public static void Method5()",			      "m",	Option(2),	None),
-        (11,	Option(4),	"public static void Method6()",			      "m",	Option(2),	None),
-        (12,	Option(4),	"public static void Method7()",			      "m",	Option(2),	None),
-        (13,	Option(4),	"public static void Method8()",			      "m",	Option(2),	None),
-        (14,	Option(4),	"public static void Method9()",			      "m",	Option(2),	None),
-        (15,	Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	None),
-        (16,	Option(4),	"public static void main(String[])",		  "m",	Option(94),	None)
+      assertTreeNodeData(Set[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])](
+        (0,		None,		    "Classes",								                "g",	None,		    None, None),
+        (3,		Option(0),	"com.codedx.invokeamethod",				        "p",	None,		    None, None),
+        (4,		Option(3),	"Main",									                  "c",	None,		    None, None),
+        (5,		Option(4),	"public void <init>()",				            "m",	Option(2),	None, None),
+        (6,		Option(4),	"public static void Method1()",			      "m",	Option(2),	None, None),
+        (7,		Option(4),	"public static void Method2()",			      "m",	Option(2),	None, None),
+        (8,		Option(4),	"public static void Method3()",			      "m",	Option(2),	None, None),
+        (9,		Option(4),	"public static void Method4()",			      "m",	Option(2),	None, None),
+        (10,	Option(4),	"public static void Method5()",			      "m",	Option(2),	None, None),
+        (11,	Option(4),	"public static void Method6()",			      "m",	Option(2),	None, None),
+        (12,	Option(4),	"public static void Method7()",			      "m",	Option(2),	None, None),
+        (13,	Option(4),	"public static void Method8()",			      "m",	Option(2),	None, None),
+        (14,	Option(4),	"public static void Method9()",			      "m",	Option(2),	None, None),
+        (15,	Option(4),	"public static void MethodInvoked(int)",	"m",	Option(9),	None, None),
+        (16,	Option(4),	"public static void main(String[])",		  "m",	Option(94),	None, None)
       ))
 
       assertTraceNodes(Set[(Int,Boolean)](
@@ -364,11 +364,11 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
     assert(actual.toSet == expected)
   }
 
-  def assertTreeNodeData(expected: Set[(Int,Option[Int], String, String, Option[Int], Option[Int])]): Unit = {
-    val actual = collection.mutable.ListBuffer.empty[(Int,Option[Int], String, String, Option[Int], Option[Int])]
+  def assertTreeNodeData(expected: Set[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])]): Unit = {
+    val actual = collection.mutable.ListBuffer.empty[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])]
     projectDb.withSession(implicit x => {
-      Q.queryNA[(Int,Option[Int], String, String, Option[Int], Option[Int])]("select * from \"tree_node_data\"").foreach( s => {
-        actual.append((s._1, s._2, s._3, s._4, s._5, s._6))
+      Q.queryNA[(Int,Option[Int], String, String, Option[Int], Option[Int], Option[Int])]("select * from \"tree_node_data\"").foreach( s => {
+        actual.append((s._1, s._2, s._3, s._4, s._5, s._6, s._7))
       })
     })
     assert(actual.toSet == expected)

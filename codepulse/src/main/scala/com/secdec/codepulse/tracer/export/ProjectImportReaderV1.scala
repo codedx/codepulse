@@ -107,6 +107,7 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 				var kind = None: Option[CodeTreeNodeKind]
 				var size = None: Option[Int]
 				var sourceFileId = None: Option[Int]
+				var sourceLocationCount = None: Option[Int]
 				var traced = None: Option[Boolean]
 
 				while (jp.nextValue != END_OBJECT) {
@@ -134,6 +135,12 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 								case _ => Some(jp.getIntValue)
 							}
 
+						case "sourceLocationCount" =>
+							sourceLocationCount = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getIntValue)
+							}
+
 						case "traced" =>
 							traced = jp.getCurrentToken match {
 								case VALUE_NULL => None
@@ -148,7 +155,8 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 					label getOrElse { throw new ProjectImportException("Missing label for tree node.") },
 					kind.getOrElse { throw new ProjectImportException("Missing or invalid kind for tree node.") },
 					size,
-					sourceFileId),
+					sourceFileId,
+					sourceLocationCount),
 					traced)
 			}
 

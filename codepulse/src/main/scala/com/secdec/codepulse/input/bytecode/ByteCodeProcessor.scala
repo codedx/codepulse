@@ -114,7 +114,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
 						for {
-							(file, name, size) <- methods
+							(file, name, size, lineCount) <- methods
 							pkg = getPackageFromSig(name)
 							filePath = FilePath(Array(pkg, file).mkString("/"))
 							nestedPath = filePath.map(fp => entryPath match {
@@ -125,7 +125,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 								case Some(np) => authoritativePath(groupName, np).map (_.toString)
 								case None => None
 							}
-							treeNode <- builder.getOrAddMethod(groupName, name, size, authority)
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount))
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
 						}

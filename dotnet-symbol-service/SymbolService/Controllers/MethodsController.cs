@@ -157,16 +157,19 @@ namespace SymbolService.Controllers
 
         private MethodInfo GetMethodInfo(MethodDefinition method)
         {
-            return new MethodInfo
+	        var sequencePoints = method.DebugInformation.HasSequencePoints ? method.DebugInformation.SequencePoints : null;
+
+			return new MethodInfo
             {
                 FullyQualifiedName = method.Name,
                 ContainingClass = method.DeclaringType?.FullName,
-				File = method.DebugInformation.HasSequencePoints ? method.DebugInformation.SequencePoints.First().Document.Url : null,
+				File = sequencePoints?.First().Document.Url,
                 AccessModifiers = GetAccessModifiers(method),
                 Parameters = GetParameters(method),
                 ReturnType = method.ReturnType.FullName,
-                Instructions = method.Body?.Instructions?.Count ?? 0
-            };
+                Instructions = method.Body?.Instructions?.Count ?? 0,
+				SequencePointCount = sequencePoints?.Count ?? 0
+			};
         }
 
         static readonly Dictionary<Modifier, Func<MethodDefinition, Modifier>> AccessModiferQueries = new Dictionary<Modifier, Func<MethodDefinition, Modifier>>()

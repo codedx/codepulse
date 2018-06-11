@@ -31,6 +31,7 @@ trait CodeTreeNode {
 	def kind: CodeTreeNodeKind
 	def size: Option[Int]
 	def sourceFile: Option[String]
+	def sourceLocationCount: Option[Int]
 
 	def parentId = parent map { _.id }
 
@@ -119,8 +120,8 @@ object CodeTreeNode {
 trait CodeTreeNodeFactory {
 	def createGroupNode(name: String): CodeTreeNode
 	def createPackageNode(name: String): CodeTreeNode
-	def createClassNode(name: String, sourceFile: Option[String]): CodeTreeNode
-	def createMethodNode(name: String, size: Int, sourceFile: Option[String]): CodeTreeNode
+	def createClassNode(name: String, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode
+	def createMethodNode(name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode
 }
 
 object CodeTreeNodeFactory {
@@ -128,21 +129,25 @@ object CodeTreeNodeFactory {
 		def kind = CodeTreeNodeKind.Grp
 		def size = None
 		def sourceFile = None
+		def sourceLocationCount = None
 	}
 	private case class PackageNode(id: Int, name: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Pkg
 		def size = None
 		def sourceFile = None
+		def sourceLocationCount = None
 	}
-	private case class ClassNode(id: Int, name: String, sourceFilePath: Option[String]) extends CodeTreeNode {
+	private case class ClassNode(id: Int, name: String, sourceFilePath: Option[String], sourceLocationCnt: Option[Int]) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Cls
 		def size = None
 		def sourceFile = sourceFilePath
+		def sourceLocationCount = sourceLocationCnt
 	}
-	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: Option[String]) extends CodeTreeNode {
+	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: Option[String], sourceLocationCnt: Option[Int]) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Mth
 		def size = Some(methodSize)
 		def sourceFile = sourceFilePath
+		def sourceLocationCount = sourceLocationCnt
 	}
 
 	def mkDefaultFactory: CodeTreeNodeFactory = new DefaultImpl
@@ -152,8 +157,8 @@ object CodeTreeNodeFactory {
 
 		def createGroupNode(name: String): CodeTreeNode = GroupNode(ids.next, name)
 		def createPackageNode(name: String): CodeTreeNode = PackageNode(ids.next, name)
-		def createClassNode(name: String, sourceFile: Option[String]): CodeTreeNode = ClassNode(ids.next, name, sourceFile)
-		def createMethodNode(name: String, size: Int, sourceFile: Option[String]): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile)
+		def createClassNode(name: String, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode = ClassNode(ids.next, name, sourceFile, sourceLocationCnt)
+		def createMethodNode(name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile, sourceLocationCnt)
 	}
 }
 sealed abstract class CodeTreeNodeKind(val label: String)

@@ -44,7 +44,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val methodId = 20
       val clientMethodId = 1
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None, None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -67,7 +67,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile), None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -87,7 +87,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val methodId = 23
       val clientMethodId = 4
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None, None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -107,7 +107,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val clientMethodSourceLocationId = 6
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None, None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -131,7 +131,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile), None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -155,7 +155,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile), None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -181,7 +181,7 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodSourceFile -> "C:\\source.cs"))
-      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile)))
+      data.treeNodeData.storeNode(new TreeNodeData(methodId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodSourceFile), None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodId))
       data.flush(); Thread.sleep(2500)
 
@@ -210,8 +210,8 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
       data.sourceData.importSourceFiles(Map(methodOneSourceFile -> "C:\\package1\\source.java"))
       data.sourceData.importSourceFiles(Map(methodTwoSourceFile -> "C:\\package2\\source.java"))
-      data.treeNodeData.storeNode(new TreeNodeData(methodOneId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodOneSourceFile)))
-      data.treeNodeData.storeNode(new TreeNodeData(methodTwoId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodTwoSourceFile)))
+      data.treeNodeData.storeNode(new TreeNodeData(methodOneId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodOneSourceFile), None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodTwoId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), Option(methodTwoSourceFile), None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodOneId))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodTwoId))
       data.flush(); Thread.sleep(2500)
@@ -259,8 +259,8 @@ class TraceRecorderDataProcessorSuite extends FunSpec with Matchers with BeforeA
       val clientMethodId = 13
 
       val recorder = new TraceRecorderDataProcessor(data, new TransientTraceData(data.id), None)
-      data.treeNodeData.storeNode(new TreeNodeData(methodOneId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
-      data.treeNodeData.storeNode(new TreeNodeData(methodTwoId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodOneId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None, None))
+      data.treeNodeData.storeNode(new TreeNodeData(methodTwoId, None, "methodSig", CodeTreeNodeKind.Mth, Option[Int](50), None, None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodOneId))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "methodSig", methodTwoId))
       data.flush(); Thread.sleep(2500)

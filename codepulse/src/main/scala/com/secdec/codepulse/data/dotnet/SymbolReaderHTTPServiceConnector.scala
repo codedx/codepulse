@@ -22,7 +22,7 @@ package com.secdec.codepulse.data.dotnet
 import java.io.File
 import scala.concurrent.Await
 import scala.concurrent.duration._
-
+import scala.language.postfixOps
 import com.ning.http.client.multipart.FilePart
 import com.secdec.codepulse.data.{ MethodSignature, MethodTypeParam }
 import dispatch.Defaults._
@@ -35,7 +35,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 	val port = config.getString("cp.userSettings.symbolService.port")
 	val symbolService = url(s"http://localhost:$port/api/methods")
 
-	override def Methods: List[(MethodSignature, Int)] = {
+	override def Methods: List[(MethodSignature, Int, Int)] = {
 		implicit val formats = DefaultFormats
 
 		val request = symbolService.POST.addBodyPart(new FilePart("assemblyFile", assembly)).addBodyPart(new FilePart("symbolsFile", symbols))
@@ -44,7 +44,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 
 		val methodInfos = parse(result).children.map(child => {
 			val methodInfo = child.extract[MethodInfo]
-			(methodInfo.id, methodInfo.surrogateFor, methodInfo.instructions, (new MethodSignature(
+			(methodInfo.id, methodInfo.surrogateFor, methodInfo.instructions, methodInfo.sequencePointCount, (new MethodSignature(
 				methodInfo.fullyQualifiedName,
 				methodInfo.containingClass,
 				Option(methodInfo.file),
@@ -55,8 +55,8 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 
 		val methodSignaturesById = collection.mutable.Map[String, MethodSignature]().empty
 
-		methodInfos.map((methodInfo:(String, String, Int, MethodSignature)) => {
-			methodSignaturesById(methodInfo._1) = methodInfo._4
+		methodInfos.map((methodInfo:(String, String, Int, Int, MethodSignature)) => {
+			methodSignaturesById(methodInfo._1) = methodInfo._5
 			if (methodInfo._2 != "00000000-0000-0000-0000-000000000000") {
 				val method = methodSignaturesById(methodInfo._2)
 				val surrogateMethod = methodSignaturesById(methodInfo._1)
@@ -65,7 +65,7 @@ class SymbolReaderHTTPServiceConnector(assembly: File, symbols: File) extends Do
 					method.file = surrogateMethod.file
 				}
 			}
-			(methodInfo._4, methodInfo._3)
+			(methodInfo._5, methodInfo._3, methodInfo._4)
 		})
 	}
 }
