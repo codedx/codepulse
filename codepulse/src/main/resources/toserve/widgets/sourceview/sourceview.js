@@ -41,6 +41,7 @@ function SourceView(editorParent) {
         'readOnly': true,
         'cursorHeight': 0,
         'styleActiveLine': true,
+        'styleSelectedText': true,
         'scrollbarStyle': 'overlay',
         'highlightSelectionMatches': { showToken: /\w/ }
     })
@@ -89,5 +90,28 @@ SourceView.prototype.setDataProvider = function(sourceDataProvider){
             else if(err.message) this.setErrorView(err.message)
             else this.setErrorView(err)
         }
-    )
+    ).then(sourceDataProvider.loadSourceLocations)
+    .then((locations) => {
+        console.log("Source Locations", locations)
+        locations.forEach(loc => {
+            let start = {
+                line: loc.startLine - 1,
+                ch: loc.startCharacter - 1
+            }
+
+            let end = {
+                line: loc.endLine - 1,
+                ch: loc.endCharacter - 1
+            }
+
+            for(let line = start.line; line <= end.line; line++) {
+                this.editor.addLineClass(line, "background", "line-level-coverage")
+            }
+
+            // this.editor.getDoc().markText({line: loc.startLine, ch: loc.startCharacter}, {line: loc.endLine, ch: loc.endCharacter}, {className: "code-coverage"})
+            this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+            // this.editor.addLineClass(start.line, "background", "code-coverage")
+            // this.editor.addLineClass(end.line, "background", "code-coverage")
+        })
+    })
 }

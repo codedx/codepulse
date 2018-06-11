@@ -233,7 +233,11 @@
 
         'getSource': function(id, callback) {
         	getCommand('/source/' + id, callback)
-    	}
+    	},
+
+		'getSourceLocations': function(id, callback) {
+			getCommand('/source-file/' + id + "/source-locations", callback)
+		}
 	}
 
 })(this);

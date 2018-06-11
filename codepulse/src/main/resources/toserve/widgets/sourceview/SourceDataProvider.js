@@ -20,6 +20,7 @@
 
 function SourceDataProvider(sourceFile) {
     let _sourcePromise = null
+    let _sourceLocationsPromise = null
 
     return {
         loadSource: function(clearCache){
@@ -44,6 +45,21 @@ function SourceDataProvider(sourceFile) {
             }
 
             return _sourcePromise
+        },
+
+        loadSourceLocations: function(clearCache){
+            if(clearCache) _sourceLocationsPromise = null
+
+            if(!_sourceLocationsPromise){
+                _sourceLocationsPromise = new Promise((resolve, reject) => {
+                    API.getSourceLocations(sourceFile.id, (locations, err) => {
+                        if(err) reject(err)
+                        else resolve(locations)
+                    })
+                })
+            }
+
+            return _sourceLocationsPromise
         }
     }
 }

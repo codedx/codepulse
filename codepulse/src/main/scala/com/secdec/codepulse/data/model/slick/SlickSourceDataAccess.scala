@@ -36,6 +36,10 @@ private[slick] class SlickSourceDataAccess(dao: SourceDataDao, db: Database) ext
 		db withSession { implicit session => dao.getSourceFile(sourceFileId) }
 	}
 
+	override def getSourceLocations(sourceFileId: Int): List[SourceLocation] = {
+		db withSession { implicit session => dao.getSourceLocations(sourceFileId) }
+	}
+
 	def foreachSourceFile(f: SourceFile => Unit) {
 		iterateSourceFile { _.foreach(f) }
 	}

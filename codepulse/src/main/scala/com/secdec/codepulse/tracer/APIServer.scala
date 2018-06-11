@@ -308,6 +308,19 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			},
 			{ case (target, source) => (target, List("source", source))}
 		)
+
+		val SourceLocations = TargetPath.map[(TracingTarget, List[SourceLocation])](
+			{
+				case (target, List("source-file", AsInt(sourceFileId), "source-locations")) =>
+					val locations = (for {
+						sourceLocations <- target.projectData.sourceData.getSourceLocations(sourceFileId)
+					} yield {
+						sourceLocations
+					})
+					(target, locations)
+			},
+			{ case (target, sourceLocations) => (target, List("source-locations", sourceLocations.mkString(", ")))}
+		)
 	}
 
 	private object DataPath {
@@ -638,6 +651,13 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		case Paths.Source(target, source) Get req =>
 			PlainTextResponse(source)
+
+		case Paths.SourceLocations(target, sourceLocations) Get req =>
+			val locations = for(l <- sourceLocations) yield ("startLine" -> l.startLine) ~
+				("startCharacter" -> l.startCharacter) ~
+				("endLine" -> l.endLine) ~
+				("endCharacter" -> l.endCharacter)
+			JsonResponse(locations)
 	}
 }
 

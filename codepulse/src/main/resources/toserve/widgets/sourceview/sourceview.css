@@ -71,3 +71,15 @@
     /* override our global codemirror style from codemirror-extra.css */
     max-height: none;
 }
+
+#source-popout .CodeMirror-selectedtext {
+    background-color: red
+}
+
+.line-level-coverage {
+    background-color: #e6ffed
+}
+
+.code-coverage {
+    background-color: #acf2bd
+}
