@@ -136,12 +136,13 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 							case Success(content, _) =>
 								val jspSize = JspAnalyzer analyze content
 
+								val entryName = entry.getName
 								val nestedPath = entryPath match {
-									case Some(ep) => new NestedPath(ep.paths :+ new FilePath(entry.getName, None))
-									case None => new NestedPath(List(new FilePath(entry.getName, None)))
+									case Some(ep) => new NestedPath(ep.paths :+ new FilePath(entryName, None))
+									case None => new NestedPath(List(new FilePath(entryName, None)))
 								}
 
-								jspAdapter.addJsp(nestedPath.toString, jspSize)
+								jspAdapter.addJsp(nestedPath.toString, entryName, jspSize)
 							case _ =>
 						}
 

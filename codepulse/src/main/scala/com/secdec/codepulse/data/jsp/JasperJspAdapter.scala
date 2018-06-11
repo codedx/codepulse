@@ -31,28 +31,28 @@ import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalizatio
   * @author robertf
   */
 class JasperJspAdapter extends JspAdapter {
-	private val jsps = List.newBuilder[(String, Int)]
+	private val jsps = List.newBuilder[(String, String, Int)]
 	private val webinfs = List.newBuilder[String]
 
-	def addJsp(path: String, size: Int) = jsps += path -> size
+	def addJsp(path: String, entryName: String, size: Int) = jsps += ((path, entryName, size))
 	def addWebinf(path: String) = webinfs += path
 
 	def build(codeForestBuilder: CodeForestBuilder): List[(String, Int)] = {
 		val jsps = this.jsps.result
 		val webinfs = this.webinfs.result
 
-		val jspClasses = Set.newBuilder[(String, Int)]
+		val jspClasses = Set.newBuilder[(String, String, Int)]
 
 		for (webinf <- webinfs) {
 			val parent = Option(new File(webinf).getParent) getOrElse ""
 			val parentLen = parent.length
 			jspClasses ++= jsps
-				.filter(_._1.startsWith(parent))
-				.map { case (clazz, size) => clazz.substring(parentLen) -> size }
+				.filter(_._2.startsWith(parent))
+				.map { case (path, entryName, size) => (path, entryName.substring(parentLen), size) }
 		}
 
 		val sourceFiles = jsps map {
-			case (clazz, size) => clazz
+			case (path, _, _) => path
 		}
 
 		codeForestBuilder.addExternalSourceFiles(CodeForestBuilder.JSPGroupName, sourceFiles)
@@ -62,17 +62,17 @@ class JasperJspAdapter extends JspAdapter {
 		// build up - class name must match generated class name supporting JSP file; otherwise,
 		// the class name will not match the inclusion filter provided to the Java tracer
 		jspClasses.result.toList map {
-			case (clazz, size) =>
-				val jspClassName = JasperUtils.makeJavaClass(clazz)
-				val displayName = clazz.split('/').filter(!_.isEmpty).toList
-				val authority = FilePath(clazz) match {
+			case (path, entryName, size) =>
+				val jspClassName = JasperUtils.makeJavaClass(entryName)
+				val displayName = entryName.split('/').filter(!_.isEmpty).toList
+				val authority = FilePath(path) match {
 					case Some(cz) => filePaths.find(PathNormalization.isLocalizedInAuthorityPath(_, cz))
 					case None => None
 				}
 
 				val node = authority match {
 					case Some(a) => codeForestBuilder.getOrAddJsp(displayName, size, Some(a.toString), None) // TODO: Get JSP source location count
-					case None => codeForestBuilder.getOrAddJsp(displayName, size, Some(clazz), None)
+					case None => codeForestBuilder.getOrAddJsp(displayName, size, Some(path), None)
 
 				}
 
