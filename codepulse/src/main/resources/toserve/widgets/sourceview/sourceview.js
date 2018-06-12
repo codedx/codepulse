@@ -108,10 +108,7 @@ SourceView.prototype.setDataProvider = function(sourceDataProvider){
                 this.editor.addLineClass(line, "background", "line-level-coverage")
             }
 
-            // this.editor.getDoc().markText({line: loc.startLine, ch: loc.startCharacter}, {line: loc.endLine, ch: loc.endCharacter}, {className: "code-coverage"})
             this.editor.getDoc().markText(start, end, {className: "code-coverage"})
-            // this.editor.addLineClass(start.line, "background", "code-coverage")
-            // this.editor.addLineClass(end.line, "background", "code-coverage")
         })
     })
 }

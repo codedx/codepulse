@@ -35,12 +35,6 @@ function SourceDataProvider(sourceFile) {
                         if(err) reject(err)
                         else resolve({ mode, source })
                     })
-
-                    // let sourceUrl = cdx.xapiUrl(`/projects/${this._projectId}/files/by-input/${this._inputPath.id}`)
-                    // cdx.get(sourceUrl, (err, source) => {
-                    //     if(err) reject(err)
-                    //     else resolve({ mode, source })
-                    // })
                 })
             }
 
