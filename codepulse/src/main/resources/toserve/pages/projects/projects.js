@@ -137,12 +137,8 @@ $(document).ready(function(){
                 return t == 'method' || t == 'class'
             })
             .flatMapLatest(function(click){
-                API.getNodeSourceFile(click.data.id, function(reply, error) {
-                    console.log(reply, error)
-                })
-
-                return Bacon.fromCallback(API.getNodeSourceFile, click.data.id).map(function(response){
-                    return _.extend({}, click, { location: response })
+                return Bacon.fromCallback(API.getNodeSourceMetadata, click.data.id).map(function(response){
+                    return _.extend({}, click, { metadata: response })
                 }).mapError(function(err){
                     console.log('treemap click event could not be associated with source due to lookup error', err)
                     return null
@@ -152,13 +148,22 @@ $(document).ready(function(){
             .flatMapFirst(function(selection){ return Bacon.fromCallback(activatePopout, selection.elem).map(selection) })
             .onValue(function(selection){
                 // set up view components for the selection
-                var templateData = {}
-                _.extend(templateData, selection.location)
-                var templateHtml = popoutHeaderTemplate(templateData)
-				$popoutHeader.html(templateHtml)
+                var nodeSourceInfo = _.extend({}, selection.metadata)
 
-                let dataProvider = new SourceDataProvider(selection.location)
-                sourceView.setDataProvider(dataProvider)
+				var dataProvider = new SourceDataProvider(nodeSourceInfo)
+				sourceView.setDataProvider(dataProvider)
+
+                dataProvider.loadSourceLocations().then((locations) => {
+                	nodeSourceInfo.tracedSourceLocationPercentage = "";
+                	nodeSourceInfo.tracedSourceLocationCount = locations.length;
+                	if (nodeSourceInfo.sourceLocationCount != 0) {
+                		var percentage = nodeSourceInfo.tracedSourceLocationCount / nodeSourceInfo.sourceLocationCount * 100
+                        nodeSourceInfo.tracedSourceLocationPercentage = "(" + (percentage % 1 === 0 ? percentage : percentage.toFixed(2)) + "%)";
+					}
+
+					var templateHtml = popoutHeaderTemplate(nodeSourceInfo);
+                	$popoutHeader.html(templateHtml);
+                })
             })
 
         popoutCloseClicks.onValue(deactivatePopout)

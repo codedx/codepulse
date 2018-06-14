@@ -52,6 +52,10 @@ import DCJson._
 import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.version
 
+case class NodeSourceMetadata(nodeId: Int, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int)
+case class NodeSourceFileContents(sourceFileId: Int, sourceFileContents: String)
+case class NodeTracedSourceLocations(nodeId: Int, sourceLocations: List[SourceLocation])
+
 class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
 	implicit val executionContext = ExecutionContext fromExecutor Executors.newCachedThreadPool
@@ -278,48 +282,49 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/connection/[reject|accept/<project.id>] */
 		val Acknowledgment = AcknowledgmentPath
 
-		val NodeSourceFile = TargetPath.map[(TracingTarget, SourceFile)](
-			{
-				case (target, List("node", AsInt(nodeId), "source-file")) =>
+		val NodeSourceCodeMetadata = TargetPath.map[(TracingTarget, NodeSourceMetadata)]({
+				case (target, listParts @ List("node", AsInt(nodeId), "source-metadata")) =>
 					(for {
 						node <- target.projectData.treeNodeData.getNode(nodeId)
 						fileId <- node.sourceFileId
 						sourceFile <- target.projectData.sourceData.getSourceFile(fileId)
 					} yield {
-						(target, sourceFile)
-					}) getOrElse (target, SourceFile(-1, ""))
-			},
-			{ case (target, sourceFile) => (target, List("source-file", sourceFile.id.toString))}
+						(target, NodeSourceMetadata(node.id, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0)))
+					}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, -1, "", 0))
+			}, {
+				case (target, nodeSourceMetadata) =>
+					(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
+			}
 		)
 
-		val Source = TargetPath.map[(TracingTarget, String)](
-			{
-				case (target, List("source", AsInt(sourceFileId))) =>
-					val projectId = target.projectData.id
-
+		val NodeSourceCodeFileContents = TargetPath.map[(TracingTarget, NodeSourceFileContents)]({
+				case (target, listParts @ List("source", AsInt(sourceFileId))) =>
 					(for {
-						storage <- StorageManager.getStorageFor(projectId)
+						storage <- StorageManager.getStorageFor(target.projectData.id)
 						sourceFile <- target.projectData.sourceData.getSourceFile(sourceFileId)
 						content <- storage.loadEntry(sourceFile.path)
 					} yield {
 						storage.close
-						(target, content)
-					}) getOrElse ((target, "Source unavailable"))
+						(target, NodeSourceFileContents(sourceFileId, content))
+					}) getOrElse (target, NodeSourceFileContents(listParts(1).toInt, "Source unavailable"))
 			},
-			{ case (target, source) => (target, List("source", source))}
+			{
+				case (target, nodeSourceFileContents) =>
+					(target, List("source", nodeSourceFileContents.sourceFileId.toString))
+			}
 		)
 
-		val SourceLocations = TargetPath.map[(TracingTarget, List[SourceLocation])](
+		val NodeTracedSourceCodeLocations = TargetPath.map[(TracingTarget, NodeTracedSourceLocations)](
 			{
-				case (target, List("source-file", AsInt(sourceFileId), "source-locations")) =>
+				case (target, listParts @ List("node", AsInt(nodeId), "source-locations")) =>
 					val locations = (for {
-						sourceLocations <- target.projectData.sourceData.getSourceLocations(sourceFileId)
+						sourceLocations <- target.projectData.encounters.getTracedSourceLocations(nodeId)
 					} yield {
 						sourceLocations
 					})
-					(target, locations)
+					(target, NodeTracedSourceLocations(listParts(1).toInt, locations))
 			},
-			{ case (target, sourceLocations) => (target, List("source-locations", sourceLocations.mkString(", ")))}
+			{ case (target, nodeTracedSourceLocations) => (target, List("node", nodeTracedSourceLocations.nodeId.toString, "source-locations"))}
 		)
 	}
 
@@ -645,15 +650,18 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				}
 			}
 
-		case Paths.NodeSourceFile(target, sourceFile) Get req =>
-			val json = ("id" -> sourceFile.id) ~ ("path", sourceFile.path)
+		case Paths.NodeSourceCodeMetadata(target, nodeSourceMetadata) Get req =>
+			val json = ("nodeId" -> nodeSourceMetadata.nodeId) ~
+				("sourceFileId", nodeSourceMetadata.sourceFileId) ~
+				("sourceFilePath", nodeSourceMetadata.sourceFilePath) ~
+				("sourceLocationCount", nodeSourceMetadata.sourceLocationCount)
 			JsonResponse(json)
 
-		case Paths.Source(target, source) Get req =>
-			PlainTextResponse(source)
+		case Paths.NodeSourceCodeFileContents(target, nodeSourceFileContents) Get req =>
+			PlainTextResponse(nodeSourceFileContents.sourceFileContents)
 
-		case Paths.SourceLocations(target, sourceLocations) Get req =>
-			val locations = for(l <- sourceLocations) yield ("startLine" -> l.startLine) ~
+		case Paths.NodeTracedSourceCodeLocations(target, tracedSourceLocations) Get req =>
+			val locations = for(l <- tracedSourceLocations.sourceLocations) yield ("startLine" -> l.startLine) ~
 				("startCharacter" -> l.startCharacter) ~
 				("endLine" -> l.endLine) ~
 				("endCharacter" -> l.endCharacter)

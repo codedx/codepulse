@@ -85,12 +85,6 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 		if (sourceLocation == None) { None } else { Option(sourceLocation.get.id) }
 	}
 
-	def getSourceLocations(sourceFileId: Int)(implicit session: Session): List[SourceLocation] = {
-		(for {
-			q <- sourceLocationsQuery if q.sourceFileId === sourceFileId
-		} yield q).list
-	}
-
 	def getSourceFile(sourceFileId: Int)(implicit session: Session): Option[SourceFile] = {
 		(for {
 			q <- sourceFilesQuery if q.id === sourceFileId

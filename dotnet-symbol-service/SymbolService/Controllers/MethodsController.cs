@@ -158,6 +158,7 @@ namespace SymbolService.Controllers
         private MethodInfo GetMethodInfo(MethodDefinition method)
         {
 	        var sequencePoints = method.DebugInformation.HasSequencePoints ? method.DebugInformation.SequencePoints : null;
+	        var visibleSequencePoints = sequencePoints?.Count(x => !x.IsHidden) ?? 0;
 
 			return new MethodInfo
             {
@@ -168,7 +169,7 @@ namespace SymbolService.Controllers
                 Parameters = GetParameters(method),
                 ReturnType = method.ReturnType.FullName,
                 Instructions = method.Body?.Instructions?.Count ?? 0,
-				SequencePointCount = sequencePoints?.Count ?? 0
+				SequencePointCount = visibleSequencePoints
 			};
         }
 

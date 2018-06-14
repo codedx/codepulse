@@ -22,7 +22,7 @@ package com.secdec.codepulse.data.model.slick
 import scala.concurrent.duration.FiniteDuration
 import scala.slick.jdbc.JdbcBackend.Database
 import akka.actor.ActorSystem
-import com.secdec.codepulse.data.model.TraceEncounterDataAccess
+import com.secdec.codepulse.data.model.{Encounter, SourceLocation, TraceEncounterDataAccess}
 import com.secdec.codepulse.util.TaskScheduler
 
 /** Slick-backed TraceEncoutnerDataAccess implementation.
@@ -45,21 +45,21 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 		db withSession { implicit session =>
 			dao.iterateWith {
 				_.foreach {
-					case (Some(recordingId), nodeId, Some(sourceLocationId)) => {
+					case Encounter(Some(recordingId), nodeId, Some(sourceLocationId)) => {
 						val recordingMap = recordingEncounters.getOrElseUpdate(recordingId, collection.mutable.HashMap.empty)
 						val sourceLocationMap = recordingMap.getOrElseUpdate(nodeId, collection.mutable.Set.empty)
 						sourceLocationMap += Some(sourceLocationId)
 					}
-					case (Some(recordingId), nodeId, None) => {
+					case Encounter(Some(recordingId), nodeId, None) => {
 						val recordingMap = recordingEncounters.getOrElseUpdate(recordingId, collection.mutable.HashMap.empty)
 						val sourceLocationMap = recordingMap.getOrElseUpdate(nodeId, collection.mutable.Set.empty)
 						sourceLocationMap += None
 					}
-					case (None, nodeId, Some(sourceLocationId)) => {
+					case Encounter(None, nodeId, Some(sourceLocationId)) => {
 						val sourceLocationMap = unassociatedEncounters.getOrElseUpdate(nodeId, collection.mutable.Set.empty)
 						sourceLocationMap += Some(sourceLocationId)
 					}
-					case (None, nodeId, None) => {
+					case Encounter(None, nodeId, None) => {
 						val sourceLocationMap = unassociatedEncounters.getOrElseUpdate(nodeId, collection.mutable.Set.empty)
 						sourceLocationMap += None
 					}
@@ -184,4 +184,8 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 			if (encounters == Nil) { return Nil.toSet }
 			encounters.map(_._1).toSet
 		}
+
+	override def getTracedSourceLocations(nodeId: Int): List[SourceLocation] = db withSession { implicit session =>
+		dao getTracedSourceLocations nodeId
+	}
 }

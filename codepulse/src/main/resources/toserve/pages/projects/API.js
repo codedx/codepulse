@@ -227,16 +227,16 @@
 			$.getJSON(commandPath('/vulnerableNodes'), callback)
 		},
 
-        'getNodeSourceFile': function(id, callback) {
-        	getCommand('/node/' + id + '/source-file', callback)
+        'getNodeSourceMetadata': function(id, callback) {
+            getCommand('/node/' + id + '/source-metadata', callback)
         },
 
         'getSource': function(id, callback) {
         	getCommand('/source/' + id, callback)
     	},
 
-		'getSourceLocations': function(id, callback) {
-			getCommand('/source-file/' + id + "/source-locations", callback)
+		'getNodeSourceLocations': function(id, callback) {
+			getCommand('/node/' + id + "/source-locations", callback)
 		}
 	}
 

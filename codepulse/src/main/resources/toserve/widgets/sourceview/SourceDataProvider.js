@@ -18,7 +18,7 @@
  * (DHS S&T/CSD) via contract number HHSP233201600058C.
  */
 
-function SourceDataProvider(sourceFile) {
+function SourceDataProvider(nodeSourceInfo) {
     let _sourcePromise = null
     let _sourceLocationsPromise = null
 
@@ -28,10 +28,10 @@ function SourceDataProvider(sourceFile) {
 
             if(!_sourcePromise){
                 _sourcePromise = new Promise((resolve, reject) => {
-                    let mode = CodeMirror.findModeByFileName(sourceFile.path)
+                    let mode = CodeMirror.findModeByFileName(nodeSourceInfo.sourceFilePath)
                     mode = mode && mode.mime
 
-                    API.getSource(sourceFile.id, (source, err) => {
+                    API.getSource(nodeSourceInfo.sourceFileId, (source, err) => {
                         if(err) reject(err)
                         else resolve({ mode, source })
                     })
@@ -46,7 +46,7 @@ function SourceDataProvider(sourceFile) {
 
             if(!_sourceLocationsPromise){
                 _sourceLocationsPromise = new Promise((resolve, reject) => {
-                    API.getSourceLocations(sourceFile.id, (locations, err) => {
+                    API.getNodeSourceLocations(nodeSourceInfo.nodeId, (locations, err) => {
                         if(err) reject(err)
                         else resolve(locations)
                     })
