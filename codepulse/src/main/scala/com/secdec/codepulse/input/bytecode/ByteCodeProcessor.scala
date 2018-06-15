@@ -142,7 +142,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 									case None => new NestedPath(List(new FilePath(entryName, None)))
 								}
 
-								jspAdapter.addJsp(nestedPath.toString, entryName, jspSize)
+								jspAdapter.addJsp(nestedPath.toString, entryName, jspSize.approximateInstructionCount, jspSize.totalLineCount)
 							case _ =>
 						}
 

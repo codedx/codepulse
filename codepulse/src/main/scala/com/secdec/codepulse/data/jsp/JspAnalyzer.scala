@@ -40,6 +40,12 @@ object JspAnalyzer {
 	private val ScriptBlock = "%"
 	private val DeclarationBlock = "%!"
 
+	case class Result(
+		totalLineCount: Int,
+		approximateInstructionCount: Int,
+		nonBlockLineCount: Int,
+		statementCount: Int)
+
 	def analyze(contents: String) = {
 		val blocks = Block.findAllMatchIn(contents).toList
 		val statementCount = blocks.map { m =>
@@ -53,9 +59,18 @@ object JspAnalyzer {
 			}
 		}.sum
 
+		val totalLineCount = contents.count(_ == '\n')
 		val blockLineCount = blocks.map(_ group 2).map(_ count (_ == '\n')).sum
-		val lineCount = contents.count(_ == '\n') - blockLineCount
+		val nonBlockLineCount = totalLineCount - blockLineCount
 
-		ConstantOverhead + StatementMultiplier * statementCount + LineMultiplier * lineCount
+		val approximateInstructionCount = {
+			ConstantOverhead + StatementMultiplier * statementCount + LineMultiplier * nonBlockLineCount
+		}
+		Result(
+			totalLineCount,
+			approximateInstructionCount,
+			nonBlockLineCount,
+			statementCount
+		)
 	}
 }

@@ -57,32 +57,19 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 	}
 
 	def getOrInsertSourceLocation(sourceFileId: Int, startLine: Int, endLine: Int, startCharacter: Option[Int], endCharacter: Option[Int])(implicit session: Session): Int = {
-
-		val sourceLocation = getSourceLocationId(sourceFileId, startLine, endLine, startCharacter, endCharacter)
-		if (sourceLocation == None) {
-			try {
-				return sourceLocationsQuery returning sourceLocationsQuery.map(_.id) += SourceLocation(0, sourceFileId, startLine, endLine, startCharacter, endCharacter)
-			} catch {
-				case _: Throwable => {
-					// assume race condition occurred
-					return getSourceLocationId(sourceFileId, startLine, endLine, startCharacter, endCharacter).get
-				}
-			}
-		}
-
-		sourceLocation.get
+		val sourceLocationId = getSourceLocationId(sourceFileId, startLine, endLine, startCharacter, endCharacter)
+		if (sourceLocationId.nonEmpty) return sourceLocationId.get
+		sourceLocationsQuery returning sourceLocationsQuery.map(_.id) += SourceLocation(0, sourceFileId, startLine, endLine, startCharacter, endCharacter)
 	}
 
 	def getSourceLocationId(sourceFileId: Int, startLine: Int, endLine: Int, startCharacter: Option[Int], endCharacter: Option[Int])(implicit session: Session): Option[Int] = {
-		val sourceLocation = (for {x <- sourceLocationsQuery
-															 if x.sourceFileId === sourceFileId &&
-																 x.startLine === startLine &&
-																 x.endLine === endLine &&
-																 x.startCharacter === startCharacter &&
-																 x.endCharacter === endCharacter}
-			yield x).firstOption
-
-		if (sourceLocation == None) { None } else { Option(sourceLocation.get.id) }
+		// slick uses three-valued logic, so use isNull for match on NULL and startCharacter/endCharacter None
+		sourceLocationsQuery.filter(s =>
+			s.sourceFileId === sourceFileId &&
+			s.startLine === startLine &&
+			s.endLine === endLine &&
+			((s.startCharacter.isNull && startCharacter.isEmpty) || (s.startCharacter === startCharacter)) &&
+			((s.endCharacter.isNull && endCharacter.isEmpty) || (s.endCharacter === endCharacter))).map(_.id).firstOption
 	}
 
 	def getSourceFile(sourceFileId: Int)(implicit session: Session): Option[SourceFile] = {

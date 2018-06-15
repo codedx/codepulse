@@ -26,7 +26,7 @@ import com.secdec.codepulse.data.bytecode.CodeForestBuilder
   * @author robertf
   */
 trait JspAdapter {
-	def addJsp(path: String, entryName: String, size: Int): Unit
+	def addJsp(path: String, entryName: String, size: Int, lineCount: Int): Unit
 	def addWebinf(path: String): Unit
 	def build(cfb: CodeForestBuilder): List[(String, Int)]
 }
