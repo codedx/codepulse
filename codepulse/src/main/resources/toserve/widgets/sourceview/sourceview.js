@@ -111,6 +111,30 @@ SourceView.prototype.setDataProvider = function(sourceDataProvider){
             this.editor.getDoc().markText(start, end, {className: "code-coverage"})
         })
     })
+
+    Trace.traceCoverageUpdateRequests.onValue(() => {
+        sourceDataProvider.loadSourceLocations(true)
+        .then((locations) => {
+            console.log("Source Locations", locations)
+            locations.forEach(loc => {
+                let start = {
+                    line: loc.startLine - 1,
+                    ch: loc.startCharacter - 1
+                }
+
+                let end = {
+                    line: loc.endLine - 1,
+                    ch: loc.endCharacter - 1
+                }
+
+                for (let line = start.line; line <= end.line; line++) {
+                    this.editor.addLineClass(line, "background", "line-level-coverage")
+                }
+
+                this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+            })
+        })
+    })
 }
 
 SourceView.prototype.scrollToLine = function(lineNumber, duration, callback){
