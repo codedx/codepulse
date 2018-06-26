@@ -41,6 +41,8 @@ namespace SymbolService.Model
 
 		public int SequencePointCount { get; set; }
 
+		public int MethodStartLine { get; set; }
+
 
 		public MethodInfo()
 	    {

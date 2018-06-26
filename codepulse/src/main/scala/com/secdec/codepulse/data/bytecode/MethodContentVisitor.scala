@@ -25,15 +25,15 @@ import java.io.InputStream
 
 object AsmVisitors {
 	// counterCallback(instructionCount)
-	type CounterCallback = (Int, Int) => Unit
+	type CounterCallback = (Int, Int, Int) => Unit
 
 	// methodCallback(methodSignature, instructionCount)
-	type MethodCallback = (String, String, Int, Int) => Unit
+	type MethodCallback = (String, String, Int, Int, Int) => Unit
 
 	def parseMethodsFromClass(classBytes: InputStream) = {
 		val reader = new ClassReader(classBytes)
-		val builder = List.newBuilder[(String, String, Int, Int)]
-		val visitor = new ClassStructureVisitor2({ (file, sig, size, lineCount) => builder += ((file, sig, size, lineCount)) })
+		val builder = List.newBuilder[(String, String, Int, Int, Int)]
+		val visitor = new ClassStructureVisitor2({ (file, sig, size, lineCount, methodStartLine) => builder += ((file, sig, size, lineCount, methodStartLine)) })
 		reader.accept(visitor, ClassReader.SKIP_FRAMES)
 		builder.result()
 	}
@@ -42,10 +42,12 @@ object AsmVisitors {
 class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends MethodVisitor(Opcodes.ASM5) {
 	private var instructionCounter = 0
 	private var lineCounter = 0
+	private var methodStart = false
+	private var methodStartLine = -1
 
 	def inc() = instructionCounter += 1
-	override def visitCode = { instructionCounter = 0; lineCounter = 0 }
-	override def visitEnd = { counterCallback(instructionCounter, lineCounter) }
+	override def visitCode = { instructionCounter = 0; lineCounter = 0; methodStart = true; methodStartLine = -1 }
+	override def visitEnd = { counterCallback(instructionCounter, lineCounter, methodStartLine) }
 
 	override def visitFieldInsn(opcode: Int, owner: String, name: String, desc: String): Unit = inc()
 	override def visitIincInsn(v: Int, amt: Int): Unit = inc()
@@ -60,7 +62,15 @@ class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends
 	override def visitTableSwitchInsn(min: Int, max: Int, dflt: Label, labels: Label*): Unit = inc()
 	override def visitTypeInsn(opcode: Int, tp: String): Unit = inc()
 	override def visitVarInsn(opcode: Int, v: Int): Unit = inc()
-	override def visitLineNumber(line: Int, start: Label): Unit = lineCounter += 1
+	override def visitLineNumber(line: Int, start: Label): Unit = {
+		lineCounter += 1
+
+		if(methodStart) {
+			methodStartLine = line
+			methodStart = false
+		}
+
+	}
 }
 
 class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends ClassVisitor(Opcodes.ASM5) {
@@ -77,8 +87,8 @@ class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends
 
 	override def visitMethod(access: Int, name: String, desc: String, sig: String, exceptions: Array[String]): MethodVisitor = {
 		val methodSignature = classSignature + "." + name + ";" + access + ";" + desc
-		val counterCallback: AsmVisitors.CounterCallback = (insnCount, lineCount) => {
-			methodCallback(classFile, methodSignature, insnCount, lineCount)
+		val counterCallback: AsmVisitors.CounterCallback = (insnCount, lineCount, methodStartLine) => {
+			methodCallback(classFile, methodSignature, insnCount, lineCount, methodStartLine)
 		}
 		new MethodContentVisitor(counterCallback)
 	}

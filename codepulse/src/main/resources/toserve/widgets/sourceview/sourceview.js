@@ -112,3 +112,44 @@ SourceView.prototype.setDataProvider = function(sourceDataProvider){
         })
     })
 }
+
+SourceView.prototype.scrollToLine = function(lineNumber, duration, callback){
+    if(arguments.length == 1){
+        duration = 300
+        callback = _.noop
+    }
+    if(arguments.length == 2){
+        if(typeof duration == 'function'){
+            callback = duration
+            duration = 300
+        } else {
+            callback = _.noop
+        }
+    }
+
+    var editor = this.editor
+    var lineOffset = editor.getOption('firstLineNumber')
+    var lineIndex = lineNumber - lineOffset
+    var easing = d3.ease('cubic-in-out')
+    var scrollInfo = editor.getScrollInfo()
+    var startY = scrollInfo.top
+    var lineY = editor.heightAtLine(lineIndex, 'local')
+    var endY = editor.heightAtLine(lineIndex, 'local') - scrollInfo.clientHeight / 2
+    var dist = endY - startY
+
+    // we're using $.fn.animate to manage the changes-over-time, but it won't
+    // do anything unless we give it some properties
+    var dummyProperties = { x: 1 }
+    $('<div>').animate(dummyProperties, {
+        duration: duration,
+        progress: function(animation, progress, remainingMs){
+            var progressY = startY + easing(progress) * dist
+            editor.scrollTo(0, progressY)
+        },
+        always: function(){
+            editor.scrollTo(0, endY)
+            editor.setCursor(lineIndex)
+            callback()
+        }
+    })
+}

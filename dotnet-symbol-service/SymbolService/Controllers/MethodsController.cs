@@ -169,7 +169,8 @@ namespace SymbolService.Controllers
                 Parameters = GetParameters(method),
                 ReturnType = method.ReturnType.FullName,
                 Instructions = method.Body?.Instructions?.Count ?? 0,
-				SequencePointCount = visibleSequencePoints
+				SequencePointCount = visibleSequencePoints,
+				MethodStartLine = GetMethodStartLine(method)
 			};
         }
 
@@ -194,5 +195,17 @@ namespace SymbolService.Controllers
         {
             return method.Parameters.Select(parameter => parameter.ParameterType.FullName).ToList();
         }
+
+		private int GetMethodStartLine(MethodDefinition method)
+		{
+			var methodStartLine = -1;
+
+			if(method.DebugInformation.HasSequencePoints)
+			{
+				methodStartLine = method.DebugInformation.SequencePoints.OrderBy(t => t.StartLine).First().StartLine;
+			}
+
+			return methodStartLine;
+		}
     }
 }

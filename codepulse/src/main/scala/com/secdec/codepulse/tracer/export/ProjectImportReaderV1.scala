@@ -109,6 +109,7 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 				var sourceFileId = None: Option[Int]
 				var sourceLocationCount = None: Option[Int]
 				var traced = None: Option[Boolean]
+				var methodStartLine = None: Option[Int]
 
 				while (jp.nextValue != END_OBJECT) {
 					jp.getCurrentName match {
@@ -146,6 +147,12 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 								case VALUE_NULL => None
 								case _ => Some(jp.getBooleanValue)
 							}
+
+						case "methodStartLine" =>
+							methodStartLine = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getIntValue)
+							}
 					}
 				}
 
@@ -156,7 +163,8 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 					kind.getOrElse { throw new ProjectImportException("Missing or invalid kind for tree node.") },
 					size,
 					sourceFileId,
-					sourceLocationCount),
+					sourceLocationCount,
+					methodStartLine),
 					traced)
 			}
 

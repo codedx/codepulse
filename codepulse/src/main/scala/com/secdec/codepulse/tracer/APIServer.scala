@@ -52,7 +52,7 @@ import DCJson._
 import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.version
 
-case class NodeSourceMetadata(nodeId: Int, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int)
+case class NodeSourceMetadata(nodeId: Int, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int)
 case class NodeSourceFileContents(sourceFileId: Int, sourceFileContents: String)
 case class NodeTracedSourceLocations(nodeId: Int, sourceLocations: List[SourceLocation])
 
@@ -289,8 +289,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 						fileId <- node.sourceFileId
 						sourceFile <- target.projectData.sourceData.getSourceFile(fileId)
 					} yield {
-						(target, NodeSourceMetadata(node.id, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0)))
-					}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, -1, "", 0))
+						(target, NodeSourceMetadata(node.id, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0)))
+					}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, -1, "", 0, 0))
 			}, {
 				case (target, nodeSourceMetadata) =>
 					(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
@@ -654,7 +654,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			val json = ("nodeId" -> nodeSourceMetadata.nodeId) ~
 				("sourceFileId", nodeSourceMetadata.sourceFileId) ~
 				("sourceFilePath", nodeSourceMetadata.sourceFilePath) ~
-				("sourceLocationCount", nodeSourceMetadata.sourceLocationCount)
+				("sourceLocationCount", nodeSourceMetadata.sourceLocationCount) ~
+				("methodStartLine", nodeSourceMetadata.methodStartLine)
 			JsonResponse(json)
 
 		case Paths.NodeSourceCodeFileContents(target, nodeSourceFileContents) Get req =>

@@ -163,7 +163,9 @@ $(document).ready(function(){
 
 					var templateHtml = popoutHeaderTemplate(nodeSourceInfo);
                 	$popoutHeader.html(templateHtml);
-                })
+                }).then(() => {
+                	sourceView.scrollToLine(selection.metadata.methodStartLine - 1)
+				})
             })
 
         popoutCloseClicks.onValue(deactivatePopout)

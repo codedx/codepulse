@@ -117,7 +117,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 						})
 
 						for {
-							(sig, size, sourceLocationCount) <- methodsSorted
+							(sig, size, sourceLocationCount, methodStartLine) <- methodsSorted
 							filePath = FilePath(sig.file)
 							nestedPath = filePath.map(fp => entryPath match {
 								case Some(ep) => new NestedPath(ep.paths :+ fp)
@@ -128,7 +128,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 								case None => None
 							}
 //							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount)))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount), Option(methodStartLine)))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 
