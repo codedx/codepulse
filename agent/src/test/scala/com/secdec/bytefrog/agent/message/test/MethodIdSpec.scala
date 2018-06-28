@@ -19,6 +19,7 @@ package com.secdec.bytefrog.agent.message.test
 
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
+import java.util
 
 import scala.collection.mutable.ListBuffer
 
@@ -43,7 +44,7 @@ class MethodIdSpec extends FunSpec with Matchers with MockFactory {
 	}
 
 	val classIdentifier = new ClassIdentifier
-	val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"))
+	val cId = classIdentifier.record("NA", "NA.source", LineLevelMapper.empty("NA.source"), new util.BitSet())
 
 	val methodIdentifier = new MethodIdentifier
 	val idA = methodIdentifier.record(cId, 1, "A", "A", 1, 0)

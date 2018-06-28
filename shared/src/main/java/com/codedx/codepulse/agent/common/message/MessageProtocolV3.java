@@ -55,4 +55,12 @@ public class MessageProtocolV3 extends MessageProtocolV2 {
         out.writeInt(sourceLocationId);
         out.writeShort(threadId);
     }
+
+    @Override
+    public void writeSourceLocationCount(DataOutputStream out, int sigId, int sourceLocationCount) throws IOException, NotSupportedException
+    {
+        out.writeByte(MessageConstantsV3.MsgSourceLocationCount);
+        out.writeInt(sigId);
+        out.writeInt(sourceLocationCount);
+    }
 }

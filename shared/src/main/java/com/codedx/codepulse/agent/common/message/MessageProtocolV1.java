@@ -226,4 +226,10 @@ public class MessageProtocolV1 implements MessageProtocol
 	{
 		throw new NotSupportedException();
 	}
+
+	@Override
+	public void writeSourceLocationCount(DataOutputStream out, int sigId, int sourceLocationCount) throws IOException, NotSupportedException
+	{
+		throw new NotSupportedException();
+	}
 }

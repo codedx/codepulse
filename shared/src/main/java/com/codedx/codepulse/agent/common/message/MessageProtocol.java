@@ -85,4 +85,6 @@ public interface MessageProtocol
 	public void writeMapSourceLocation(DataOutputStream out, int sourceLocationId, int sigId, int startLine, int endLine, short startCharacter, short endCharacter) throws IOException, NotSupportedException;
 
 	public void writeMethodVisit(DataOutputStream out, int relTime, int seq, int sigId, int sourceLocationId, int threadId) throws IOException, NotSupportedException;
+
+	public void writeSourceLocationCount(DataOutputStream out, int sigId, int sourceLocationCount) throws IOException, NotSupportedException;
 }

@@ -25,12 +25,6 @@ import com.codedx.codepulse.utility.Loggable
 import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.jsp.JspMapper
 
-case class DeferredMapSourceLocation(sourceLocationId: Int, message: DataMessageContent.MapSourceLocation)
-
-case class DeferredMethodVisit(methodId: Int, message: DataMessageContent.MethodVisit)
-
-case class DeferredMethodEntry(methodId: Int, message: DataMessageContent.MethodEntry)
-
 class TraceRecorderDataProcessor(projectData: ProjectData, transientData: TransientTraceData, jspMapper: Option[JspMapper]) extends DataProcessor with Loggable {
 
 	// list of client-side node IDs that are ignored for tracing because they refer to method signatures missing from the database
@@ -43,6 +37,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 	val sourceLocationCor = new collection.mutable.HashMap[Int, collection.mutable.HashMap[Int, Option[Int]]]
 
 	val deferredMethodEntries = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MethodEntry]]
+	val deferredSourceLocationCounts = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.SourceLocationCount]]
 	val deferredMapSourceLocations = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MapSourceLocation]]
 	val deferredMethodVisits = collection.mutable.Map.empty[Int, collection.mutable.ListBuffer[DataMessageContent.MethodVisit]]
 
@@ -93,9 +88,32 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 					logger.info(s"Processing deferred method entry for method ${x.methodId}...")
 					processMessage(x)
 				})
+				deferredSourceLocationCounts.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.SourceLocationCount]).foreach(x => {
+					logger.info(s"Processing deferred source location count for method $x")
+				})
 				deferredMapSourceLocations.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MapSourceLocation]).foreach(x => {
 					logger.info(s"Processing deferred map source location for source location ${x.sourceLocationId} in method ${x.methodId}...")
 					processMessage(x)
+				})
+
+			case sourceLocationCountMessage @ DataMessageContent.SourceLocationCount(methodId, sourceLocationCount) =>
+				val nodeIds = methodCor.get(methodId)
+				if (nodeIds.isEmpty) {
+					if (unknownAndIgnoredMethodCor.contains(methodId)) return
+
+					logger.info(s"Deferring source location count of $sourceLocationCount for method $methodId...")
+
+					var sourceLocationCountMessages = deferredSourceLocationCounts.get(methodId)
+					if (sourceLocationCountMessages.isEmpty) {
+						sourceLocationCountMessages = Option(collection.mutable.ListBuffer.empty[DataMessageContent.SourceLocationCount])
+						deferredSourceLocationCounts.put(methodId, sourceLocationCountMessages.get)
+					}
+					sourceLocationCountMessages.get.append(sourceLocationCountMessage)
+					return
+				}
+
+				nodeIds.get.foreach(nodeId => {
+					projectData.treeNodeData.updateSourceLocationCount(nodeId, sourceLocationCount)
 				})
 
 			case mapSourceLocationMessage @ DataMessageContent.MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, id) =>

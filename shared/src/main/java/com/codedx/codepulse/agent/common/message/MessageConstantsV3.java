@@ -28,4 +28,5 @@ public class MessageConstantsV3 {
 
     public static final byte MsgMapSourceLocation = 13;
     public static final byte MsgMethodVisit = 14;
+    public static final byte MsgSourceLocationCount = 15;
 }

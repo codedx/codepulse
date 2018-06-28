@@ -92,6 +92,8 @@ trait TreeNodeDataAccess {
 	def clearFlag(id: Int, flag: TreeNodeFlag): Unit
 	def clearFlag(node: TreeNodeData, flag: TreeNodeFlag): Unit = clearFlag(node.id, flag)
 
+	def updateSourceLocationCount(id: Int, sourceLocationCount: Int)
+
 	implicit class ExtendedTreeNodeData(n: TreeNodeData) {
 		/** whether or not this treenode is being traced; this value may be unspecified (None) */
 		def traced = isTraced(n)

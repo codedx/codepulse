@@ -40,8 +40,21 @@ class DataMessageParserV2 extends DataMessageParserV1 {
     (typeId match {
       case MsgMapSourceLocation => readMapSourceLocation(stream, handler)
       case MsgMethodVisit => readMethodVisit(stream, handler)
+      case MsgSourceLocationCount => readSourceLocationCount(stream, handler)
       case _ => throw new IOException(s"Unexpected message type id: $typeId")
     }) + 1
+  }
+
+  protected def readSourceLocationCount(stream: DataInputStream, handler: DataMessageHandler): Int = {
+    //[4 bytes: assigned signature ID]
+    val methodId = stream.readInt
+
+    //[4 bytes: source location count]
+    val sourceLocationCount = stream.readInt()
+
+    handler.handleSourceLocationCount(methodId, sourceLocationCount)
+
+    8
   }
 
   protected def readMapSourceLocation(stream: DataInputStream, handler: DataMessageHandler): Int = {

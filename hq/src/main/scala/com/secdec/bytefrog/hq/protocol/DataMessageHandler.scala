@@ -28,6 +28,9 @@ trait DataMessageHandler {
 	/** This method is called by a parser when it encounters a MapMethodSignature message */
 	def handleMapMethodSignature(methodSig: String, methodId: Int): Unit
 
+	/** This method is called by a parser when it encounters SourceLocationCountMessage xyz message */
+	def handleSourceLocationCount(methodId: Int, sourceLocationCount: Int): Unit
+
 	/** This method is called by a parser when it encounters a MapSourceLocation message */
 	def handleMapSourceLocation(methodId: Int, startLine: Int, endLine: Int, startCharacter: Short, endCharacter: Short, sourceLocationId: Int): Unit
 
@@ -68,6 +71,7 @@ trait DataMessageHandler {
 class DefaultDataMessageHandler extends DataMessageHandler {
 	def handleMapThreadName(threadName: String, threadId: Int, timestamp: Int) = ()
 	def handleMapMethodSignature(methodSig: String, methodId: Int) = ()
+	def handleSourceLocationCount(methodId: Int, sourceLocationCount: Int): Unit = ()
 	def handleMapSourceLocation(methodId: Int, startLine: Int, endLine: Int, startCharacter: Short, endCharacter: Short, sourceLocationId: Int): Unit = ()
 	def handleMapException(exception: String, exceptionId: Int) = ()
 

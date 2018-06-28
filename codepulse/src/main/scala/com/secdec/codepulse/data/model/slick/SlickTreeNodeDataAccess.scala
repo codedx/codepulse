@@ -125,6 +125,12 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		}
 	}
 
+	def updateSourceLocationCount(id: Int, sourceLocationCount: Int) = {
+		db withTransaction { implicit transaction =>
+			dao.updateSourceLocationCount(id, sourceLocationCount)
+		}
+	}
+
 	private lazy val flagCache = collection.mutable.Map.empty[Int, List[TreeNodeFlag]]
 
 	def getFlags(id: Int): List[TreeNodeFlag] = flagCache.getOrElse(id, { db withSession { implicit session =>

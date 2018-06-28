@@ -196,6 +196,11 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		}
 	}
 
+	def updateSourceLocationCount(id: Int, sourceLocationCount: Int) (implicit session: Session): Unit = {
+		val q = for (row <- treeNodeData if row.id === id) yield row.sourceLocationCount
+		q.update(Some(sourceLocationCount))
+	}
+
 	def getFlags(id: Int)(implicit session: Session): List[TreeNodeFlag] = {
 		// wrapped in a try, since older versions may not have the concept of flags
 		Try {

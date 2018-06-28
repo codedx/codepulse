@@ -20,6 +20,7 @@ package com.codedx.codepulse.agent.trace;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.BitSet;
 
 import com.codedx.bytefrog.filterinjector.FilterInjector;
 import com.codedx.bytefrog.filterinjector.adapters.Adapter;
@@ -99,7 +100,16 @@ public class Instrumentor {
 			cr.accept(inspector, 0);
 
 			final ClassInspector.Result inspection = inspector.getResult();
-			final int classId = classIdentifier.record(className, inspection.getFileName(), inspection.getLineLevelMapper());
+
+			BitSet lineNumbers = null;
+			LineLevelMapper lineLevelMapper = inspection.getLineLevelMapper();
+			if (lineLevelMapper != null) {
+				InstrumentationClassVisitor visitor = new InstrumentationClassVisitor();
+				cr.accept(visitor, 0);
+				lineNumbers = visitor.getLineNumbers();
+			}
+
+			final int classId = classIdentifier.record(className, inspection.getFileName(), lineLevelMapper, lineNumbers);
 
 			final ClassInstrumentor ci = new ClassInstrumentor(filterInjectorVisitor != null ? filterInjectorVisitor : cw, methodIdentifier, classId, inspection, handler);
 			cr.accept(ci, ClassReader.EXPAND_FRAMES);

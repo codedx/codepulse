@@ -57,6 +57,11 @@ object DataMessageContent {
 		sourceLocationId: Int)
 		extends DataMessageContent
 
+	case class SourceLocationCount(
+		methodId: Int,
+		sourceLocationCount: Int)
+		extends DataMessageContent
+
 	case class MapException(
 		exception: String,
 		exceptionId: Int)

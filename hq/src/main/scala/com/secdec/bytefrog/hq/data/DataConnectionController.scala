@@ -49,6 +49,10 @@ class DataConnectionController(dataConnection: DataConnection, dataCollector: Da
 			dataCollector ! UnsequencedData(MapMethodSignature(methodSig, methodId))
 		}
 
+		override def handleSourceLocationCount(methodId: Int, sourceLocationCount: Int): Unit = {
+			dataCollector ! UnsequencedData(SourceLocationCount(methodId, sourceLocationCount))
+		}
+
 		override def handleMapSourceLocation(methodId: Int, startLine: Int, endLine: Int, startCharacter: Short, endCharacter: Short, sourceLocationId: Int) {
 			dataCollector ! UnsequencedData(MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, sourceLocationId))
 		}
