@@ -122,13 +122,45 @@ $(document).ready(function(){
             })
         }
 
+        let sourceLocationUpdateSubscription = null
+
         function deactivatePopout(){
             $popoutHeader.empty()
             sourceView.setSourceView(null, '')
             $popout.removeClass('active')
+
+            if (sourceLocationUpdateSubscription == null) return
+
+			sourceLocationUpdateSubscription()
+            sourceLocationUpdateSubscription = null
         }
 
         let popoutHeaderTemplate = Handlebars.compile($('#source-popout-header-template').html())
+
+        function bindSourceViewTemplate(selection) {
+            var templateModel = _.extend({},selection.metadata, selection.nodeSourceInfo)
+            var templateHtml = popoutHeaderTemplate(templateModel);
+            $popoutHeader.html(templateHtml);
+        }
+
+        function updateSourceLocations(selection, locations) {
+            sourceView.setSourceLocations(locations)
+            selection.nodeSourceInfo.tracedSourceLocationPercentage = "";
+            selection.nodeSourceInfo.tracedSourceLocationCount = locations.length;
+            if (selection.nodeSourceInfo.sourceLocationCount != 0) {
+                var percentage = selection.nodeSourceInfo.tracedSourceLocationCount / selection.nodeSourceInfo.sourceLocationCount * 100
+                selection.nodeSourceInfo.tracedSourceLocationPercentage = "(" + (percentage % 1 === 0 ? percentage : percentage.toFixed(2)) + "%)";
+            }
+            bindSourceViewTemplate(selection)
+        }
+
+        function showSourceViewError(err, selection) {
+            if(typeof err == 'string') sourceView.setErrorView(err)
+            else if(err.message) sourceView.setErrorView(err.message)
+            else sourceView.setErrorView(err)
+
+            bindSourceViewTemplate(selection)
+        }
 
         // activate the popout from elements that are clicked in the treemap
         treemapNodeClicks
@@ -138,35 +170,39 @@ $(document).ready(function(){
             })
             .flatMapLatest(function(click){
                 return Bacon.fromCallback(API.getNodeSourceMetadata, click.data.id).map(function(response){
-                    return _.extend({}, click, { metadata: response })
+                    return _.extend({},
+						{ element: click.elem },
+						{ metadata: response },
+						{ dataProvider: new SourceDataProvider(response) },
+						{ nodeSourceInfo: { sourceLocationCount: response.sourceLocationCount, tracedSourceLocationCount: 0, tracedSourceLocationPercentage: "" } })
                 }).mapError(function(err){
                     console.log('treemap click event could not be associated with source due to lookup error', err)
                     return null
                 })
             })
             .filter(_.identity) // stop the errors from getting this far
-            .flatMapFirst(function(selection){ return Bacon.fromCallback(activatePopout, selection.elem).map(selection) })
+            .flatMapFirst(function(selection){ return Bacon.fromCallback(activatePopout, selection.element).map(selection) })
             .onValue(function(selection){
-                // set up view components for the selection
-                var nodeSourceInfo = _.extend({}, selection.metadata)
-
-				var dataProvider = new SourceDataProvider(nodeSourceInfo)
-				sourceView.setDataProvider(dataProvider)
-
-                dataProvider.loadSourceLocations().then((locations) => {
-                	nodeSourceInfo.tracedSourceLocationPercentage = "";
-                	nodeSourceInfo.tracedSourceLocationCount = locations.length;
-                	if (nodeSourceInfo.sourceLocationCount != 0) {
-                		var percentage = nodeSourceInfo.tracedSourceLocationCount / nodeSourceInfo.sourceLocationCount * 100
-                        nodeSourceInfo.tracedSourceLocationPercentage = "(" + (percentage % 1 === 0 ? percentage : percentage.toFixed(2)) + "%)";
-					}
-
-					var templateHtml = popoutHeaderTemplate(nodeSourceInfo);
-                	$popoutHeader.html(templateHtml);
-                }).then(() => {
-                	sourceView.scrollToLine(selection.metadata.methodStartLine - 1)
-				})
-            })
+				selection.dataProvider.loadSource()
+					.then(({ mode, source }) => {
+							sourceView.setSourceView(mode, source)
+							selection.dataProvider.loadSourceLocations().then((locations) => {
+								updateSourceLocations(selection, locations)
+                                sourceLocationUpdateSubscription = Trace.traceCoverageUpdateRequests.onValue(() => {
+                                	API.getNodeSourceMetadata(selection.metadata.nodeId, function(data) {
+                                		selection.nodeSourceInfo.sourceLocationCount = data.sourceLocationCount
+                                		selection.dataProvider.loadSourceLocations(true).then((locations) => {
+                                    		updateSourceLocations(selection, locations)
+                                		})
+                            		})
+            					})
+							}, (err) => { showSourceViewError(err, selection) })
+							.then(() => {
+								sourceView.scrollToLine(selection.metadata.methodStartLine - 1)
+							})
+                		}, (err) => { showSourceViewError(err, selection) })
+            	}
+            )
 
         popoutCloseClicks.onValue(deactivatePopout)
     })()

@@ -31,9 +31,6 @@ Bacon.simpleProperty = function(initial){
 function SourceView(editorParent) {
     this.editorParent = editorParent
 
-    // should be set to a `SourceDataProvider` via `setDataProvider`
-    this._dataProvider = null
-
     var editor = this.editor = CodeMirror(editorParent, {
         'lineNumbers': true,
         'lineWrapping': true,
@@ -72,69 +69,31 @@ SourceView.prototype.setSourceView = function(mime, source){
     this.showingSourceProp.become(true)
 }
 
+SourceView.prototype.setSourceLocations = function(locations) {
+    console.log("Source Locations", locations)
+    locations.forEach(loc => {
+        let start = {
+            line: loc.startLine - 1,
+            ch: loc.startCharacter - 1
+        }
+
+        let end = {
+            line: loc.endLine - 1,
+            ch: loc.endCharacter - 1
+        }
+
+        for(let line = start.line; line <= end.line; line++) {
+        this.editor.addLineClass(line, "background", "line-level-coverage")
+        }
+
+        this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+    })
+}
+
 SourceView.prototype.setErrorView = function(message){
     $(this.editor.display.wrapper).hide()
     this.$errorView.show().text(message)
     this.showingSourceProp.become(false)
-}
-
-SourceView.prototype.setDataProvider = function(sourceDataProvider){
-    this._dataProvider = sourceDataProvider
-
-    // Set the source content and mode
-    // or an error view if that load failed
-    let applySource = sourceDataProvider.loadSource().then(
-        ({ mode, source }) => this.setSourceView(mode, source),
-        (err) => {
-            if(typeof err == 'string') this.setErrorView(err)
-            else if(err.message) this.setErrorView(err.message)
-            else this.setErrorView(err)
-        }
-    ).then(sourceDataProvider.loadSourceLocations)
-    .then((locations) => {
-        console.log("Source Locations", locations)
-        locations.forEach(loc => {
-            let start = {
-                line: loc.startLine - 1,
-                ch: loc.startCharacter - 1
-            }
-
-            let end = {
-                line: loc.endLine - 1,
-                ch: loc.endCharacter - 1
-            }
-
-            for(let line = start.line; line <= end.line; line++) {
-                this.editor.addLineClass(line, "background", "line-level-coverage")
-            }
-
-            this.editor.getDoc().markText(start, end, {className: "code-coverage"})
-        })
-    })
-
-    Trace.traceCoverageUpdateRequests.onValue(() => {
-        sourceDataProvider.loadSourceLocations(true)
-        .then((locations) => {
-            console.log("Source Locations", locations)
-            locations.forEach(loc => {
-                let start = {
-                    line: loc.startLine - 1,
-                    ch: loc.startCharacter - 1
-                }
-
-                let end = {
-                    line: loc.endLine - 1,
-                    ch: loc.endCharacter - 1
-                }
-
-                for (let line = start.line; line <= end.line; line++) {
-                    this.editor.addLineClass(line, "background", "line-level-coverage")
-                }
-
-                this.editor.getDoc().markText(start, end, {className: "code-coverage"})
-            })
-        })
-    })
 }
 
 SourceView.prototype.scrollToLine = function(lineNumber, duration, callback){
