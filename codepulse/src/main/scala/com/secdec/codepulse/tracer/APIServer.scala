@@ -317,8 +317,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		val NodeTracedSourceCodeLocations = TargetPath.map[(TracingTarget, NodeTracedSourceLocations)](
 			{
 				case (target, listParts @ List("node", AsInt(nodeId), "source-locations")) =>
+					val encounters = target.projectData.encounters
+					encounters.flushCachedEncounters()
 					val locations = (for {
-						sourceLocations <- target.projectData.encounters.getTracedSourceLocations(nodeId)
+						sourceLocations <- encounters.getTracedSourceLocations(nodeId)
 					} yield {
 						sourceLocations
 					})

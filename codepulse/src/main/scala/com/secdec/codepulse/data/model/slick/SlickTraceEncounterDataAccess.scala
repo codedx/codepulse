@@ -188,4 +188,8 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 	override def getTracedSourceLocations(nodeId: Int): List[SourceLocation] = db withSession { implicit session =>
 		dao getTracedSourceLocations nodeId
 	}
+
+	override def flushCachedEncounters(): Unit = {
+		flush()
+	}
 }

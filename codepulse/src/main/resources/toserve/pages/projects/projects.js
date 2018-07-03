@@ -188,13 +188,18 @@ $(document).ready(function(){
 							sourceView.setSourceView(mode, source)
 							selection.dataProvider.loadSourceLocations().then((locations) => {
 								updateSourceLocations(selection, locations)
-                                sourceLocationUpdateSubscription = Trace.traceCoverageUpdateRequests.onValue(() => {
-                                	API.getNodeSourceMetadata(selection.metadata.nodeId, function(data) {
-                                		selection.nodeSourceInfo.sourceLocationCount = data.sourceLocationCount
-                                		selection.dataProvider.loadSourceLocations(true).then((locations) => {
-                                    		updateSourceLocations(selection, locations)
-                                		})
-                            		})
+                                sourceLocationUpdateSubscription = Trace.traceCoverageUpdateRequests.onValue((nodeIds) => {
+									for (i=0; i < nodeIds.length; i++) {
+                                        if (nodeIds[i] === selection.metadata.nodeId) {
+											API.getNodeSourceMetadata(selection.metadata.nodeId, function(data) {
+												selection.nodeSourceInfo.sourceLocationCount = data.sourceLocationCount
+												selection.dataProvider.loadSourceLocations(true).then((locations) => {
+													updateSourceLocations(selection, locations)
+												})
+											})
+											break
+                                        }
+                                    }
             					})
 							}, (err) => { showSourceViewError(err, selection) })
 							.then(() => {

@@ -32,4 +32,5 @@ trait TraceEncounterDataAccess {
 	def getRecordingEncounters(recordingId: Int): List[(Int, Option[Int])]
 	def getRecordingNodeEncountersSet(recordingId: Int): Set[Int]
 	def getTracedSourceLocations(nodeId: Int): List[SourceLocation]
+	def flushCachedEncounters()
 }
