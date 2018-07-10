@@ -71,11 +71,11 @@ SourceView.prototype.setSourceView = function(mime, source){
 
 SourceView.prototype.setSourceLocations = function(locations, mark) {
 
-    function makeLocationLabel(start, end) {
-        return start.line + ":" + start.ch + ":" + end.line + ":" + end.ch
+    let hasTextMarks = this.editor.getAllMarks().length > 0
+    if (!mark && !hasTextMarks) {
+      return
     }
 
-    console.log("Source Locations", locations)
     locations.forEach(loc => {
         let start = {
             line: loc.startLine - 1,
@@ -87,26 +87,24 @@ SourceView.prototype.setSourceLocations = function(locations, mark) {
             ch: loc.endCharacter - 1
         }
 
-        for(let line = start.line; line <= end.line; line++) {
-            if (mark) {
-                this.editor.addLineClass(line, "background", "line-level-coverage")
-            } else {
-                this.editor.removeLineClass(line, "background", "line-level-coverage")
+        let lineLevelCoverageClassName = "line-level-coverage"
+        for (let line = start.line; line <= end.line; line++) {
+            let hasLineMark = this.editor.getLineHandle(line).bgClass === lineLevelCoverageClassName
+            if (mark && !hasLineMark) {
+                this.editor.addLineClass(line, "background", lineLevelCoverageClassName)
+            } else if (!mark && hasLineMark) {
+                this.editor.removeLineClass(line, "background", lineLevelCoverageClassName)
             }
         }
 
-        if (mark) {
-            this.editor.getDoc().markText(start, end, {className: "code-coverage"}).cplocation = makeLocationLabel(start, end)
-        } else {
-            let cplocation = makeLocationLabel(start, end)
-            let marks = this.editor.getAllMarks()
-            for (let m in marks) {
-              let mark = marks[m]
-              if (mark.cplocation === cplocation) {
-                mark.clear()
-                break
-              }
-            }
+        let markLabel = "mark_" + start.line + "_" + start.ch + "_" + end.line + "_" + end.ch
+        let hasTextMark = this.editor[markLabel] != null
+
+        if (mark && !hasTextMark) {
+            this.editor[markLabel] = this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+        } else if (!mark && hasTextMark) {
+            this.editor[markLabel].clear()
+            this.editor[markLabel] = null
         }
     })
 }
