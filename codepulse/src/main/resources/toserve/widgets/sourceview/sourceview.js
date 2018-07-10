@@ -70,6 +70,11 @@ SourceView.prototype.setSourceView = function(mime, source){
 }
 
 SourceView.prototype.setSourceLocations = function(locations, mark) {
+
+    function makeLocationLabel(start, end) {
+        return start.line + ":" + start.ch + ":" + end.line + ":" + end.ch
+    }
+
     console.log("Source Locations", locations)
     locations.forEach(loc => {
         let start = {
@@ -91,9 +96,17 @@ SourceView.prototype.setSourceLocations = function(locations, mark) {
         }
 
         if (mark) {
-            this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+            this.editor.getDoc().markText(start, end, {className: "code-coverage"}).cplocation = makeLocationLabel(start, end)
         } else {
-            this.editor.getDoc().markText(start, end).clear()
+            let cplocation = makeLocationLabel(start, end)
+            let marks = this.editor.getAllMarks()
+            for (let m in marks) {
+              let mark = marks[m]
+              if (mark.cplocation === cplocation) {
+                mark.clear()
+                break
+              }
+            }
         }
     })
 }
