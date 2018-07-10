@@ -200,8 +200,11 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 			nodeIds <- methodCor get methodId
 			nodeId <- nodeIds
 		}{
-			projectData.encounters.record (runningRecordings, (nodeId, sourceLocationsByNode.get(nodeId).getOrElse(None)) :: Nil)
-			transientData addEncounter nodeId
+			val sourceLocationIdForNodeId = sourceLocationsByNode.get(nodeId).getOrElse(None)
+			projectData.encounters.record (runningRecordings, (nodeId, sourceLocationIdForNodeId) :: Nil)
+			transientData.nodeTraceData.addEncounter(nodeId)
+			if (sourceLocationIdForNodeId.nonEmpty)
+				transientData.sourceLocationTraceData.addEncounter(sourceLocationIdForNodeId.get)
 		}
 	}
 }

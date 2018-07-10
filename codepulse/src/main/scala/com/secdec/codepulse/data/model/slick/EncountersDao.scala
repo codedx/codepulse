@@ -57,9 +57,19 @@ private[slick] class EncountersDao(val driver: JdbcProfile, val recordingMetadat
 	}
 
 	def getTracedSourceLocations(nodeId: Int)(implicit session: Session): List[SourceLocation] = {
-		(for {
+		val sourceLocationsList = (for {
 			encounter <- encounters.filter(_.nodeId === nodeId)
 			sourceLocation <- encounter.sourceLocationKey
-		} yield (sourceLocation)).list()
+		} yield (sourceLocation)).list
+
+		val sourceLocationIds = collection.mutable.Set.empty[Int]
+		val uniqueSourceLocationsList = collection.mutable.ListBuffer.empty[SourceLocation]
+		sourceLocationsList.foreach(x => {
+			if (!sourceLocationIds.contains(x.id)) {
+				sourceLocationIds.add(x.id)
+				uniqueSourceLocationsList += x
+			}
+		})
+		return uniqueSourceLocationsList.toList
 	}
 }

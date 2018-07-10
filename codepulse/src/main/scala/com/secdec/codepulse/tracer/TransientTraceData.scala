@@ -26,48 +26,64 @@ trait HasProjectId {
 	def id: ProjectId
 }
 
-/** Keeps track of last encounter time by node ID */
+/** Keeps track of last encounter time by ID */
 trait HasTimedEncounterData {
-	val latestEncounterTimesByNodeId = collection.mutable.Map.empty[Int, Long]
+	val latestEncounterTimesById = collection.mutable.Map.empty[Int, Long]
 
-	@inline def now = System.currentTimeMillis
-
-	def setLatestNodeEncounterTime(nodeId: Int) {
-		setLatestNodeEncounterTime(nodeId, now)
+	def setLatestEncounterTime(id: Int) {
+		setLatestEncounterTime(id, System.currentTimeMillis)
 	}
 
-	def setLatestNodeEncounterTime(nodeId: Int, timestamp: Long) {
-		latestEncounterTimesByNodeId.update(nodeId, timestamp)
+	def setLatestEncounterTime(id: Int, timestamp: Long) {
+		latestEncounterTimesById.update(id, timestamp)
 	}
 
-	def getNodesEncounteredAfterTime(time: Long): Iterable[Int] = {
+	def getEncounteredAfterTime(time: Long): Iterable[Int] = {
 		for {
-			(nodeId, encounterTime) <- latestEncounterTimesByNodeId
+			(id, encounterTime) <- latestEncounterTimesById
 			if encounterTime > time
-		} yield nodeId
+		} yield id
+	}
+
+	def isEncounteredAfterTime(id: Int, time: Long): Boolean = {
+		val encounter = latestEncounterTimesById.get(id)
+		if (encounter.isEmpty) false else encounter.get > time
 	}
 }
 
 /** Keeps track of recently encountered nodes */
 trait HasAccumulatingEncounterData {
-	val recentlyEncounteredNodes = Set.newBuilder[Int]
+	val recentlyEncountered = Set.newBuilder[Int]
 
-	def addRecentlyEncounteredNode(nodeId: Int) {
-		recentlyEncounteredNodes.synchronized {
-			recentlyEncounteredNodes += nodeId
+	def addRecentlyEncountered(id: Int) {
+		recentlyEncountered.synchronized {
+			recentlyEncountered += id
 		}
 	}
 
-	def addRecentlyEncounteredNodes(nodeIds: Traversable[Int]) {
-		recentlyEncounteredNodes.synchronized {
-			recentlyEncounteredNodes ++= nodeIds
+	def addRecentlyEncountered(ids: Traversable[Int]) {
+		recentlyEncountered.synchronized {
+			recentlyEncountered ++= ids
 		}
 	}
 
-	def getAndClearRecentlyEncounteredNodes[T](f: Traversable[Int] => T): T = recentlyEncounteredNodes.synchronized {
-		val result = f(recentlyEncounteredNodes.result)
-		recentlyEncounteredNodes.clear
+	def getAndClearRecentlyEncountered[T](f: Traversable[Int] => T): T = recentlyEncountered.synchronized {
+		val result = f(recentlyEncountered.result)
+		recentlyEncountered.clear
 		result
+	}
+}
+
+class TransientNodeTraceData extends HasTimedEncounterData with HasAccumulatingEncounterData {
+	def addEncounter(id: Int) {
+		setLatestEncounterTime(id)
+		addRecentlyEncountered(id)
+	}
+}
+
+class TransientSourceLocationTraceData extends HasTimedEncounterData {
+	def addEncounter(id: Int) {
+		setLatestEncounterTime(id)
 	}
 }
 
@@ -76,11 +92,9 @@ trait HasAccumulatingEncounterData {
   *
   * @author robertf
   */
-class TransientTraceData(val id: ProjectId) extends HasProjectId with HasTimedEncounterData with HasAccumulatingEncounterData {
-	def addEncounter(nodeId: Int) {
-		setLatestNodeEncounterTime(nodeId)
-		addRecentlyEncounteredNode(nodeId)
-	}
+class TransientTraceData(val id: ProjectId) extends HasProjectId {
+	val nodeTraceData = new TransientNodeTraceData()
+	val sourceLocationTraceData = new TransientSourceLocationTraceData()
 }
 
 /** Keeps track of TransientTraceData instances.

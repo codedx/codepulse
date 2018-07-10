@@ -25,7 +25,7 @@ import akka.actor.ActorSystem
 import com.secdec.codepulse.data.model.{Encounter, SourceLocation, TraceEncounterDataAccess}
 import com.secdec.codepulse.util.TaskScheduler
 
-/** Slick-backed TraceEncoutnerDataAccess implementation.
+/** Slick-backed TraceEncounterDataAccess implementation.
   * Buffers encounter data and batches database writes for efficiency. The buffering
   * interaction is done in a thread-safe manner.
   *
@@ -186,10 +186,30 @@ private[slick] class SlickTraceEncounterDataAccess(dao: EncountersDao, db: Datab
 		}
 
 	override def getTracedSourceLocations(nodeId: Int): List[SourceLocation] = db withSession { implicit session =>
+		flush() // flush cached data to enable a join with source location details
 		dao getTracedSourceLocations nodeId
 	}
 
-	override def flushCachedEncounters(): Unit = {
-		flush()
+	override def getRecordingSourceLocationEncountersSet(recordingId: Int, nodeId: Int): Set[Int] = db withSession { implicit session =>
+		bufferLock.synchronized {
+			val encounters = recordingEncounters.get(recordingId)
+			if (encounters.isEmpty || !encounters.get.contains(nodeId)) { return Nil.toSet }
+			encounters.get(nodeId).filter(x => x.nonEmpty).map(x => x.get).toSet
+		}
+	}
+
+	override def getAllSourceLocationEncountersSet(nodeId: Int): Set[Int] = {
+		bufferLock.synchronized {
+
+			val recordedEncounters = recordingEncounters.flatMap(x => x._2)
+				.filter(x => x._1 == nodeId)
+				.flatMap(x => x._2)
+				.filter(z => z.nonEmpty)
+				.map(x => x.get).toSet
+
+			val encounters = unassociatedEncounters.get(nodeId)
+			if (encounters.isEmpty) { return recordedEncounters }
+			recordedEncounters.union(encounters.get.filter(x => x.nonEmpty).map(x => x.get).toSet)
+		}
 	}
 }

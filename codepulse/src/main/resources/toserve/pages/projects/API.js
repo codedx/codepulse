@@ -235,8 +235,8 @@
         	getCommand('/source/' + id, callback)
     	},
 
-		'getNodeSourceLocations': function(id, callback) {
-			getCommand('/node/' + id + "/source-locations", callback)
+		'getNodeSourceLocations': function(id, activityRequestParams, callback) {
+			getCommand('/node/' + id + "/source-locations", activityRequestParams, callback)
 		}
 	}
 

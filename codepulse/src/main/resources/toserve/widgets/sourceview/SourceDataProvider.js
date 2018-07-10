@@ -41,12 +41,12 @@ function SourceDataProvider(nodeSourceInfo) {
             return _sourcePromise
         },
 
-        loadSourceLocations: function(clearCache){
+        loadSourceLocations: function(activityRequestParams, clearCache){
             if(clearCache) _sourceLocationsPromise = null
 
             if(!_sourceLocationsPromise){
                 _sourceLocationsPromise = new Promise((resolve, reject) => {
-                    API.getNodeSourceLocations(nodeSourceInfo.nodeId, (locations, err) => {
+                    API.getNodeSourceLocations(nodeSourceInfo.nodeId, activityRequestParams, (locations, err) => {
                         if(err) reject(err)
                         else resolve(locations)
                     })

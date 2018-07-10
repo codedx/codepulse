@@ -69,7 +69,7 @@ SourceView.prototype.setSourceView = function(mime, source){
     this.showingSourceProp.become(true)
 }
 
-SourceView.prototype.setSourceLocations = function(locations) {
+SourceView.prototype.setSourceLocations = function(locations, mark) {
     console.log("Source Locations", locations)
     locations.forEach(loc => {
         let start = {
@@ -83,10 +83,18 @@ SourceView.prototype.setSourceLocations = function(locations) {
         }
 
         for(let line = start.line; line <= end.line; line++) {
-        this.editor.addLineClass(line, "background", "line-level-coverage")
+            if (mark) {
+                this.editor.addLineClass(line, "background", "line-level-coverage")
+            } else {
+                this.editor.removeLineClass(line, "background", "line-level-coverage")
+            }
         }
 
-        this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+        if (mark) {
+            this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+        } else {
+            this.editor.getDoc().markText(start, end).clear()
+        }
     })
 }
 
