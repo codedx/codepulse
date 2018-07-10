@@ -187,8 +187,13 @@ $(document).ready(function(){
             // add/remove highlighting for each source location based on current filtering data
             let visibleLocationCount = 0
             for (let i=0; i < sourceLocations.length; i++) {
-                let filterSourceLocation = true
                 let sourceLocation = sourceLocations[i]
+                if (nodeFiltered) {
+                    sourceView.setSourceLocations([sourceLocation], false)
+                    continue
+                }
+
+                let filterSourceLocation = true
                 let sourceLocationCoverage = sourceLocationCoverageData[sourceLocation.id]
                 if (sourceLocationCoverage != null) {
                     filterSourceLocation = !sourceLocationCoverage.includes("0")
@@ -199,7 +204,7 @@ $(document).ready(function(){
                     }
                 }
 
-                let isVisible = !nodeFiltered && !filterSourceLocation
+                let isVisible = !filterSourceLocation
                 if (isVisible) {
                     visibleLocationCount++
                 }
