@@ -62,6 +62,9 @@ SourceView.prototype.setSourceView = function(mime, source){
     var editor = this.editor
     var _this = this
 
+    editor.mark_count = 0
+    editor.line_count = 0
+
     this.$errorView.hide()
     $(editor.display.wrapper).show()
     mime && editor.setOption('mode', mime)
@@ -71,8 +74,8 @@ SourceView.prototype.setSourceView = function(mime, source){
 
 SourceView.prototype.setSourceLocations = function(locations, mark) {
 
-    let hasTextMarks = this.editor.getAllMarks().length > 0
-    if (!mark && !hasTextMarks) {
+    let hasHighlights = this.editor.mark_count > 0 || this.editor.line_count > 0
+    if (!mark && !hasHighlights) {
       return
     }
 
@@ -87,14 +90,25 @@ SourceView.prototype.setSourceLocations = function(locations, mark) {
             ch: loc.endCharacter - 1
         }
 
+        if (isNaN(start.line) || isNaN(end.line)) {
+          console.log("Invalid start/end line detected")
+          return
+        }
+
         let lineLevelCoverageClassName = "line-level-coverage"
         for (let line = start.line; line <= end.line; line++) {
             let hasLineMark = this.editor.getLineHandle(line).bgClass === lineLevelCoverageClassName
             if (mark && !hasLineMark) {
                 this.editor.addLineClass(line, "background", lineLevelCoverageClassName)
+                this.editor.line_count += 1
             } else if (!mark && hasLineMark) {
                 this.editor.removeLineClass(line, "background", lineLevelCoverageClassName)
+                this.editor.line_count -= 1
             }
+        }
+
+        if (isNaN(start.ch) || isNaN(end.ch)) {
+          return // text marker requires valid start/end character
         }
 
         let markLabel = "mark_" + start.line + "_" + start.ch + "_" + end.line + "_" + end.ch
@@ -102,9 +116,11 @@ SourceView.prototype.setSourceLocations = function(locations, mark) {
 
         if (mark && !hasTextMark) {
             this.editor[markLabel] = this.editor.getDoc().markText(start, end, {className: "code-coverage"})
+            this.editor.mark_count += 1
         } else if (!mark && hasTextMark) {
             this.editor[markLabel].clear()
             this.editor[markLabel] = null
+            this.editor.mark_count -= 1
         }
     })
 }
