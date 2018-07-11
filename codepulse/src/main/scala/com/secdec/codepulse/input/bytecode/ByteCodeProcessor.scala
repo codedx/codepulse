@@ -19,9 +19,11 @@
 
 package com.secdec.codepulse.input.bytecode
 
+import java.io.InputStream
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
 import akka.actor.{ Actor, Stash }
+import com.secdec.codepulse.data.bytecode.parse.MethodDeclarationListener
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
@@ -29,12 +31,16 @@ import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
+import com.secdec.codepulse.parsers.java9.{ Java9Lexer, Java9Parser }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.tree.ParseTreeWalker
 
 class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor with Loggable {
 	val group = "Classes"
@@ -113,6 +119,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(contents)
+						val methodsAndStartLines = parseJava9(contents)
 						for {
 							(file, name, size, lineCount, methodStartLine) <- methods
 							pkg = getPackageFromSig(name)
@@ -183,5 +190,28 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			treeNodeData.mapJsps(if (jspCorrelationsDuplicatePaths.isEmpty) jspCorrelations else jspCorrelations.toMap)
 			treeNodeData.mapMethodSignatures(methodCorrelations.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
 		}
+	}
+
+	private def parseJava9(contents: InputStream): List[(String, Int)] = {
+		// contents to stream
+		val stream = CharStreams.fromStream(contents)
+
+		// create lexer, token, and parser
+		val lexer = new Java9Lexer(stream)
+		val tokens = new CommonTokenStream(lexer)
+		val parser = new Java9Parser(tokens)
+
+		// read input
+		val ctx = parser.methodDeclaration()
+
+		// walk the tree, listening for what we need
+		val walker = new ParseTreeWalker()
+
+		var methodStarts = List[(String, Int)]()
+		val listener = new MethodDeclarationListener((method, start) => methodStarts = (method, start) :: methodStarts)
+
+		walker.walk(listener, ctx)
+
+		methodStarts
 	}
 }

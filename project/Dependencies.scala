@@ -78,4 +78,6 @@ object Dependencies {
 
 	// dispatch, Scala wrapper for Java AsyncHttpClient https://github.com/dispatch/reboot
 	lazy val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.4"
+
+	lazy val antlr = "org.antlr" % "antlr4-maven-plugin" % "4.7"
 }
