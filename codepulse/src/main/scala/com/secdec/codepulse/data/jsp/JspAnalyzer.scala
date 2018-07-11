@@ -30,9 +30,9 @@ package com.secdec.codepulse.data.jsp
   * @author robertf
   */
 object JspAnalyzer {
-	val ConstantOverhead = 96
-	val LineMultiplier = 3
-	val StatementMultiplier = 5
+	val ConstantOverhead = 20
+	val LineMultiplier = 1
+	val StatementMultiplier = 2
 
 	private val Block = (raw"(?s)<(%(?:=|!)?)(.*?)%>").r
 
