@@ -39,7 +39,7 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 
 	def canProcess(storage: Storage): Boolean = {
 		storage.find() { (filename, entryPath, entry, contents) =>
-			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
+			!entry.isDirectory && (FilenameUtils.getExtension(entry.getName) == "class" || FilenameUtils.getExtension(entry.getName) == "jsp")
 		}
 	}
 
