@@ -74,7 +74,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 			try {
 				for {
 					(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
-					_ <- Await.result((inputFileProcessor() ? CanProcessFile(inputFile)).mapTo[Boolean], awaitTimeout.duration) ?~ "The file you picked does not contain any of the following supported input data. Refer to https://github.com/codedx/codepulse/wiki/Creating-Projects for what an input file should contain."
+					_ <- Await.result((inputFileProcessor() ? CanProcessFile(inputFile)).mapTo[Boolean], awaitTimeout.duration) ?~ "The file you picked does not contain any supported input data. Refer to https://github.com/codedx/codepulse/wiki/Creating-Projects for what an input file should contain."
 					name <- req.param("name") ?~ "You must specify a name"
 				} yield {
 
