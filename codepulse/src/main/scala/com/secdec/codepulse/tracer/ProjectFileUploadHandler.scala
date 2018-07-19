@@ -78,7 +78,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 					name <- req.param("name") ?~ "You must specify a name"
 				} yield {
 
-					val createProjectFuture = projectInput() ? (CreateProject(List(inputFileProcessor), inputFile, (projectData, storage, eventBus) => {
+					val createProjectFuture = projectInput() ? (CreateProject(inputFile, (projectData, storage, eventBus) => {
 						projectData.metadata.name = name
 						projectData.metadata.creationDate = System.currentTimeMillis
 

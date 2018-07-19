@@ -37,7 +37,7 @@ trait ProjectLoader {
 	protected def createProject: ProjectData
 }
 
-case class CreateProject(processors: List[BootVar[ActorRef]], inputFile: File, load: (ProjectData, Storage, GeneralEventBus) => Unit)
+case class CreateProject(inputFile: File, load: (ProjectData, Storage, GeneralEventBus) => Unit)
 
 class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggable {
 
@@ -50,11 +50,9 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggabl
 	val projectProcessingFailures = MutableMap.empty[String, Integer]
 
 	def receive = {
-		case CreateProject(processors, inputFile, load) => {
+		case CreateProject(inputFile, load) => {
 			try {
 				val projectData = createProject
-				addProjectCreators(projectData, processors)
-
 				StorageManager.storeInput(projectData.id, inputFile) match {
 					case Some(storage) =>
 						load(projectData, storage, generalEventBus)
@@ -68,29 +66,11 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggabl
 				}
 			}
 		}
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData, sourceData)) => {
-			val numberOfProcessors = projectCreationProcessors.get(identifier).get.length
-			val succeeded = projectProcessorSucceeded(identifier)
-			val failed = projectProcessingFailures.get(identifier).get
-
-			val remaining = numberOfProcessors - (succeeded + failed)
-
-			if(remaining == 0 && succeeded >= 1) {
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, _, _, _)) => {
 				projectManager getProject ProjectId(identifier.toInt) foreach(_.notifyLoadingFinished())
-				clearProjectCreators(identifier)
-			}
 		}
 		case ProcessEnvelope(_, Failed(identifier, action, Some(exception))) if action != "Dependency Check" => {
-			val numberOfProcessors = projectCreationProcessors.get(identifier).get.length
-			val succeeded = projectProcessingSuccesses.get(identifier).get
-			val failed = projectProcessorFailed(identifier)
-
-			val remaining = numberOfProcessors - (succeeded + failed)
-
-			if(remaining == 0 && failed == numberOfProcessors) {
 				projectManager.removeUnloadedProject(ProjectId(identifier.toInt), exception.getMessage)
-				clearProjectCreators(identifier)
-			}
 		}
 	}
 
@@ -99,34 +79,5 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggabl
 		val projectData = projectDataProvider getProject projectId
 
 		projectData
-	}
-
-	protected def addProjectCreators(projectData: ProjectData, processors: List[BootVar[ActorRef]]): Integer = {
-		val id = projectData.id.num.toString
-		projectCreationProcessors.put(id, processors)
-		projectProcessingSuccesses.put(id, 0)
-		projectProcessingFailures.put(id, 0)
-		processors.length
-	}
-
-	protected def clearProjectCreators(projectId: String) = {
-		projectCreationProcessors.remove(projectId)
-		projectProcessingSuccesses.remove(projectId)
-		projectProcessingFailures.remove(projectId)
-	}
-
-	protected def projectProcessorSucceeded(projectId: String): Integer = {
-		incrementProcessor(projectId, projectProcessingSuccesses)
-	}
-
-	protected def projectProcessorFailed(projectId: String) = {
-		incrementProcessor(projectId, projectProcessingFailures)
-	}
-
-	private def incrementProcessor(key: String, map: MutableMap[String, Integer]): Integer = {
-		val count = map.get(key).get + 1
-		map.update(key, count)
-
-		count
 	}
 }
