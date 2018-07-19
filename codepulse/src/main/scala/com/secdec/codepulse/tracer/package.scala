@@ -26,9 +26,8 @@ import com.secdec.codepulse.data.model.ProjectDataProvider
 import com.secdec.codepulse.data.model.slick.SlickH2ProjectDataProvider
 import com.secdec.codepulse.dependencycheck.ScanSettings
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.bytecode.ByteCodeProcessor
+import com.secdec.codepulse.input.InputFileProcessor
 import com.secdec.codepulse.input.dependencycheck.DependencyCheckPostProcessor
-import com.secdec.codepulse.input.dotnet.DotNETProcessor
 import com.secdec.codepulse.input.project.ProjectInputActor
 
 package object tracer {
@@ -56,8 +55,7 @@ package object tracer {
 	val traceConnectionAcknowledger = new BootVar[TraceConnectionAcknowledger]
 	val generalEventBus = new BootVar[GeneralEventBus]
 	val projectInput = new BootVar[ActorRef]
-	val byteCodeProcessor = new BootVar[ActorRef]
-	val dotNETProcessor = new BootVar[ActorRef]
+	val inputFileProcessor = new BootVar[ActorRef]
 
 	def boot() {
 		val as = ProjectManager.defaultActorSystem
@@ -88,13 +86,9 @@ package object tracer {
 		generalEventBus.subscribe(projectInputActor, "ProcessDataAvailable")
 		projectInput set projectInputActor
 
-		val byteCodeProcessorActor = actorSystem actorOf Props(new ByteCodeProcessor(generalEventBus))
-		generalEventBus.subscribe(byteCodeProcessorActor, "DataInputAvailable")
-		byteCodeProcessor set byteCodeProcessorActor
-
-		val dotNETProcessorActor = actorSystem actorOf Props(new DotNETProcessor(generalEventBus))
-		generalEventBus.subscribe(dotNETProcessorActor, "DataInputAvailable")
-		dotNETProcessor set dotNETProcessorActor
+		val inputFileProcessorActor = actorSystem actorOf Props(new InputFileProcessor(generalEventBus))
+		generalEventBus.subscribe(inputFileProcessorActor, "DataInputAvailable")
+		inputFileProcessor set inputFileProcessorActor
 
 		val dependencyCheckPostProcessorActor = actorSystem actorOf Props(new DependencyCheckPostProcessor(generalEventBus, ScanSettings.createFromProject))
 		generalEventBus.subscribe(dependencyCheckPostProcessorActor, "ProcessDataAvailable")

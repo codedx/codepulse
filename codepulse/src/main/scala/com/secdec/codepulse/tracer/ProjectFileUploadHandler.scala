@@ -20,29 +20,42 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
+import java.util.concurrent.TimeoutException
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.Properties
-
-import akka.pattern.ask
+import akka.pattern.{AskTimeoutException, ask}
 import akka.util.Timeout
-import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
+import com.secdec.codepulse.data.model.{ProjectData, ProjectId}
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.CanProcessFile
 import com.secdec.codepulse.input.project.CreateProject
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.processing.ProcessStatus
 import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
-import net.liftweb.common.{ Box, Empty, Failure, Full }
+import net.liftweb.common._
 import net.liftweb.http._
 import net.liftweb.http.rest.RestHelper
 import net.liftweb.json.JsonDSL._
 
-class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: GeneralEventBus) extends RestHelper {
+case class ProjectFileUploadError(message: String) extends LiftResponse with HeaderDefaults {
+	def toResponse = InMemoryResponse(message.getBytes, headers, cookies, 500)
+}
+
+class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: GeneralEventBus) extends RestHelper with Loggable {
 
 	def initializeServer() = {
 		LiftRules.statelessDispatch.append(this)
 		this
+	}
+
+	def logAndMakeProjectFileUploadError(message: String, throwable: Throwable): Box[ProjectFileUploadError] = {
+		import com.secdec.codepulse.util.Throwable._
+		logger.error(s"$message - ${getStackTraceAsString(throwable)}")
+
+		val throwableMessage = throwable.getMessage
+		val errorMessage = if (throwableMessage == null) "no error details available" else throwableMessage
+		Full(ProjectFileUploadError(s"$message - $errorMessage"))
 	}
 
 	object UploadPath {
@@ -52,58 +65,67 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 		}
 	}
 
-	var languageProcessors = List(byteCodeProcessor, dotNETProcessor)
-
-	var supportedInputTypeDescriptions = Map(
-		byteCodeProcessor -> "Compiled Java (.class) files",
-		dotNETProcessor -> ".NET assembly (.exe, .dll) and symbol (.pdb, .mdb(mono debug)) files"
-	)
-
-	implicit val timeout: Timeout = 1 minute
+	val askTimeout: Timeout = 5.minute
+	val awaitTimeout: Timeout = Timeout(askTimeout.duration + askTimeout.duration / 2)
+	implicit val timeout = askTimeout
 
 	serve {
 		case UploadPath("create") Post req => fallbackResponse {
-			for {
-				(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
-				processors = languageProcessors.filter((proc) => Await.result(((proc() ? CanProcessFile(inputFile))).mapTo[Boolean], Duration.Inf))
-				_ <- (processors.length > 0) ?~ {
-					var inputErrorStatement = s"The file you picked does not contain any of the following supported input data:"
-					var inputRequirements = supportedInputTypeDescriptions.values.map("-" + _).mkString(Properties.lineSeparator)
-					inputErrorStatement + Properties.lineSeparator + inputRequirements
-				}
-				name <- req.param("name") ?~ "You must specify a name"
-			} yield {
-				val project = Await.result((projectInput() ? CreateProject(processors, inputFile, (projectData, storage, eventBus) => {
-					projectData.metadata.name = name
-					projectData.metadata.creationDate = System.currentTimeMillis
+			try {
+				for {
+					(inputFile, originalName, cleanup) <- getReqFile(req) ?~! "Creating a new project requires a file"
+					_ <- Await.result((inputFileProcessor() ? CanProcessFile(inputFile)).mapTo[Boolean], awaitTimeout.duration) ?~ "The file you picked does not contain any supported input data. Refer to https://github.com/codedx/codepulse/wiki/Creating-Projects for what an input file should contain."
+					name <- req.param("name") ?~ "You must specify a name"
+				} yield {
 
-					def post(): Unit = {
-						val date = projectData.metadata.creationDate
-						val createDate = System.currentTimeMillis
-						if(createDate > date) {
-							projectData.metadata.creationDate = createDate
+					val createProjectFuture = projectInput() ? (CreateProject(inputFile, (projectData, storage, eventBus) => {
+						projectData.metadata.name = name
+						projectData.metadata.creationDate = System.currentTimeMillis
+
+						def post(): Unit = {
+							val date = projectData.metadata.creationDate
+							val createDate = System.currentTimeMillis
+							if (createDate > date) {
+								projectData.metadata.creationDate = createDate
+							}
 						}
-					}
-					eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, storage, projectData.treeNodeData, projectData.sourceData, post))
-				})).mapTo[ProjectData], Duration.Inf)
 
-				val failure = NotFoundResponse("Failed to process data input")
-				val response = projectManager.getProject(project.id).map(p => hrefResponse(p.id)).getOrElse(failure)
+						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, storage, projectData.treeNodeData, projectData.sourceData, post))
+					}))
 
-				response
+					val projectData = Await.result(createProjectFuture.mapTo[ProjectData], awaitTimeout.duration)
+					projectManager.getProject(projectData.id).map(p => hrefResponse(p.id)).getOrElse(NotFoundResponse("Failed to process data input - unable to retrieve new project by ID"))
+				}
+			}
+			catch  {
+				case askTimeoutException: AskTimeoutException => {
+					logAndMakeProjectFileUploadError(s"Request to create project did not complete within the allotted timeframe of ${askTimeout.duration.toSeconds} seconds", askTimeoutException)
+				}
+				case timeoutException: TimeoutException => {
+					logAndMakeProjectFileUploadError(s"Waited ${awaitTimeout.duration.toSeconds} seconds before abandoning the request to create a new project", timeoutException)
+				}
+				case ex: Exception => {
+					logAndMakeProjectFileUploadError(s"Failed to create a new project because of an unexpected error", ex)
+				}
 			}
 		}
 
 		case UploadPath("import") Post req => fallbackResponse {
-			for {
-				(inputFile, _, cleanup) <- getReqFile(req) ?~! "Importing a project requires a file"
-				_ <- ProjectUploadData.checkForProjectExport(inputFile) ?~ {
-					s"The file you picked isn't an exported project file."
-				}
-			} yield {
-				val projectId = ProjectUploadData.handleProjectExport(inputFile, { cleanup() })
+			try {
+				for {
+					(inputFile, _, cleanup) <- getReqFile(req) ?~! "Importing a project requires a file"
+					_ <- ProjectUploadData.checkForProjectExport(inputFile) ?~ {
+						s"The file you picked isn't an exported project file."
+					}
+				} yield {
+					val projectId = ProjectUploadData.handleProjectExport(inputFile, { cleanup() })
 
-				hrefResponse(projectId)
+					hrefResponse(projectId)
+				}
+			} catch {
+				case ex: Exception => {
+					logAndMakeProjectFileUploadError(s"Failed to import project because of an unexpected error", ex)
+				}
 			}
 		}
 	}

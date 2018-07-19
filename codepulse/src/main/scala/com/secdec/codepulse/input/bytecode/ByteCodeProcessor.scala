@@ -22,27 +22,16 @@ package com.secdec.codepulse.input.bytecode
 import java.io.InputStream
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
-import akka.actor.{ Actor, Stash }
-import com.google.common.io.CharStreams
-import com.secdec.codepulse.data.bytecode.parse.ParseListener
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.data.storage.Storage
-import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
-import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
-import com.secdec.codepulse.parsers.java9.Java9Parser.CompilationUnitContext
-import com.secdec.codepulse.parsers.java9.{ Java9Lexer, Java9Parser }
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
-//import org.antlr.v4.runtime.CharStreams
-//import org.antlr.v4.runtime.CommonTokenStream
-//import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.apache.commons.io.input.CloseShieldInputStream
 import com.github.javaparser.JavaParser
 import com.github.javaparser.ParseException
@@ -53,35 +42,14 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.PackageDeclaration
 
-class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor with Loggable {
+class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 	val group = "Classes"
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 	val sourceExtensions = List("java", "jsp")
 
-	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, storage, treeNodeData, sourceData, post)) => {
-			try {
-				if(canProcess(storage)) {
-					process(storage, treeNodeData, sourceData)
-					post()
-					eventBus.publish(ProcessDataAvailable(identifier, storage, treeNodeData, sourceData))
-				}
-			} catch {
-				case exception: Exception => eventBus.publish(ProcessStatus.asEnvelope(ProcessStatus.Failed(identifier, "Java ByteCode Processor", Some(exception))))
-			}
-		}
-
-		case CanProcessFile(file) => {
-			Storage(file) match {
-				case Some(storage) => sender ! canProcess(storage)
-				case _ => sender ! false
-			}
-		}
-	}
-
 	def canProcess(storage: Storage): Boolean = {
 		storage.find() { (filename, entryPath, entry, contents) =>
-			!entry.isDirectory && FilenameUtils.getExtension(entry.getName) == "class"
+			!entry.isDirectory && (FilenameUtils.getExtension(entry.getName) == "class" || FilenameUtils.getExtension(entry.getName) == "jsp")
 		}
 	}
 

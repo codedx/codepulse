@@ -64,30 +64,20 @@ object Distributor extends BuildExtra {
 	object dependencies {
 		object java {
 			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-			private val trimPathRegex = raw"^\Qjre1.8.0_172\E(?:\.jre)?/".r
+			private val trimPathRegex = raw"^\Qjre1.8.0_181\E(?:\.jre)?/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win32 = Dependency("jre.win32", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-windows-i586.tar.gz")
-				.withConnectionStep(setOracleCookie)
-				.extractAsTarGz { trimPath }
-				.to { _ / "distrib-dependencies" / "win32" / "jre" }
-
-			val win64 = Dependency("jre.win64", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-windows-x64.tar.gz")
+			val win64 = Dependency("jre.win64", "8u181", "http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-windows-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "win64" / "jre" }
 
-			val linuxX86 = Dependency("jre.linux-x86", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-linux-i586.tar.gz")
-				.withConnectionStep(setOracleCookie)
-				.extractAsTarGz { trimPath }
-				.to { _ / "distrib-dependencies" / "linux-x86" / "jre" }
-
-			val linuxX64 = Dependency("jre.linux-x64", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-linux-x64.tar.gz")
+			val linuxX64 = Dependency("jre.linux-x64", "8u181", "http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-linux-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x64" / "jre" }
 
-			val osx = Dependency("jre.osx", "8u172", "http://download.oracle.com/otn-pub/java/jdk/8u172-b11/a58eab1ec242421181065cdc37240b08/jre-8u172-macosx-x64.tar.gz")
+			val osx = Dependency("jre.osx", "8u181", "http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-macosx-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "osx" / "jre" }
@@ -97,17 +87,9 @@ object Distributor extends BuildExtra {
 			private val trimPathRegex = raw"^nwjs-[^/]+/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win32 = Dependency("nwjs.win32", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-win-ia32.zip")
-				.extractAsZip { trimPath }
-				.to { _ / "distrib-dependencies" / "win32" / "nwjs" }
-
 			val win64 = Dependency("nwjs.win64", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-win-x64.zip")
 				.extractAsZip { trimPath }
 				.to { _ / "distrib-dependencies" / "win64" / "nwjs" }
-
-			val linuxX86 = Dependency("nwjs.linux-x86", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-linux-ia32.tar.gz")
-				.extractAsTarGz { trimPath }
-				.to { _ / "distrib-dependencies" / "linux-x86" / "nwjs" }
 
 			val linuxX64 = Dependency("nwjs.linux-x64", "v0.19.5", "https://dl.nwjs.io/v0.19.5/nwjs-v0.19.5-linux-x64.tar.gz")
 				.extractAsTarGz { trimPath }
@@ -217,7 +199,7 @@ object Distributor extends BuildExtra {
 			}
 
 			platform match {
-				case "win32" | "win64" =>
+				case "win64" =>
 					val inclusions = Set(
 						"d3dcompiler_47.dll", "ffmpeg.dll", "icudtl.dat", "libEGL.dll", "libGLESv2.dll", "natives_blob.bin",
 						"node.dll", "nw_100_percent.pak", "nw_200_percent.pak", "nw_elf.dll", "nw.dll", "resources.pak"
@@ -307,7 +289,7 @@ object Distributor extends BuildExtra {
 						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 
-				case "linux-x86" | "linux-x64" =>
+				case "linux-x64" =>
 					val inclusions = Set(
 						"lib/libffmpeg.so", "lib/libnode.so", "lib/libnw.so",
 						"icudtl.dat", "natives_blob.bin", "nw_100_percent.pak", "nw_200_percent.pak", "resources.pak"
@@ -341,7 +323,7 @@ object Distributor extends BuildExtra {
 			// and <http://www.oracle.com/technetwork/java/javase/jre-7-readme-430162.html>
 			// For Java 8: <http://www.oracle.com/technetwork/java/javase/jre-8-readme-2095710.html>
 			platform match {
-				case "win32" | "win64" =>
+				case "win64" =>
 					val base = s"$root/jre/"
 
 					val exclusions = Set(
@@ -397,7 +379,7 @@ object Distributor extends BuildExtra {
 						case ZipEntry(_, path, _) => log.info(s"Excluding $path"); None
 					}
 
-				case "linux-x86" | "linux-x64" =>
+				case "linux-x64" =>
 					val base = s"$root/jre/"
 
 					val exclusions = Set(

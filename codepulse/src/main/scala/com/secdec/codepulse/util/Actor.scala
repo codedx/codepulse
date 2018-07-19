@@ -18,34 +18,15 @@
  * (DHS S&T/CSD) via contract number HHSP233201600058C.
  */
 
-package com.codedx.codepulse.agent.trace;
+package com.secdec.codepulse.util
 
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
+import akka.actor.ActorRef
 
-import java.util.BitSet;
+object Actor {
 
-public class InstrumentationMethodVisitor extends MethodVisitor {
-
-    private BitSet lineNumbers = new BitSet();
-
-    public InstrumentationMethodVisitor()
-    {
-        super(Opcodes.ASM5);
-    }
-
-    public BitSet getLineNumbers() { return lineNumbers; }
-
-    @Override
-    public void visitCode() {
-        lineNumbers.clear();
-    }
-
-    @Override
-    public void visitLineNumber(int line, Label start)
-    {
-        int lineNumberVisited = line; // line numbers are 1-based
-        lineNumbers.set(lineNumberVisited);
-    }
+  def logAndSendFailure(logger: org.slf4j.Logger, message: String, sender: ActorRef, throwable: java.lang.Throwable): Unit = {
+    import com.secdec.codepulse.util.Throwable._
+    logger.error(s"$message - $throwable - ${getStackTraceAsString(throwable)}")
+    sender ! akka.actor.Status.Failure(throwable)
+  }
 }

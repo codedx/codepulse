@@ -22,47 +22,22 @@ package com.secdec.codepulse.input.dotnet
 import java.io.File
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
-import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector, SymbolService }
 import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.data.storage.Storage
-import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
 import scala.language.postfixOps
 import org.apache.commons.io.FilenameUtils
 
-class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
+class DotNETProcessor() extends LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: Nil).toSet
 	val sourceExtensions = List("cs", "vb", "fs", "fsi", "fsx", "fsscript", "cpp")
 
 	val symbolService = new SymbolService
 	symbolService.create
-
-	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, storage, treeNodeData, sourceData, post)) => {
-			try {
-				if(canProcess(storage)) {
-					process(storage, treeNodeData, sourceData)
-					post()
-					eventBus.publish(ProcessDataAvailable(identifier, storage, treeNodeData, sourceData))
-				}
-			} catch {
-				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, "dotNET Processor", Some(exception)))
-			}
-		}
-
-		case CanProcessFile(file) => {
-			Storage(file) match {
-				case Some(storage) => sender ! canProcess(storage)
-				case _ => sender ! false
-			}
-		}
-	}
 
 	def canProcess(storage: Storage): Boolean = {
 		storage.find() { (_, _, entry, _) =>
