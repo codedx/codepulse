@@ -21,12 +21,41 @@ package com.secdec.codepulse.data.bytecode.parse
 
 import com.secdec.codepulse.parsers.java9
 import com.secdec.codepulse.parsers.java9.{ Java9BaseListener, Java9Parser }
+import scala.collection.JavaConverters._
 
-class MethodDeclarationListener(callback: (String, Int) => Unit) extends Java9BaseListener {
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.misc.Interval
+
+case class MethodInfo(name: String, startLine: Int)
+case class ClassInfo(name: String, memberClasses: List[ClassInfo], memberMethods: List[MethodInfo])
+
+class ParseListener(callback: (String, Int) => Unit) extends Java9BaseListener {
+	var currentClass: Option[ClassInfo] = None
+	var currentMethods = List.empty[MethodInfo]
+
+	override def enterClassDeclaration(ctx: Java9Parser.ClassDeclarationContext) = {
+
+	}
+
+	override def exitClassDeclaration(ctx: Java9Parser.ClassDeclarationContext) = {
+
+	}
+
 	override def enterMethodDeclaration(ctx: Java9Parser.MethodDeclarationContext) = {
-		val name = ctx.getText()
 		val start = ctx.start.getLine()
 
+		val modifiers = ctx.methodModifier().asScala.map(_.getText())
+		val header = ctx.methodHeader().getText()
+
+		val name = modifiers.mkString("") + header
+
 		callback(name, start)
+
+//		val input = ctx.methodHeader().getInputStream()
+//		val interval = new Interval(ctx.methodHeader().start.getStartIndex(), ctx.methodHeader().stop.getStopIndex())
+//		val t = input.getText(interval)
+
+		val method = MethodInfo(name, start)
+		currentMethods = method :: currentMethods
 	}
 }

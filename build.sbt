@@ -190,6 +190,7 @@ lazy val CodePulse = Project("CodePulse", file("codepulse"))
 			Dependencies.commons.io, Dependencies.commons.lang,
 			Dependencies.concLinkedHashMap, Dependencies.juniversalchardet, Dependencies.dependencyCheckCore,
 			Dependencies.slick, Dependencies.h2,
-			Dependencies.antlr
+			Dependencies.antlr,
+			Dependencies.javaparser
 		) ++ Dependencies.asm ++ Dependencies.jackson ++ Dependencies.jna ++ Dependencies.logging
 	)

@@ -23,7 +23,8 @@ import java.io.InputStream
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
 import akka.actor.{ Actor, Stash }
-import com.secdec.codepulse.data.bytecode.parse.MethodDeclarationListener
+import com.google.common.io.CharStreams
+import com.secdec.codepulse.data.bytecode.parse.ParseListener
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
@@ -31,6 +32,7 @@ import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
 import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
+import com.secdec.codepulse.parsers.java9.Java9Parser.CompilationUnitContext
 import com.secdec.codepulse.parsers.java9.{ Java9Lexer, Java9Parser }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
 import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
@@ -38,9 +40,18 @@ import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTreeWalker
+//import org.antlr.v4.runtime.CharStreams
+//import org.antlr.v4.runtime.CommonTokenStream
+//import org.antlr.v4.runtime.tree.ParseTreeWalker
+import org.apache.commons.io.input.CloseShieldInputStream
+import com.github.javaparser.JavaParser
+import com.github.javaparser.ParseException
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter
+import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.PackageDeclaration
 
 class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor with Loggable {
 	val group = "Classes"
@@ -97,6 +108,15 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			})
 		}
 
+		val sourceMethods = new HashMap[String, List[(String, Int)]]
+		storage.readEntries(sourceType("java") _) { (filename, entryPath, entry, contents) =>
+			val methodsAndStarts = parseJava9(contents)
+			sourceMethods.get(entry.getName()) match {
+				case None => sourceMethods += (entry.getName() -> methodsAndStarts)
+				case Some(entries) => sourceMethods += (entry.getName() -> (entries ::: methodsAndStarts))
+			}
+		}
+
 		def getPackageFromSig(sig: String): String = {
 			val packageContainer = sig.split(";").take(1)
 			val packagePart = packageContainer(0).split("/").dropRight(1)
@@ -118,8 +138,7 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
-						val methods = AsmVisitors.parseMethodsFromClass(contents)
-						val methodsAndStartLines = parseJava9(contents)
+						val methods = AsmVisitors.parseMethodsFromClass(new CloseShieldInputStream(contents))
 						for {
 							(file, name, size, lineCount, methodStartLine) <- methods
 							pkg = getPackageFromSig(name)
@@ -132,7 +151,15 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 								case Some(np) => authoritativePath(groupName, np).map (_.toString)
 								case None => None
 							}
-							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), Option(methodStartLine))
+							methodsAndStartLines = authority.flatMap(sourceMethods.get)
+							startLine = methodsAndStartLines.flatMap { l =>
+								val aName = name.split(";").take(1)(0)
+								val potentials = l.filter { case (qualifiedName, line) => qualifiedName == name.split(";").take(1)(0) }
+								val selection = potentials.headOption.getOrElse((("", 0)))
+
+								Some(selection._2)
+							}
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
 						}
@@ -193,24 +220,60 @@ class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with
 	}
 
 	private def parseJava9(contents: InputStream): List[(String, Int)] = {
-		// contents to stream
-		val stream = CharStreams.fromStream(contents)
+		def mkString(s1: String, s2: String, sep: String): String = {
+			if(s1.isEmpty) s2
+			else if(s2.isEmpty) s1
+			else s1 + sep + s2
+		}
 
-		// create lexer, token, and parser
-		val lexer = new Java9Lexer(stream)
-		val tokens = new CommonTokenStream(lexer)
-		val parser = new Java9Parser(tokens)
-
-		// read input
-		val ctx = parser.methodDeclaration()
-
-		// walk the tree, listening for what we need
-		val walker = new ParseTreeWalker()
+		def getQualifiedClass(n: Node, s: String): String = {
+			n match {
+				case m: MethodDeclaration => if(m.getParentNode().isPresent()) {
+					getQualifiedClass(m.getParentNode().get(), s)
+				} else {
+					s
+				}
+				case c: ClassOrInterfaceDeclaration => if(c.getParentNode().isPresent()) {
+					getQualifiedClass(c.getParentNode().get(), mkString(c.getName().toString, s, "$"))//c.getName + "." + s)
+				} else {
+					s
+				}
+				case cu: CompilationUnit => if(cu.getPackageDeclaration().isPresent()) {
+					getQualifiedClass(cu.getPackageDeclaration().get(), s)
+				} else {
+					s
+				}
+				case p: PackageDeclaration => mkString(p.getName().toString.replace(".", "/"), s, "/")//p.getName + "." + s
+			}
+		}
 
 		var methodStarts = List[(String, Int)]()
-		val listener = new MethodDeclarationListener((method, start) => methodStarts = (method, start) :: methodStarts)
 
-		walker.walk(listener, ctx)
+		try {
+			val sourceContent = new CloseShieldInputStream(contents)
+			val cu = JavaParser.parse(sourceContent)
+
+			val methodVisitor = new VoidVisitorAdapter[Void] {
+				override def visit(n: MethodDeclaration, arg: Void): Unit = {
+					super.visit(n, arg)
+					System.out.println(getQualifiedClass(n, "") + "\t" + n.getName() + "\t" + n.getBegin())
+
+					val qualifiedName = mkString(getQualifiedClass(n, ""), n.getName().toString, ".")
+					val startLine = if(n.getBegin().isPresent()) {
+						val location = n.getBegin().get()
+						location.line
+					} else {
+						0
+					}
+
+					methodStarts = (qualifiedName, startLine) :: methodStarts
+				}
+			}
+
+			cu.accept(methodVisitor, null)
+		} catch {
+			case ex: Exception => System.out.println(ex)
+		}
 
 		methodStarts
 	}

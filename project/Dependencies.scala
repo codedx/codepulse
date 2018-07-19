@@ -80,4 +80,5 @@ object Dependencies {
 	lazy val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.4"
 
 	lazy val antlr = "org.antlr" % "antlr4-maven-plugin" % "4.7"
+	lazy val javaparser = "com.github.javaparser" % "javaparser-core" % "3.6.13"
 }

@@ -132,8 +132,8 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 	protected def readEntries[T](filter: ZipEntry => Boolean, entryPath: Option[NestedPath], filename: String, stream: InputStream, recursive: Boolean = true)(read: (String, Option[NestedPath], ZipEntry, InputStream) => Unit): Unit = {
 		val zipStream = new ZipInputStream(stream)
 		try {
-			val entryStream = Stream.continually(Try { zipStream.getNextEntry })
-				.map(_.toOption.flatMap { Option(_) })
+			val entryStream = Stream.continually(Try {zipStream.getNextEntry})
+				.map(_.toOption.flatMap {Option(_)})
 				.takeWhile(_.isDefined)
 				.flatten
 
@@ -155,14 +155,16 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 				}
 
 				if (entry.isDirectory) {
-					read(filename, nestedPath, entry, zipStream) // caller may need to process directories, too
-					readEntries(filter, nestedPath, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
+					if (filter(entry)) read(filename, nestedPath, entry, zipStream) // caller may need to process directories, too
+					if (recursive) readEntries(filter, nestedPath, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), recursive)(read)
 				}
 				else if (Storage.isZip(entry.getName) && recursive)
-					readEntries(filter, nestedPath, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), true)(read)
-				else if(filter(entry))
+					readEntries(filter, nestedPath, s"$filename/${entry.getName}", new CloseShieldInputStream(zipStream), recursive)(read)
+				else if (filter(entry))
 					read(filename, entryPath, entry, zipStream)
 			}
+		} catch {
+			case ex: Exception => System.out.println(ex)
 		} finally {
 			zipStream.close
 		}

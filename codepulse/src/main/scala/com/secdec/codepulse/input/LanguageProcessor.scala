@@ -36,6 +36,11 @@ trait LanguageProcessor {
 		sourceExtensions.contains(extension)
 	}
 
+	final def sourceType(typeExtension: String)(entry: ZipEntry): Boolean = {
+		val extension = FilenameUtils.getExtension(entry.getName)
+		typeExtension == extension
+	}
+
 	def canProcess(storage: Storage): Boolean
 	def process(storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit
 }
