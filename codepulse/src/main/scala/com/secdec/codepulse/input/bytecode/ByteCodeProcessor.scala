@@ -41,6 +41,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.PackageDeclaration
+import com.github.javaparser.ast.body.ConstructorDeclaration
 
 class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 	val group = "Classes"
@@ -196,6 +197,11 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 
 		def getQualifiedClass(n: Node, s: String): String = {
 			n match {
+				case c: ConstructorDeclaration => if(c.getParentNode().isPresent()) {
+					getQualifiedClass(c.getParentNode().get(), s)
+				} else {
+					s
+				}
 				case m: MethodDeclaration => if(m.getParentNode().isPresent()) {
 					getQualifiedClass(m.getParentNode().get(), s)
 				} else {
@@ -222,6 +228,21 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			val cu = JavaParser.parse(sourceContent)
 
 			val methodVisitor = new VoidVisitorAdapter[Void] {
+				override def visit(n: ConstructorDeclaration, arg: Void): Unit = {
+					super.visit(n, arg)
+					System.out.println(getQualifiedClass(n, "") + "\t" + n.getName() + "\t" + n.getBegin())
+
+					val qualifiedName = mkString(getQualifiedClass(n, ""), n.getName().toString, ".")
+					val startLine = if(n.getBegin().isPresent()) {
+						val location = n.getBegin().get()
+						location.line
+					} else {
+						0
+					}
+
+					methodStarts = (qualifiedName, startLine) :: methodStarts
+				}
+
 				override def visit(n: MethodDeclaration, arg: Void): Unit = {
 					super.visit(n, arg)
 					System.out.println(getQualifiedClass(n, "") + "\t" + n.getName() + "\t" + n.getBegin())
