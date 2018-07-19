@@ -21,46 +21,21 @@ package com.secdec.codepulse.input.bytecode
 
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
-import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
 import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
 import com.secdec.codepulse.data.storage.Storage
-import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
-import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.util.SmartLoader.Success
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
 
-class ByteCodeProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor with Loggable {
+class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 	val group = "Classes"
 	val traceGroups = (group :: CodeForestBuilder.JSPGroupName :: Nil).toSet
 	val sourceExtensions = List("java", "jsp")
-
-	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, storage, treeNodeData, sourceData, post)) => {
-			try {
-				if(canProcess(storage)) {
-					process(storage, treeNodeData, sourceData)
-					post()
-					eventBus.publish(ProcessDataAvailable(identifier, storage, treeNodeData, sourceData))
-				}
-			} catch {
-				case exception: Exception => eventBus.publish(ProcessStatus.asEnvelope(ProcessStatus.Failed(identifier, "Java ByteCode Processor", Some(exception))))
-			}
-		}
-
-		case CanProcessFile(file) => {
-			Storage(file) match {
-				case Some(storage) => sender ! canProcess(storage)
-				case _ => sender ! false
-			}
-		}
-	}
 
 	def canProcess(storage: Storage): Boolean = {
 		storage.find() { (filename, entryPath, entry, contents) =>

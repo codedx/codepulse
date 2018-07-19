@@ -20,18 +20,18 @@
 package com.secdec.codepulse.input.project
 
 import java.io.File
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.{Actor, ActorRef, Stash}
+import com.codedx.codepulse.utility.Loggable
 
-import akka.actor.{ Actor, ActorRef, Stash }
-import scala.collection.mutable.{ Map => MutableMap }
-
-import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
-import com.secdec.codepulse.data.storage.{ Storage, StorageManager }
+import scala.collection.mutable.{Map => MutableMap}
+import com.secdec.codepulse.data.model.{ProjectData, ProjectId}
+import com.secdec.codepulse.data.storage.{Storage, StorageManager}
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.processing.ProcessEnvelope
 import com.secdec.codepulse.processing.ProcessStatus._
-import com.secdec.codepulse.tracer.{ BootVar, generalEventBus, projectDataProvider, projectManager }
+import com.secdec.codepulse.tracer.{BootVar, generalEventBus, projectDataProvider, projectManager}
 
 trait ProjectLoader {
 	protected def createProject: ProjectData
@@ -39,7 +39,9 @@ trait ProjectLoader {
 
 case class CreateProject(processors: List[BootVar[ActorRef]], inputFile: File, load: (ProjectData, Storage, GeneralEventBus) => Unit)
 
-class ProjectInputActor extends Actor with Stash with ProjectLoader {
+class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggable {
+
+	import com.secdec.codepulse.util.Actor._
 
 	val projectCreationProcessors = MutableMap.empty[String, List[BootVar[ActorRef]]]
 
@@ -47,19 +49,23 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 
 	val projectProcessingFailures = MutableMap.empty[String, Integer]
 
-	// TODO: handle data input by creating a project and broadcasting with 'DataInputAvailable' with project payload
-	// TODO: capture failed state to cause a failed message and redirect (as necessary) for the user
-
 	def receive = {
 		case CreateProject(processors, inputFile, load) => {
-			val projectData = createProject
-			addProjectCreators(projectData, processors)
+			try {
+				val projectData = createProject
+				addProjectCreators(projectData, processors)
 
-			StorageManager.storeInput(projectData.id, inputFile) match {
-				case Some(storage) =>
-					load(projectData, storage, generalEventBus)
-					sender ! projectData
-				case _ => throw new IllegalStateException(s"Unable to create storage for project ${projectData.id.num}")
+				StorageManager.storeInput(projectData.id, inputFile) match {
+					case Some(storage) =>
+						load(projectData, storage, generalEventBus)
+						sender ! projectData
+					case _ => sender ! akka.actor.Status.Failure(new IllegalStateException(s"Unable to create storage for project ${projectData.id.num}"))
+				}
+			}
+			catch {
+				case ex: Exception => {
+					logAndSendFailure(logger, "Unable to complete create-project operation for input file", sender, ex)
+				}
 			}
 		}
 		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData, sourceData)) => {

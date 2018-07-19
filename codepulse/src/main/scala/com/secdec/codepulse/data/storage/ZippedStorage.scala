@@ -198,11 +198,8 @@ class ZippedStorage(zipFile: ZipFile) extends Storage {
 						}
 				}
 
-				lazy val recurse = entry.isDirectory || (recursive &&
-					Storage.isZip(entry.getName) &&
-					find(s"$filename/${entry.getName}", nestedPath, new CloseShieldInputStream(zipStream), true)(predicate))
-
-				predicate(filename, entryPath, entry, zipStream) || recurse
+				predicate(filename, entryPath, entry, zipStream) ||
+					((entry.isDirectory || (recursive && Storage.isZip(entry.getName))) && (find(s"$filename/${entry.getName}", nestedPath, new CloseShieldInputStream(zipStream), true)(predicate)))
 			}
 		} finally {
 			zipStream.close
