@@ -111,12 +111,13 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
 
   describe("Nodes of exported project") {
     it("should not reference source file when source file is unavailable") {
-      data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None))
+      data.sourceData.importSourceFiles(Map[Int,String]((1, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(1), Option(2), Option(3)))
 
       val outputStream = new ByteArrayOutputStream()
       ProjectExporter.exportTo(outputStream, data)
       val contents = unzipExport(outputStream)
-      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 1,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50\r\n} ]")
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 1,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 1,\r\n  \"sourceLocationCount\" : 2,\r\n  \"methodStartLine\" : 3\r\n} ]")
     }
 
     it("should reference source file when source file is unavailable") {

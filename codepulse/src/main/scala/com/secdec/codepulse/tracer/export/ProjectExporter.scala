@@ -123,6 +123,7 @@ object ProjectExporter extends JsonHelpers {
 				for (traced <- node.traced) jg.writeBooleanField("traced", traced)
 				for (sourceFileId <- node.sourceFileId) jg.writeNumberField("sourceFileId", sourceFileId)
 				for (sourceLocationCount <- node.sourceLocationCount) jg.writeNumberField("sourceLocationCount", sourceLocationCount)
+				for (methodStartLine <- node.methodStartLine) jg.writeNumberField("methodStartLine", methodStartLine)
 
 				jg.writeEndObject
 			}
