@@ -21,6 +21,7 @@ package com.secdec.codepulse.input.bytecode
 
 import java.io.InputStream
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
+import scala.util.{Try, Success, Failure}
 
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
@@ -28,7 +29,7 @@ import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, 
 import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
 import com.secdec.codepulse.input.LanguageProcessor
-import com.secdec.codepulse.util.SmartLoader.Success
+import com.secdec.codepulse.util.SmartLoader.{Success => S}
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
@@ -42,6 +43,8 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.PackageDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
+import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing
+import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing.{ ClassInfo, MethodInfo }
 
 class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 	val group = "Classes"
@@ -77,9 +80,26 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			})
 		}
 
+		def getMethodAndStart(mi: MethodInfo, ci: ClassInfo): (String, Int) = {
+			(ci.signature.name.slashedName + "." + mi.signature.name, mi.lines.start.line)
+		}
+
+		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int)] = {
+			ls match {
+				case Nil => Nil
+				case l => l.flatMap(ci => ci.memberMethods.map(mi => getMethodAndStart(mi, ci))) ::: l.flatMap(ci => flattenToMethods(ci.memberClasses))
+			}
+		}
+
 		val sourceMethods = new HashMap[String, List[(String, Int)]]
 		storage.readEntries(sourceType("java") _) { (filename, entryPath, entry, contents) =>
-			val methodsAndStarts = parseJava9(contents)
+			val hierarchy = JavaSourceParsing.tryParseJavaSource(new CloseShieldInputStream(contents))
+			val methodsAndStarts = hierarchy match {
+				case Success(h) => flattenToMethods(h)
+				case Failure(_) => List.empty[(String, Int)]
+			}
+//			val x = 3
+//			val methodsAndStarts = parseJava9(contents)
 			sourceMethods.get(entry.getName()) match {
 				case None => sourceMethods += (entry.getName() -> methodsAndStarts)
 				case Some(entries) => sourceMethods += (entry.getName() -> (entries ::: methodsAndStarts))
@@ -122,11 +142,10 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 							}
 							methodsAndStartLines = authority.flatMap(sourceMethods.get)
 							startLine = methodsAndStartLines.flatMap { l =>
-								val aName = name.split(";").take(1)(0)
 								val potentials = l.filter { case (qualifiedName, line) => qualifiedName == name.split(";").take(1)(0) }
-								val selection = potentials.headOption.getOrElse((("", 0)))
-
-								Some(selection._2)
+								val selection = potentials.headOption//.getOrElse((("", 0)))
+								selection.map(_._2)
+								//Some(selection._2)
 							}
 							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine)
 						} {
@@ -136,7 +155,7 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 					case "jsp" =>
 						val jspContents = loader loadStream contents
 						jspContents match {
-							case Success(content, _) =>
+							case S(content, _) =>
 								val jspSize = JspAnalyzer analyze content
 
 								val entryName = entry.getName
