@@ -54,7 +54,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 					return
 				}
 
-				logger.info(s"Deferring method entry for unknown method $methodId...")
+				logger.debug(s"Deferring method entry for unknown method $methodId...")
 
 				var methodEntries = deferredMethodEntries.get(methodId)
 				if (methodEntries.isEmpty) {
@@ -85,14 +85,14 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 				})
 
 				deferredMethodEntries.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodEntry]).foreach(x => {
-					logger.info(s"Processing deferred method entry for method ${x.methodId}...")
+					logger.debug(s"Processing deferred method entry for method ${x.methodId}...")
 					processMessage(x)
 				})
 				deferredSourceLocationCounts.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.SourceLocationCount]).foreach(x => {
-					logger.info(s"Processing deferred source location count for method $x")
+					logger.debug(s"Processing deferred source location count for method $x")
 				})
 				deferredMapSourceLocations.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MapSourceLocation]).foreach(x => {
-					logger.info(s"Processing deferred map source location for source location ${x.sourceLocationId} in method ${x.methodId}...")
+					logger.debug(s"Processing deferred map source location for source location ${x.sourceLocationId} in method ${x.methodId}...")
 					processMessage(x)
 				})
 
@@ -101,7 +101,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 				if (nodeIds.isEmpty) {
 					if (unknownAndIgnoredMethodCor.contains(methodId)) return
 
-					logger.info(s"Deferring source location count of $sourceLocationCount for method $methodId...")
+					logger.debug(s"Deferring source location count of $sourceLocationCount for method $methodId...")
 
 					var sourceLocationCountMessages = deferredSourceLocationCounts.get(methodId)
 					if (sourceLocationCountMessages.isEmpty) {
@@ -121,7 +121,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 				if (nodeIds.isEmpty) {
 					if (unknownAndIgnoredMethodCor.contains(methodId)) return
 
-					logger.info(s"Deferring map source location $id for unknown method $methodId...")
+					logger.debug(s"Deferring map source location $id for unknown method $methodId...")
 
 					var methodMapSourceLocations = deferredMapSourceLocations.get(methodId)
 					if (methodMapSourceLocations.isEmpty) {
@@ -154,7 +154,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 				})
 
 				deferredMethodVisits.remove(id).getOrElse(collection.mutable.ListBuffer.empty[DataMessageContent.MethodVisit]).foreach(x => {
-					logger.info(s"Processing deferred method visit for source location ${x.sourceLocationId} in method ${x.methodId}")
+					logger.debug(s"Processing deferred method visit for source location ${x.sourceLocationId} in method ${x.methodId}")
 					processMessage(x)
 				})
 
@@ -162,7 +162,7 @@ class TraceRecorderDataProcessor(projectData: ProjectData, transientData: Transi
 			case methodVisitMessage @ DataMessageContent.MethodVisit(methodId, sourceLocationId, _, _) =>
 				val mappedIds = sourceLocationCor.get(sourceLocationId)
 				if (mappedIds.isEmpty) {
-					logger.info(s"Deferring method visit for unknown source location $sourceLocationId of method $methodId...")
+					logger.debug(s"Deferring method visit for unknown source location $sourceLocationId of method $methodId...")
 
 					var sourceLocationMethodVisits = deferredMethodVisits.get(sourceLocationId)
 					if (sourceLocationMethodVisits.isEmpty) {
