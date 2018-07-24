@@ -185,6 +185,7 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 			val buffer = collection.mutable.ListBuffer.empty[(String, Int)]
 			def flushBuffer() {
 				treeNodeData.mapMethodSignatures(buffer.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
+				buffer.clear
 			}
 			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
 
