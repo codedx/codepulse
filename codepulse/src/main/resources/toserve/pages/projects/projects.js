@@ -248,7 +248,7 @@ $(document).ready(function(){
 					selection.refresh = true
 
 					sourceView.setSourceView(mode, source)
-					sourceView.scrollToLine(selection.metadata.methodStartLine - 1)
+					sourceView.scrollToLine(selection.metadata.methodStartLine)
 
 					coverageUpdateSubscription = Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings) {
 						if (selection.refresh) {

@@ -19,7 +19,9 @@
 
 package com.secdec.codepulse.input.bytecode
 
+import java.io.InputStream
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
+import scala.util.{ Failure, Success, Try }
 
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
@@ -27,10 +29,22 @@ import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, 
 import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
 import com.secdec.codepulse.input.LanguageProcessor
-import com.secdec.codepulse.util.SmartLoader.Success
+import com.secdec.codepulse.util.SmartLoader.{ Success => S }
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
+import org.apache.commons.io.input.CloseShieldInputStream
+import com.github.javaparser.JavaParser
+import com.github.javaparser.ParseException
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter
+import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
+import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.PackageDeclaration
+import com.github.javaparser.ast.body.ConstructorDeclaration
+import com.secdec.codepulse.data.bytecode.parse.{ JavaBinaryMethodSignature, JavaSourceParsing, MethodSignature }
+import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing.{ ClassInfo, MethodInfo }
 
 class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 	val group = "Classes"
@@ -66,6 +80,36 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			})
 		}
 
+		def signatureAsString(signature: MethodSignature): String = {
+			signature.name + ";" + signature.simplifiedReturnType.name + ";" + signature.simplifiedArgumentTypes.map(_.name).mkString(";")
+		}
+
+		def getMethodAndStart(mi: MethodInfo, ci: ClassInfo): (String, Int) = {
+			(ci.signature.name.slashedName + "." + signatureAsString(mi.signature), mi.lines.start)
+		}
+
+		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int)] = {
+			ls match {
+				case Nil => Nil
+				case l => l.flatMap(ci => ci.memberMethods.map(mi => getMethodAndStart(mi, ci))) ::: l.flatMap(ci => flattenToMethods(ci.memberClasses))
+			}
+		}
+
+		val sourceMethods = new HashMap[String, List[(String, Int)]]
+		storage.readEntries(sourceType("java") _) { (filename, entryPath, entry, contents) =>
+			val hierarchy = JavaSourceParsing.tryParseJavaSource(new CloseShieldInputStream(contents))
+			val methodsAndStarts = hierarchy match {
+				case Success(h) => flattenToMethods(h)
+				case Failure(_) => List.empty[(String, Int)]
+			}
+//			val x = 3
+//			val methodsAndStarts = parseJava9(contents)
+			sourceMethods.get(entry.getName()) match {
+				case None => sourceMethods += (entry.getName() -> methodsAndStarts)
+				case Some(entries) => sourceMethods += (entry.getName() -> (entries ::: methodsAndStarts))
+			}
+		}
+
 		def getPackageFromSig(sig: String): String = {
 			val packageContainer = sig.split(";").take(1)
 			val packagePart = packageContainer(0).split("/").dropRight(1)
@@ -87,20 +131,26 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
-						val methods = AsmVisitors.parseMethodsFromClass(contents)
+						val methods = AsmVisitors.parseMethodsFromClass(new CloseShieldInputStream(contents))
 						for {
-							(file, name, size, lineCount, methodStartLine) <- methods
+							(file, name, size, lineCount) <- methods
 							pkg = getPackageFromSig(name)
 							filePath = FilePath(Array(pkg, file).mkString("/"))
 							nestedPath = filePath.map(fp => entryPath match {
 								case Some(ep) => new NestedPath(ep.paths :+ fp)
 								case None => new NestedPath(List(fp))
 							})
-							authority = nestedPath match {
-								case Some(np) => authoritativePath(groupName, np).map (_.toString)
-								case None => None
-							}
-							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), Option(methodStartLine))
+							authority = nestedPath.flatMap(np => authoritativePath(groupName, np).map (_.toString))
+							methodsAndStartLines = authority.flatMap(sourceMethods.get)
+							Array(nameStr, accessStr, rawSignature) = name.split(";", 3)
+							binaryMethodSignature = Try(JavaBinaryMethodSignature.parseMemoV1(String.join(";", accessStr, nameStr, rawSignature)))
+							startLine = binaryMethodSignature.toOption.flatMap(bms =>
+								methodsAndStartLines.flatMap { l =>
+									val potentials = l.filter { case (qualifiedName, line) => qualifiedName == signatureAsString(bms) }
+									val selection = potentials.headOption
+									selection.map(_._2)
+								})
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
 						}
@@ -108,7 +158,7 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 					case "jsp" =>
 						val jspContents = loader loadStream contents
 						jspContents match {
-							case Success(content, _) =>
+							case S(content, _) =>
 								val jspSize = JspAnalyzer analyze content
 
 								val entryName = entry.getName

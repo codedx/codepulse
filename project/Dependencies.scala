@@ -78,4 +78,6 @@ object Dependencies {
 
 	// dispatch, Scala wrapper for Java AsyncHttpClient https://github.com/dispatch/reboot
 	lazy val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.4"
+
+	lazy val javaparser = "com.github.javaparser" % "javaparser-core" % "2.4.0"
 }
