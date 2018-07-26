@@ -31,7 +31,7 @@ import org.apache.commons.io.FileUtils
 import scala.collection.JavaConversions._
 import scala.util.Try
 
-case class LocationRange(start: Position, end: Position)
+case class LocationRange(start: Int, end: Int)
 
 object JavaSourceParsing {
 
@@ -69,15 +69,15 @@ object JavaSourceParsing {
 	def scalaList[T](javaList: java.util.List[T]) = Option(javaList).map(_.toList).getOrElse(Nil)
 
 	/** Get a LocationRange representing the lines of the given AST node */
-	def lineRangeOf(node: Node) = LocationRange(node.getBegin().get, node.getEnd().get)
+	def lineRangeOf(node: Node) = LocationRange(node.getBeginLine, node.getEndLine)
 
 	/** Convert a `javaparser` representation of a method declaration to our internal model */
 	def getMethodDeclaration(md: MethodDeclaration): MethodInfo = {
 		val name = md.getName.toString
-		val modifiers = AccessFlags(enumSetToLong(md.getModifiers).toInt)
+		val modifiers = AccessFlags(md.getModifiers)
 		val returnType = SourceTypeReference(md.getType)
 		val argumentTypes = scalaList(md.getParameters).map(SourceTypeReference(_))
-		val lines = LocationRange(md.getBegin().get, md.getEnd().get)
+		val lines = LocationRange(md.getBeginLine, md.getEndLine)
 		val sig = JavaSourceMethodSignature(modifiers, returnType, name, argumentTypes)
 		MethodInfo(sig, lines)
 	}
@@ -86,9 +86,9 @@ object JavaSourceParsing {
 	  * e.g. a `void <init>` function, with the usual logic for modifiers and parameters
 	  */
 	def getConstructorDeclaration(cd: ConstructorDeclaration): MethodInfo = {
-		val modifiers = AccessFlags(enumSetToLong(cd.getModifiers).toInt)
+		val modifiers = AccessFlags(cd.getModifiers)
 		val argumentTypes = scalaList(cd.getParameters).map(SourceTypeReference(_))
-		val lines = LocationRange(cd.getBegin().get, cd.getEnd().get)
+		val lines = LocationRange(cd.getBeginLine, cd.getEndLine)
 		val sig = JavaSourceMethodSignature(modifiers, SourceTypeReference("void"), "<init>", argumentTypes)
 		MethodInfo(sig, lines)
 	}
@@ -96,9 +96,9 @@ object JavaSourceParsing {
 	/** Convert a `javaparser` representation of an enum declaration to our internal model */
 	def getClassDeclaration(makeName: String => ClassName, ed: EnumDeclaration): (JavaSourceClassSignature, LocationRange) = {
 		val name = makeName(ed.getName.toString)
-		val modifiers = AccessFlags(enumSetToLong(ed.getModifiers).toInt)
+		val modifiers = AccessFlags(ed.getModifiers)
 		val kind = TypeKind.EnumKind
-		val implTypes = scalaList(ed.getImplementedTypes).map(SourceTypeReference(_))
+		val implTypes = scalaList(ed.getImplements).map(SourceTypeReference(_))
 		val lines = lineRangeOf(ed)
 		val sig = JavaSourceClassSignature(modifiers, kind, name, tParams = Nil, ext = Nil, impl = implTypes)
 		sig -> lines
@@ -107,11 +107,11 @@ object JavaSourceParsing {
 	/** Convert a `javaparser` representation of a class/interface declaration to our internal model */
 	def getClassDeclaration(makeName: String => ClassName, cd: ClassOrInterfaceDeclaration): (JavaSourceClassSignature, LocationRange) = {
 		val name = makeName(cd.getName.toString)
-		val modifiers = AccessFlags(enumSetToLong(cd.getModifiers).toInt)
+		val modifiers = AccessFlags(cd.getModifiers)
 		val kind = if(cd.isInterface) TypeKind.InterfaceKind else TypeKind.ClassKind
 		val tParams = scalaList(cd.getTypeParameters).map(_.getName.toString)
-		val extendedTypes = scalaList(cd.getExtendedTypes).map(SourceTypeReference(_))
-		val implementedTypes = scalaList(cd.getImplementedTypes).map(SourceTypeReference(_))
+		val extendedTypes = scalaList(cd.getExtends).map(SourceTypeReference(_))
+		val implementedTypes = scalaList(cd.getImplements).map(SourceTypeReference(_))
 		val sig = JavaSourceClassSignature(modifiers, kind, name, tParams, extendedTypes, implementedTypes)
 		val lines = lineRangeOf(cd)
 		sig -> lines
@@ -125,7 +125,7 @@ object JavaSourceParsing {
 			case Left(ed) => getClassDeclaration(makeName, ed)
 			case Right(cd) => getClassDeclaration(makeName, cd)
 		}
-		val rawMembers = scalaList(t.merge.getMembers).asInstanceOf[List[BodyDeclaration[_ <: BodyDeclaration[_]]]]
+		val rawMembers = scalaList(t.merge.getMembers)
 		// locate methods belonging to `t`
 		val methods = rawMembers collect {
 			case md: MethodDeclaration => getMethodDeclaration(md)
@@ -150,16 +150,12 @@ object JavaSourceParsing {
 	  */
 	def getClassesFrom(cu: CompilationUnit): List[ClassInfo] = {
 		// package name may be null - want slash-separated - and tack on another slash if it's not empty
-		val pkgPrefix = Option(cu.getPackageDeclaration.get).map(_.getName + "/").getOrElse("").replaceAllLiterally(".", "/")
+		val pkgPrefix = Option(cu.getPackage).map(_.getPackageName + "/").getOrElse("").replaceAllLiterally(".", "/")
 		val makeName = { name: String => ClassName.fromSlashed(pkgPrefix + name) }
-		// Compiler barfs on the constraints and erasure of constrained type information
-		// By using an explicit cast, we bring it back
-		val x = scalaList(cu.getTypes).asInstanceOf[List[TypeDeclaration[_ <: TypeDeclaration[_]]]]
-		val z: PartialFunction[TypeDeclaration[_ <: TypeDeclaration[_]], ClassInfo] = {
+		scalaList(cu.getTypes) collect {
 			case ed: EnumDeclaration => getClassStructure(makeName, Left(ed))
 			case cd: ClassOrInterfaceDeclaration => getClassStructure(makeName, Right(cd))
 		}
-		x collect z
 	}
 
 	import java.util

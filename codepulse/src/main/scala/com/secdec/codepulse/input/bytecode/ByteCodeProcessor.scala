@@ -21,7 +21,7 @@ package com.secdec.codepulse.input.bytecode
 
 import java.io.InputStream
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
-import scala.util.{Try, Success, Failure}
+import scala.util.{ Failure, Success, Try }
 
 import com.secdec.codepulse.data.bytecode.{ AsmVisitors, CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.jsp.{ JasperJspAdapter, JspAnalyzer }
@@ -29,7 +29,7 @@ import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, 
 import com.secdec.codepulse.data.storage.Storage
 import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
 import com.secdec.codepulse.input.LanguageProcessor
-import com.secdec.codepulse.util.SmartLoader.{Success => S}
+import com.secdec.codepulse.util.SmartLoader.{ Success => S }
 import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
@@ -43,7 +43,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.PackageDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
-import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing
+import com.secdec.codepulse.data.bytecode.parse.{ JavaBinaryMethodSignature, JavaSourceParsing, MethodSignature }
 import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing.{ ClassInfo, MethodInfo }
 
 class ByteCodeProcessor() extends LanguageProcessor with Loggable {
@@ -80,8 +80,12 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			})
 		}
 
+		def signatureAsString(signature: MethodSignature): String = {
+			signature.name + ";" + signature.simplifiedReturnType.name + ";" + signature.simplifiedArgumentTypes.map(_.name).mkString(";")
+		}
+
 		def getMethodAndStart(mi: MethodInfo, ci: ClassInfo): (String, Int) = {
-			(ci.signature.name.slashedName + "." + mi.signature.name, mi.lines.start.line)
+			(ci.signature.name.slashedName + "." + signatureAsString(mi.signature), mi.lines.start)
 		}
 
 		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int)] = {
@@ -136,17 +140,16 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 								case Some(ep) => new NestedPath(ep.paths :+ fp)
 								case None => new NestedPath(List(fp))
 							})
-							authority = nestedPath match {
-								case Some(np) => authoritativePath(groupName, np).map (_.toString)
-								case None => None
-							}
+							authority = nestedPath.flatMap(np => authoritativePath(groupName, np).map (_.toString))
 							methodsAndStartLines = authority.flatMap(sourceMethods.get)
-							startLine = methodsAndStartLines.flatMap { l =>
-								val potentials = l.filter { case (qualifiedName, line) => qualifiedName == name.split(";").take(1)(0) }
-								val selection = potentials.headOption//.getOrElse((("", 0)))
-								selection.map(_._2)
-								//Some(selection._2)
-							}
+							Array(nameStr, accessStr, rawSignature) = name.split(";", 3)
+							binaryMethodSignature = Try(JavaBinaryMethodSignature.parseMemoV1(String.join(";", accessStr, nameStr, rawSignature)))
+							startLine = binaryMethodSignature.toOption.flatMap(bms =>
+								methodsAndStartLines.flatMap { l =>
+									val potentials = l.filter { case (qualifiedName, line) => qualifiedName == signatureAsString(bms) }
+									val selection = potentials.headOption
+									selection.map(_._2)
+								})
 							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
@@ -205,84 +208,5 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			treeNodeData.mapJsps(if (jspCorrelationsDuplicatePaths.isEmpty) jspCorrelations else jspCorrelations.toMap)
 			treeNodeData.mapMethodSignatures(methodCorrelations.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
 		}
-	}
-
-	private def parseJava9(contents: InputStream): List[(String, Int)] = {
-		def mkString(s1: String, s2: String, sep: String): String = {
-			if(s1.isEmpty) s2
-			else if(s2.isEmpty) s1
-			else s1 + sep + s2
-		}
-
-		def getQualifiedClass(n: Node, s: String): String = {
-			n match {
-				case c: ConstructorDeclaration => if(c.getParentNode().isPresent()) {
-					getQualifiedClass(c.getParentNode().get(), s)
-				} else {
-					s
-				}
-				case m: MethodDeclaration => if(m.getParentNode().isPresent()) {
-					getQualifiedClass(m.getParentNode().get(), s)
-				} else {
-					s
-				}
-				case c: ClassOrInterfaceDeclaration => if(c.getParentNode().isPresent()) {
-					getQualifiedClass(c.getParentNode().get(), mkString(c.getName().toString, s, "$"))//c.getName + "." + s)
-				} else {
-					s
-				}
-				case cu: CompilationUnit => if(cu.getPackageDeclaration().isPresent()) {
-					getQualifiedClass(cu.getPackageDeclaration().get(), s)
-				} else {
-					s
-				}
-				case p: PackageDeclaration => mkString(p.getName().toString.replace(".", "/"), s, "/")//p.getName + "." + s
-			}
-		}
-
-		var methodStarts = List[(String, Int)]()
-
-		try {
-			val sourceContent = new CloseShieldInputStream(contents)
-			val cu = JavaParser.parse(sourceContent)
-
-			val methodVisitor = new VoidVisitorAdapter[Void] {
-				override def visit(n: ConstructorDeclaration, arg: Void): Unit = {
-					super.visit(n, arg)
-					System.out.println(getQualifiedClass(n, "") + "\t" + n.getName() + "\t" + n.getBegin())
-
-					val qualifiedName = mkString(getQualifiedClass(n, ""), n.getName().toString, ".")
-					val startLine = if(n.getBegin().isPresent()) {
-						val location = n.getBegin().get()
-						location.line
-					} else {
-						0
-					}
-
-					methodStarts = (qualifiedName, startLine) :: methodStarts
-				}
-
-				override def visit(n: MethodDeclaration, arg: Void): Unit = {
-					super.visit(n, arg)
-					System.out.println(getQualifiedClass(n, "") + "\t" + n.getName() + "\t" + n.getBegin())
-
-					val qualifiedName = mkString(getQualifiedClass(n, ""), n.getName().toString, ".")
-					val startLine = if(n.getBegin().isPresent()) {
-						val location = n.getBegin().get()
-						location.line
-					} else {
-						0
-					}
-
-					methodStarts = (qualifiedName, startLine) :: methodStarts
-				}
-			}
-
-			cu.accept(methodVisitor, null)
-		} catch {
-			case ex: Exception => System.out.println(ex)
-		}
-
-		methodStarts
 	}
 }

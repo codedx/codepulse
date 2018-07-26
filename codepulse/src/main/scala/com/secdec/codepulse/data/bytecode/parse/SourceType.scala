@@ -43,9 +43,9 @@ object TypeKind {
 
 case class SourceTypeReference(ref: String) extends AnyVal
 object SourceTypeReference {
-	def apply(`type`: Type): SourceTypeReference = apply(`type`.toString)//toStringWithoutComments)
+	def apply(`type`: Type): SourceTypeReference = apply(`type`.toStringWithoutComments)
 	def apply(param: Parameter): SourceTypeReference = {
-		val s = param.getName.toString//param.getType.toStringWithoutComments
+		val s = param.getType.toStringWithoutComments
 		val extra = if (param.isVarArgs) "[]" else ""
 		apply(s + extra)
 	}
