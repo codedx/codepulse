@@ -133,7 +133,7 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(new CloseShieldInputStream(contents))
 						for {
-							(file, name, size, lineCount, methodStartLine) <- methods
+							(file, name, size, lineCount) <- methods
 							pkg = getPackageFromSig(name)
 							filePath = FilePath(Array(pkg, file).mkString("/"))
 							nestedPath = filePath.map(fp => entryPath match {
