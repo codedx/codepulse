@@ -927,6 +927,9 @@
       <Component Id="cmp90CE04501D667664F20D455789F29908" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="filAAEEF462B6AE59A98FCEC5E2C2F0BA11" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\jackson-module-scala_2.10-2.3.2.jar" />
       </Component>
+      <Component Id="cmpFBA9E81857879FA71A17C4BAF5A0ACE8" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
+        <File Id="filC692468FBFCB1C79FED5CD7F6818F002" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\javaparser-core-2.4.0.jar" />
+      </Component>
       <Component Id="cmpE520FBD6C11296505635CC1FA1676FAF" Directory="dir4AA12460D3F5A5059B5F53D9A515C913" Guid="*">
         <File Id="filBCC3200C8BEC28D002D4BE3E5F4EF773" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\backend\webapps\root\WEB-INF\lib\javax.el-api-3.0.0.jar" />
       </Component>
@@ -1884,9 +1887,6 @@
       <Component Id="cmp24497ADFC6990BC66DA7AEC319F24A30" Directory="dirE703D135D537439421E685F2EF38C0FC" Guid="*">
         <File Id="filDF7CE88BB3825FB3B562706AE081AECF" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\minlog\license.txt" />
       </Component>
-      <Component Id="cmp7AD81D3A55C9D5BA82F5137672E79BC9" Directory="dir294DF4FA24249893C1D5E4E6F757BBCC" Guid="*">
-        <File Id="fil5A65ABCD6A5C72EFA87B62941E64211C" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\OpenCover\License.rtf" />
-      </Component>
       <Component Id="cmp90BCC453242C511864E9688FE49ACFC4" Directory="dirBB783A366AE3F65CCBE24B7BA4C87D02" Guid="*">
         <File Id="filE3CE766C5BE86A3DF26B455D407A078D" KeyPath="yes" Source="$(var.CodePulseWin64SourceFolder)\licenses\paranamer\LICENSE.txt" />
       </Component>
@@ -2199,11 +2199,6 @@
   <Fragment>
     <DirectoryRef Id="dirC408AC8998C77D55C4B2F004285DFA23">
       <Directory Id="dir2859AB326CD40E14FF854B9E58690AB1" Name="webapps" />
-    </DirectoryRef>
-  </Fragment>
-  <Fragment>
-    <DirectoryRef Id="dir38D963CA90694D9F68F2E2A952412F5D">
-      <Directory Id="dir294DF4FA24249893C1D5E4E6F757BBCC" Name="OpenCover" />
     </DirectoryRef>
   </Fragment>
   <Fragment>

@@ -19,7 +19,7 @@
 		<WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 		<WixVariable Id="WixUIDialogBmp" Value="WixUIDialogBmp.bmp" />
 		<WixVariable Id="WixUIBannerBmp" Value="WixUIBannerBmp.bmp" />
-		<Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Code Pulse. See the Code Pulse Start menu folder for the application shortcut and a link to open the Wiki." />
+		<Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Code Pulse. See the Code Pulse Start menu folder for the application shortcut and a link to open the User Guide." />
 
 		<Component Id="ApplicationShortcuts" Guid="*" Directory="CodePulseProgramsFolder">
 		<Shortcut Id="CodePulseShortcut"
@@ -27,9 +27,9 @@
                 Description="Launch Code Pulse"
                 Target="[INSTALLFOLDER]codepulse.exe"
                 WorkingDirectory="INSTALLFOLDER"/>
-		<util:InternetShortcut Id="HomeWikiLink"
-                             Name="Code Pulse Wiki - Home"
-                             Target="https://github.com/codedx/codepulse/wiki"/>
+		<util:InternetShortcut Id="UserGuideLink"
+                             Name="Code Pulse User Guide"
+                             Target="https://github.com/codedx/codepulse/wiki/user-guide"/>
 		<RemoveFolder Id="RemoveShortcutFolder" On="uninstall"/>
 		<RegistryValue
 			Root="HKCU"

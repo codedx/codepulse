@@ -647,8 +647,8 @@
             <Component Id="cmp643448F4DE3E54B4D2E6ABB370EA4024" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filD91BB803F97117EADE35536F929A2AD9" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscordaccore.dll" />
             </Component>
-            <Component Id="cmpA0ECC82064C5C34137AD206F5E61BDA5" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
-                <File Id="filB57C5791B64EF8547A6845741FF77533" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscordaccore_amd64_amd64_4.6.00001.0.dll" />
+            <Component Id="cmp02A845E2A2A94D402F82DEDDB5DFEF07" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
+                <File Id="filF8CD8117F989D5D94FD36B14026A17B6" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscordaccore_amd64_amd64_4.6.26212.01.dll" />
             </Component>
             <Component Id="cmp3DB6F519C48E2E9EF339652B271F7DEB" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filC53607A96732ACC1F3D1E1E5ABED01DE" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\mscordbi.dll" />
@@ -683,8 +683,8 @@
             <Component Id="cmp8A33C321D30A6EACF8103E61C6E6E99E" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="filBDB6C82F2B3C03682ECC64FFB41EBB64" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SOS.NETCore.dll" />
             </Component>
-            <Component Id="cmp1136081D9F3B5F37DF1798597D74A63D" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
-                <File Id="fil8429413AFFB3533C6625C1BE9E6F6F1C" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\sos_amd64_amd64_4.6.00001.0.dll" />
+            <Component Id="cmp8ED2E6D5DD8AD1A1E5F9598731B69450" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
+                <File Id="fil2079E97B039D927BF6C8D79922292E1A" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\sos_amd64_amd64_4.6.26212.01.dll" />
             </Component>
             <Component Id="cmp9955E5B80484DB40467686AD3284BE99" Directory="dir5C7D6C800CDEFC6B537A776ED02656E2" Guid="*">
                 <File Id="fil01D73779D40F314F85B0C6EC21F6100E" KeyPath="yes" Source="$(var.SymbolServiceWin64SourceFolder)\SQLitePCLRaw.batteries_green.dll" />
