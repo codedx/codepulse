@@ -91,6 +91,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		def * = (id, signature, nodeId) <> (MethodSignatureNode.tupled, MethodSignatureNode.unapply)
 
 		def node = foreignKey("msnm_node", nodeId, treeNodeData)(_.id, onDelete = ForeignKeyAction.Cascade)
+		def signatureIndex = index("sig_idx", (signature), unique = false)
 	}
 	val methodSignatureNodeMap = TableQuery[MethodSignatureNodeMap]
 
