@@ -19,24 +19,29 @@
 
 package com.secdec.codepulse.input.project
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.io.File
 
-import akka.actor.{ Actor, ActorRef, Stash }
-import scala.collection.mutable.{ Map => MutableMap }
-import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.{Actor, ActorRef, Stash}
+import com.codedx.codepulse.utility.Loggable
+
+import scala.collection.mutable.{Map => MutableMap}
+import com.secdec.codepulse.data.model.{ProjectData, ProjectId}
+import com.secdec.codepulse.data.storage.{Storage, StorageManager}
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.LanguageProcessor
 import com.secdec.codepulse.processing.ProcessEnvelope
 import com.secdec.codepulse.processing.ProcessStatus._
-import com.secdec.codepulse.tracer.{ BootVar, generalEventBus, projectDataProvider, projectManager }
+import com.secdec.codepulse.tracer.{BootVar, generalEventBus, projectDataProvider, projectManager}
 
 trait ProjectLoader {
 	protected def createProject: ProjectData
 }
 
-case class CreateProject(processors: List[BootVar[ActorRef]], load: (ProjectData, GeneralEventBus) => Unit)
+case class CreateProject(inputFile: File, load: (ProjectData, Storage, GeneralEventBus) => Unit)
 
-class ProjectInputActor extends Actor with Stash with ProjectLoader {
+class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggable {
+
+	import com.secdec.codepulse.util.Actor._
 
 	val projectCreationProcessors = MutableMap.empty[String, List[BootVar[ActorRef]]]
 
@@ -44,41 +49,28 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 
 	val projectProcessingFailures = MutableMap.empty[String, Integer]
 
-	// TODO: handle data input by creating a project and broadcasting with 'DataInputAvailable' with project payload
-	// TODO: capture failed state to cause a failed message and redirect (as necessary) for the user
-
 	def receive = {
-		case CreateProject(processors, load) => {
-			val projectData = createProject
-			addProjectCreators(projectData, processors)
-
-			load(projectData, generalEventBus)
-
-			sender ! projectData
-		}
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, file, treeNodeData)) => {
-			val numberOfProcessors = projectCreationProcessors.get(identifier).get.length
-			val succeeded = projectProcessorSucceeded(identifier)
-			val failed = projectProcessingFailures.get(identifier).get
-
-			val remaining = numberOfProcessors - (succeeded + failed)
-
-			if(remaining == 0 && succeeded >= 1) {
-				projectManager getProject ProjectId(identifier.toInt) foreach(_.notifyLoadingFinished())
-				clearProjectCreators(identifier)
+		case CreateProject(inputFile, load) => {
+			try {
+				val projectData = createProject
+				StorageManager.storeInput(projectData.id, inputFile) match {
+					case Some(storage) =>
+						load(projectData, storage, generalEventBus)
+						sender ! projectData
+					case _ => sender ! akka.actor.Status.Failure(new IllegalStateException(s"Unable to create storage for project ${projectData.id.num}"))
+				}
 			}
+			catch {
+				case ex: Exception => {
+					logAndSendFailure(logger, "Unable to complete create-project operation for input file", sender, ex)
+				}
+			}
+		}
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, _, _, _)) => {
+				projectManager getProject ProjectId(identifier.toInt) foreach(_.notifyLoadingFinished())
 		}
 		case ProcessEnvelope(_, Failed(identifier, action, Some(exception))) if action != "Dependency Check" => {
-			val numberOfProcessors = projectCreationProcessors.get(identifier).get.length
-			val succeeded = projectProcessingSuccesses.get(identifier).get
-			val failed = projectProcessorFailed(identifier)
-
-			val remaining = numberOfProcessors - (succeeded + failed)
-
-			if(remaining == 0 && failed == numberOfProcessors) {
 				projectManager.removeUnloadedProject(ProjectId(identifier.toInt), exception.getMessage)
-				clearProjectCreators(identifier)
-			}
 		}
 	}
 
@@ -87,34 +79,5 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader {
 		val projectData = projectDataProvider getProject projectId
 
 		projectData
-	}
-
-	protected def addProjectCreators(projectData: ProjectData, processors: List[BootVar[ActorRef]]): Integer = {
-		val id = projectData.id.num.toString
-		projectCreationProcessors.put(id, processors)
-		projectProcessingSuccesses.put(id, 0)
-		projectProcessingFailures.put(id, 0)
-		processors.length
-	}
-
-	protected def clearProjectCreators(projectId: String) = {
-		projectCreationProcessors.remove(projectId)
-		projectProcessingSuccesses.remove(projectId)
-		projectProcessingFailures.remove(projectId)
-	}
-
-	protected def projectProcessorSucceeded(projectId: String): Integer = {
-		incrementProcessor(projectId, projectProcessingSuccesses)
-	}
-
-	protected def projectProcessorFailed(projectId: String) = {
-		incrementProcessor(projectId, projectProcessingFailures)
-	}
-
-	private def incrementProcessor(key: String, map: MutableMap[String, Integer]): Integer = {
-		val count = map.get(key).get + 1
-		map.update(key, count)
-
-		count
 	}
 }

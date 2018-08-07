@@ -91,13 +91,15 @@ namespace CodePulse.Framework.Test.Persistence
             _traceAgent.Setup(x => x.Connect()).Returns(true);
             _traceAgent.Setup(x => x.Prepare()).Returns(true);
 
-            _traceDataCollector.Setup(x => x.AddMethodVisit(
+            _traceDataCollector.Setup(x => x.AddMethodVisit(1,
                 className,
                 classFilename,
                 "",
                 methodSignature,
                 startLine,
-                endLine));
+                endLine,
+				0,
+				0));
 
             var persistence = new CodePulsePersistence(_mockCommandLine.Object, _mockLogger.Object);
             persistence.Initialize(_traceAgent.Object);
@@ -123,12 +125,15 @@ namespace CodePulse.Framework.Test.Persistence
 
             // assert
             Assert.AreEqual(1, instrumentationPoint.UniqueSequencePoint);
-            _traceDataCollector.Verify(x => x.AddMethodVisit(className,
+            _traceDataCollector.Verify(x => x.AddMethodVisit(1,
+				className,
                 classFilename,
                 "",
                 methodSignature,
                 startLine,
-                endLine));
+                endLine,
+				0,
+				0));
         }
     }
 }

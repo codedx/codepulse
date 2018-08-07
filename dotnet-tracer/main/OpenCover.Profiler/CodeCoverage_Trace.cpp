@@ -60,7 +60,9 @@ HRESULT CCodeCoverage::RegisterInjectedType(const ModuleID moduleId, Injection::
 /// <remarks>Calls the method that is marked with the SecurityCriticalAttribute</remarks>
 HRESULT CCodeCoverage::AddTraceSafeCuckooBody(ModuleID moduleId)
 {
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited..."));
+	#endif
 
 	// Define local variables for GetCurrent
 	COR_SIGNATURE sigLocalVariable[] =
@@ -96,7 +98,9 @@ HRESULT CCodeCoverage::AddTraceSafeCuckooBody(ModuleID moduleId)
 
 	InstrumentMethodWith(moduleId, m_cuckooSafeToken, instructions, localVariableSignature);
 
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited - Done!"));
+	#endif
 
 	return S_OK;
 }

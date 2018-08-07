@@ -36,9 +36,8 @@ object ConnectionHelp extends DispatchSnippet {
 	})
 
 	def traceAgentCommand = {
-		// embedded versions will be running in "some/install/dir/backend", and
-		// the agent jar will be located at "some/install/dir/agent.jar"
-		val agentPath = new File("../tracers/java/agent.jar").getCanonicalPath
+
+		var agentPath = new File("../tracers/java/agent.jar").getCanonicalPath
 
 		val hqAddress = "localhost"
 		val hqPort = com.secdec.codepulse.userSettings.tracePort

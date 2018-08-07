@@ -157,15 +157,21 @@ namespace SymbolService.Controllers
 
         private MethodInfo GetMethodInfo(MethodDefinition method)
         {
-            return new MethodInfo
+	        var sequencePoints = method.DebugInformation.HasSequencePoints ? method.DebugInformation.SequencePoints : null;
+	        var visibleSequencePoints = sequencePoints?.Count(x => !x.IsHidden) ?? 0;
+
+			return new MethodInfo
             {
                 FullyQualifiedName = method.Name,
                 ContainingClass = method.DeclaringType?.FullName,
+				File = sequencePoints?.First().Document.Url,
                 AccessModifiers = GetAccessModifiers(method),
                 Parameters = GetParameters(method),
                 ReturnType = method.ReturnType.FullName,
-                Instructions = method.Body?.Instructions?.Count ?? 0
-            };
+                Instructions = method.Body?.Instructions?.Count ?? 0,
+				SequencePointCount = visibleSequencePoints,
+				MethodStartLine = GetMethodStartLine(method)
+			};
         }
 
         static readonly Dictionary<Modifier, Func<MethodDefinition, Modifier>> AccessModiferQueries = new Dictionary<Modifier, Func<MethodDefinition, Modifier>>()
@@ -189,5 +195,17 @@ namespace SymbolService.Controllers
         {
             return method.Parameters.Select(parameter => parameter.ParameterType.FullName).ToList();
         }
+
+		private int GetMethodStartLine(MethodDefinition method)
+		{
+			var methodStartLine = -1;
+
+			if(method.DebugInformation.HasSequencePoints)
+			{
+				methodStartLine = method.DebugInformation.SequencePoints.OrderBy(t => t.StartLine).First().StartLine;
+			}
+
+			return methodStartLine;
+		}
     }
 }

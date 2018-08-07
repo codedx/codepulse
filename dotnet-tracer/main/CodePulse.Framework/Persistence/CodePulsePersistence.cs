@@ -169,7 +169,7 @@ namespace CodePulse.Framework.Persistence
         /// <inheritdoc />
         protected override void OnContextEnd(Guid contextId, HashSet<uint> relatedSpids)
         {
-            _logger.Debug($"Context {contextId} ended with a related spid count of {relatedSpids?.Count}.");
+            _logger.DebugFormat("Context {0} ended with a related spid count of {1}.", contextId, relatedSpids?.Count);
 
             AddToTrace(relatedSpids);
         }
@@ -184,9 +184,13 @@ namespace CodePulse.Framework.Persistence
                     continue;
                 }
 
-                var startAndEndLineNumber = InstrumentationPoint.GetLineNumbers(relatedSpid);
-                if (startAndEndLineNumber?.Item1 == null || startAndEndLineNumber.Item2 == null)
+                var sourceLocation = InstrumentationPoint.GetSourceLocation(relatedSpid);
+                if (sourceLocation?.Item1 == null || 
+					sourceLocation.Item2 == null ||
+                    sourceLocation.Item3 == null ||
+                    sourceLocation.Item4 == null)
                 {
+					// Note: Branch Points have only start line
                     continue;
                 }
 
@@ -212,13 +216,36 @@ namespace CodePulse.Framework.Persistence
                     filePath = firstFile.FullPath;
                 }
 
-                var endLineNumber = startAndEndLineNumber.Item2.Value;
+                var endLineNumber = sourceLocation.Item2.Value;
+	            var startCharacter = sourceLocation.Item3.Value;
+	            var endCharacter = sourceLocation.Item4.Value;
 
-                _agent.TraceDataCollector.AddMethodVisit(@class.FullName, filePath,
-                    declaringMethod.CallName,
-                    declaringMethod.MethodSignature,
-                    startAndEndLineNumber.Item1.Value,
-                    endLineNumber);
+	            const int maxCharacterIndex = short.MaxValue;
+	            if (startCharacter > maxCharacterIndex)
+	            {
+		            _logger.ErrorFormat("Unable to record method visit for SPID {0} because start character ({1}) is too large for Code Pulse protocol.", relatedSpid, startCharacter);
+		            continue;
+	            }
+	            if (endCharacter > maxCharacterIndex)
+	            {
+		            _logger.ErrorFormat("Unable to record method visit for SPID {0} because end character ({1}) is too large for Code Pulse protocol.", relatedSpid, endCharacter);
+		            continue;
+	            }
+
+	            const int maxSpid = int.MaxValue;
+	            if (relatedSpid > maxSpid)
+	            {
+					_logger.ErrorFormat("Unable to record method visit for SPID {0} because identifier is too large for Code Pulse protocol (Max={1}.", relatedSpid, maxSpid);
+		            continue;
+				}
+
+				_agent.TraceDataCollector.AddMethodVisit((int)relatedSpid, @class.FullName, filePath,
+                declaringMethod.CallName,
+                declaringMethod.MethodSignature,
+                sourceLocation.Item1.Value,
+                endLineNumber,
+				(short)startCharacter,
+				(short)endCharacter);
             }
         }
     }

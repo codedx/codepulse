@@ -181,9 +181,11 @@ namespace CodePulse.Client.Agent
                 var bufferLength = DecideBufferLength(memBudget);
                 var numBuffers = memBudget / bufferLength;
 
-                _bufferPool = new BufferPool(numBuffers, bufferLength);
+	            var logger = StaticAgentConfiguration.Logger;
+
+				_bufferPool = new BufferPool(numBuffers, bufferLength, logger);
                 _bufferService = new PooledBufferService(_bufferPool);
-                TraceDataCollector = new TraceDataCollector(_messageProtocol, _bufferService, ClassIdentifier, MethodIdentifier, _errorHandler, StaticAgentConfiguration.Logger);
+                TraceDataCollector = new TraceDataCollector(_messageProtocol, _bufferService, ClassIdentifier, MethodIdentifier, _errorHandler, logger);
 
                 _messageSenderManager = new MessageSenderManager(_socketFactory,
                     _protocolVersion.DataConnectionHandshake,
@@ -191,7 +193,7 @@ namespace CodePulse.Client.Agent
                     RuntimeAgentConfiguration.NumDataSenders,
                     RuntimeAgentConfiguration.RunId,
                     _errorHandler,
-                    StaticAgentConfiguration.Logger);
+                    logger);
 
                 return true;
             }

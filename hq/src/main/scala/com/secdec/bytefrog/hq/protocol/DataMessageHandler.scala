@@ -28,11 +28,20 @@ trait DataMessageHandler {
 	/** This method is called by a parser when it encounters a MapMethodSignature message */
 	def handleMapMethodSignature(methodSig: String, methodId: Int): Unit
 
+	/** This method is called by a parser when it encounters SourceLocationCountMessage xyz message */
+	def handleSourceLocationCount(methodId: Int, sourceLocationCount: Int): Unit
+
+	/** This method is called by a parser when it encounters a MapSourceLocation message */
+	def handleMapSourceLocation(methodId: Int, startLine: Int, endLine: Int, startCharacter: Short, endCharacter: Short, sourceLocationId: Int): Unit
+
 	/** This method is called by a parser when it encounters a MapException message */
 	def handleMapException(exception: String, exceptionId: Int): Unit
 
 	/** This method is called by a parser when it encounters a MethodEntry message */
 	def handleMethodEntry(methodId: Int, timestamp: Int, sequenceId: Int, threadId: Int): Unit
+
+	/** This method is called by a parser when it encounters a MethodVisit message */
+	def handleMethodVisit(methodId: Int, sourceLocationId: Int, timestamp: Int, sequenceId: Int, threadId: Int): Unit
 
 	/** This method is called by a parser when it encounters a MethodExit message */
 	def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, exceptionThrown: Boolean, threadId: Int): Unit
@@ -62,9 +71,12 @@ trait DataMessageHandler {
 class DefaultDataMessageHandler extends DataMessageHandler {
 	def handleMapThreadName(threadName: String, threadId: Int, timestamp: Int) = ()
 	def handleMapMethodSignature(methodSig: String, methodId: Int) = ()
+	def handleSourceLocationCount(methodId: Int, sourceLocationCount: Int): Unit = ()
+	def handleMapSourceLocation(methodId: Int, startLine: Int, endLine: Int, startCharacter: Short, endCharacter: Short, sourceLocationId: Int): Unit = ()
 	def handleMapException(exception: String, exceptionId: Int) = ()
 
 	def handleMethodEntry(methodId: Int, timestamp: Int, sequenceId: Int, threadId: Int) = ()
+	def handleMethodVisit(methodId: Int, sourceLocationId: Int, timestamp: Int, sequenceId: Int, threadId: Int): Unit = ()
 	def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, exceptionThrown: Boolean, threadId: Int) = ()
 
 	def handleExceptionMessage(exceptionId: Int, methodId: Int, timestamp: Int, sequenceId: Int, lineNum: Int, threadId: Int) = ()

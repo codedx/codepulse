@@ -82,9 +82,15 @@ $(document).ready(function(){
 			url: uploadUrl,
 			dropZone: fileDropzone,
 			add: function(e, data){
-				// use this `data` as the current file data.
-				// this will be used once the form is submitted.
-				projectFile.set(data)
+                if (data.files[0].size > 524288000) {
+                    alert('The file you specified exceeds the maximum file size (500 MB).');
+                    projectFile.set(null);
+                    return
+                }
+
+                // use this `data` as the current file data.
+                // this will be used once the form is submitted.
+                projectFile.set(data)
 			},
 			formData: function(){
 				var name = projectName.get()

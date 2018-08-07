@@ -69,13 +69,14 @@ namespace CodePulse.Client.Test
             var socketFactory = new SocketFactory("127.0.0.1", 4998, 1);
 
             // act
-            var messageSenderManager = new MessageSenderManager(socketFactory,
+	        var logger = new Mock<ILog>().Object;
+	        var messageSenderManager = new MessageSenderManager(socketFactory,
                 new DataConnectionHandshake(new MessageProtocol()),
-                new BufferPool(1, 9),
+                new BufferPool(1, 9, logger),
                 1,
                 1,
                 new ErrorHandler(),
-                new Mock<ILog>().Object);
+                logger);
 
             // assert
             Assert.IsTrue(messageSenderManager.IsIdle);
@@ -142,13 +143,14 @@ namespace CodePulse.Client.Test
             var socketFactory = new SocketFactory("127.0.0.1", 4998, 1);
 
             // act
-            var messageSenderManager = new MessageSenderManager(socketFactory,
+	        var logger = new Mock<ILog>().Object;
+	        var messageSenderManager = new MessageSenderManager(socketFactory,
                 new DataConnectionHandshake(new MessageProtocol()),
-                new BufferPool(1, 9),
+                new BufferPool(1, 9, logger),
                 2,
                 1,
                 new ErrorHandler(),
-                new Mock<ILog>().Object);
+                logger);
 
             // assert
             Assert.IsTrue(messageSenderManager.IsIdle);
@@ -178,7 +180,7 @@ namespace CodePulse.Client.Test
             // act
             var messageSenderManager = new MessageSenderManager(socketFactory,
                 new DataConnectionHandshake(new MessageProtocol()),
-                new BufferPool(1, 9),
+                new BufferPool(1, 9, new Mock<ILog>().Object),
                 1,
                 1,
                 errorHandler,
@@ -255,7 +257,7 @@ namespace CodePulse.Client.Test
             // act
             var messageSenderManager = new MessageSenderManager(socketFactory,
                 new DataConnectionHandshake(new MessageProtocol()),
-                new BufferPool(1, 9),
+                new BufferPool(1, 9, new Mock<ILog>().Object),
                 2,
                 1,
                 errorHandler,

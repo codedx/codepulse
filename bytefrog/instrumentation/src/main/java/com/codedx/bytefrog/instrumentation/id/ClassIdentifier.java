@@ -18,6 +18,7 @@
 
 package com.codedx.bytefrog.instrumentation.id;
 
+import java.util.BitSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,9 +32,9 @@ public class ClassIdentifier {
 	private final AtomicInteger nextId = new AtomicInteger();
 	protected final ConcurrentHashMap<Integer, ClassInformation> map = new ConcurrentHashMap<>();
 
-	public int record(String className, String sourceFile, LineLevelMapper lineLevelMapper) {
+	public int record(String className, String sourceFile, LineLevelMapper lineLevelMapper, BitSet lineNumbers) {
 		int id = nextId.getAndIncrement();
-		map.put(id, new ClassInformation(className, sourceFile, lineLevelMapper));
+		map.put(id, new ClassInformation(className, sourceFile, lineLevelMapper, lineNumbers));
 		return id;
 	}
 
@@ -46,11 +47,13 @@ public class ClassIdentifier {
 		private final String name;
 		private final String sourceFile;
 		private final LineLevelMapper lineLevelMapper;
+		private final BitSet lineNumbers;
 
-		public ClassInformation(String name, String sourceFile, LineLevelMapper lineLevelMapper) {
+		public ClassInformation(String name, String sourceFile, LineLevelMapper lineLevelMapper, BitSet lineNumbers) {
 			this.name = name;
 			this.sourceFile = sourceFile;
 			this.lineLevelMapper = lineLevelMapper;
+			this.lineNumbers = lineNumbers;
 		}
 
 		/** Gets the name of the class.
@@ -72,6 +75,13 @@ public class ClassIdentifier {
 		  */
 		public LineLevelMapper getLineLevelMapper() {
 			return lineLevelMapper;
+		}
+
+		/** Gets the line numbers for the class.
+		  * @returns the line numbers, or null if line numbers are unavailable for class
+		  */
+		public BitSet getLineNumbers() { 
+			return lineNumbers; 
 		}
 	}
 }

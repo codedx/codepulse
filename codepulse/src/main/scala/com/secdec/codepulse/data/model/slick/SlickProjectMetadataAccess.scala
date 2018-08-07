@@ -29,7 +29,7 @@ import net.liftweb.util.Helpers.AsBoolean
   *
   * @author robertf
   */
-private[slick] class SlickProjectMetadataMaster(dao: ProjectMetadataDao, db: Database) {
+class SlickProjectMetadataMaster(dao: ProjectMetadataDao, db: Database) {
 	def get(projectId: Int) = new SlickProjectMetadataAccess(projectId, dao, db) with DefaultProjectMetadataUpdates with ProjectMetadata
 }
 
@@ -93,6 +93,15 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 	def deleted_=(softDelete: Boolean) = db withTransaction { implicit transaction =>
 		set("deleted", softDelete.toString)
 		softDelete
+	}
+
+	def input = db withSession { implicit session =>
+		get("input")
+	} getOrElse ("")
+
+	def input_=(newInput: String) = db withTransaction { implicit transaction =>
+		set("input", newInput)
+		newInput
 	}
 
 	private object DependencyCheckStatusHelpers {

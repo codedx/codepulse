@@ -33,6 +33,9 @@ import com.codedx.codepulse.hq.protocol.ControlMessage
 import com.codedx.codepulse.hq.util.Completable
 import com.codedx.codepulse.hq.util.DoOnce
 import com.codedx.codepulse.hq.util.Startable
+import com.codedx.codepulse.utility.Loggable
+
+import org.apache.commons.lang3.exception._
 
 import reactive.EventStream
 import reactive.Observing
@@ -98,7 +101,7 @@ object TraceEndReason {
   * @param monitorConfig The HQ monitor configuration.
   */
 class Trace(val runId: Byte, controlConnection: ControlConnection, hqConfig: HQConfiguration, monitorConfig: MonitorConfiguration)
-	extends HasTraceSegmentBuilder with Observing with Startable[TraceDataManager] with Completable[TraceEndReason] {
+	extends HasTraceSegmentBuilder with Observing with Startable[TraceDataManager] with Completable[TraceEndReason] with Loggable {
 
 	// The trace output settings are provided upon trace startup
 	private var dataManager: TraceDataManager = _
@@ -111,9 +114,12 @@ class Trace(val runId: Byte, controlConnection: ControlConnection, hqConfig: HQC
 
 	// reaction to errors
 	for (error <- errorController.fatalErrors.takeWhile { _ => !completion.isCompleted }) {
-		println(s"Killing trace because of fatal error: ${error.errorMessage}")
-		for (exception <- error.exception)
-			exception.printStackTrace
+		logger.error(s"Killing trace because of fatal error: ${error.errorMessage}")
+		for (exception <- error.exception) {
+			logger.error(ExceptionUtils.getStackTrace(exception))
+			logger.error(ExceptionUtils.getRootCauseMessage(exception))
+			logger.error(ExceptionUtils.getStackTrace(ExceptionUtils.getRootCause(exception)))
+		}
 
 		// we need to halt the trace on a fatal error
 		kill

@@ -19,49 +19,32 @@
 
 package com.secdec.codepulse.data.bytecode.test
 
-import java.io.File
-import java.util.zip.{ ZipEntry, ZipFile }
-import org.scalatest._
-import org.scalatest.Matchers._
-import com.secdec.codepulse.util.ZipEntryChecker
+import java.util.zip.ZipFile
+
 import com.secdec.codepulse.data.bytecode._
+import org.scalatest._
 
 
 class JavaSuite extends FunSpec with Matchers {
 	describe("Uploaded Java project data") {
-		it("should be accepted if the archive contains Java classes compiled in Java version < 8") {
-			val file = new ZipFile(getClass.getResource("java7-compiled.jar").getPath)
-			val entry = file.getEntry("Main.class")
-			val stream = file.getInputStream(entry)
-
-			try {
-				AsmVisitors.parseMethodsFromClass(stream)
-			}
-			finally {
-				stream.close
-			}
+		it("should be accepted if the archive contains Java classes compiled in Java version 7") {
+			shouldParseMethodsFromJarFile("java7-compiled.jar")
 		}
 
 		it("should be accepted if the archive contains Java classes compiled in Java version 8") {
-			val file = new ZipFile(getClass.getResource("java8-compiled.jar").getPath)
-			val entry = file.getEntry("Main.class")
-			val stream = file.getInputStream(entry)
-
-			try {
-				AsmVisitors.parseMethodsFromClass(stream)
-			}
-			finally {
-				stream.close
-			}
+			shouldParseMethodsFromJarFile("java8-compiled.jar")
 		}
 
-		it("should not be accepted if the archive contains Java classes compiled in Java version 9") {
-			val file = new ZipFile(getClass.getResource("java9-compiled.jar").getPath)
+		it("should be accepted if the archive contains Java classes compiled in Java version 9") {
+			shouldParseMethodsFromJarFile("java9-compiled.jar")
+		}
+
+		def shouldParseMethodsFromJarFile(jarFilename: String): Unit = {
+			val file = new ZipFile(getClass.getResource(jarFilename).getPath)
 			val entry = file.getEntry("Main.class")
 			val stream = file.getInputStream(entry)
-
 			try {
-				an [IllegalArgumentException] should be thrownBy AsmVisitors.parseMethodsFromClass(stream)
+				AsmVisitors.parseMethodsFromClass(stream)
 			}
 			finally {
 				stream.close

@@ -25,20 +25,45 @@ import java.util.zip.ZipFile
 import com.fasterxml.jackson.core.JsonToken
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.model._
-
+import com.secdec.codepulse.data.storage.InputStore
 import net.liftweb.util.Helpers.AsInt
 
 /** Reader for version 1 of the .pulse project export files.
   *
   * @author robertf
   */
-object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpers with JsonHelpers {
-	def doImport(zip: ZipFile, destination: ProjectData) {
+class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpers with JsonHelpers {
+
+	def doImport(inputStore: InputStore, zip: ZipFile, destination: ProjectData) {
+		readProjectJson(zip, destination)
+		readNodesJson(zip, destination)
+		readMethodMappingsJson(zip, destination)
+		readJspMappingsJson(zip, destination)
+		val recMap = readRecordingsJson(zip, destination)
+		readEncountersJson(zip, recMap, destination)
+	}
+
+	protected def readProjectJson(zip:ZipFile, destination: ProjectData): Unit = {
 		read(zip, "project.json") { readMetadata(_, destination.metadata) }
+	}
+
+	protected def readNodesJson(zip:ZipFile, destination: ProjectData): Unit = {
 		read(zip, "nodes.json") { readTreeNodeData(_, destination.treeNodeData) }
+	}
+
+	protected def readMethodMappingsJson(zip:ZipFile, destination: ProjectData): Unit = {
 		read(zip, "method-mappings.json") { readMethodMappings(_, destination.treeNodeData) }
+	}
+
+	protected def readJspMappingsJson(zip: ZipFile, destination: ProjectData): Unit = {
 		read(zip, "jsp-mappings.json") { readJspMappings(_, destination.treeNodeData) }
-		val recMap = read(zip, "recordings.json", Map.empty[Int, Int]) { readRecordings(_, destination.recordings) }
+	}
+
+	protected def readRecordingsJson(zip: ZipFile, destination: ProjectData): Map[Int, Int] = {
+		read(zip, "recordings.json", Map.empty[Int, Int]) { readRecordings(_, destination.recordings) }
+	}
+
+	protected def readEncountersJson(zip: ZipFile, recMap: Map[Int,Int], destination: ProjectData): Unit = {
 		read(zip, "encounters.json") { readEncounters(_, recMap, destination.encounters) }
 	}
 
@@ -64,7 +89,6 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 	}
 
 	private def readTreeNodeData(in: InputStream, treeNodeData: TreeNodeDataAccess) {
-		import treeNodeData.ExtendedTreeNodeData
 		import JsonToken._
 
 		readJson(in) { jp =>
@@ -82,7 +106,10 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 				var label = None: Option[String]
 				var kind = None: Option[CodeTreeNodeKind]
 				var size = None: Option[Int]
+				var sourceFileId = None: Option[Int]
+				var sourceLocationCount = None: Option[Int]
 				var traced = None: Option[Boolean]
+				var methodStartLine = None: Option[Int]
 
 				while (jp.nextValue != END_OBJECT) {
 					jp.getCurrentName match {
@@ -103,10 +130,28 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 								case _ => Some(jp.getIntValue)
 							}
 
+						case "sourceFileId" =>
+							sourceFileId = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getIntValue)
+							}
+
+						case "sourceLocationCount" =>
+							sourceLocationCount = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getIntValue)
+							}
+
 						case "traced" =>
 							traced = jp.getCurrentToken match {
 								case VALUE_NULL => None
 								case _ => Some(jp.getBooleanValue)
+							}
+
+						case "methodStartLine" =>
+							methodStartLine = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getIntValue)
 							}
 					}
 				}
@@ -116,7 +161,10 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 					parentId,
 					label getOrElse { throw new ProjectImportException("Missing label for tree node.") },
 					kind.getOrElse { throw new ProjectImportException("Missing or invalid kind for tree node.") },
-					size),
+					size,
+					sourceFileId,
+					sourceLocationCount,
+					methodStartLine),
 					traced)
 			}
 
@@ -135,7 +183,10 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
 			val buffer = collection.mutable.ListBuffer.empty[(String, Int)]
-			def flushBuffer() { treeNodeData.mapMethodSignatures(buffer); buffer.clear }
+			def flushBuffer() {
+				treeNodeData.mapMethodSignatures(buffer.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
+				buffer.clear
+			}
 			def checkAndFlush() { if (buffer.size >= 500) flushBuffer }
 
 			while (jp.nextValue != END_ARRAY) {
@@ -263,7 +314,7 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 
 		readJson(in) { jp =>
 			if (jp.nextToken != START_OBJECT)
-				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
+				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_OBJECT.")
 
 			var all = Nil: List[Int]
 			var inRec = collection.mutable.Set.empty[Int]
@@ -272,7 +323,7 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 				val rec = jp.getCurrentName
 
 				if (jp.getCurrentToken != START_ARRAY)
-					throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_OBJECT.")
+					throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected START_ARRAY.")
 
 				val values = collection.mutable.ListBuffer.empty[Int]
 
@@ -286,14 +337,16 @@ object ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelpe
 					case AsInt(recId) =>
 						val result = values.result
 						inRec ++= result
-						encounters.record(recId :: Nil, result)
+
+						val newRecordingId = recordingMap(recId)
+						encounters.record(newRecordingId :: Nil, result.map(x => x -> None))
 
 					case _ => throw new ProjectImportException("Invalid recording ID for encounters map.")
 				}
 			}
 
 			// we only need to store (all - inRec)
-			encounters.record(Nil, (all.toSet -- inRec).toList)
+			encounters.record(Nil, (all.toSet -- inRec).toList.map(x => x -> None))
 
 			if (jp.nextToken != null)
 				throw new ProjectImportException(s"Unexpected token ${jp.getCurrentToken}; expected EOF.")

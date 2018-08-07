@@ -26,7 +26,7 @@ function logTime(label, func) {
 }
 
 $(document).ready(function(){
-	
+
 	var treemapContainer = $('#treemap-container'),
 		packagesContainer = $('#packages'),
 
@@ -71,7 +71,220 @@ $(document).ready(function(){
 		})
 	})()
 
-	// Set up the tooltip for the Code Treemap's info icon
+    // Source view setup
+    ;(function(){
+        let $container = $('#treemap-container .widget-body')
+
+        // grab a reference to the popout element
+        let $popout = $('#source-popout')
+        let $popoutHeader = $popout.find('header')
+        let $popoutBody = $popout.find('article')
+        let sourceView = new SourceView($popoutBody.find('.codemirror-parent')[0])
+        window.sourceView = sourceView
+
+        // monitor clicks on treemap nodes (the 'rect' selector)
+        let treemapNodeClicks = $container.asEventStream('click', 'rect', function(e){
+            return {
+                elem: e.target,
+                data: d3.select(e.target).datum()
+            }
+        }).log('tree node click')
+
+        let popoutCloseClicks = $popout.asEventStream('click', '.close')
+
+        // Manage the 'resetting' and 'active' classes to make a nice zoom-in transition from the clicked node
+        function activatePopout(fromElem, callback){
+            var containerOffset = $container.offset()
+            var elemBounds = fromElem.getBoundingClientRect()
+
+            var transitionStartBounds = {
+                top: (elemBounds.top - containerOffset.top) + 'px',
+                left: (elemBounds.left - containerOffset.left) + 'px',
+                height: elemBounds.height + 'px',
+                width: elemBounds.width + 'px'
+            }
+
+            // set the intro position
+            $popout.addClass('resetting').css(transitionStartBounds)
+
+            // wait for that to take effect, then transition to the 'active' state
+            requestAnimationFrame(function(){
+                $popout.removeClass('resetting').addClass('active').css({
+                    // turn off the specific positioning so the stylesheet can kick in
+                    top: '',
+                    left: '',
+                    height: '',
+                    width: ''
+                })
+
+                // the css transition will take .3 seconds, then call the callback
+                setTimeout(callback, 300)
+            })
+        }
+
+        let liveDataSubscription = null
+        let coverageUpdateSubscription = null
+        let traceCoverageUpdateRequestsSubscription = null
+
+        function deactivatePopout() {
+            $popoutHeader.empty()
+            sourceView.setSourceView(null, '')
+            $popout.removeClass('active')
+
+            if (liveDataSubscription != null) {
+                liveDataSubscription(); liveDataSubscription = null
+            }
+            if (coverageUpdateSubscription != null) {
+                coverageUpdateSubscription(); coverageUpdateSubscription = null
+            }
+            if (traceCoverageUpdateRequestsSubscription != null) {
+                traceCoverageUpdateRequestsSubscription(); traceCoverageUpdateRequestsSubscription = null
+            }
+        }
+
+        let popoutHeaderTemplate = Handlebars.compile($('#source-popout-header-template').html())
+
+        function bindSourceViewTemplate(selection) {
+            var templateModel = _.extend({},selection.metadata, selection.nodeSourceInfo)
+            var templateHtml = popoutHeaderTemplate(templateModel);
+            $popoutHeader.html(templateHtml);
+        }
+
+        function updateTracedSourceLocationCount(selection, currentCount) {
+            selection.nodeSourceInfo.tracedSourceLocationPercentage = "";
+            selection.nodeSourceInfo.tracedSourceLocationCount = currentCount
+            if (selection.nodeSourceInfo.sourceLocationCount != 0) {
+                var percentage = selection.nodeSourceInfo.tracedSourceLocationCount / selection.nodeSourceInfo.sourceLocationCount * 100
+                selection.nodeSourceInfo.tracedSourceLocationPercentage = "(" + (percentage % 1 === 0 ? percentage : percentage.toFixed(2)) + "%)";
+            }
+        }
+
+        function updateSourceLocations(coverage, activeRecordings, selection, sourceLocationDataNew) {
+
+            if (sourceLocationDataNew != null) {
+                selection.sourceLocationData = sourceLocationDataNew
+            }
+
+            if (selection.sourceLocationData == null) {
+                return
+            }
+
+            let sourceLocations = selection.sourceLocationData.sourceLocations
+            let sourceLocationCoverageData = selection.sourceLocationData.sourceLocationCoverage
+
+            // determine whether the method with node ID selection.metadata.nodeId is filtered from the display
+            let nodeFiltered = true;
+            let coverageData = coverage[selection.metadata.nodeId]
+            if (coverageData != null) {
+                nodeFiltered = !coverageData.includes("0")
+                if (nodeFiltered && activeRecordings.size() > 0) {
+                    for (let i=0; i < coverageData.length && nodeFiltered; i++) {
+                        nodeFiltered = !activeRecordings.has(coverageData[i])
+                    }
+                }
+            }
+
+            // add/remove highlighting for each source location based on current filtering data
+            let visibleLocationCount = 0
+            for (let i=0; i < sourceLocations.length; i++) {
+                let sourceLocation = sourceLocations[i]
+                if (nodeFiltered) {
+                    sourceView.setSourceLocations([sourceLocation], false)
+                    continue
+                }
+
+                let filterSourceLocation = true
+                let sourceLocationCoverage = sourceLocationCoverageData[sourceLocation.id]
+                if (sourceLocationCoverage != null) {
+                    filterSourceLocation = !sourceLocationCoverage.includes("0")
+                    if (filterSourceLocation && activeRecordings.size() > 0) {
+                        for (let i=0; i < sourceLocationCoverage.length && filterSourceLocation; i++) {
+                            filterSourceLocation = !activeRecordings.has(sourceLocationCoverage[i])
+                        }
+                    }
+                }
+
+                let isVisible = !filterSourceLocation
+                if (isVisible) {
+                    visibleLocationCount++
+                }
+                sourceView.setSourceLocations([sourceLocation], isVisible)
+            }
+
+            updateTracedSourceLocationCount(selection, visibleLocationCount)
+            bindSourceViewTemplate(selection)
+        }
+
+        function showSourceViewError(err, selection) {
+            if(typeof err == 'string') sourceView.setErrorView(err)
+            else if(err.message) sourceView.setErrorView(err.message)
+            else sourceView.setErrorView(err)
+
+            bindSourceViewTemplate(selection)
+        }
+
+        // activate the popout from elements that are clicked in the treemap
+        treemapNodeClicks
+            .filter(function(click){
+                var t = click.data.kind
+                return t == 'method' || t == 'class'
+            })
+            .flatMapLatest(function(click){
+                return Bacon.fromCallback(API.getNodeSourceMetadata, click.data.id).map(function(response){
+                    return _.extend({},
+						{ element: click.elem },
+						{ metadata: response },
+						{ dataProvider: new SourceDataProvider(response) },
+						{ nodeSourceInfo: { sourceLocationCount: response.sourceLocationCount, tracedSourceLocationCount: 0, tracedSourceLocationPercentage: "" } })
+                }).mapError(function(err){
+                    console.log('treemap click event could not be associated with source due to lookup error', err)
+                    return null
+                })
+            })
+            .filter(_.identity) // stop the errors from getting this far
+            .flatMapFirst(function(selection){ return Bacon.fromCallback(activatePopout, selection.element).map(selection) })
+            .onValue(function(selection) {
+				selection.dataProvider.loadSource().then(({ mode, source }) => {
+					selection.refresh = true
+
+					sourceView.setSourceView(mode, source)
+					sourceView.scrollToLine(selection.metadata.methodStartLine)
+
+					coverageUpdateSubscription = Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings) {
+						if (selection.refresh) {
+							API.getNodeSourceMetadata(selection.metadata.nodeId, function(data) {
+								selection.nodeSourceInfo.sourceLocationCount = data.sourceLocationCount
+								selection.dataProvider.loadSourceLocations(Trace.getRecordsReqParams(), true).then((sourceLocationData) => {
+									updateSourceLocations(coverage, activeRecordings, selection, sourceLocationData)
+								}, (err) => { showSourceViewError(err, selection) })
+							})
+							selection.refresh = false
+						} else {
+							updateSourceLocations(coverage, activeRecordings, selection, null)
+						}
+					})
+
+					sourceLocationUpdateSubscription = Trace.liveTraceData.onValue((nodeIds) => {
+						for (i=0; i < nodeIds.length && !selection.refresh; i++) {
+                    		selection.refresh = (nodeIds[i] === selection.metadata.nodeId)
+						}
+					})
+
+					traceCoverageUpdateRequestsSubscription = Trace.traceCoverageUpdateRequests.onValue((data) => {
+						let isLiveTraceDataUpdate = data.constructor === Array && !data.some(isNaN)
+						if (!isLiveTraceDataUpdate) {
+							selection.refresh = true
+						}
+					})
+					}, (err) => { showSourceViewError(err, selection)
+				})
+			})
+
+        popoutCloseClicks.onValue(deactivatePopout)
+    })()
+
+
+    // Set up the tooltip for the Code Treemap's info icon
 	$('#treemap-help-tooltip-trigger').qtip({
 		content: {
 			text: $('#treemap-help-tooltip-content')
@@ -231,11 +444,11 @@ $(document).ready(function(){
 
 	/*
 	 * Request the treemap data from the server. Note that coverage lists
-	 * are only specified for the most specific element; for the sake of 
+	 * are only specified for the most specific element; for the sake of
 	 * the UI, we "bubble up" the coverage data, so that a parent node is
 	 * covered by any trace/segment/weakness that one of its children is
 	 * covered by.
-	 * 
+	 *
 	 * Once the data has loaded, stop the treemap spinner (mentioned above)
 	 * and apply the data to the treemap widget.
 	 */
@@ -263,7 +476,7 @@ $(document).ready(function(){
 				var before = ab[0], 
 					after = ab[1],
 					changes = {}
-				
+
 				// any ids in `before` but not `after` have been removed
 				before.forEach(function(id){
 					if(!after.has(id)) changes[id] = false
@@ -316,7 +529,7 @@ $(document).ready(function(){
 		Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings){
 			controller.applyMethodCoverage(coverage, activeRecordings)
 		})
-		
+
 		// Set the coloring function and give the treemap data
 		treemapWidget
 			.nodeColoring(treemapColoring())
@@ -385,7 +598,7 @@ $(document).ready(function(){
 							.text('Traced by ')
 							// .addClass('clearfix')
 							.addClass('coverage-area')
-						
+
 						recordings.forEach(function(ld){ 
 							var bg = ld.getColor(),
 								lightness = d3.hsl(bg).l,

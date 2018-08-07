@@ -214,4 +214,22 @@ public class MessageProtocolV1 implements MessageProtocol
 	{
 		throw new NotSupportedException();
 	}
+
+	@Override
+	public void writeMapSourceLocation(DataOutputStream out, int sourceLocationId, int sigId, int startLine, int endLine, short startCharacter, short endCharacter) throws IOException, NotSupportedException
+	{
+		throw new NotSupportedException();
+	}
+
+	@Override
+	public void writeMethodVisit(DataOutputStream out, int relTime, int seq, int sigId, int sourceLocationId, int threadId) throws IOException, NotSupportedException
+	{
+		throw new NotSupportedException();
+	}
+
+	@Override
+	public void writeSourceLocationCount(DataOutputStream out, int sigId, int sourceLocationCount) throws IOException, NotSupportedException
+	{
+		throw new NotSupportedException();
+	}
 }

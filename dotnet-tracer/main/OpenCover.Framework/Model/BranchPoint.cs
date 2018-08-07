@@ -45,12 +45,12 @@ namespace OpenCover.Framework.Model
         }
 
         /// <summary>
-        /// Gets line numbers associated with instrumentation point.
+        /// Gets source location associated with instrumentation point.
         /// </summary>
-        /// <returns>A tuple consisting of optional start and end line.</returns>
-        public override Tuple<int?, int?> GetLineNumbers()
+        /// <returns>A tuple consisting of optional source location.</returns>
+        public override Tuple<int?, int?, int?, int?> GetSourceLocation()
         {
-            return new Tuple<int?, int?>(StartLine, null);
+            return new Tuple<int?, int?, int?, int?>(StartLine, null, null, null);
         }
 
         /// <summary>

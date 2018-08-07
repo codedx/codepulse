@@ -24,27 +24,31 @@ import java.lang.reflect.Modifier
 import com.secdec.codepulse.data.{ MethodSignature, MethodTypeParam }
 
 class SymbolReaderMockService extends DotNetBuilder {
-	override def Methods: List[(MethodSignature, Int)] = {
+	override def Methods: List[(MethodSignature, Int, Int, Int)] = {
 		(MethodSignature("ReferenceType1 Namespace1.Namespace1a.Class1.Method1(Int)",
 			"Namespace1.Namespace1a.Class1",
+			Some("Class1.cs"),
 			Modifier.PUBLIC,
 			MethodTypeParam.Primitive("Int") :: Nil,
-			MethodTypeParam.ReferenceType("ReferenceType1")), 17) ::
+			MethodTypeParam.ReferenceType("ReferenceType1")), 17, 0, 0) ::
 		(MethodSignature("ReferenceType1 Namespace1.Namespace1a.Class1.Method2",
 			"Namespace1.Namespace1a.Class1",
+			Some("Class1.cs"),
 			Modifier.PRIVATE,
 			Nil,
-			MethodTypeParam.ReferenceType("ReferenceType1")), 173) ::
+			MethodTypeParam.ReferenceType("ReferenceType1")), 173, 0, 0) ::
 		(MethodSignature("ReferenceType2 Namespace2.Namespace2a.Namespace2b.Class2.Method1",
 			"Namespace2.Namespace2a.Namespace2b.Class2",
+			Some("Class2.cs"),
 			Modifier.PUBLIC & Modifier.SYNCHRONIZED,
 			Nil,
-			MethodTypeParam.ReferenceType("ReferenceType2")), 187) ::
+			MethodTypeParam.ReferenceType("ReferenceType2")), 187, 0, 0) ::
 		(MethodSignature("ReferenceType3 Namespace3.Class3.Method1",
 			"Namespace3.Class3",
+			Some("Class3.cs"),
 			Modifier.ABSTRACT,
 			Nil,
-			MethodTypeParam.ReferenceType("ReferenceType3")), 374) ::
+			MethodTypeParam.ReferenceType("ReferenceType3")), 374, 0, 0) ::
 		Nil
 	}
 }

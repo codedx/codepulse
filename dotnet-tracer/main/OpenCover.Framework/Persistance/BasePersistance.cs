@@ -633,7 +633,7 @@ namespace OpenCover.Framework.Persistance
                     {
                         _logger.ErrorFormat("Unable to find declaring method for SPID {0}.", spid);
                     }
-                    _logger.Debug($"Saved {contextId} visit for\r\n\t{fullName} (SPID: {spid})");
+                    _logger.DebugFormat("Saved {0} visit for\r\n\t{1} (SPID: {2})", contextId, fullName, spid);
                 }
                 else
                 {
@@ -659,8 +659,8 @@ namespace OpenCover.Framework.Persistance
             byte[] guidBytes = new byte[16];
             var lowBytes = BitConverter.GetBytes(low);
             var highBytes = BitConverter.GetBytes(high);
-            Array.Copy(lowBytes, guidBytes, lowBytes.Length);
-            Array.Copy(highBytes, 0, guidBytes, 8, highBytes.Length);
+            Buffer.BlockCopy(lowBytes, 0, guidBytes, 0, 8);
+            Buffer.BlockCopy(highBytes, 0, guidBytes, 8, 8);
 
             return new Guid(guidBytes);
         }

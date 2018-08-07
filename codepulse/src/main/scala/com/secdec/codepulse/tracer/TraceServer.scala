@@ -29,8 +29,9 @@ import bootstrap.liftweb.AppCleanup
 import com.secdec.codepulse.data.jsp.JspMapper
 import com.secdec.codepulse.data.model.ProjectData
 import com.codedx.codepulse.hq.config.TraceSettings
+import com.codedx.codepulse.utility.Loggable
 
-object TraceServer {
+object TraceServer extends Loggable {
 
 	// listen for incoming connections on port 8765
 	private implicit lazy val socketServer = {
@@ -38,7 +39,7 @@ object TraceServer {
 		ss.start()
 		AppCleanup.addPreShutdownHook { () =>
 			ss.shutdown
-			println("Shutdown TracerServer's socketServer")
+			logger.debug("Shutdown TracerServer's socketServer")
 		}
 		ss
 	}

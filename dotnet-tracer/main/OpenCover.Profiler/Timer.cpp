@@ -47,7 +47,9 @@ namespace Communication
 		if (timerIntervalMsec == 0)
 			return;
 
-	    ATLTRACE(_T("Timer : Started thread with interval %d msec"), timerIntervalMsec);
+		#ifdef TRACE_ENABLED
+		ATLTRACE(_T("Timer : Started thread with interval %d msec"), timerIntervalMsec);
+		#endif
 
 		std::unique_lock<std::mutex> lock(_mutex);
 		
@@ -64,6 +66,8 @@ namespace Communication
 			}
 		}
 		
+		#ifdef TRACE_ENABLED
 		ATLTRACE(_T("Timer : Exited thread"));
+		#endif
 	}
 }

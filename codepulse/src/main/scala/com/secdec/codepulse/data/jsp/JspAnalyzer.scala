@@ -30,15 +30,21 @@ package com.secdec.codepulse.data.jsp
   * @author robertf
   */
 object JspAnalyzer {
-	val ConstantOverhead = 96
-	val LineMultiplier = 3
-	val StatementMultiplier = 5
+	val ConstantOverhead = 20
+	val LineMultiplier = 1
+	val StatementMultiplier = 2
 
 	private val Block = (raw"(?s)<(%(?:=|!)?)(.*?)%>").r
 
 	private val ExpressionBlock = "%="
 	private val ScriptBlock = "%"
 	private val DeclarationBlock = "%!"
+
+	case class Result(
+		totalLineCount: Int,
+		approximateInstructionCount: Int,
+		nonBlockLineCount: Int,
+		statementCount: Int)
 
 	def analyze(contents: String) = {
 		val blocks = Block.findAllMatchIn(contents).toList
@@ -53,9 +59,18 @@ object JspAnalyzer {
 			}
 		}.sum
 
+		val totalLineCount = contents.count(_ == '\n')
 		val blockLineCount = blocks.map(_ group 2).map(_ count (_ == '\n')).sum
-		val lineCount = contents.count(_ == '\n') - blockLineCount
+		val nonBlockLineCount = totalLineCount - blockLineCount
 
-		ConstantOverhead + StatementMultiplier * statementCount + LineMultiplier * lineCount
+		val approximateInstructionCount = {
+			ConstantOverhead + StatementMultiplier * statementCount + LineMultiplier * nonBlockLineCount
+		}
+		Result(
+			totalLineCount,
+			approximateInstructionCount,
+			nonBlockLineCount,
+			statementCount
+		)
 	}
 }

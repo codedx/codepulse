@@ -24,6 +24,8 @@ import com.secdec.codepulse.data.MethodSignature
 import com.secdec.codepulse.data.MethodTypeParam
 import java.lang.reflect.Modifier
 
+import scala.util.matching.Regex
+
 /** Represents the Logical Location of a Method in a codebase.
   *
   * A CodePath generally starts with a Package (though it doesn't have to), followed by
@@ -50,8 +52,8 @@ object CodePath {
 	case class Class(name: String, child: ChildOfClass) extends CodePath with ChildOfPackage with ChildOfClass
 	case class Method(name: String) extends CodePath with ChildOfClass
 
-	def parse(rawJvmSignature: String): Option[Package] = {
-		MethodSignatureParser.parseSignature(rawJvmSignature) map { parse }
+	def parse(rawJvmSignature: String, file: Option[String]): Option[Package] = {
+		MethodSignatureParser.parseSignature(rawJvmSignature, file) map { parse(_) }
 	}
 
 	def parse(methodSignature: MethodSignature): Package = {
@@ -73,9 +75,26 @@ object CodePath {
 		}
 	}
 
+	val expr: Regex = new Regex("^([^<]+?)(`\\d+)?<(.+)>$")
+
 	def typeParamToString(tp: MethodTypeParam): String = tp match {
 		case MethodTypeParam.Primitive(name) => name.toLowerCase
-		case MethodTypeParam.ReferenceType(ref) => ref.substring(1 + ref.lastIndexOf('.'))
+		case MethodTypeParam.ReferenceType(ref) => {
+			val result:String = ref match {
+				case expr(part1, _, part2) => {
+					typeParamToString(MethodTypeParam.ReferenceType(part1)) + "<" + typeParamToString(MethodTypeParam.ReferenceType(part2)) + ">"
+				}
+				case _ => {
+					val types = ref.split(",")
+					if (types.length > 1) {
+						types.map(x => typeParamToString(MethodTypeParam.ReferenceType(x))).mkString(",")
+					} else {
+						ref.substring(1 + ref.lastIndexOf('.'))
+					}
+				}
+			}
+			result
+		}
 		case MethodTypeParam.ArrayType(tp2) => typeParamToString(tp2) + "[]"
 	}
 

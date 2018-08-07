@@ -20,65 +20,90 @@
 package com.secdec.codepulse.input.dotnet
 
 import java.io.File
+import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
-import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.bytecode.{ CodeForestBuilder, CodeTreeNodeKind }
 import com.secdec.codepulse.data.dotnet.{ DotNet, SymbolReaderHTTPServiceConnector, SymbolService }
-import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeImporter }
-import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.input.{ CanProcessFile, LanguageProcessor }
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import com.secdec.codepulse.processing.ProcessStatus.{ DataInputAvailable, ProcessDataAvailable }
-import com.secdec.codepulse.util.ZipEntryChecker
+import com.secdec.codepulse.data.model.{ MethodSignatureNode, SourceDataAccess, TreeNodeDataAccess, TreeNodeImporter }
+import com.secdec.codepulse.data.storage.Storage
+import com.secdec.codepulse.input.LanguageProcessor
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, NestedPath, PathNormalization }
+import scala.language.postfixOps
 import org.apache.commons.io.FilenameUtils
 
-class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with LanguageProcessor {
+class DotNETProcessor() extends LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: Nil).toSet
+	val sourceExtensions = List("cs", "vb", "fs", "fsi", "fsx", "fsscript", "cpp")
 
 	val symbolService = new SymbolService
 	symbolService.create
 
-	def receive = {
-		case ProcessEnvelope(_, DataInputAvailable(identifier, file, treeNodeData, post)) => {
-			try {
-				if(canProcess(file)) {
-					process(file, treeNodeData)
-					post()
-					eventBus.publish(ProcessDataAvailable(identifier, file, treeNodeData))
-				}
-			} catch {
-				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, "dotNET Processor", Some(exception)))
-			}
-		}
-
-		case CanProcessFile(file) => {
-			sender ! canProcess(file)
-		}
-	}
-
-	def canProcess(file: File): Boolean = {
-		ZipEntryChecker.findFirstEntry(file) { (_, entry, _) =>
+	def canProcess(storage: Storage): Boolean = {
+		storage.find() { (_, _, entry, _) =>
 			val extension = FilenameUtils.getExtension(entry.getName)
 			!entry.isDirectory && (extension == "exe" || extension == "dll")
 		}
 	}
 
-	def process(file: File, treeNodeData: TreeNodeDataAccess): Unit = {
+	def process(storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit = {
 		val builder = new CodeForestBuilder
 		val methodCorrelationsBuilder = collection.mutable.Map.empty[String, Int]
-		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(file) _
+		val dotNETAssemblyFinder = DotNet.AssemblyPairFromZip(new File(storage.name)) _
 
-		ZipEntryChecker.forEachEntry(file) { (filename, entry, contents) =>
-			val groupName = if (filename == file.getName) group else s"Assemblies/${filename substring file.getName.length + 1}"
+		val pathStore = new HashMap[(String, String), Set[Option[NestedPath]]] with MultiMap[(String, String), Option[NestedPath]]
+
+		storage.readEntries(sourceFiles _) { (filename, entryPath, entry, contents) =>
+			val entryFilePath = FilePath(entry.getName)
+			val groupName = if (filename == storage.name) group else s"Assemblies/${filename substring storage.name.length + 1}"
+			entryFilePath.foreach(efp => {
+				entryPath match {
+					case Some(ep) => pathStore.addBinding((groupName, efp.name), entryPath)
+					case None => pathStore.addBinding((groupName, efp.name), Some(new NestedPath(List(efp))))
+				}
+			})
+		}
+
+		def authoritativePath(group: String, filePath: NestedPath): Option[NestedPath] = {
+			pathStore.get((group, filePath.paths.last.name)) match {
+				case None => None
+				case Some(fps) => {
+					fps.flatten.find { authority => PathNormalization.isLocalisedSameAsAuthority(authority, filePath) }
+				}
+			}
+		}
+
+		storage.readEntries() { (filename, entryPath, entry, contents) =>
+			val groupName = if (filename == storage.name) group else s"Assemblies/${filename substring storage.name.length + 1}"
 
 			if (!entry.isDirectory) {
 				dotNETAssemblyFinder(entry) match {
 					case Some((assembly, symbols)) => {
 						val methods = new SymbolReaderHTTPServiceConnector(assembly, symbols).Methods
+
+						// process surrogate methods first to establish source file for the method they support
+						val methodsSorted = methods sortWith ((left,right) => {
+							if ((left._1.isSurrogate && right._1.isSurrogate) ||
+								(!left._1.isSurrogate && !right._1.isSurrogate))
+							{
+								left._1.name > right._1.name
+							}
+							left._1.isSurrogate
+						})
+
 						for {
-							(sig, size) <- methods
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size))
+							(sig, size, sourceLocationCount, methodStartLine) <- methodsSorted
+							filePath = FilePath(sig.file)
+							nestedPath = filePath.map(fp => entryPath match {
+								case Some(ep) => new NestedPath(ep.paths :+ fp)
+								case None => new NestedPath(List(fp))
+							})
+							authority = nestedPath match {
+								case Some(np) => authoritativePath(groupName, np).map (_.toString)
+								case None => None
+							}
+//							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount), Option(methodStartLine)))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 
@@ -89,6 +114,8 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 
 		val treemapNodes = builder.condensePathNodes().result
 		val methodCorrelations = methodCorrelationsBuilder.result
+
+		sourceData.importSourceFiles(builder.sourceFiles.map((x:((String,String),Int)) => x._2 -> x._1._2))
 
 		if (treemapNodes.isEmpty) {
 			throw new NoSuchElementException("No method data found in analyzed upload file.")
@@ -105,7 +132,7 @@ class DotNETProcessor(eventBus: GeneralEventBus) extends Actor with Stash with L
 
 			importer.flush
 
-			treeNodeData.mapMethodSignatures(methodCorrelations)
+			treeNodeData.mapMethodSignatures(methodCorrelations.map { case (signature, nodeId) => MethodSignatureNode(0, signature, nodeId) })
 		}
 	}
 }

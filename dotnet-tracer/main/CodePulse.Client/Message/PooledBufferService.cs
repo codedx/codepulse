@@ -21,7 +21,6 @@
 // (DHS S&T/CSD) via contract number HHSP233201600058C.
 
 using System;
-using System.IO;
 using CodePulse.Client.Queue;
 
 namespace CodePulse.Client.Message
@@ -41,12 +40,12 @@ namespace CodePulse.Client.Message
             base.SetSuspended(suspended);
         }
 
-        protected override MemoryStream OnObtainBuffer()
+        protected override NamedMemoryStream OnObtainBuffer()
         {
             return _bufferPool.AcquireForWriting();
         }
 
-        protected override void OnRelinquishBuffer(MemoryStream stream)
+        protected override void OnRelinquishBuffer(NamedMemoryStream stream)
         {
             _bufferPool.Release(stream);
         }

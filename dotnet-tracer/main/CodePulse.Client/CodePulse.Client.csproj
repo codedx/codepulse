@@ -98,6 +98,7 @@
     <Compile Include="Protocol\IProtocolVersion.cs" />
     <Compile Include="Protocol\ProtocolVersion.cs" />
     <Compile Include="Queue\BufferPool.cs" />
+    <Compile Include="Queue\NamedMemoryStream.cs" />
     <Compile Include="Trace\IMethodSignatureBuilder.cs" />
     <Compile Include="Trace\ITraceDataCollector.cs" />
     <Compile Include="Trace\ITraceMessage.cs" />

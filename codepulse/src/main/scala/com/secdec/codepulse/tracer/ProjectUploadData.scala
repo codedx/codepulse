@@ -26,8 +26,9 @@ import scala.concurrent.Future
 import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
 import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
 import com.secdec.codepulse.tracer.export.ProjectImporter
+import com.codedx.codepulse.utility.Loggable
 
-object ProjectUploadData {
+object ProjectUploadData extends Loggable {
 
 	def handleProjectExport(file: File, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
 
@@ -77,7 +78,7 @@ object ProjectUploadData {
 
 		futureLoad onComplete {
 			case util.Failure(exception) =>
-				println(s"Error importing file: $exception")
+				logger.error(s"Error importing file: $exception")
 				exception.printStackTrace()
 				projectManager.removeUnloadedProject(projectId, exception.getMessage)
 

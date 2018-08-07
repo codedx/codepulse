@@ -59,7 +59,6 @@ namespace Communication
 		void AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType);
 		void AddVisitPointToBuffer(ULONG uniqueId, ULONGLONG contextIdHigh, ULONGLONG contextIdLow, MSG_IdType msgType);
 		void SendVisitPoints();
-		void SendVisitPointsInternal();
 		void SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints);
 		void SendThreadVisitPointsInternal(MSG_SendVisitPoints_Request* pVisitPoints);
 		bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);

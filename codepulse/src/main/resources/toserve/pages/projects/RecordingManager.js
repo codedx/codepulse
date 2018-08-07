@@ -37,6 +37,8 @@
 		activeRecordings = d3.set()
 	
 	var activeRecordingsChanges = new Bacon.Bus()
+
+	// This value changes when a recording is selected/unselected
 	Trace.activeRecordingsProp = activeRecordingsChanges.toProperty(activeRecordings).noLazy()
 
 	// Add a Recording for management. Doing so associates the
@@ -101,7 +103,9 @@
 	// The keys are recording `dataKey`s, and the values are the
 	// managed IDs. When the trace coverage request is answered, the
 	// values are used to represent their respective recordings.
-	function getRecordsReqParams(){
+	// This will get coverage for all recordings regardless of whether
+	// they are currently selected.
+	Trace.getRecordsReqParams = function(){
 		var p = {}
 		for(var id in recordings){
 			var rec = recordings[id]
@@ -118,7 +122,7 @@
 			Trace.traceCoverageUpdateRequests.debounce(100),
 			500, // throttle time after requests finish
 			function(request, callback){
-				API.requestTraceCoverageRecords(getRecordsReqParams(), callback)
+				API.requestTraceCoverageRecords(Trace.getRecordsReqParams(), callback)
 			}
 		)
 		.toProperty().noLazy()

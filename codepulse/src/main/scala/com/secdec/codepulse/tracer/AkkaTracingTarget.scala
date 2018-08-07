@@ -38,6 +38,7 @@ import akka.util.Timeout
 import reactive.EventSource
 import reactive.EventStream
 import com.codedx.codepulse.hq.config.AgentConfiguration
+import com.codedx.codepulse.utility.Loggable
 
 sealed abstract class TracingTargetState(val name: String, val information: String = "")
 object TracingTargetState {
@@ -223,7 +224,7 @@ object AkkaTracingTarget {
   * - **Deleted** - The pending deletion was finalized. This actor will soon
   * be terminated and its associated data deleted.
   */
-class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]) extends Actor {
+class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transientTraceData: TransientTraceData, jspMapper: Option[JspMapper]) extends Actor with Loggable {
 
 	import AkkaTracingTarget._
 
@@ -269,7 +270,7 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 
 	private def changeState(newState: State) = {
 		context.become(newState.receive)
-		println(s"$projectId target state changing to ${newState.s}")
+		logger.debug(s"$projectId target state changing to ${newState.s}")
 		stateChanges fire newState.s
 	}
 
@@ -315,7 +316,7 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 			sender ! Ack
 
 		case FinalizeDeletion(`key`) =>
-			println(s"Finalizing deletion using $key")
+			logger.debug(s"Finalizing deletion using $key")
 			requester ! FinalizeDeletion
 			changeState(StateDeleted)
 			self ! PoisonPill
@@ -347,7 +348,7 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	// ----
 
 	private def onTraceConnected(t: Trace): Unit = {
-		println("New Trace Connected")
+		logger.debug("New Trace Connected")
 
 		// send a Msg to update the state when `t` completes
 		for (reason <- t.completion) self ! TraceEnded(reason)
@@ -370,7 +371,7 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	}
 
 	private def onTraceEndRequested(): Unit = {
-		println("End Trace Requested")
+		logger.debug("End Trace Requested")
 
 		// tell the current trace to stop.
 		// This will trigger the trace.completion future, which will change the state
@@ -381,7 +382,7 @@ class AkkaTracingTarget(projectId: ProjectId, projectData: ProjectData, transien
 	}
 
 	private def onTraceCompleted(reason: TraceEndReason): Unit = {
-		println("Trace Finished")
+		logger.debug("Trace Finished")
 
 		// clear the trace
 		trace = None

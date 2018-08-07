@@ -43,6 +43,9 @@ trait ProjectMetadataAccess {
 
 	def deleted: Boolean
 	def deleted_=(softDelete: Boolean): Boolean
+
+	def input: String
+	def input_=(newInput: String): String
 }
 
 /** Trait for project metadata update events.

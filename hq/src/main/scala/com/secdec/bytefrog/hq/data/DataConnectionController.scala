@@ -49,12 +49,24 @@ class DataConnectionController(dataConnection: DataConnection, dataCollector: Da
 			dataCollector ! UnsequencedData(MapMethodSignature(methodSig, methodId))
 		}
 
+		override def handleSourceLocationCount(methodId: Int, sourceLocationCount: Int): Unit = {
+			dataCollector ! UnsequencedData(SourceLocationCount(methodId, sourceLocationCount))
+		}
+
+		override def handleMapSourceLocation(methodId: Int, startLine: Int, endLine: Int, startCharacter: Short, endCharacter: Short, sourceLocationId: Int) {
+			dataCollector ! UnsequencedData(MapSourceLocation(methodId, startLine, endLine, startCharacter, endCharacter, sourceLocationId))
+		}
+
 		override def handleMapException(exception: String, exceptionId: Int) {
 			dataCollector ! UnsequencedData(MapException(exception, exceptionId))
 		}
 
 		override def handleMethodEntry(methodId: Int, timestamp: Int, sequenceId: Int, threadId: Int) {
 			dataCollector ! SequencedData(timestamp, sequenceId, MethodEntry(methodId, timestamp, threadId))
+		}
+
+		override def handleMethodVisit(methodId: Int, sourceLocationId: Int, timestamp: Int, sequenceId: Int, threadId: Int): Unit = {
+			dataCollector ! SequencedData(timestamp, sequenceId, MethodVisit(methodId, sourceLocationId, timestamp, threadId))
 		}
 
 		override def handleMethodExit(methodId: Int, timestamp: Int, sequenceId: Int, exceptionThrown: Boolean, threadId: Int) {

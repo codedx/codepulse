@@ -31,14 +31,16 @@ import net.liftweb.http.LiftRulesMocker.toLiftRules
 import net.liftweb.util.Helpers.intToTimeSpanBuilder
 import net.liftweb.util.Vendor.valToVender
 import net.liftweb.http.RedirectWithState
-import com.secdec.codepulse.dependencycheck
-import com.secdec.codepulse.tracer
+import com.secdec.codepulse.{CodePulseLogging, dependencycheck, tracer}
 
 /** A class that's instantiated early and run.  It allows the application
   * to modify lift's environment
   */
 class Boot extends Loggable {
 	def boot {
+
+		CodePulseLogging.init
+
 		//do not log timing info for every request that Lift serves.
 		LiftRules.logServiceRequestTiming = false
 

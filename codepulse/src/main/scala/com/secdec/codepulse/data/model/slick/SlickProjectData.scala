@@ -31,23 +31,29 @@ import com.secdec.codepulse.data.model._
   *
   * @author robertf
   */
-private[slick] class SlickProjectData(val id: ProjectId, val db: Database, val driver: JdbcProfile, metadataAccess: SlickProjectMetadataAccess with ProjectMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends ProjectData {
-	private val treeNodeDataDao = new TreeNodeDataDao(driver)
+class SlickProjectData(val id: ProjectId, val db: Database, val driver: JdbcProfile, metadataAccess: SlickProjectMetadataAccess with ProjectMetadata, encounterBufferSize: Int, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem) extends ProjectData {
+
+	private val sourceDataDao = new SourceDataDao(driver)
+
+	private val treeNodeDataDao = new TreeNodeDataDao(driver, sourceDataDao)
 	private val treeNodeDataAccess = new SlickTreeNodeDataAccess(treeNodeDataDao, db)
+	private val sourceDataAccess = new SlickSourceDataAccess(sourceDataDao, db)
 
 	private val recordingMetadataDao = new RecordingMetadataDao(driver)
 	private val recordingMetadataAccess = new SlickRecordingMetadataAccess(recordingMetadataDao, db)
 
-	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao)
+	private val encountersDao = new EncountersDao(driver, recordingMetadataDao, treeNodeDataDao, sourceDataDao)
 	private val encountersAccess = new SlickTraceEncounterDataAccess(encountersDao, db, encounterBufferSize, encounterFlushInterval: FiniteDuration, actorSystem: ActorSystem)
 
 	def metadata: ProjectMetadata = metadataAccess
 	def treeNodeData: TreeNodeDataAccess = treeNodeDataAccess
+	def sourceData: SourceDataAccess = sourceDataAccess
 	def recordings: RecordingMetadataAccess = recordingMetadataAccess
 	def encounters: TraceEncounterDataAccess = encountersAccess
 
 	/** Initialize a blank DB for use. */
-	private[slick] def init() = db withTransaction { implicit transaction =>
+	def init() = db withTransaction { implicit transaction =>
+		sourceDataDao.create
 		treeNodeDataDao.create
 		recordingMetadataDao.create
 		encountersDao.create

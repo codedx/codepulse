@@ -113,12 +113,12 @@ namespace CodePulse.Console
 
                     try
                     {
-                        Logger.Debug($"32-bit Profiler Path: {parser.Profiler32Path}");
+                        Logger.DebugFormat("32-bit Profiler Path: {0}", parser.Profiler32Path);
                         if (Environment.Is64BitOperatingSystem)
                         {
-                            Logger.Debug($"64-bit Profiler Path: {parser.Profiler64Path}");
+                            Logger.DebugFormat("64-bit Profiler Path: {0}", parser.Profiler64Path);
                         }
-                        Logger.Debug($"Expected owner of application under test: {parser.ExpectedOwnerOfApplicationUnderTest}");
+                        Logger.DebugFormat("Expected owner of application under test: {0}", parser.ExpectedOwnerOfApplicationUnderTest);
 
                         Logger.Info("Starting...");
 
@@ -269,7 +269,7 @@ namespace CodePulse.Console
                 var servicePrincipalList = new List<string>();
                 if (parser.Iis)
                 {
-                    Logger.Debug($"Profiler configuration will use App Pool identity '{parser.IisAppPoolIdentity}'.");
+                    Logger.DebugFormat("Profiler configuration will use App Pool identity '{0}'.", parser.IisAppPoolIdentity);
                     servicePrincipalList.Add(parser.IisAppPoolIdentity);
                 }
 
@@ -595,7 +595,7 @@ namespace CodePulse.Console
             public readonly List<string> UnvisitedMethods = new List<string>();
         }
 
-        private static void CalculateAndDisplayResults(CoverageSession coverageSession, ICommandLine parser)
+        private static void CalculateAndDisplayResults(CoverageSession coverageSession, CommandLineParser parser)
         {
             if (!Logger.IsInfoEnabled)
                 return;
@@ -605,10 +605,26 @@ namespace CodePulse.Console
             if (coverageSession.Modules != null)
             {
                 CalculateResults(coverageSession, results);
-            }
+
+	            if (parser.LogModules)
+	            {
+					foreach (var module in coverageSession.Modules)
+					{
+						Logger.InfoFormat("A: {0}", module.ModuleName);
+						foreach (var @class in module.Classes)
+						{
+							Logger.InfoFormat("  C: {0}", @class.FullName);
+							foreach (var method in @class.Methods)
+							{
+								Logger.InfoFormat("    M: {0}", method.FullName);
+							}
+						}
+					}
+				}
+			}
 
             DisplayResults(coverageSession, parser, results);
-        }
+		}
 
         private static void CalculateResults(CoverageSession coverageSession, Results results)
         {
@@ -650,7 +666,7 @@ namespace CodePulse.Console
             }
         }
 
-        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, Results results)
+        private static void DisplayResults(CoverageSession coverageSession, CommandLineParser parser, Results results)
         {
             if (coverageSession.Summary.NumClasses > 0)
             {

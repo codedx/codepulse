@@ -27,6 +27,8 @@ namespace SymbolService.Model
 
 		public String ContainingClass { get; set; }
 
+		public String File { get; set; }
+
 		public int AccessModifiers { get; set; }
 
 		public IEnumerable<String> Parameters { get; set; }
@@ -37,7 +39,12 @@ namespace SymbolService.Model
 
         public Guid SurrogateFor { get; set; }
 
-	    public MethodInfo()
+		public int SequencePointCount { get; set; }
+
+		public int MethodStartLine { get; set; }
+
+
+		public MethodInfo()
 	    {
 	        Id = Guid.NewGuid();
 	    }

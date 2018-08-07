@@ -28,7 +28,7 @@ namespace CodePulse.Client.Message
 {
     public class MessageProtocol : IMessageProtocol
     {
-        public byte ProtocolVersion { get; } = 2;
+        public byte ProtocolVersion { get; } = 3;
 
         public void WriteHello(BinaryWriter writer)
         {
@@ -95,5 +95,28 @@ namespace CodePulse.Client.Message
             writer.WriteBigEndian(sigId);
             writer.WriteBigEndian(threadId);
         }
-    }
+
+	    public void WriteMapSourceLocation(BinaryWriter writer, int sourceLocationId, int sigId, int startLine, int endLine, short startCharacter, short endCharacter)
+	    {
+			writer.Write(MessageTypes.MapSourceLocation);
+		    writer.WriteBigEndian(sourceLocationId);
+		    writer.WriteBigEndian(sigId);
+		    writer.WriteBigEndian(startLine);
+		    writer.WriteBigEndian(endLine);
+		    writer.WriteBigEndian(startCharacter);
+		    writer.WriteBigEndian(endCharacter);
+		}
+
+		public void WriteMethodVisit(BinaryWriter writer, int relTime, int seq, int sigId, int sourceLocationId,
+		    ushort threadId)
+	    {
+			writer.Write(MessageTypes.MethodVisit);
+		    writer.WriteBigEndian(relTime);
+		    writer.WriteBigEndian(seq);
+		    writer.WriteBigEndian(sigId);
+		    writer.WriteBigEndian(sourceLocationId);
+			writer.WriteBigEndian(threadId);
+		}
+
+	}
 }

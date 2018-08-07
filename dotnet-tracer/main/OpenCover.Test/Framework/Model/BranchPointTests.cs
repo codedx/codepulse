@@ -35,7 +35,7 @@ namespace OpenCover.Test.Framework.Model
             var sequencePoint = new BranchPoint { StartLine = 1 };
 
             // act
-            var lineNumbers = sequencePoint.GetLineNumbers();
+            var lineNumbers = sequencePoint.GetSourceLocation();
 
             // assert
             Assert.AreEqual(1, lineNumbers.Item1);

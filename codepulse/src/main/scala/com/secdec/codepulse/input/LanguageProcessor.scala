@@ -20,12 +20,27 @@
 package com.secdec.codepulse.input
 
 import java.io.File
+import java.util.zip.ZipEntry
+import org.apache.commons.io.FilenameUtils
 
-import com.secdec.codepulse.data.model.TreeNodeDataAccess
+import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess }
+import com.secdec.codepulse.data.storage.Storage
 
 case class CanProcessFile(file: File)
 
 trait LanguageProcessor {
-	def canProcess(file: File): Boolean
-	def process(file: File, treeNodeData: TreeNodeDataAccess): Unit
+	def sourceExtensions: List[String]
+
+	final def sourceFiles(entry: ZipEntry): Boolean = {
+		val extension = FilenameUtils.getExtension(entry.getName)
+		sourceExtensions.contains(extension)
+	}
+
+	final def sourceType(typeExtension: String)(entry: ZipEntry): Boolean = {
+		val extension = FilenameUtils.getExtension(entry.getName)
+		typeExtension == extension
+	}
+
+	def canProcess(storage: Storage): Boolean
+	def process(storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess): Unit
 }

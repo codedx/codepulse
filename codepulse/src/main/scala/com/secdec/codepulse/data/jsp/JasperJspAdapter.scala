@@ -21,7 +21,9 @@ package com.secdec.codepulse.data.jsp
 
 import com.secdec.codepulse.data.bytecode.CodeForestBuilder
 import java.io.File
+
 import com.secdec.codepulse.data.bytecode.CodeTreeNode
+import com.secdec.codepulse.input.pathnormalization.{ FilePath, PathNormalization }
 
 /** Data adapter to help populate `CodeForestBuilder` with JSP info.
   * This implementation is specific to what Jasper does for JSP.
@@ -29,32 +31,51 @@ import com.secdec.codepulse.data.bytecode.CodeTreeNode
   * @author robertf
   */
 class JasperJspAdapter extends JspAdapter {
-	private val jsps = List.newBuilder[(String, Int)]
+	private val jsps = List.newBuilder[(String, String, Int, Int)]
 	private val webinfs = List.newBuilder[String]
 
-	def addJsp(path: String, size: Int) = jsps += path -> size
+	def addJsp(path: String, entryName: String, size: Int, lineCount: Int) = jsps += ((path, entryName, size, lineCount))
 	def addWebinf(path: String) = webinfs += path
 
 	def build(codeForestBuilder: CodeForestBuilder): List[(String, Int)] = {
 		val jsps = this.jsps.result
 		val webinfs = this.webinfs.result
 
-		val jspClasses = Set.newBuilder[(String, Int)]
+		val jspClasses = Set.newBuilder[(String, String, Int, Int)]
 
 		for (webinf <- webinfs) {
 			val parent = Option(new File(webinf).getParent) getOrElse ""
 			val parentLen = parent.length
 			jspClasses ++= jsps
-				.filter(_._1.startsWith(parent))
-				.map { case (clazz, size) => clazz.substring(parentLen) -> size }
+				.filter(_._2.startsWith(parent))
+				.map { case (path, entryName, size, lineCount) => (path, entryName.substring(parentLen), size, lineCount) }
 		}
 
-		// build up
-		jsps map {
-			case (clazz, size) =>
-				val jspClassName = JasperUtils.makeJavaClass(clazz)
-				val displayName = clazz.split('/').filter(!_.isEmpty).toList
-				val node = codeForestBuilder.getOrAddJsp(displayName, size)
+		val sourceFiles = jsps map {
+			case (path, _, _, _) => path
+		}
+
+		codeForestBuilder.addExternalSourceFiles(CodeForestBuilder.JSPGroupName, sourceFiles)
+
+		val filePaths = sourceFiles.flatMap(FilePath(_)).sortWith(_.toString.length < _.toString.length)
+
+		// build up - class name must match generated class name supporting JSP file; otherwise,
+		// the class name will not match the inclusion filter provided to the Java tracer
+		jspClasses.result.toList map {
+			case (path, entryName, size, lineCount) =>
+				val jspClassName = JasperUtils.makeJavaClass(entryName)
+				val displayName = entryName.split('/').filter(!_.isEmpty).toList
+				val authority = FilePath(path) match {
+					case Some(cz) => filePaths.find(PathNormalization.isLocalizedInAuthorityPath(_, cz))
+					case None => None
+				}
+
+				val node = authority match {
+					case Some(a) => codeForestBuilder.getOrAddJsp(displayName, size, Some(a.toString), Option(lineCount))
+					case None => codeForestBuilder.getOrAddJsp(displayName, size, Some(path), Option(lineCount))
+
+				}
+
 				jspClassName -> node.id
 		}
 	}

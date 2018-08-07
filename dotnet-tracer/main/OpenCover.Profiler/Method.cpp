@@ -41,17 +41,23 @@ namespace Instrumentation
 		auto fatImage = static_cast<COR_ILMETHOD_FAT*>(&pMethod->Fat);
 		if (!fatImage->IsFat())
 		{
+			#ifdef TRACE_ENABLED
 			ATLTRACE(_T("TINY"));
+			#endif
 			auto tinyImage = static_cast<COR_ILMETHOD_TINY*>(&pMethod->Tiny);
 			m_header.CodeSize = tinyImage->GetCodeSize();
 			pCode = tinyImage->GetCode();
+			#ifdef TRACE_ENABLED
 			ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
+			#endif		
 		}
 		else
 		{
 			memcpy(&m_header, pMethod, fatImage->Size * sizeof(DWORD));
 			pCode = fatImage->GetCode();
+			#ifdef TRACE_ENABLED
 			ATLTRACE(_T("FAT(%X) => (%d + 12) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
+			#endif
 		}
 		SetBuffer(pCode);
 		ReadBody();
@@ -446,10 +452,14 @@ namespace Instrumentation
 	{
 		if (!enableDump)
 			return;
+		#ifdef TRACE_ENABLED
 		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
+		#endif
 		DumpInstructions();
 		DumpExceptionFilters();
+		#ifdef TRACE_ENABLED
 		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
+		#endif
 	}
 
 	void Method::DumpInstructions()
@@ -459,50 +469,66 @@ namespace Instrumentation
 			auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
 			if (details.operandSize == Null)
 			{
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s"), (*it)->m_origOffset, (*it)->m_offset, details.stringName);
+				#endif
 			}
 			else if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
 			{
 				auto offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s IL_%04X"),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, offset);
+				#endif
 			}
 			else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
 			{
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s (%02X)%02X%02X%02X"),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName,
 					(BYTE)((*it)->m_operand >> 24),
 					(BYTE)((*it)->m_operand >> 16),
 					(BYTE)((*it)->m_operand >> 8),
 					(BYTE)((*it)->m_operand & 0xFF));
+				#endif
 			}
 			else if (details.operandSize == Byte)
 			{
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+				#endif
 			}
 			else if (details.operandSize == Word)
 			{
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+				#endif
 			}
 			else if (details.operandSize == Dword)
 			{
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+				#endif
 			}
 			else
 			{
+				#ifdef TRACE_ENABLED
 				RELTRACE(_T("(IL_%04X) IL_%04X %s %X"),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+				#endif
 			}
 			
 			for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end(); ++offsetIter)
 			{
 				if ((*it)->m_operation == CEE_SWITCH)
 				{
+					#ifdef TRACE_ENABLED
 					auto offset = (*it)->m_offset + (4 * static_cast<long>((*it)->m_operand)) + (*offsetIter) + details.length + details.operandSize;
 					RELTRACE(_T("    IL_%04X"), offset);
+					#endif
 				}
 			}
 		}
@@ -510,6 +536,7 @@ namespace Instrumentation
 
 	void Method::DumpExceptionFilters()
 	{
+		#ifdef TRACE_ENABLED
 		int i = 0;
 		for (auto it = m_exceptions.begin(); it != m_exceptions.end(); ++it)
 		{
@@ -526,6 +553,7 @@ namespace Instrumentation
 
 			++i;
 		}
+		#endif
 	}
 
 	/// <summary>Converts all short branches to long branches.</summary>

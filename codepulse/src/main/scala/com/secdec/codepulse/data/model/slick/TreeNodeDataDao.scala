@@ -24,13 +24,13 @@ import scala.slick.model.ForeignKeyAction
 import scala.util.Try
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.model.{ TreeNodeData => TreeNode, _ }
+import com.secdec.codepulse.data.model.{TreeNodeData => TreeNode, _}
 
 /** The Slick DAO for tree node data.
   *
   * @author robertf
   */
-private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpers {
+private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao: SourceDataDao) extends SlickHelpers {
 	import driver.simple._
 
 	class TreeNodeData(tag: Tag) extends Table[TreeNode](tag, "tree_node_data") {
@@ -50,8 +50,13 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		def label = column[String]("label", O.NotNull)
 		def kind = column[CodeTreeNodeKind]("kind", O.NotNull)
 		def size = column[Option[Int]]("size", O.Nullable)
-		def * = (id, parentId, label, kind, size) <> (TreeNode.tupled, TreeNode.unapply)
+		def sourceFileId = column[Option[Int]]("source_file_id", O.Nullable)
+		def sourceLocationCount = column[Option[Int]]("source_location_count", O.Nullable)
+		def methodStartLine = column[Option[Int]]("method_start_line", O.Nullable)
+		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine) <> (TreeNode.tupled, TreeNode.unapply)
 		def labelIndex = index("tnd_label_index", label)
+
+		def sourceFile = foreignKey("tree_node_data_to_source_file", sourceFileId, sourceDataDao.sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
 	}
 	val treeNodeData = TableQuery[TreeNodeData]
 
@@ -79,12 +84,14 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 	}
 	val treeNodeFlags = TableQuery[TreeNodeFlags]
 
-	class MethodSignatureNodeMap(tag: Tag) extends Table[(String, Int)](tag, "method_signature_node_map") {
-		def signature = column[String]("sig", O.PrimaryKey, O.NotNull)
+	class MethodSignatureNodeMap(tag: Tag) extends Table[MethodSignatureNode](tag, "method_signature_node_map") {
+		def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+		def signature = column[String]("sig", O.NotNull)
 		def nodeId = column[Int]("node_id", O.NotNull)
-		def * = signature -> nodeId
+		def * = (id, signature, nodeId) <> (MethodSignatureNode.tupled, MethodSignatureNode.unapply)
 
 		def node = foreignKey("msnm_node", nodeId, treeNodeData)(_.id, onDelete = ForeignKeyAction.Cascade)
+		def signatureIndex = index("sig_idx", (signature), unique = false)
 	}
 	val methodSignatureNodeMap = TableQuery[MethodSignatureNodeMap]
 
@@ -107,12 +114,12 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		(for (n <- treeNodeData if n.label === label) yield n).firstOption
 	}
 
-	def getForSignature(signature: String)(implicit session: Session): Option[TreeNode] = getIdForSignature(signature).flatMap(get(_))
+	def getForSignature(signature: String)(implicit session: Session): List[TreeNode] = getIdsForSignature(signature).flatMap(get(_))
 
 	def getForJsp(jspClass: String)(implicit session: Session): Option[TreeNode] = getIdForJsp(jspClass).flatMap(get(_))
 
-	def getIdForSignature(signature: String)(implicit session: Session): Option[Int] = {
-		(for (n <- methodSignatureNodeMap if n.signature === signature) yield n.nodeId).firstOption
+	def getIdsForSignature(signature: String)(implicit session: Session): List[Int] = {
+		(for (n <- methodSignatureNodeMap if n.signature === signature) yield n.nodeId).list
 	}
 
 	def getIdForJsp(jspClass: String)(implicit session: Session): Option[Int] = {
@@ -126,7 +133,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		} finally it.close
 	}
 
-	def iterateMethodMappingsWith[T](f: Iterator[(String, Int)] => T)(implicit session: Session): T = {
+	def iterateMethodMappingsWith[T](f: Iterator[MethodSignatureNode] => T)(implicit session: Session): T = {
 		val it = methodSignatureNodeMap.iterator
 		try {
 			f(it)
@@ -140,11 +147,11 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 		} finally it.close
 	}
 
-	def storeMethodSignature(signature: String, nodeId: Int)(implicit session: Session) {
-		methodSignatureNodeMap += signature -> nodeId
+	def storeMethodSignature(methodSignatureNode: MethodSignatureNode)(implicit session: Session) {
+		methodSignatureNodeMap += methodSignatureNode
 	}
 
-	def storeMethodSignatures(signatures: Iterable[(String, Int)])(implicit session: Session) {
+	def storeMethodSignatures(signatures: Iterable[MethodSignatureNode])(implicit session: Session) {
 		fastImport { methodSignatureNodeMap ++= signatures }
 	}
 
@@ -188,6 +195,11 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile) extends SlickHelpe
 				val q = for (row <- tracedNodes if row.nodeId === id) yield row
 				q.delete
 		}
+	}
+
+	def updateSourceLocationCount(id: Int, sourceLocationCount: Int) (implicit session: Session): Unit = {
+		val q = for (row <- treeNodeData if row.id === id) yield row.sourceLocationCount
+		q.update(Some(sourceLocationCount))
 	}
 
 	def getFlags(id: Int)(implicit session: Session): List[TreeNodeFlag] = {

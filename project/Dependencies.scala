@@ -25,8 +25,13 @@ object Dependencies {
 	lazy val jettyWebapp = "org.eclipse.jetty" % "jetty-webapp" % "8.1.7.v20120910" % "container"
 	lazy val jettyOrbit = "org.eclipse.jetty.orbit" % "javax.servlet" % "3.0.0.v201112011016" % "container" artifacts Artifact("javax.servlet", "jar", "jar")
 	lazy val servletApi = "javax.servlet" % "javax.servlet-api"	% "3.1.0"
-	lazy val logback = "ch.qos.logback" % "logback-classic" % "0.9.26" % "compile->default"
-	lazy val slf4j = "org.slf4j" % "jcl-over-slf4j" % "1.6.4"
+
+	lazy val logging = Seq(
+		"ch.qos.logback" % "logback-classic" % "0.9.26" % "compile->default",
+		"org.slf4j" % "slf4j-api" % "1.6.4",
+		"org.slf4j" % "jcl-over-slf4j" % "1.6.4",
+		"org.codehaus.groovy" % "groovy-all" % "2.4.13"
+	)
 
 	// for testing
 	lazy val scalactic = "org.scalactic" %% "scalactic" % "3.0.4" % Test
@@ -60,11 +65,12 @@ object Dependencies {
 
 	// database related
 	lazy val slick = "com.typesafe.slick" %% "slick" % "2.0.1"
-	lazy val h2 = "com.h2database" % "h2" % "1.4.196"
+	lazy val h2 = "com.h2database" % "h2" % "1.4.197"
 
 	// apache commons dependencies
 	object commons {
 		lazy val io = "commons-io" % "commons-io" % "2.1"
+		lazy val lang = "org.apache.commons" % "commons-lang3" % "3.7"
 	}
 
 	// dependency-check
@@ -72,4 +78,6 @@ object Dependencies {
 
 	// dispatch, Scala wrapper for Java AsyncHttpClient https://github.com/dispatch/reboot
 	lazy val dispatch = "net.databinder.dispatch" %% "dispatch-core" % "0.11.4"
+
+	lazy val javaparser = "com.github.javaparser" % "javaparser-core" % "2.4.0"
 }

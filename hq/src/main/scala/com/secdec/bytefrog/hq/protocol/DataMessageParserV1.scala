@@ -71,8 +71,12 @@ class DataMessageParserV1 extends DataMessageParser {
 			case MsgExceptionBubble => readExceptionBubble(stream, handler)
 			case MsgMarker => readMarker(stream, handler)
 			case MsgDataBreak if parseDataBreaks => readDataBreak(stream, handler)
-			case _ => throw new IOException(s"Unexpected message type id: $typeId")
+			case _ => readOtherMessage(typeId, stream, handler, parseDataBreaks)
 		}) + 1
+	}
+
+	protected def readOtherMessage(typeId: Byte, stream: DataInputStream, handler: DataMessageHandler, parseDataBreaks: Boolean): Int = {
+		throw new IOException(s"Unexpected message type id: $typeId")
 	}
 
 	protected def readMapThreadName(stream: DataInputStream, handler: DataMessageHandler): Int = {

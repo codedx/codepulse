@@ -19,12 +19,19 @@
 
 package com.secdec.codepulse.data.model
 
+case class Encounter(recordingId: Option[Int], nodeId: Int, sourceLocationId: Option[Int])
+
 /** Access trait for nodes encountered.
   *
   * @author robertf
   */
 trait TraceEncounterDataAccess {
-	def record(recordings: List[Int], encounteredNodes: List[Int]): Unit
-	def get(): Set[Int]
-	def get(recording: Int): Set[Int]
+	def record(recordings: List[Int], encounteredNodes: List[(Int, Option[Int])]): Unit
+	def getAllEncounters(): List[(Int, Option[Int])]
+	def getAllNodeEncountersSet(): Set[Int]
+	def getRecordingEncounters(recordingId: Int): List[(Int, Option[Int])]
+	def getRecordingNodeEncountersSet(recordingId: Int): Set[Int]
+	def getTracedSourceLocations(nodeId: Int): List[SourceLocation]
+	def getRecordingSourceLocationEncountersSet(recordingId: Int, nodeId: Int): Set[Int]
+	def getAllSourceLocationEncountersSet(nodeId: Int): Set[Int]
 }

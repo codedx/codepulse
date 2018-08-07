@@ -19,6 +19,7 @@ package com.codedx.codepulse.hq.monitor
 
 import com.codedx.codepulse.hq.agent.AgentController
 import com.codedx.codepulse.hq.agent.AgentState
+import com.codedx.codepulse.utility.Loggable
 
 case class AgentHealthMonitorData(agentState: AgentState) extends TraceComponentMonitorData
 
@@ -36,7 +37,7 @@ class AgentHealthMonitor(
 	heartbeatInterval: Integer,
 	maxMissedHeartbeats: Integer,
 	modeChangeDelay: Integer)
-	extends HealthMonitor {
+	extends HealthMonitor with Loggable {
 
 	override val runInterval = 1000 // run every second
 
@@ -48,7 +49,7 @@ class AgentHealthMonitor(
 		if (controller.lastHeartbeat != null) {
 			i += 1
 			if (i % 10 == 0) // print status every 10s
-				println(s"Agent is in ${controller.lastHeartbeat.operationMode}, [expected ${controller.currentState}], send queue size = ${controller.lastHeartbeat.sendQueueSize}")
+				logger.debug(s"Agent is in ${controller.lastHeartbeat.operationMode}, [expected ${controller.currentState}], send queue size = ${controller.lastHeartbeat.sendQueueSize}")
 		}
 
 		val time = System.currentTimeMillis

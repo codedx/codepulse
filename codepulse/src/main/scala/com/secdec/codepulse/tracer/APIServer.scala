@@ -49,7 +49,12 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 
 import DCJson._
+import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.version
+
+case class NodeSourceMetadata(nodeId: Int, nodeLabel: String, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int)
+case class NodeSourceFileContents(sourceFileId: Int, sourceFileContents: String)
+case class NodeTracedSourceLocations(nodeId: Int, sourceLocations: List[SourceLocation])
 
 class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
 
@@ -104,7 +109,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					task foreach { _.cancel }
 
 				case Some(_) =>
-					target.transientData.getAndClearRecentlyEncounteredNodes { data =>
+					target.transientData.nodeTraceData.getAndClearRecentlyEncountered { data =>
 						controller.enterData(data)
 					}
 			}
@@ -276,6 +281,52 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 
 		/** /api/connection/[reject|accept/<project.id>] */
 		val Acknowledgment = AcknowledgmentPath
+
+		val NodeSourceCodeMetadata = TargetPath.map[(TracingTarget, NodeSourceMetadata)]({
+				case (target, listParts @ List("node", AsInt(nodeId), "source-metadata")) =>
+					(for {
+						node <- target.projectData.treeNodeData.getNode(nodeId)
+						fileId <- node.sourceFileId
+						sourceFile <- target.projectData.sourceData.getSourceFile(fileId)
+					} yield {
+						(target, NodeSourceMetadata(node.id, node.label, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0)))
+					}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, "", -1, "", 0, 0))
+			}, {
+				case (target, nodeSourceMetadata) =>
+					(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
+			}
+		)
+
+		val NodeSourceCodeFileContents = TargetPath.map[(TracingTarget, NodeSourceFileContents)]({
+				case (target, listParts @ List("source", AsInt(sourceFileId))) =>
+					(for {
+						storage <- StorageManager.getStorageFor(target.projectData.id)
+						sourceFile <- target.projectData.sourceData.getSourceFile(sourceFileId)
+						content <- storage.loadEntry(sourceFile.path)
+					} yield {
+						storage.close
+						(target, NodeSourceFileContents(sourceFileId, content))
+					}) getOrElse (target, NodeSourceFileContents(listParts(1).toInt, "Source unavailable"))
+			},
+			{
+				case (target, nodeSourceFileContents) =>
+					(target, List("source", nodeSourceFileContents.sourceFileId.toString))
+			}
+		)
+
+		val NodeTracedSourceCodeLocations = TargetPath.map[(TracingTarget, NodeTracedSourceLocations)](
+			{
+				case (target, listParts @ List("node", AsInt(nodeId), "source-locations")) =>
+					val encounters = target.projectData.encounters
+					val locations = (for {
+						sourceLocations <- encounters.getTracedSourceLocations(nodeId)
+					} yield {
+						sourceLocations
+					})
+					(target, NodeTracedSourceLocations(listParts(1).toInt, locations))
+			},
+			{ case (target, nodeTracedSourceLocations) => (target, List("node", nodeTracedSourceLocations.nodeId.toString, "source-locations"))}
+		)
 	}
 
 	private object DataPath {
@@ -546,7 +597,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// POST changes to a recording's metadata
 		// query: [color=newColor][label=newLabel][running=newRunning] (all optional)
 		case Paths.Recording(target, recording) Post req =>
-			println(s"update recording with params: ${req.params}")
+			logger.debug(s"update recording with params: ${req.params}")
 			for (color <- req.param("color")) recording.clientColor = Some(color)
 			for (label <- req.param("label")) recording.clientLabel = Some(label)
 			for (AsBoolean(running) <- req.param("running")) recording.running = running
@@ -563,7 +614,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		// response: { returnKey: numMethodsCovered, ... }
 		case Paths.Coverage(target) Get req =>
 			val fieldsMap = for {
-				(ar, respKey) <- parseActivityRequests(req.params)
+				(ar, respKey) <- parseNodeActivityRequests(req.params)
 			} yield respKey -> ar.lookup(target.projectData, target.transientData).size
 
 			JsonResponse(fieldsMap)
@@ -576,7 +627,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			val m = collection.mutable.Map.empty[Int, ListBuffer[String]]
 			def buf(id: Int) = m.getOrElseUpdate(id, new ListBuffer)
 			for {
-				(ar, respKey) <- parseActivityRequests(req.params)
+				(ar, respKey) <- parseNodeActivityRequests(req.params)
 				methodId <- ar.lookup(target.projectData, target.transientData)
 			} buf(methodId) += respKey
 
@@ -599,6 +650,36 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					sendResponse(response)
 				}
 			}
+
+		case Paths.NodeSourceCodeMetadata(target, nodeSourceMetadata) Get req =>
+			val json = ("nodeId" -> nodeSourceMetadata.nodeId) ~
+				("sourceLabel" -> nodeSourceMetadata.nodeLabel) ~
+				("sourceFileId", nodeSourceMetadata.sourceFileId) ~
+				("sourceFilePath", nodeSourceMetadata.sourceFilePath) ~
+				("sourceLocationCount", nodeSourceMetadata.sourceLocationCount) ~
+				("methodStartLine", nodeSourceMetadata.methodStartLine)
+			JsonResponse(json)
+
+		case Paths.NodeSourceCodeFileContents(target, nodeSourceFileContents) Get req =>
+			PlainTextResponse(nodeSourceFileContents.sourceFileContents)
+
+		case Paths.NodeTracedSourceCodeLocations(target, tracedSourceLocations) Get req =>
+
+			val m = collection.mutable.Map.empty[Int, ListBuffer[String]]
+			def buf(id: Int) = m.getOrElseUpdate(id, new ListBuffer)
+			for {
+				(ar, respKey) <- parseSourceLocationActivityRequests(tracedSourceLocations.nodeId, req.params)
+				methodId <- ar.lookup(target.projectData, target.transientData)
+			} buf(methodId) += respKey
+
+			val coverage = for ((id, keys) <- m) yield JField(id.toString, keys.result)
+			val locations = for(l <- tracedSourceLocations.sourceLocations) yield ("id" -> l.id) ~
+				("startLine" -> l.startLine) ~
+				("startCharacter" -> l.startCharacter) ~
+				("endLine" -> l.endLine) ~
+				("endCharacter" -> l.endCharacter)
+
+			JsonResponse(JObject(JField("sourceLocationCoverage", JObject(coverage.toList)) :: JField("sourceLocations", locations) :: Nil))
 	}
 }
 
@@ -633,20 +714,39 @@ sealed trait ActivityRequest {
   */
 object ActivityRequest {
 
-	case class RecordingActivity(recordingId: Int) extends ActivityRequest {
+	case class NodeRecordingActivity(recordingId: Int) extends ActivityRequest {
 		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
-			projectData.encounters.get(recordingId)
+			projectData.encounters.getRecordingNodeEncountersSet(recordingId)
 		}
 	}
-	case class RecentActivity(windowDuration: Int) extends ActivityRequest {
+	case class NodeRecentActivity(windowDuration: Int) extends ActivityRequest {
 		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
-			val thresholdTime = transientTraceData.now - windowDuration
-			transientTraceData.getNodesEncounteredAfterTime(thresholdTime)
+			val thresholdTime = System.currentTimeMillis - windowDuration
+			transientTraceData.nodeTraceData.getEncounteredAfterTime(thresholdTime)
 		}
 	}
-	case object AllActivity extends ActivityRequest {
+	case object NodeAllActivity extends ActivityRequest {
 		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
-			projectData.encounters.get
+			projectData.encounters.getAllNodeEncountersSet()
+		}
+	}
+
+	case class SourceLocationRecordingActivity(nodeId: Int, recordingId: Int) extends ActivityRequest {
+		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
+			projectData.encounters.getRecordingSourceLocationEncountersSet(recordingId, nodeId)
+		}
+	}
+	case class SourceLocationRecentActivity(nodeId: Int, windowDuration: Int) extends ActivityRequest {
+		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
+
+			val thresholdTime = System.currentTimeMillis - windowDuration
+			val sourceLocationTraceData = transientTraceData.sourceLocationTraceData
+			projectData.encounters.getAllSourceLocationEncountersSet(nodeId).filter(x => sourceLocationTraceData.isEncounteredAfterTime(x, thresholdTime))
+		}
+	}
+	case class SourceLocationAllActivity(nodeId: Int) extends ActivityRequest {
+		def lookup(projectData: ProjectData, transientTraceData: TransientTraceData) = {
+			projectData.encounters.getAllSourceLocationEncountersSet(nodeId)
 		}
 	}
 
@@ -654,11 +754,11 @@ object ActivityRequest {
 	private val RecentRegex = raw"recent/(\d+)".r
 	private val AllRegex = "all"
 
-	def parseActivityRequest(kv: (String, List[String])): Option[(ActivityRequest, String)] = {
+	def parseNodeActivityRequest(kv: (String, List[String])): Option[(ActivityRequest, String)] = {
 		val requestKey = kv._1 match {
-			case AllRegex => Some(AllActivity)
-			case RecentRegex(AsInt(i)) => Some(RecentActivity(i))
-			case RecordingRegex(AsInt(i)) => Some(RecordingActivity(i))
+			case AllRegex => Some(NodeAllActivity)
+			case RecentRegex(AsInt(i)) => Some(NodeRecentActivity(i))
+			case RecordingRegex(AsInt(i)) => Some(NodeRecordingActivity(i))
 			case _ => None
 		}
 
@@ -673,7 +773,30 @@ object ActivityRequest {
 		} yield req -> resp
 	}
 
-	def parseActivityRequests(params: Map[String, List[String]]): Map[ActivityRequest, String] = {
-		params.flatMap { parseActivityRequest }
+	def parseNodeActivityRequests(params: Map[String, List[String]]): Map[ActivityRequest, String] = {
+		params.flatMap(parseNodeActivityRequest)
+	}
+
+	def parseSourceLocationActivityRequest(nodeId: Int, kv: (String, List[String])): Option[(ActivityRequest, String)] = {
+		val requestKey = kv._1 match {
+			case AllRegex => Some(SourceLocationAllActivity(nodeId))
+			case RecentRegex(AsInt(i)) => Some(SourceLocationRecentActivity(nodeId, i))
+			case RecordingRegex(AsInt(i)) => Some(SourceLocationRecordingActivity(nodeId, i))
+			case _ => None
+		}
+
+		val responseKey = kv._2 match {
+			case head :: Nil => Some(head)
+			case _ => None
+		}
+
+		for {
+			req <- requestKey
+			resp <- responseKey
+		} yield req -> resp
+	}
+
+	def parseSourceLocationActivityRequests(nodeId: Int, params: Map[String, List[String]]): Map[ActivityRequest, String] = {
+		params.flatMap(x => parseSourceLocationActivityRequest(nodeId, x))
 	}
 }

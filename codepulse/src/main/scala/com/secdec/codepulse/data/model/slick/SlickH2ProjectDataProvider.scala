@@ -26,7 +26,7 @@ import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend.Database
 
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.util.RichFile.RichFile
+import com.secdec.codepulse.util.Implicits._
 
 import akka.actor.ActorSystem
 
@@ -41,25 +41,33 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 
 	private val cache = collection.mutable.Map.empty[ProjectId, SlickProjectData]
 
-	val MasterDbName = "master"
+	val MasterDbName = "projects_db"
+	val ProjectFolderName = "project"
+	val ProjectDbName = "project_db"
 	val PageStoreFileSuffix = ".h2.db"
 	val MultiVersionStoreFileSuffix = ".mv.db"
 
 	private object ProjectFilename {
 		def apply(folder: File, projectId: ProjectId) = {
 			val dbName = getDbName(projectId)
+			val dbFolder = getDbFolder(folder, projectId)
 
 			// The current H2 database driver reads existing PageStore db files
 			// but will create new db files using MVStore.
 			val dbPageStoreFilename = s"$dbName$PageStoreFileSuffix"
-			if ((folder / dbPageStoreFilename).exists)
+			if ((dbFolder / dbPageStoreFilename).exists)
 				dbPageStoreFilename
 			else
 				s"$dbName$MultiVersionStoreFileSuffix"
 		}
-		def getDbName(projectId: ProjectId) = s"project-${projectId.num}"
 
-		val NameRegex = raw"project-(\d+)\.(?:h2|mv)\.db".r
+		def getDbFolder(folder: File, projectId: ProjectId) = {
+			folder / s"$ProjectFolderName-${projectId.num}"
+		}
+
+		def getDbName(projectId: ProjectId) = s"$ProjectDbName-${projectId.num}"
+
+		val NameRegex = raw"$ProjectDbName-(\d+)\.(?:h2|mv)\.db".r
 
 		def unapply(filename: String): Option[ProjectId] = filename match {
 			case NameRegex(ProjectId(id)) => Some(id)
@@ -81,9 +89,10 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 	def getProject(id: ProjectId): ProjectData = getProjectInternal(id)
 
 	private def getProjectInternal(id: ProjectId, suppressInit: Boolean = false) = cache.getOrElseUpdate(id, {
-		val needsInit = !(folder / ProjectFilename(folder, id)).exists
+		val dbFolder = ProjectFilename.getDbFolder(folder, id)
+		val needsInit = !(dbFolder / ProjectFilename(folder, id)).exists
 
-		val db = Database.forURL(s"jdbc:h2:file:${(folder / ProjectFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
+		val db = Database.forURL(s"jdbc:h2:file:${(dbFolder / ProjectFilename.getDbName(id)).getCanonicalPath};DB_CLOSE_DELAY=10", driver = "org.h2.Driver")
 		val data = new SlickProjectData(id, db, H2Driver, masterData.metadataMaster get id.num, EncountersBufferSize, EncountersFlushInterval, actorSystem)
 
 		if (!suppressInit && needsInit) data.init
@@ -97,18 +106,23 @@ class SlickH2ProjectDataProvider(folder: File, actorSystem: ActorSystem) extends
 	}
 
 	def projectList: List[ProjectId] = {
-		folder.listFiles.toList.map { _.getName } collect {
+		var folders = folder.listFiles.filter(_.isDirectory).toList
+		var files = folders.flatMap(_.listFiles)
+		var names = files.map(_.getName)
+		var projects = folder.listFiles.filter(_.isDirectory).toList.flatMap(_.listFiles).map { _.getName } collect {
 			case ProjectFilename(id) => id
 		} filter { id =>
 			val project = getProject(id)
 			// If this project has been soft-deleted, exclude
 			!project.metadata.deleted
 		}
+
+		projects
 	}
 
 	def maxProjectId: Int = {
 		val default = 0
-		(folder.listFiles.toList.map { _.getName } collect {
+		(folder.listFiles.filter(_.isDirectory).toList.flatMap(_.listFiles).map { _.getName } collect {
 			case ProjectFilename(id) => id
 		} map(id => id.num) foldLeft default)(Math.max)
 	}

@@ -125,7 +125,7 @@ namespace CodePulse.Client.Message
             }
         }
 
-        private MemoryStream GetBuffer()
+        private NamedMemoryStream GetBuffer()
         {
             _isIdle = true;
 

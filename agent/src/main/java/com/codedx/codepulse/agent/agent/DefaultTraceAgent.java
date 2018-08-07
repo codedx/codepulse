@@ -37,7 +37,7 @@ import com.codedx.codepulse.agent.message.MessageDealer;
 import com.codedx.codepulse.agent.message.MessageSenderManager;
 import com.codedx.codepulse.agent.message.PooledBufferService;
 import com.codedx.codepulse.agent.protocol.ProtocolVersion;
-import com.codedx.codepulse.agent.protocol.ProtocolVersion2;
+import com.codedx.codepulse.agent.protocol.ProtocolVersion3;
 import com.codedx.codepulse.agent.trace.TraceDataCollector;
 import com.codedx.codepulse.agent.util.ShutdownHook;
 import com.codedx.codepulse.agent.util.SocketFactory;
@@ -65,7 +65,7 @@ public class DefaultTraceAgent implements TraceAgent
 	private RuntimeAgentConfigurationV1 config;
 
 	private final Semaphore startMutex = new Semaphore(0);
-	private final ProtocolVersion protocol = new ProtocolVersion2();
+	private final ProtocolVersion protocol = new ProtocolVersion3();
 	private MinlogListener logger = null;
 	private ClassIdentifier classIdentifier = new ClassIdentifier();
 	private MethodIdentifier methodIdentifier = new MethodIdentifier();

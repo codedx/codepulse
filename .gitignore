@@ -15,3 +15,5 @@ outputs/
 /fetch-cache
 
 *.log
+
+dotnet-symbol-service-last-commit

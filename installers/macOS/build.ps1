@@ -17,7 +17,7 @@ Push-Location $PSScriptRoot
 
 if (-not (Test-DotNetTracer $codePulsePath $buildConfiguration))
 {
-    Write-Error 'Code Pulse .NET Tracer does not exist. Run installers\dotnet-tracers\build.ps1 first'
+    Write-Error 'Code Pulse .NET Tracer does not exist. Run installers\dotnet-tracer\build.ps1 first'
     exit 1
 }
 
@@ -33,6 +33,9 @@ Invoke-CodePulsePackaging `
     'Code Pulse.app\Contents\Resources\app.nw\dotnet-symbol-service' `
     'SymbolService' `
     'Code Pulse.app\Contents\Resources\app.nw\agent.jar'
+
+# store agent.jar in Code Pulse.app package so that Connection Help screen contains a valid -javaagent string
+copy '.\Files\macOS\codepulse\tracers' '.\Files\macOS\codepulse\Code Pulse.app\Contents\Resources\app.nw' -Recurse
 
 if ($signOutput) {
     $signingInstructions = @'

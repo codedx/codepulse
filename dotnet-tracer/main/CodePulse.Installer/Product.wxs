@@ -26,6 +26,7 @@
       <ComponentGroupRef Id="Log4NetComponentGroup" />
       <ComponentGroupRef Id="NewtonsoftJsonComponentGroup" />
       <ComponentGroupRef Id="OpenCoverComponentGroup" />
+      <ComponentGroupRef Id="LicensesComponentGroup" />
 		  <Feature Id="x64ProfilerFeature" Title="Code Pulse .NET Tracer (x86 Profiler)" Level="1">
 		    <ComponentGroupRef Id="ProfilerComponentGroup" />
 		  </Feature>

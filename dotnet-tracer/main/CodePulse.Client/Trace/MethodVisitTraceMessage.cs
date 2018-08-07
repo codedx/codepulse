@@ -24,15 +24,18 @@ namespace CodePulse.Client.Trace
 {
     public class MethodVisitTraceMessage : ITraceMessage
     {
+		public int Spid { get; }
         public string ClassName { get; }
         public string SourceFile { get; }
         public string MethodName { get; }
         public string MethodSignature { get; }
         public int StartLineNumber { get; }
         public int EndLineNumber { get; }
+	    public short StartCharacter { get; }
+	    public short EndCharacter { get; }
 
-        public MethodVisitTraceMessage(string className, string sourceFile, string methodName, string methodSignature,
-            int startLineNumber, int endLineNumber)
+		public MethodVisitTraceMessage(int spid, string className, string sourceFile, string methodName, string methodSignature,
+            int startLineNumber, int endLineNumber, short startCharacter, short endCharacter)
         {
             if (string.IsNullOrWhiteSpace(className))
             {
@@ -49,12 +52,15 @@ namespace CodePulse.Client.Trace
                 throw new System.ArgumentException("message", nameof(methodSignature));
             }
 
-            ClassName = className;
+	        Spid = spid;
+			ClassName = className;
             SourceFile = sourceFile;
             MethodName = methodName;
             MethodSignature = methodSignature;
             StartLineNumber = startLineNumber;
             EndLineNumber = endLineNumber;
+	        StartCharacter = startCharacter;
+	        EndCharacter = endCharacter;
         }
     }
 }
