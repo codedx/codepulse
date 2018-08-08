@@ -22,8 +22,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.util.BitSet;
-
 /** Simple method visitor that collects source line information for a method (if available).
   *
   * @author robertf
