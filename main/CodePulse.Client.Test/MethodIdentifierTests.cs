@@ -33,10 +33,10 @@ namespace CodePulse.Client.Test
         {
             // arrange
             var methodIdentifier = new MethodIdentifier();
-            var methodId = methodIdentifier.Record(1, "A", "B", 2, 3);
+            var methodId = methodIdentifier.Record(1, "A", "B");
 
             // act
-            var retVal = methodIdentifier.Record(1, "A", "B", 2, 3);
+            var retVal = methodIdentifier.Record(1, "A", "B");
 
             // assert
             Assert.AreEqual(methodId, retVal);
@@ -48,10 +48,10 @@ namespace CodePulse.Client.Test
         {
             // arrange
             var methodIdentifier = new MethodIdentifier();
-            var methodId = methodIdentifier.Record(1, "A", "B", 2, 3);
+            var methodId = methodIdentifier.Record(1, "A", "B");
 
             // act
-            var retVal = methodIdentifier.Record(1, "C", "D", 2, 3);
+            var retVal = methodIdentifier.Record(1, "C", "D");
 
             // assert
             Assert.AreEqual(methodId + 1, retVal);

@@ -41,6 +41,17 @@ namespace CodePulse.Console.EffectiveAccess
             }
         }
 
+        public bool HasExecuteAccess
+        {
+            get
+            {
+                const int execute = (int)NativeMethods.FileAccess.Execute;
+                return (_grantedAccessMask & execute) == execute;
+            }
+        }
+
+        public bool HasReadAndExecuteAccess => HasReadAccess && HasExecuteAccess;
+
         public EffectiveAccess(string path, string username)
         {
             Path = path;

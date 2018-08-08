@@ -5,7 +5,7 @@
   <?define OutputFolder = "..\bin\Release\" ?>
   <?define x86OutputFolder = "$(var.OutputFolder)x86\" ?>
   
-	<Product Id="*" Name="Code Pulse .NET Tracer" Language="1033" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="0649c73e-1edf-4014-9926-0c6f86253814">
+	<Product Id="*" Name="Code Pulse .NET Tracer" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="0649c73e-1edf-4014-9926-0c6f86253814">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
@@ -26,6 +26,7 @@
       <ComponentGroupRef Id="Log4NetComponentGroup" />
       <ComponentGroupRef Id="NewtonsoftJsonComponentGroup" />
       <ComponentGroupRef Id="OpenCoverComponentGroup" />
+      <ComponentGroupRef Id="LicensesComponentGroup" />
 		  <Feature Id="x64ProfilerFeature" Title="Code Pulse .NET Tracer (x86 Profiler)" Level="1">
 		    <ComponentGroupRef Id="ProfilerComponentGroup" />
 		  </Feature>
@@ -59,7 +60,7 @@
     </Component>
     <Component Id="CodePulseRegistryKey" Directory="INSTALLFOLDER" Guid="{3f52dfaa-7de3-48cc-b185-b6bcdb9d5960}">
       <RegistryKey Root="HKLM"
-                   Key="Software\Secure Decisions\Code Pulse .NET Tracer">
+                   Key="Software\Code Dx, Inc.\Code Pulse .NET Tracer">
         <RegistryValue Type="string" Name="ApplicationPath" Value="[INSTALLFOLDER]" KeyPath="yes"/>
         <RegistryValue Type="string" Value="Default Value"/>
       </RegistryKey>
@@ -120,6 +121,10 @@
       <File Id="OpenCoverExtensionsDll" Source="$(var.OutputFolder)OpenCover.Extensions.dll" KeyPath="yes"/>
       <File Id="OpenCoverExtensionsPdb" Source="$(var.OutputFolder)OpenCover.Extensions.pdb"/>
     </Component>
+    <Component Id="CodePulseFrameworkComponent" Directory="INSTALLFOLDER" Guid="{333e7f15-4969-40c9-b2dc-65b73b22fce3}">
+      <File Id="CodePulseFrameworkDll" Source="$(var.OutputFolder)CodePulse.Framework.dll" KeyPath="yes"/>
+      <File Id="CodePulseFrameworkPdb" Source="$(var.OutputFolder)CodePulse.Framework.pdb"/>
+    </Component>
   </Fragment>
 
   <Fragment>
@@ -168,7 +173,8 @@
     <ComponentGroup Id="OpenCoverComponentGroup">
       <ComponentRef Id="OpenCoverFrameworkComponent"/>
       <ComponentRef Id="OpenCoverExtensionsComponent"/>
-	  </ComponentGroup>
+      <ComponentRef Id="CodePulseFrameworkComponent"/>
+    </ComponentGroup>
 	  <ComponentGroup Id="ProfilerComponentGroup">
 	    <ComponentRef Id="x86OpenCoverProfilerComponent"/>
   </ComponentGroup>

@@ -5,7 +5,7 @@
   <?define OutputFolder = "..\bin\Release\" ?>
   <?define x64OutputFolder = "$(var.OutputFolder)x64\" ?>
   
-	<Product Id="*" Name="Code Pulse .NET Tracer (x64 Profiler)" Language="1033" Version="$(var.Version)" Manufacturer="Secure Decisions" UpgradeCode="00bd7e54-e424-49bb-8e3c-151a75affda0">
+	<Product Id="*" Name="Code Pulse .NET Tracer (x64 Profiler)" Language="1033" Version="$(var.Version)" Manufacturer="Code Dx, Inc." UpgradeCode="00bd7e54-e424-49bb-8e3c-151a75affda0">
 	  <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" Platform="x64" />
 
 	  <Icon Id="AppIcon" SourceFile="AppIcon.ico"/>
@@ -19,7 +19,7 @@
 	  <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 
     <Property Id="CODEPULSEDOTNETTRACERINSTALLED">
-      <RegistrySearch Id="CodePulseDotNetTracerInstalledRegistrySearch" Root="HKLM" Key="SOFTWARE\WOW6432Node\Secure Decisions\Code Pulse .NET Tracer" Name="ApplicationPath" Type="raw" Win64="yes" />
+      <RegistrySearch Id="CodePulseDotNetTracerInstalledRegistrySearch" Root="HKLM" Key="SOFTWARE\WOW6432Node\Code Dx, Inc.\Code Pulse .NET Tracer" Name="ApplicationPath" Type="raw" Win64="yes" />
     </Property>
 
     <Condition Message="[ProductName] requires you to first install the 32-bit Code Pulse .NET Tracer application.">
@@ -28,6 +28,7 @@
     
 	  <Feature Id="TracerFeature" Title="Code Pulse .NET Tracer (x64 Profiler)" Level="1">
 	    <ComponentGroupRef Id="ProfilerComponentGroup" />
+	    <ComponentGroupRef Id="LicensesComponentGroup" />
 	  </Feature>
 	</Product>
 

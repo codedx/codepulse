@@ -55,7 +55,9 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 	mdTypeDef systemObject = mdTokenNil;
 	if (S_OK == metaDataImport->FindTypeDefByName(L"System.Object", mdTokenNil, &systemObject))
 	{
+		#ifdef TRACE_ENABLED
 		RELTRACE(_T("::ModuleLoadFinished(...) => Adding methods to mscorlib..."));
+		#endif
 		mdMethodDef systemObjectCtor;
 		COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindMethod(systemObject, L".ctor",
 			ctorCallSignature, sizeof(ctorCallSignature), &systemObjectCtor),
@@ -144,7 +146,9 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 		m_traceContainerCallContext = std::make_unique<Context::TraceContainerCallContext>(m_profilerInfo, m_assemblyRegistry, m_traceContainerBase);
 		m_httpApplication = std::make_unique<Context::HttpApplication>(m_profilerInfo, m_assemblyRegistry);
 
+		#ifdef TRACE_ENABLED
 		RELTRACE(_T("::ModuleLoadFinished(...) => Added methods to mscorlib"));
+		#endif
 	}
 
 	return S_OK;
@@ -152,7 +156,9 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 
 mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId, const WCHAR* moduleName)
 {
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::RegisterSafeCuckooMethod(%X) => %s"), moduleId, CUCKOO_SAFE_METHOD_NAME);
+	#endif
 
 	// for modules we are going to instrument add our reference to the method marked 
 	// with the SecuritySafeCriticalAttribute
@@ -181,7 +187,9 @@ mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId, const WCH
 /// <remarks>This method makes the call into the profiler</remarks>
 HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 {
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical..."));
+	#endif
 
 	mdSignature pvsig = GetMethodSignatureToken_I4U8U8(moduleId);
 	void(__fastcall *pt)(ULONG, ULONGLONG, ULONGLONG) = GetInstrumentPointVisitWithContext();
@@ -199,7 +207,9 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 
 	InstrumentMethodWith(moduleId, m_cuckooCriticalToken, instructions);
 
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical - Done!"));
+	#endif
 
 	return S_OK;
 }
@@ -211,7 +221,9 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 		return AddTraceSafeCuckooBody(moduleId);
 	}
 	
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited..."));
+	#endif
 
 	InstructionList instructions;
 	instructions.push_back(new Instruction(CEE_LDARG_0));
@@ -223,7 +235,9 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 
 	InstrumentMethodWith(moduleId, m_cuckooSafeToken, instructions);
 
+	#ifdef TRACE_ENABLED
 	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited - Done!"));
+	#endif
 
 	return S_OK;
 }

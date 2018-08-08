@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CommandLineParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="OutputTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -33,6 +33,8 @@ namespace CodePulse.Client.Connect
         public BinaryReader InputReader { get; }
         public BinaryWriter OutputWriter { get; }
 
+	    public bool IsDataAvailable => _socket.Available > 0;
+
         public SocketConnection(Socket socket)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));

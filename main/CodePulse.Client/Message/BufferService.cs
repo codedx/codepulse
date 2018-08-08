@@ -21,8 +21,8 @@
 // (DHS S&T/CSD) via contract number HHSP233201600058C.
 
 using System;
-using System.IO;
 using System.Threading;
+using CodePulse.Client.Queue;
 
 namespace CodePulse.Client.Message
 {
@@ -37,14 +37,14 @@ namespace CodePulse.Client.Message
 
         public bool IsSuspended => _suspended;
 
-        public MemoryStream ObtainBuffer()
+        public NamedMemoryStream ObtainBuffer()
         {
             BlockWhilePaused();
 
             return _suspended ? null : OnObtainBuffer();
         }
 
-        public void RelinquishBuffer(MemoryStream stream)
+        public void RelinquishBuffer(NamedMemoryStream stream)
         {
             if (stream == null) throw new ArgumentNullException(nameof(stream));
 
@@ -71,9 +71,9 @@ namespace CodePulse.Client.Message
             _suspended = suspended;
         }
 
-        protected abstract MemoryStream OnObtainBuffer();
+        protected abstract NamedMemoryStream OnObtainBuffer();
 
-        protected abstract void OnRelinquishBuffer(MemoryStream stream);
+        protected abstract void OnRelinquishBuffer(NamedMemoryStream stream);
 
         private void BlockWhilePaused()
         {

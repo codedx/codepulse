@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
 	ProjectSection(SolutionItems) = preProject
@@ -126,6 +126,10 @@ EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CodePulse.Installer.x64", "CodePulse.Installer.x64\CodePulse.Installer.x64.wixproj", "{F18922E1-BEF6-44EB-8D76-B06A0669DCB9}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CodePulse.Bundle", "CodePulse.Bundle\CodePulse.Bundle.wixproj", "{D390F301-798F-4B2D-A740-061AB6941645}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodePulse.Framework", "CodePulse.Framework\CodePulse.Framework.csproj", "{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodePulse.Framework.Test", "CodePulse.Framework.Test\CodePulse.Framework.Test.csproj", "{B1257132-774B-4510-A280-3336B00C57AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -598,6 +602,54 @@ Global
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|x64.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|x86.ActiveCfg = Release|x86
 		{D390F301-798F-4B2D-A740-061AB6941645}.Release-Installer|x86.Build.0 = Release|x86
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug|x64.Build.0 = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug|x86.Build.0 = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug-Installer|Any CPU.ActiveCfg = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug-Installer|Any CPU.Build.0 = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug-Installer|x64.ActiveCfg = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug-Installer|x64.Build.0 = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug-Installer|x86.ActiveCfg = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Debug-Installer|x86.Build.0 = Debug|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release|x64.ActiveCfg = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release|x64.Build.0 = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release|x86.ActiveCfg = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release|x86.Build.0 = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release-Installer|Any CPU.ActiveCfg = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release-Installer|Any CPU.Build.0 = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release-Installer|x64.ActiveCfg = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release-Installer|x64.Build.0 = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release-Installer|x86.ActiveCfg = Release|Any CPU
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2}.Release-Installer|x86.Build.0 = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug|x64.Build.0 = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug|x86.Build.0 = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug-Installer|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug-Installer|Any CPU.Build.0 = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug-Installer|x64.ActiveCfg = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug-Installer|x64.Build.0 = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug-Installer|x86.ActiveCfg = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Debug-Installer|x86.Build.0 = Debug|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release|x64.ActiveCfg = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release|x64.Build.0 = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release|x86.ActiveCfg = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release|x86.Build.0 = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release-Installer|Any CPU.ActiveCfg = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release-Installer|Any CPU.Build.0 = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release-Installer|x64.ActiveCfg = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release-Installer|x64.Build.0 = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release-Installer|x86.ActiveCfg = Release|Any CPU
+		{B1257132-774B-4510-A280-3336B00C57AF}.Release-Installer|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -629,9 +681,11 @@ Global
 		{65367A51-7B99-4CDF-BE38-BC9515C597B6} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
 		{F18922E1-BEF6-44EB-8D76-B06A0669DCB9} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
 		{D390F301-798F-4B2D-A740-061AB6941645} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
+		{18F657FB-6024-49B9-BC3F-2CEE9BB677A2} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
+		{B1257132-774B-4510-A280-3336B00C57AF} = {D7453212-4AF9-426E-8D91-D5BF04B65B00}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

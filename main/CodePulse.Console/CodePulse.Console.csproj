@@ -77,6 +77,10 @@
       <Project>{8af8d48f-4abc-48dd-8b62-91db60632e4f}</Project>
       <Name>CodePulse.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CodePulse.Framework\CodePulse.Framework.csproj">
+      <Project>{18f657fb-6024-49b9-bc3f-2cee9bb677a2}</Project>
+      <Name>CodePulse.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OpenCover.Framework\OpenCover.Framework.csproj">
       <Project>{c6f40a34-101b-4baf-a2f4-6ea28a264f57}</Project>
       <Name>OpenCover.Framework</Name>

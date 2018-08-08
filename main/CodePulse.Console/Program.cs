@@ -37,6 +37,7 @@ using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
 using log4net;
 using CodePulse.Client.Config;
+using CodePulse.Framework.Persistence;
 using OpenCover.Framework.Model;
 using File = System.IO.File;
 
@@ -95,29 +96,29 @@ namespace CodePulse.Console
 
                 LogManager.GetRepository().Threshold = parser.LogLevel;
 
-                if (!DoesUserHaveReadAccess(parser.Profiler32Path, parser.ExpectedOwnerOfApplicationUnderTest, out var new32BitAccessRule))
+                if (!DoesUserHaveReadAndExecuteAccess(parser.Profiler32Path, parser.ExpectedOwnerOfApplicationUnderTest, out var new32BitAccessRule))
                 {
-                    LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read permissions for the 32-bit profiler library ({parser.Profiler32Path}).");
+                    LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read and execute permissions for the 32-bit profiler library ({parser.Profiler32Path}).");
                     return MakeExitCode(ProgramExitCodes.ProfilerNoReadPermission);
                 }
 
                 try
                 {
                     FileSystemAccessRule new64BitAccessRule = null;
-                    if (Environment.Is64BitOperatingSystem && !DoesUserHaveReadAccess(parser.Profiler64Path, parser.ExpectedOwnerOfApplicationUnderTest, out new64BitAccessRule))
+                    if (Environment.Is64BitOperatingSystem && !DoesUserHaveReadAndExecuteAccess(parser.Profiler64Path, parser.ExpectedOwnerOfApplicationUnderTest, out new64BitAccessRule))
                     {
-                        LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read permissions for the 64-bit profiler library ({parser.Profiler64Path}).");
+                        LogMandatoryFatal($"The application cannot start because expected owner of the application under test ({parser.ExpectedOwnerOfApplicationUnderTest}) does not have read and execute permissions for the 64-bit profiler library ({parser.Profiler64Path}).");
                         return MakeExitCode(ProgramExitCodes.ProfilerNoReadPermission);
                     }
 
                     try
                     {
-                        Logger.Debug($"32-bit Profiler Path: {parser.Profiler32Path}");
+                        Logger.DebugFormat("32-bit Profiler Path: {0}", parser.Profiler32Path);
                         if (Environment.Is64BitOperatingSystem)
                         {
-                            Logger.Debug($"64-bit Profiler Path: {parser.Profiler64Path}");
+                            Logger.DebugFormat("64-bit Profiler Path: {0}", parser.Profiler64Path);
                         }
-                        Logger.Debug($"Expected owner of application under test: {parser.ExpectedOwnerOfApplicationUnderTest}");
+                        Logger.DebugFormat("Expected owner of application under test: {0}", parser.ExpectedOwnerOfApplicationUnderTest);
 
                         Logger.Info("Starting...");
 
@@ -171,36 +172,36 @@ namespace CodePulse.Console
             }
         }
 
-        private static bool DoesUserHaveReadAccess(string path, string username, out FileSystemAccessRule newAccessRule)
+        private static bool DoesUserHaveReadAndExecuteAccess(string path, string username, out FileSystemAccessRule newAccessRule)
         {
             newAccessRule = null;
 
             try
             {
-                // Note: EffectiveAccess code can return a false negative result - it is possible that HasReadAccess 
+                // Note: EffectiveAccess code can return a false negative result - it is possible that HasReadAndExecuteAccess 
                 // may incorrectly return false. Similar behavior was witnessed when using the Windows 10 Effective
                 // Permission screen to check read access for an ApplicationPoolIdentity with read access via a
                 // local Windows group.
 
                 var effectiveAccess = new EffectiveAccess.EffectiveAccess(path, username);
-                if (effectiveAccess.HasReadAccess)
+                if (effectiveAccess.HasReadAndExecuteAccess)
                 {
                     return true;
                 }
 
-                Logger.Info($"Attempting to add access rule because expected owner of application under test ({username}) may not have read permissions to profiler library ({path})...");
+                Logger.Info($"Attempting to add access rule because expected owner of application under test ({username}) may not have read and execute permissions to profiler library ({path})...");
 
                 FileSecurity accessControl;
                 try
                 {
-                    newAccessRule = new FileSystemAccessRule(username, FileSystemRights.Read | FileSystemRights.Synchronize, InheritanceFlags.None, PropagationFlags.None, AccessControlType.Allow);
+                    newAccessRule = new FileSystemAccessRule(username, FileSystemRights.Read | FileSystemRights.ReadAndExecute | FileSystemRights.Synchronize, InheritanceFlags.None, PropagationFlags.None, AccessControlType.Allow);
 
                     accessControl = File.GetAccessControl(path);
                     accessControl.AddAccessRule(newAccessRule);
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Unable to obtain DACL for granting read permission to profiler library ({path}) to expected owner of application under test ({username}): {e.Message}");
+                    Logger.Error($"Unable to obtain DACL for granting read and execute permissions to profiler library ({path}) to expected owner of application under test ({username}): {e.Message}");
                     return false;
                 }
 
@@ -268,7 +269,7 @@ namespace CodePulse.Console
                 var servicePrincipalList = new List<string>();
                 if (parser.Iis)
                 {
-                    Logger.Debug($"Profiler configuration will use App Pool identity '{parser.IisAppPoolIdentity}'.");
+                    Logger.DebugFormat("Profiler configuration will use App Pool identity '{0}'.", parser.IisAppPoolIdentity);
                     servicePrincipalList.Add(parser.IisAppPoolIdentity);
                 }
 
@@ -325,6 +326,11 @@ namespace CodePulse.Console
                 var profilerEnvironment = new StringDictionary();
                 environment(profilerEnvironment);
 
+                if (parser.DiagMode)
+                {
+                    profilerEnvironment[@"OpenCover_Profiler_Diagnostics"] = "true";
+                }
+
                 try
                 {
                     Logger.Info($"Starting service '{w3SvcService.ServiceDisplayName}'.");
@@ -342,6 +348,17 @@ namespace CodePulse.Console
                 LogMandatoryInfo($"Trace will stop when either '{WorldWideWebPublishingServiceDisplayName}' stops or Code Pulse ends the trace.");
 
                 var service = w3SvcService;
+                Task.Run(() =>
+                {
+                    System.Console.WriteLine();
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Press Enter to end web application and tracing...");
+                    System.Console.ReadLine();
+
+                    Logger.Info("Stopping service...");
+                    service.StopService(TimeSpan.MaxValue);
+                });
+
                 Task.WaitAny(
                     Task.Run(() => service.WaitForStatus(ServiceControllerStatus.Stopped)),
                     Task.Run(() => _persistence.WaitForShutdown()));
@@ -578,7 +595,7 @@ namespace CodePulse.Console
             public readonly List<string> UnvisitedMethods = new List<string>();
         }
 
-        private static void CalculateAndDisplayResults(CoverageSession coverageSession, ICommandLine parser)
+        private static void CalculateAndDisplayResults(CoverageSession coverageSession, CommandLineParser parser)
         {
             if (!Logger.IsInfoEnabled)
                 return;
@@ -588,10 +605,26 @@ namespace CodePulse.Console
             if (coverageSession.Modules != null)
             {
                 CalculateResults(coverageSession, results);
-            }
+
+	            if (parser.LogModules)
+	            {
+					foreach (var module in coverageSession.Modules)
+					{
+						Logger.InfoFormat("A: {0}", module.ModuleName);
+						foreach (var @class in module.Classes)
+						{
+							Logger.InfoFormat("  C: {0}", @class.FullName);
+							foreach (var method in @class.Methods)
+							{
+								Logger.InfoFormat("    M: {0}", method.FullName);
+							}
+						}
+					}
+				}
+			}
 
             DisplayResults(coverageSession, parser, results);
-        }
+		}
 
         private static void CalculateResults(CoverageSession coverageSession, Results results)
         {
@@ -633,7 +666,7 @@ namespace CodePulse.Console
             }
         }
 
-        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, Results results)
+        private static void DisplayResults(CoverageSession coverageSession, CommandLineParser parser, Results results)
         {
             if (coverageSession.Summary.NumClasses > 0)
             {

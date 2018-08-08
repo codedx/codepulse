@@ -86,12 +86,12 @@ namespace OpenCover.Framework.Model
         }
 
         /// <summary>
-        /// Gets line numbers associated with instrumentation point.
+        /// Gets source location associated with instrumentation point.
         /// </summary>
-        /// <returns>A tuple consisting of optional start and end line.</returns>
-        public static Tuple<int?,int?> GetLineNumbers(uint spid)
+        /// <returns>A tuple consisting of optional source location.</returns>
+        public static Tuple<int?,int?,int?, int?> GetSourceLocation(uint spid)
         {
-            return InstrumentPoints[(int) spid].GetLineNumbers();
+            return InstrumentPoints[(int) spid].GetSourceLocation();
         }
 
         /// <summary>
@@ -159,10 +159,7 @@ namespace OpenCover.Framework.Model
 
         private List<TrackedMethodRef> _tracked;
 
-        /// <summary>
-        /// List of items that track visit count for specific contexts.
-        /// </summary>
-        public List<ContextVisit> ContextVisits { get; }
+		private readonly Dictionary<Guid, ContextVisit> _contextVisitsByGuid = new Dictionary<Guid, ContextVisit>();
 
         /// <summary>
         /// Initialise
@@ -174,7 +171,6 @@ namespace OpenCover.Framework.Model
                 UniqueSequencePoint = (uint)++_instrumentPoint;
                 InstrumentPoints.Add(this);
                 OrigSequencePoint = UniqueSequencePoint;
-                ContextVisits = new List<ContextVisit>();
             }
         }
 
@@ -185,22 +181,22 @@ namespace OpenCover.Framework.Model
         /// <returns>The visit object containing a visit count associated with the context identifier.</returns>
         public ContextVisit GetContextVisit(Guid contextId)
         {
-            var contextVisit = ContextVisits.SingleOrDefault(x => x.ContextId == contextId);
-            if (contextVisit != null)
-            {
-                return contextVisit;
-            }
+	        if (_contextVisitsByGuid.TryGetValue(contextId, out var contextVisit))
+	        {
+		        return contextVisit;
+	        }
 
             contextVisit = new ContextVisit { ContextId = contextId };
-            ContextVisits.Add(contextVisit);
-            return contextVisit;
+	        _contextVisitsByGuid[contextId] = contextVisit;
+
+			return contextVisit;
         }
 
         /// <summary>
         /// Gets line numbers associated with instrumentation point.
         /// </summary>
         /// <returns>A tuple consisting of optional start and end line.</returns>
-        public virtual Tuple<int?, int?> GetLineNumbers()
+        public virtual Tuple<int?, int?, int?, int?> GetSourceLocation()
         {
             return null;
         }

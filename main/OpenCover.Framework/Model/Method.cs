@@ -201,7 +201,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Method "::CallName(". (Name excluding return type, namespace and arguments)
         /// </summary>
-        internal string CallName {
+        public string CallName {
             get {
                 if (_resolvedCallName != null)
                     return _resolvedCallName;

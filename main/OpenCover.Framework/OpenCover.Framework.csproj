@@ -126,7 +126,6 @@
     <Compile Include="Model\TrackedMethod.cs" />
     <Compile Include="Persistance\BasePersistance.cs" />
     <Compile Include="ExcludeCoverageAttribute.cs" />
-    <Compile Include="Persistance\CodePulsePersistence.cs" />
     <Compile Include="Persistance\FilePersistance.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="ICommandLine.cs" />

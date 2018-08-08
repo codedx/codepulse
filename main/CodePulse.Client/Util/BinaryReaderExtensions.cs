@@ -90,7 +90,7 @@ namespace CodePulse.Client.Util
                 throw new ArgumentNullException(nameof(reader), "Expected non-null BinaryReader");
             }
 
-            var stringBytesLength = reader.ReadInt16BigEndian();
+            var stringBytesLength = reader.ReadUInt16BigEndian();
             var stringBytes = ReadBytesBigEndian(reader, stringBytesLength);
 
             Array.Reverse(stringBytes);
