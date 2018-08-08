@@ -29,9 +29,7 @@ lazy val Instrumentation = (project in file("instrumentation"))
 		withTesting,
 
 		libraryDependencies ++= Dependencies.asm,
-		libraryDependencies += Dependencies.minlog,
-		libraryDependencies += Dependencies.logback,
-		libraryDependencies += Dependencies.slf4j
+		libraryDependencies += Dependencies.minlog
 	)
 
 lazy val FilterInjector = (project in file("filter-injector"))
@@ -42,9 +40,7 @@ lazy val FilterInjector = (project in file("filter-injector"))
 		javaWarnings,
 
 		libraryDependencies ++= Dependencies.asm,
-		libraryDependencies += Dependencies.minlog,
-		libraryDependencies += Dependencies.logback,
-		libraryDependencies += Dependencies.slf4j
+		libraryDependencies += Dependencies.minlog
 	)
 
 lazy val SourceMapParser = (project in file("sourcemap-parser"))
@@ -61,9 +57,7 @@ lazy val Util = (project in file("util"))
 		withTesting,
 
 		libraryDependencies ++= Dependencies.asm,
-		libraryDependencies += Dependencies.minlog,
-		libraryDependencies += Dependencies.logback,
-		libraryDependencies += Dependencies.slf4j
+		libraryDependencies += Dependencies.minlog
 	)
 
 lazy val Stack = (project in file("."))
