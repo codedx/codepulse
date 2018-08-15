@@ -43,6 +43,8 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggabl
 
 	import com.secdec.codepulse.util.Actor._
 
+	private val projectInputFileProcessorActionName = "Input File Processor"
+
 	val projectCreationProcessors = MutableMap.empty[String, List[BootVar[ActorRef]]]
 
 	val projectProcessingSuccesses = MutableMap.empty[String, Integer]
@@ -69,7 +71,7 @@ class ProjectInputActor extends Actor with Stash with ProjectLoader with Loggabl
 		case ProcessEnvelope(_, ProcessDataAvailable(identifier, _, _, _)) => {
 				projectManager getProject ProjectId(identifier.toInt) foreach(_.notifyLoadingFinished())
 		}
-		case ProcessEnvelope(_, Failed(identifier, action, Some(exception))) if action == "InputFileProcessor" => {
+		case ProcessEnvelope(_, Failed(identifier, action, Some(exception))) if action == projectInputFileProcessorActionName => {
 				projectManager.removeUnloadedProject(ProjectId(identifier.toInt), exception.getMessage)
 		}
 	}

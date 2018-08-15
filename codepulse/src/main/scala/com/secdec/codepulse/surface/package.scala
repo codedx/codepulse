@@ -29,7 +29,6 @@ package object surface {
     eventBus.subscribe(updates, "Running")
     eventBus.subscribe(updates, "Finished")
     eventBus.subscribe(updates, "Failed")
-    eventBus.subscribe(updates, "Unknown")
     surfaceDetectorUpdates set updates
   }
 }

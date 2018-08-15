@@ -55,7 +55,5 @@ package object dependencycheck {
 		eventBus.subscribe(updates, "Running")
 		eventBus.subscribe(updates, "Finished")
 		eventBus.subscribe(updates, "Failed")
-		eventBus.subscribe(updates, "NotRun")
-		eventBus.subscribe(updates, "Unknown")
 	}
 }

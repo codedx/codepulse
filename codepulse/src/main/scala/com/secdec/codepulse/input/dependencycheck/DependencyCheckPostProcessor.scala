@@ -22,13 +22,15 @@ package com.secdec.codepulse.input.dependencycheck
 import java.io.File
 
 import akka.actor.{ Actor, Stash }
+import com.codedx.codepulse.utility.Loggable
 import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeFlag }
 import com.secdec.codepulse.dependencycheck.{ DependencyCheck, DependencyCheckFinishedPayload, ScanSettings }
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.processing.ProcessStatus.{ PostProcessDataAvailable, ProcessDataAvailable }
+import com.secdec.codepulse.processing.ProcessStatus.ProcessDataAvailable
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
+import com.secdec.codepulse.util.Throwable
 
-class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (String, File) => ScanSettings) extends Actor with Stash {
+class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (String, File) => ScanSettings) extends Actor with Stash with Loggable {
 
 	private val dependencyCheckActionName = "Dependency Check"
 
@@ -40,10 +42,11 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 
 			try {
 				process(identifier, scanSettings(identifier, new File(storage.name)), treeNodeData, status)
-				storage.close
-				eventBus.publish(PostProcessDataAvailable(identifier, None))
 			} catch {
-				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, dependencyCheckActionName, Some(exception)))
+				case exception: Exception => {
+					logger.error(s"Dependency check failed with error: ${Throwable.getStackTraceAsString(exception)}")
+					eventBus.publish(ProcessStatus.Failed(identifier, dependencyCheckActionName, Some(exception)))
+				}
 			}
 		}
 	}
@@ -51,38 +54,35 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 	def process(identifier: String, scanSettings: ScanSettings, treeNodeData: TreeNodeDataAccess, status: ProcessStatus => Unit): Unit = {
 		status(ProcessStatus.Queued(identifier, dependencyCheckActionName))
 		status(ProcessStatus.Running(identifier, dependencyCheckActionName))
-		try {
-			import scala.xml._
 
-			import com.secdec.codepulse.util.Implicits._
-			import treeNodeData.ExtendedTreeNodeData
+		import scala.xml._
 
-			val reportDir = DependencyCheck.runScan(scanSettings)
-			val x = XML loadFile reportDir / "dependency-check-report.xml"
+		import com.secdec.codepulse.util.Implicits._
+		import treeNodeData.ExtendedTreeNodeData
 
-			var deps = 0
-			var vulnDeps = 0
-			val vulnNodes = List.newBuilder[Int]
+		val reportDir = DependencyCheck.runScan(scanSettings)
+		val x = XML loadFile reportDir / "dependency-check-report.xml"
 
-			for {
-				dep <- x \\ "dependency"
-				vulns = dep \\ "vulnerability"
-			} {
-				deps += 1
-				if (!vulns.isEmpty) {
-					vulnDeps += 1
-					val f = new File((dep \ "filePath").text)
-					val jarLabel = f.pathSegments.drop(scanSettings.app.pathSegments.length).mkString("JARs / ", " / ", "")
-					for (node <- treeNodeData getNode jarLabel) {
-						node.flags += TreeNodeFlag.HasVulnerability
-						vulnNodes += node.id
-					}
+		var deps = 0
+		var vulnDeps = 0
+		val vulnNodes = List.newBuilder[Int]
+
+		for {
+			dep <- x \\ "dependency"
+			vulns = dep \\ "vulnerability"
+		} {
+			deps += 1
+			if (!vulns.isEmpty) {
+				vulnDeps += 1
+				val f = new File((dep \ "filePath").text)
+				val jarLabel = f.pathSegments.drop(scanSettings.app.pathSegments.length).mkString("JARs / ", " / ", "")
+				for (node <- treeNodeData getNode jarLabel) {
+					node.flags += TreeNodeFlag.HasVulnerability
+					vulnNodes += node.id
 				}
 			}
-
-			status(ProcessStatus.Finished(identifier, dependencyCheckActionName, Some(DependencyCheckFinishedPayload(deps, vulnDeps, vulnNodes.result))))
-		} catch {
-			case exception: Exception => status(ProcessStatus.Failed(identifier, dependencyCheckActionName, Some(exception)))
 		}
+
+		status(ProcessStatus.Finished(identifier, dependencyCheckActionName, Some(DependencyCheckFinishedPayload(deps, vulnDeps, vulnNodes.result))))
 	}
 }

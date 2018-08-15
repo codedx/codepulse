@@ -24,7 +24,7 @@ import akka.actor.{Actor, Stash}
 import com.codedx.codepulse.utility.Loggable
 import com.secdec.codepulse.data.model.ProjectId
 import com.secdec.codepulse.events.GeneralEventBus
-import com.secdec.codepulse.processing.ProcessStatus.{PostProcessDataAvailable, ProcessDataAvailable}
+import com.secdec.codepulse.processing.ProcessStatus.ProcessDataAvailable
 import com.secdec.codepulse.processing.{ProcessEnvelope, ProcessStatus}
 import com.secdec.codepulse.surface.{SurfaceDetector, SurfaceDetectorFinishedPayload}
 import com.secdec.codepulse.util.Throwable
@@ -35,17 +35,15 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus) extends Actor with
 
   def receive = {
     case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, _, _)) => {
-      def status(processStatus: ProcessStatus): Unit = {
-        eventBus.publish(processStatus)
-      }
-
       try {
+        def status(processStatus: ProcessStatus): Unit = {
+          eventBus.publish(processStatus)
+        }
+
         status(ProcessStatus.Running(identifier, surfaceDetectorActionName))
 
         val endpointCount = SurfaceDetector.run(ProjectId(identifier.toInt))
         status(ProcessStatus.Finished(identifier, surfaceDetectorActionName, Some(SurfaceDetectorFinishedPayload(endpointCount))))
-
-        eventBus.publish(PostProcessDataAvailable(identifier, None))
       } catch {
         case exception: Exception => {
           logger.error(s"Surface detector failed with error: ${Throwable.getStackTraceAsString(exception)}")

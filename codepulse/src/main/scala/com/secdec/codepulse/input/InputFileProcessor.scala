@@ -33,6 +33,8 @@ class InputFileProcessor(eventBus: GeneralEventBus) extends Actor with Stash wit
 
   import com.secdec.codepulse.util.Actor._
 
+  private val projectInputFileProcessorActionName = "Input File Processor"
+
   val languageProcessors: List[LanguageProcessor] = new ByteCodeProcessor :: new DotNETProcessor :: Nil
 
   override def receive = {
@@ -45,7 +47,7 @@ class InputFileProcessor(eventBus: GeneralEventBus) extends Actor with Stash wit
           eventBus.publish(ProcessDataAvailable(identifier, storage, treeNodeData, sourceData))
         }
       } catch {
-        case exception: Exception => eventBus.publish(ProcessStatus.asEnvelope(ProcessStatus.Failed(identifier, "InputFileProcessor", Some(exception))))
+        case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, projectInputFileProcessorActionName, Some(exception)))
       }
     }
 

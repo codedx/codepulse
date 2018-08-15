@@ -68,18 +68,6 @@ class Updates extends Actor {
 			Updates.pushUpdate(identifier, ("state" -> "failed"))
 		}
 
-		case ProcessEnvelope(_, ProcessStatus.NotRun(identifier, action)) if action == dependencyCheckActionName => {
-			val project = projectDataProvider getProject ProjectId(identifier.toInt)
-			project.metadata.dependencyCheckStatus = DependencyCheckStatus.NotRun
-			Updates.pushUpdate(identifier, ("state" -> "none"))
-		}
-
-		case ProcessEnvelope(_, ProcessStatus.Unknown(identifier, action)) if action == dependencyCheckActionName => {
-			val project = projectDataProvider getProject ProjectId(identifier.toInt)
-			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Unknown
-			Updates.pushUpdate(identifier, ("state" -> "unknown"))
-		}
-
 		case _ =>
 	}
 }

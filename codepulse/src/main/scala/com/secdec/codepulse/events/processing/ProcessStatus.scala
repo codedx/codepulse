@@ -33,12 +33,10 @@ object ProcessStatus {
 	case class Running(identifier: String, action: String) extends TransientProcessStatus
 	case class Finished(identifier: String, action: String, payload: Option[ProcessStatusFinishedPayload]) extends ProcessStatus
 	case class Failed(identifier: String, action: String, payload: Option[Exception]) extends ProcessStatus
-	case class NotRun(identifier: String, action: String) extends ProcessStatus
 	case class Unknown(identifier: String, action: String) extends ProcessStatus
 
 	case class DataInputAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, post: () => Unit) extends ProcessStatus
 	case class ProcessDataAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess) extends ProcessStatus
-	case class PostProcessDataAvailable(identifier: String, payload: Option[AnyRef]) extends ProcessStatus
 
 	import scala.language.implicitConversions
 	implicit def asEnvelope(processStatus: ProcessStatus): ProcessEnvelope = {
@@ -47,11 +45,9 @@ object ProcessStatus {
 			case status: Running => ProcessEnvelope("Running", status)
 			case status: Finished => ProcessEnvelope("Finished", status)
 			case status: Failed => ProcessEnvelope("Failed", status)
-			case status: NotRun => ProcessEnvelope("NotRun", status)
 			case status: Unknown => ProcessEnvelope("Unknown", status)
 			case status: DataInputAvailable => ProcessEnvelope("DataInputAvailable", status)
 			case status: ProcessDataAvailable => ProcessEnvelope("ProcessDataAvailable", status)
-			case status: PostProcessDataAvailable => ProcessEnvelope("PostProcessDataAvailable", status)
 		}
 	}
 }
