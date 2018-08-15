@@ -29,7 +29,8 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
+import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, JsonHelpers => DCJson }
+import com.secdec.codepulse.surface.{ JsonHelpers => SDJson }
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
 import com.secdec.codepulse.tracer.snippet.{ ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp }
 import akka.actor.Cancellable
@@ -49,6 +50,7 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 
 import DCJson._
+import SDJson._
 import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.version
 
@@ -372,7 +374,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
 					("state" -> traceState.name) ~
-					("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
+					("dependencyCheck" -> data.metadata.dependencyCheckStatus.json) ~
+					("surfaceDetector" -> data.metadata.surfaceDetectorStatus.json)
 			}
 
 			Future.sequence(projectJsonFutures) map { JsonResponse(_) }
@@ -473,7 +476,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				("exportHref" -> Paths.Export.toHref(target)) ~
 				("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
 				("state" -> traceState.name) ~
-				("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
+				("dependencyCheck" -> data.metadata.dependencyCheckStatus.json) ~
+				("surfaceDetector" -> data.metadata.surfaceDetectorStatus.json)
 
 			project.map(JsonResponse(_))
 

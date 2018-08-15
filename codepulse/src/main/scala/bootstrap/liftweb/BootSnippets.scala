@@ -20,6 +20,7 @@
 package bootstrap.liftweb
 
 import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
+import com.secdec.codepulse.components.surface.{ Updates => SurfaceDetectorUpdates }
 import com.secdec.codepulse.components.includes.snippet.Includes
 import com.secdec.codepulse.components.notifications.Notifications
 import com.secdec.codepulse.components.version.snippet.VersionSnippet
@@ -54,6 +55,7 @@ private[liftweb] object BootSnippets {
 			case "Notifications" => Notifications
 			case "TraceConnectorStateChanges" => new TraceConnectorStateChanges
 			case "DependencyCheck" => DependencyCheckUpdates
+			case "SurfaceDetector" => SurfaceDetectorUpdates
 		}
 
 		LiftRules.cometCreation append {

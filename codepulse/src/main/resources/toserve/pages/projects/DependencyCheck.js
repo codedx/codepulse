@@ -117,8 +117,11 @@
 
 		updateStream.onValue(function(update) {
 			if (update.project == CodePulse.projectPageId) {
-				statusBus.push(update.summary)
-				vulnerableNodesBus.push(update.vulnerableNodes)
+				statusBus.push(update.dependencycheck_update)
+
+				if (update.dependencycheck_update.vulnerableNodes) {
+					vulnerableNodesBus.push(update.dependencycheck_update.vulnerableNodes)
+                }
 			}
 		})
 	}

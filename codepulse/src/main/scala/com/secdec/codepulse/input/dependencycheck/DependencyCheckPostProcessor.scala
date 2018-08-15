@@ -23,13 +23,15 @@ import java.io.File
 
 import akka.actor.{ Actor, Stash }
 import com.secdec.codepulse.data.model.{ TreeNodeDataAccess, TreeNodeFlag }
-import com.secdec.codepulse.dependencycheck.{ DependencyCheck, ScanSettings }
+import com.secdec.codepulse.dependencycheck.{ DependencyCheck, DependencyCheckFinishedPayload, ScanSettings }
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.processing.ProcessStatus.{ PostProcessDataAvailable, ProcessDataAvailable }
 import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
-import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (String, File) => ScanSettings) extends Actor with Stash {
+
+	private val dependencyCheckActionName = "Dependency Check"
+
 	def receive = {
 		case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, treeNodeData, sourceData)) => {
 			def status(processStatus: ProcessStatus): Unit = {
@@ -41,14 +43,14 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 				storage.close
 				eventBus.publish(PostProcessDataAvailable(identifier, None))
 			} catch {
-				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, "Dependency Check", Some(exception)))
+				case exception: Exception => eventBus.publish(ProcessStatus.Failed(identifier, dependencyCheckActionName, Some(exception)))
 			}
 		}
 	}
 
 	def process(identifier: String, scanSettings: ScanSettings, treeNodeData: TreeNodeDataAccess, status: ProcessStatus => Unit): Unit = {
-		status(ProcessStatus.Queued(identifier))
-		status(ProcessStatus.Running(identifier))
+		status(ProcessStatus.Queued(identifier, dependencyCheckActionName))
+		status(ProcessStatus.Running(identifier, dependencyCheckActionName))
 		try {
 			import scala.xml._
 
@@ -78,9 +80,9 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 				}
 			}
 
-			status(ProcessStatus.Finished(identifier, Some((deps, vulnDeps, vulnNodes.result))))
+			status(ProcessStatus.Finished(identifier, dependencyCheckActionName, Some(DependencyCheckFinishedPayload(deps, vulnDeps, vulnNodes.result))))
 		} catch {
-			case exception: Exception => status(ProcessStatus.Failed(identifier, "Dependency Check", Some(exception)))
+			case exception: Exception => status(ProcessStatus.Failed(identifier, dependencyCheckActionName, Some(exception)))
 		}
 	}
 }

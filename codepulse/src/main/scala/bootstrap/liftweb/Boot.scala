@@ -31,7 +31,7 @@ import net.liftweb.http.LiftRulesMocker.toLiftRules
 import net.liftweb.util.Helpers.intToTimeSpanBuilder
 import net.liftweb.util.Vendor.valToVender
 import net.liftweb.http.RedirectWithState
-import com.secdec.codepulse.{CodePulseLogging, dependencycheck, tracer}
+import com.secdec.codepulse.{CodePulseLogging, dependencycheck, tracer, surface}
 
 /** A class that's instantiated early and run.  It allows the application
   * to modify lift's environment
@@ -53,6 +53,7 @@ class Boot extends Loggable {
 
 		tracer.boot
 		dependencycheck boot(tracer.actorSystem(), tracer.generalEventBus())
+		surface boot(tracer.actorSystem(), tracer.generalEventBus())
 
 		/* Register all Comet actors and Snippet renderers, for use by
 		 * Lift's templating system. Without this, all of our snippets

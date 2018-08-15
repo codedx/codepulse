@@ -20,12 +20,14 @@
 package com.secdec.codepulse.dependencycheck
 
 import java.io.File
+
+import com.secdec.codepulse.processing.ProcessStatusFinishedPayload
+
 import scala.collection.JavaConversions._
 import scala.util.Try
 
 import org.owasp.dependencycheck.data.nvdcve._
 import org.owasp.dependencycheck.data.update.UpdateService
-import org.owasp.dependencycheck.utils.{ Settings => DepCheckSettings }
 
 sealed trait DependencyCheckStatus
 sealed trait TransientDependencyCheckStatus extends DependencyCheckStatus
@@ -37,6 +39,8 @@ object DependencyCheckStatus {
 	case object NotRun extends DependencyCheckStatus
 	case object Unknown extends DependencyCheckStatus
 }
+
+case class DependencyCheckFinishedPayload(dependencies: Int, vulnerableDependencies: Int, vulnerableNodes: Seq[Int]) extends ProcessStatusFinishedPayload
 
 /** Wrapper for running dependency check scans.
   *

@@ -41,6 +41,7 @@ class CaseInsensitiveUnapply(val sc: StringContext) extends AnyVal {
 
 object Implicits {
 	/** Adds `ci` to `StringContext`, which lets you use case-insensitive unapply for matching */
+	import scala.language.implicitConversions
 	implicit def caseInsensitiveUnapply(sc: StringContext) = new CaseInsensitiveUnapply(sc)
 }
 

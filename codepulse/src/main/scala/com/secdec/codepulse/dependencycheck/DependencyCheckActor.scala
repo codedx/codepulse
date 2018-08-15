@@ -19,19 +19,13 @@
 
 package com.secdec.codepulse.dependencycheck
 
-import java.io.File
 import akka.actor._
 
 object DependencyCheckActor {
 	case object Update
-	case class Run(scanSettings: ScanSettings)(preRunThunk: => Unit)(postRunThunk: File => Unit)(errorThunk: Exception => Unit) {
-		private[dependencycheck] def preRun() = preRunThunk
-		private[dependencycheck] def apply(file: File) = postRunThunk(file)
-		private[dependencycheck] def error(exception: Exception) = errorThunk(exception)
-	}
 }
 
-/** Actor to facilitate dependency check tasks.
+/** Actor to facilitate the dependency check update task.
   *
   * @author robertf
   */
@@ -42,21 +36,9 @@ class DependencyCheckActor extends Actor with Stash {
 
 	def receive = {
 		case Update => update
-		case cb: Run => run(cb)
 	}
 
 	private def update() {
 		DependencyCheck.doUpdates
-	}
-
-	private def run(cb: Run) {
-		try {
-			cb.preRun
-
-			val result = DependencyCheck.runScan(cb.scanSettings)
-			cb(result)
-		} catch {
-			case ex: Exception => cb.error(ex)
-		}
 	}
 }

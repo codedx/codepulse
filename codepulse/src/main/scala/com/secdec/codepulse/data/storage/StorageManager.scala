@@ -19,8 +19,8 @@
  */
 package com.secdec.codepulse.data.storage
 
-import java.io.File
-import java.util.zip.ZipFile
+import java.io.{ File, FileInputStream, FileOutputStream, InputStream }
+import java.util.zip.{ ZipFile, ZipInputStream }
 
 import org.apache.commons.io.FileUtils
 
@@ -68,10 +68,22 @@ object StorageManager extends InputStore with InputRetrieve {
 		}
 	}
 
+	def getExtractedStorageFor(projectId: ProjectId): File = {
+		val extractedFolder = getExtractedProjectDirectoryFor(projectId)
+		if (!extractedFolder.exists()) {
+			unzip(getProjectInput(projectId), extractedFolder.getAbsolutePath)
+		}
+		extractedFolder
+	}
+
 	private def getProjectDirectoryFor(id: ProjectId): File = {
 		val storageRoot = ProjectDataProvider.DefaultStorageDir
 		val projectDirectoryName = s"project-${id.num}"
 		storageRoot / projectDirectoryName
+	}
+
+	private def getExtractedProjectDirectoryFor(id: ProjectId): File = {
+		new File(getProjectDirectoryFor(id), "extracted")
 	}
 
 	private def copyFileTo(file: File, destination: File) = {
@@ -84,5 +96,56 @@ object StorageManager extends InputStore with InputRetrieve {
 
 	private def getProjectInput(projectId: ProjectId): String = {
 		projectDataProvider.getProject(projectId).metadata.input
+	}
+
+	private def unzip(storagePath: String, outputFolder: String): Unit = {
+
+		val buffer = new Array[Byte](1024)
+
+		val folder = new File(outputFolder)
+		if (!folder.exists()) {
+			folder.mkdir()
+		}
+
+		var inputStream: InputStream = null
+		try {
+			inputStream = new FileInputStream(storagePath)
+			inputStream = new ZipInputStream(inputStream)
+
+			val zipInput: ZipInputStream = inputStream.asInstanceOf[ZipInputStream]
+			var entry = zipInput.getNextEntry
+
+			while ( {
+				entry != null
+			}) {
+				val entryName = entry.getName
+				val file = new File(outputFolder + File.separator + entryName)
+				if (entry.isDirectory) {
+					val newDir = new File(file.getAbsolutePath)
+					if (!newDir.exists) {
+						newDir.mkdirs
+					}
+				}
+				else {
+					file.getParentFile.mkdirs
+
+					val fOutput = new FileOutputStream(file)
+					var count = zipInput.read(buffer)
+					while (count > 0) {
+						fOutput.write(buffer, 0, count)
+						count = zipInput.read(buffer)
+					}
+					fOutput.close()
+				}
+				zipInput.closeEntry()
+				entry = zipInput.getNextEntry
+			}
+			zipInput.closeEntry()
+		}
+		finally {
+			if (inputStream != null) {
+				inputStream.close()
+			}
+		}
 	}
 }

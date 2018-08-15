@@ -20,8 +20,9 @@
 package com.secdec.codepulse.data.model.slick
 
 import scala.slick.jdbc.JdbcBackend.{ Database, Session }
-import com.secdec.codepulse.data.model.{ DefaultProjectMetadataUpdates, ProjectMetadataAccess, ProjectMetadata }
+import com.secdec.codepulse.data.model.{ DefaultProjectMetadataUpdates, ProjectMetadata, ProjectMetadataAccess }
 import com.secdec.codepulse.dependencycheck.{ DependencyCheckStatus, TransientDependencyCheckStatus }
+import com.secdec.codepulse.surface.{ SurfaceDetectorStatus, TransientSurfaceDetectorStatus }
 import net.liftweb.util.Helpers.AsLong
 import net.liftweb.util.Helpers.AsBoolean
 
@@ -112,11 +113,11 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 		private val UnknownStatus = "unknown"
 
 		def serialize(status: DependencyCheckStatus): String = status match {
-			case _: TransientDependencyCheckStatus => serialize(DependencyCheckStatus.Unknown)
 			case DependencyCheckStatus.Finished(numDeps, numFlagged) => finishedStatus(numDeps, numFlagged)
 			case DependencyCheckStatus.Failed => FailedStatus
 			case DependencyCheckStatus.NotRun => NotRunStatus
 			case DependencyCheckStatus.Unknown => UnknownStatus
+			case _ => serialize(DependencyCheckStatus.Unknown)
 		}
 
 		def deserialize(status: String): Option[DependencyCheckStatus] = status match {
@@ -145,11 +146,60 @@ private[slick] class SlickProjectMetadataAccess(projectId: Int, dao: ProjectMeta
 		}
 	}
 
+	private object SurfaceDetectorStatusHelpers {
+		private val RunningStatus = "running"
+		private val FinishedStatus = raw"finished\((\d+)\)".r
+		private def finishedStatus(surfaceMethodCount: Int) = s"finished($surfaceMethodCount)"
+		private val FailedStatus = "failed"
+		private val UnknownStatus = "unknown"
+
+		def serialize(status: SurfaceDetectorStatus): String = status match {
+			case SurfaceDetectorStatus.Running => RunningStatus
+			case SurfaceDetectorStatus.Finished(surfaceMethodCount) => finishedStatus(surfaceMethodCount)
+			case SurfaceDetectorStatus.Failed => FailedStatus
+			case SurfaceDetectorStatus.Unknown => UnknownStatus
+			case _ => serialize(SurfaceDetectorStatus.Unknown)
+		}
+
+		def deserialize(status: String): Option[SurfaceDetectorStatus] = status match {
+			case RunningStatus => Some(SurfaceDetectorStatus.Running)
+			case FinishedStatus(surfaceMethodCount) => Some(SurfaceDetectorStatus.Finished(surfaceMethodCount.toInt))
+			case FailedStatus => Some(SurfaceDetectorStatus.Failed)
+			case UnknownStatus => Some(SurfaceDetectorStatus.Unknown)
+			case _ => None
+		}
+
+		private var transientStatus = None: Option[TransientSurfaceDetectorStatus]
+
+		def surfaceDetectorStatus(implicit session: Session) = {
+			transientStatus getOrElse {
+				get("surfaceDetectorStatus").flatMap(deserialize) getOrElse SurfaceDetectorStatus.Unknown
+			}
+		}
+
+		def surfaceDetectorStatus_=(newStatus: SurfaceDetectorStatus)(implicit session: Session) = {
+			set("surfaceDetectorStatus", serialize(newStatus))
+			newStatus match {
+				case transient: TransientSurfaceDetectorStatus => transientStatus = Some(transient)
+				case _ => transientStatus = None
+			}
+			newStatus
+		}
+	}
+
 	def dependencyCheckStatus = db withSession { implicit session =>
 		DependencyCheckStatusHelpers.dependencyCheckStatus
 	}
 
 	def dependencyCheckStatus_=(newStatus: DependencyCheckStatus) = db withTransaction { implicit transaction =>
 		DependencyCheckStatusHelpers.dependencyCheckStatus = newStatus
+	}
+
+	def surfaceDetectorStatus = db withSession { implicit session =>
+		SurfaceDetectorStatusHelpers.surfaceDetectorStatus
+	}
+
+	def surfaceDetectorStatus_=(newStatus: SurfaceDetectorStatus) = db withTransaction { implicit transaction =>
+		SurfaceDetectorStatusHelpers.surfaceDetectorStatus = newStatus
 	}
 }

@@ -89,8 +89,5 @@ package object tracer {
 		val inputFileProcessorActor = actorSystem actorOf Props(new InputFileProcessor(generalEventBus))
 		generalEventBus.subscribe(inputFileProcessorActor, "DataInputAvailable")
 		inputFileProcessor set inputFileProcessorActor
-
-		val dependencyCheckPostProcessorActor = actorSystem actorOf Props(new DependencyCheckPostProcessor(generalEventBus, ScanSettings.createFromProject))
-		generalEventBus.subscribe(dependencyCheckPostProcessorActor, "ProcessDataAvailable")
 	}
 }

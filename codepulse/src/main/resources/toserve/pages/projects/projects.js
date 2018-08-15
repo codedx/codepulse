@@ -36,6 +36,14 @@ $(document).ready(function(){
 		// initialize dependency check controller
 		depCheckController = new DependencyCheckController($('#dependency-check-report'))
 
+		// initialize surface detector update handling
+		var surfaceDetectorUpdateStream = $(document).asEventStream('surfacedetector-update', function(event, args) { return args })
+		surfaceDetectorUpdateStream.onValue(function(update) {
+			if (update.project == CodePulse.projectPageId) {
+				console.log(update)
+			}
+		})
+
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
 
