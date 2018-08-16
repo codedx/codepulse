@@ -62,6 +62,7 @@ object Dependencies {
 		"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.2"
 	)
 	lazy val astamCorrelator = Seq(
+		"org.jsoup" % "jsoup" % "1.11.3",
 		"com.github.secdec.astam-correlator" % "master-pom" % "1.2.16.1",
 		"com.github.secdec.astam-correlator" % "threadfix-entities" % "1.2.16.1",
 		"com.github.secdec.astam-correlator" % "threadfix-ham" % "1.2.16.1"
