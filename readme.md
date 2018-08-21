@@ -29,7 +29,7 @@ Code Pulse is a real-time code coverage tool. It works by monitoring Java or .NE
 3. Install WiX Toolset v3.11.
 4. Change PowerShell Execution Policy so that local, unsigned Code Pulse PowerShell scripts can run.
 5. Run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows.
-6. Open the `installers` folder and refer to the Code Pulse [installation instructions](https://github.com/codedx/codepulse/wiki/Installation). Alternatively, run SBT in the root directory and run `container:start` to start the web server on [localhost:8080](http://localhost:8080).
+6. Open the `installers` folder and refer to the Code Pulse [User Guide](https://github.com/codedx/codepulse/wiki/user-guide). Alternatively, run SBT in the root directory and run `container:start` to start the web server on [localhost:8080](http://localhost:8080).
 
 ## License
 
