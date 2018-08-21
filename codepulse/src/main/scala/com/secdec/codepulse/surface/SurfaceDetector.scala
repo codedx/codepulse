@@ -20,16 +20,14 @@
 
 package com.secdec.codepulse.surface
 
-import java.util.List
-import com.secdec.codepulse.data.model.ProjectId
-import com.secdec.codepulse.data.storage.StorageManager
-import com.denimgroup.threadfix.data.interfaces.Endpoint
-import com.denimgroup.threadfix.framework.engine.full.EndpointDatabase
+import java.io.File
+
+import com.denimgroup.threadfix.framework.engine.framework.FrameworkCalculator
 import com.denimgroup.threadfix.framework.engine.full.EndpointDatabaseFactory
 import com.denimgroup.threadfix.framework.util.EndpointUtil
-import collection.JavaConverters._
-
 import com.secdec.codepulse.processing.ProcessStatusFinishedPayload
+
+import scala.collection.JavaConverters._
 
 sealed trait SurfaceDetectorStatus
 sealed trait TransientSurfaceDetectorStatus extends SurfaceDetectorStatus
@@ -42,22 +40,21 @@ object SurfaceDetectorStatus {
 
 case class SurfaceDetectorFinishedPayload(surfaceMethodCount: Int) extends ProcessStatusFinishedPayload
 
+case class SurfaceEndpoint(filePath: String, startingLineNumber: Int, endingLineNumber: Int)
+
 object SurfaceDetector {
-  def run(id: ProjectId): Int = {
+  def run(path: File): Seq[SurfaceEndpoint] = {
 
-    val path = StorageManager.getExtractedStorageFor(id)
+    val frameworkTypes = FrameworkCalculator.getTypes(path)
+    val databases = frameworkTypes.asScala.map(f => EndpointDatabaseFactory.getDatabase(path, f))
 
-    val database: EndpointDatabase = EndpointDatabaseFactory.getDatabase(path)
-    var endpoints: List[Endpoint] = database.generateEndpoints
-    endpoints = EndpointUtil.flattenWithVariants(endpoints)
-
-    endpoints.asScala.map(endpoint => {
-      val filePath = endpoint.getFilePath
-      val start = endpoint.getStartingLineNumber
-      val end = endpoint.getEndingLineNumber
-      println(s"Path: $filePath ($start -> $end)")
-    })
-
-    endpoints.size
+    if (!databases.isEmpty) {
+      val endpoints = databases.flatMap(_.generateEndpoints().asScala)
+      val flattenedEndpoints = EndpointUtil.flattenWithVariants(endpoints.asJavaCollection)
+      for (flattenedEndpoint <- flattenedEndpoints.asScala)
+        yield SurfaceEndpoint(flattenedEndpoint.getFilePath, flattenedEndpoint.getStartingLineNumber, flattenedEndpoint.getEndingLineNumber)
+    } else {
+      Seq.empty[SurfaceEndpoint]
+    }
   }
 }

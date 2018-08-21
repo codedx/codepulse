@@ -53,7 +53,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		def sourceFileId = column[Option[Int]]("source_file_id", O.Nullable)
 		def sourceLocationCount = column[Option[Int]]("source_location_count", O.Nullable)
 		def methodStartLine = column[Option[Int]]("method_start_line", O.Nullable)
-		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine) <> (TreeNode.tupled, TreeNode.unapply)
+		def isSurfaceMethod = column[Option[Boolean]]("is_surface_method", O.Nullable)
+		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine, isSurfaceMethod) <> (TreeNode.tupled, TreeNode.unapply)
 		def labelIndex = index("tnd_label_index", label)
 
 		def sourceFile = foreignKey("tree_node_data_to_source_file", sourceFileId, sourceDataDao.sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
@@ -215,5 +216,27 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 
 	def clearFlag(id: Int, flag: TreeNodeFlag)(implicit session: Session) {
 		(for (flag <- treeNodeFlags if flag.nodeId === id) yield flag).delete
+	}
+
+	def findMethods(sourceFilePath: String)(implicit session: Session): List[Int] = {
+		(for {
+			treeNodeDataItem <- treeNodeData
+			sourceFile <- treeNodeDataItem.sourceFile
+			if sourceFile.path === sourceFilePath
+		} yield (treeNodeDataItem.id)).list
+	}
+
+	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int)(implicit session: Session): List[Int] = {
+		(for {
+			treeNodeDataItem <- treeNodeData
+			sourceFile <- treeNodeDataItem.sourceFile
+			if sourceFile.path === sourceFilePath &&
+				treeNodeDataItem.methodStartLine >= startingLineNumber && treeNodeDataItem.methodStartLine <= endingLineNumber
+		} yield (treeNodeDataItem.id)).list
+	}
+
+	def markSurfaceMethod(id: Int)(implicit session: Session): Unit = {
+		val q = for (row <- treeNodeData if row.id === id) yield row.isSurfaceMethod
+		q.update(Some(true))
 	}
 }

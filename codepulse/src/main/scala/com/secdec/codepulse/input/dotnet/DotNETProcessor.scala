@@ -102,8 +102,7 @@ class DotNETProcessor() extends LanguageProcessor {
 								case Some(np) => authoritativePath(groupName, np).map (_.toString)
 								case None => None
 							}
-//							authority = filePath.flatMap(authoritativePath(groupName, _)).map(_.toString)
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount), Option(methodStartLine)))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount), Option(methodStartLine), None))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 

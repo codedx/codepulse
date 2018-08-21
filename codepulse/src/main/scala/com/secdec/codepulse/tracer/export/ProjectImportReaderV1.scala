@@ -164,7 +164,8 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 					size,
 					sourceFileId,
 					sourceLocationCount,
-					methodStartLine),
+					methodStartLine,
+					None),
 					traced)
 			}
 

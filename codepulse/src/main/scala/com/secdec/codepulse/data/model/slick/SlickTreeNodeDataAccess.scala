@@ -150,4 +150,18 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 			flagCache remove id
 		}
 	}
+
+	def findMethods(sourceFilePath: String): List[Int] = db withSession { implicit session =>
+		dao findMethods(sourceFilePath)
+	}
+
+	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int): List[Int] = db withSession { implicit session =>
+		dao findMethods(sourceFilePath, startingLineNumber, endingLineNumber)
+	}
+
+	def markSurfaceMethod(id: Int): Unit = {
+		db withTransaction { implicit transaction =>
+			dao.markSurfaceMethod(id)
+		}
+	}
 }

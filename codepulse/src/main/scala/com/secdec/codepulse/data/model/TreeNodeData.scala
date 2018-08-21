@@ -32,7 +32,7 @@ case class MethodSignatureNode(id: Int, signature: String, nodeId: Int)
   * @param size A number indicating the size of the node (e.g. lines of code). If unspecified,
   * the size of a node is assumed to be the sum of its childrens' sizes.
   */
-case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], sourceFileId: Option[Int], sourceLocationCount: Option[Int], methodStartLine: Option[Int])
+case class TreeNodeData(id: Int, parentId: Option[Int], label: String, kind: CodeTreeNodeKind, size: Option[Int], sourceFileId: Option[Int], sourceLocationCount: Option[Int], methodStartLine: Option[Int], isSurfaceMethod: Option[Boolean])
 
 sealed trait TreeNodeFlag
 object TreeNodeFlag {
@@ -93,6 +93,10 @@ trait TreeNodeDataAccess {
 	def clearFlag(node: TreeNodeData, flag: TreeNodeFlag): Unit = clearFlag(node.id, flag)
 
 	def updateSourceLocationCount(id: Int, sourceLocationCount: Int)
+
+	def findMethods(sourceFilePath: String): List[Int]
+	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int): List[Int]
+	def markSurfaceMethod(id: Int)
 
 	implicit class ExtendedTreeNodeData(n: TreeNodeData) {
 		/** whether or not this treenode is being traced; this value may be unspecified (None) */

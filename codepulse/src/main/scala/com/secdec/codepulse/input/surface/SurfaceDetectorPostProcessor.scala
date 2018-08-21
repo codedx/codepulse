@@ -23,6 +23,7 @@ package com.secdec.codepulse.input.surface
 import akka.actor.{Actor, Stash}
 import com.codedx.codepulse.utility.Loggable
 import com.secdec.codepulse.data.model.ProjectId
+import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.processing.ProcessStatus.ProcessDataAvailable
 import com.secdec.codepulse.processing.{ProcessEnvelope, ProcessStatus}
@@ -34,7 +35,7 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus) extends Actor with
   private val surfaceDetectorActionName = "Surface Detector"
 
   def receive = {
-    case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, _, _)) => {
+    case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, treeNodeData, sourceData)) => {
       try {
         def status(processStatus: ProcessStatus): Unit = {
           eventBus.publish(processStatus)
@@ -42,8 +43,27 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus) extends Actor with
 
         status(ProcessStatus.Running(identifier, surfaceDetectorActionName))
 
-        val endpointCount = SurfaceDetector.run(ProjectId(identifier.toInt))
-        status(ProcessStatus.Finished(identifier, surfaceDetectorActionName, Some(SurfaceDetectorFinishedPayload(endpointCount))))
+        val path = StorageManager.getExtractedStorageFor(ProjectId(identifier.toInt))
+        val surfaceEndpoints = SurfaceDetector.run(path)
+
+        def markSurfaceMethod(sourceFilePath: String, id: Int): Unit = {
+          logger.debug("Marking surface method {} from file {}", id, sourceFilePath)
+          treeNodeData.markSurfaceMethod(id)
+        }
+
+        surfaceEndpoints.map(x => {
+          logger.debug("Found endpoint in file {}", x.filePath)
+          logger.debug("  line {} - {}", x.startingLineNumber, x.endingLineNumber)
+          val sourceFilePath = if (x.filePath.length > 1 && x.filePath.startsWith("/")) x.filePath.substring(1) else x.filePath
+          val isJsp = sourceFilePath.toLowerCase().endsWith(".jsp")
+          if (isJsp) {
+            treeNodeData.findMethods(sourceFilePath).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+          } else {
+            treeNodeData.findMethods(sourceFilePath, x.startingLineNumber, x.endingLineNumber).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+          }
+        })
+
+        status(ProcessStatus.Finished(identifier, surfaceDetectorActionName, Some(SurfaceDetectorFinishedPayload(surfaceEndpoints.length))))
       } catch {
         case exception: Exception => {
           logger.error(s"Surface detector failed with error: ${Throwable.getStackTraceAsString(exception)}")

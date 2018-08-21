@@ -149,7 +149,7 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 									val selection = potentials.headOption
 									selection.map(_._2)
 								})
-							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine)
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine, None)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
 						}
