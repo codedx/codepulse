@@ -103,9 +103,13 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 				case Failure(_) => List.empty[(String, Int)]
 			}
 
-			sourceMethods.get(entry.getName()) match {
-				case None => sourceMethods += (entry.getName() -> methodsAndStarts)
-				case Some(entries) => sourceMethods += (entry.getName() -> (entries ::: methodsAndStarts))
+			val authority = entryPath.flatMap(ep =>
+				Option(Array(ep.toString, entry.getName).mkString(";"))
+			).getOrElse(entry.getName)
+
+			sourceMethods.get(authority) match {
+				case None => sourceMethods += (authority -> methodsAndStarts)
+				case Some(entries) => sourceMethods += (authority -> (entries ::: methodsAndStarts))
 			}
 		}
 
