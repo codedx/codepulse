@@ -40,7 +40,12 @@ $(document).ready(function(){
 		var surfaceDetectorUpdateStream = $(document).asEventStream('surfacedetector-update', function(event, args) { return args })
 		surfaceDetectorUpdateStream.onValue(function(update) {
 			if (update.project == CodePulse.projectPageId) {
-				console.log(update)
+				let surfaceDetectorUpdate = update.surfacedetector_update
+				let surfaceDetectorUpdateMsg = "Surface Detector Status: " + surfaceDetectorUpdate.state
+				if (surfaceDetectorUpdate.state === "finished") {
+                    surfaceDetectorUpdateMsg += " (Count = " + surfaceDetectorUpdate.surfaceMethodCount + ")"
+				}
+				console.log(surfaceDetectorUpdateMsg)
 			}
 		})
 
