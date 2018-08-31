@@ -99,6 +99,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("thirdparty/fileupload/jquery.iframe-transport.js"),
 		JS("thirdparty/fileupload/jquery.fileupload.js"))
 	val fontAwesome = register("FontAwesome", CSS("thirdparty/fontawesome/css/font-awesome.min.css"))
+	val icomoon = register("icomoon", CSS("thirdparty/icomoon/css/style.css"))
 	val jquery = register("jquery", JS("thirdparty/jquery/jquery-2.0.2.min.js"))
 	val qtip2 = register("qtip2", JS("thirdparty/qtip2/jquery.qtip.min.js"), CSS("thirdparty/qtip2/jquery.qtip.min.css"))
 	val spinner = register("spinner", JS("thirdparty/spin/spin.min.js"))
