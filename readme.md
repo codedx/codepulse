@@ -22,7 +22,8 @@ Code Pulse is a real-time code coverage tool. It works by monitoring Java or .NE
 
 **project/** Contains the SBT build definition.
 
-## Setup
+## Development Environment Setup
+The following section describes steps necessary to build and run Code Pulse from source. If you want to download a pre-built version of Code Pulse to run, please visit our [releases](https://github.com/codedx/codepulse/releases) page for downloads.
 
 * **Install .NET Core 2.1 SDK**. The 2.1 version of the SDK can be downloaded from the official Microsoft website at [https://www.microsoft.com/net/download](https://www.microsoft.com/net/download).
 * **Enable .NET Framework 3.5 Windows feature**. To enable this feature:
