@@ -110,6 +110,7 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 				var sourceLocationCount = None: Option[Int]
 				var traced = None: Option[Boolean]
 				var methodStartLine = None: Option[Int]
+				var isSurfaceMethod = None: Option[Boolean]
 
 				while (jp.nextValue != END_OBJECT) {
 					jp.getCurrentName match {
@@ -153,6 +154,12 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 								case VALUE_NULL => None
 								case _ => Some(jp.getIntValue)
 							}
+
+						case "isSurfaceMethod" =>
+							isSurfaceMethod = jp.getCurrentToken match {
+								case VALUE_NULL => None
+								case _ => Some(jp.getBooleanValue)
+							}
 					}
 				}
 
@@ -165,7 +172,7 @@ class ProjectImportReaderV1 extends ProjectImportReader with ProjectImportHelper
 					sourceFileId,
 					sourceLocationCount,
 					methodStartLine,
-					None),
+					isSurfaceMethod),
 					traced)
 			}
 

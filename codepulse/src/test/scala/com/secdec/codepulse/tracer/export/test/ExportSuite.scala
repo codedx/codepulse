@@ -139,6 +139,16 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
       val contents = unzipExport(outputStream)
       assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42\r\n} ]")
     }
+
+    it("should reference is-surface-method") {
+      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), None, Some(true)))
+
+      val outputStream = new ByteArrayOutputStream()
+      ProjectExporter.exportTo(outputStream, data)
+      val contents = unzipExport(outputStream)
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
+    }
   }
 
   describe("Encounters of exported project unassociated with a recorcing") {
