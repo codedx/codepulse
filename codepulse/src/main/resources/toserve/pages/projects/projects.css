@@ -1,5 +1,5 @@
 body {
-	background: #6D6D6D;
+	background: #484848;
 }
 
 body > .overlay {
@@ -39,7 +39,6 @@ body > .overlay:before {
  	right: 0px;
  	width: 240px;
  	background-color: lightgray;
- 	border-left: 1px solid black;
  }
  
  .middle-column-alt {
@@ -49,13 +48,13 @@ body > .overlay:before {
  
  	/* width = full screen minus:
  	   - 200px (the width of the .widget-label)
- 	   -  40px (the width of the .widget-trace-toggle)
- 	   -  50px (the width of the .widget-method-count)
+ 	   -  50px (the width of the .widget-trace-toggle)
+ 	   -  60px (the width of the .widget-method-count)
  	   -  60px (the width of the percentage marker compact)
  	   - 241px (the width of the side bar)
- 	   = 551px
+ 	   = 611px
  	*/
- 	width: calc(100% - 591px);
+ 	width: calc(100% - 611px);
  
  	transition: left .3s ease;
  	background-color: #9C9C9C;
@@ -69,12 +68,12 @@ body > .overlay:before {
  .middle-column-alt.in-view {
  	/* left = 
  		+ 200px (width of .widget-label)
- 		+  40px (width of .widget-trace-toggle)
- 		+  50px (width of .widget-method-count)
+ 		+  50px (width of .widget-trace-toggle)
+ 		+  60px (width of .widget-method-count)
  		+  60px (width of percentage marker compact)
- 		= 310px
+ 		= 370px
  	*/
- 	left: 350px;
+ 	left: 370px;
  	border-left: none;
  }
 
@@ -117,7 +116,8 @@ body > .overlay:before {
  }
 
  .header-section a {
- 	color: #B4B0E7;
+	 color: #35B6F1;
+	 font-size: small;
  }
 
  .breadcrumb-carat {
@@ -202,7 +202,7 @@ body > .overlay:before {
 	display: inline-block;
 }
 .nameConflict.hasConflict {
-	color: rgb(219, 175, 0);
+	color: rgb(239, 200, 75);
 }
 
 .nameConflict .warningText { display: none; }
@@ -286,7 +286,7 @@ body > .overlay:before {
 
  .treemap-header {
  	height: 40px;
- 	border-bottom: 2px solid black;
+	line-height: 40px;
  }
 
  .in-view .treemap-header {
@@ -337,7 +337,6 @@ body > .overlay:before {
  
  	background-color: #9C9C9C;
  	display: inline-block;
- 	border-left: 1px solid black;
  }
  
  #show-treemap-button:hover {
