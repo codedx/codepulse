@@ -237,7 +237,11 @@
 
 		'getNodeSourceLocations': function(id, activityRequestParams, callback) {
 			getCommand('/node/' + id + "/source-locations", activityRequestParams, callback)
-		}
+		},
+
+        'getSurfaceDetectionStatus': function(callback) {
+            $.getJSON(commandPath('/sdstatus'), callback)
+        }
 	}
 
 })(this);

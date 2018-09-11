@@ -234,6 +234,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/<target.id>/dcreport */
 		val DepCheckReport = simpleTargetPath("dcreport")
 
+		/** /api/<target.id>/sdstatus */
+		val SurfaceDetectionStatus = simpleTargetPath("sdstatus")
+
 		/** /api/<target.id>/export */
 		val Export = simpleTargetPath("export")
 
@@ -515,6 +518,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					}
 				case _ => BadResponse()
 			}
+
+		case Paths.SurfaceDetectionStatus(target) Get req =>
+			JsonResponse(target.projectData.metadata.surfaceDetectorStatus.json)
 
 		// GET the vulnerable nodes
 		case Paths.VulnerableNodes(target) Get req =>

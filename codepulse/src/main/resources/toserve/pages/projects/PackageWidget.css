@@ -80,6 +80,19 @@
 
  .packages-header .surface-icon {
 	 cursor: pointer;
+	 color: #9C9C9C;
+ }
+
+ .packages-header .surface-icon.failed {
+     color: #B30606;
+ }
+
+ .packages-header .surface-icon.hasResults {
+     color: #FFFFFF
+ }
+
+ .packages-header .surface-icon.hasResults:hover {
+     color: #A5A5A5
  }
 
  .packages-header .header-trace {

@@ -164,6 +164,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("pages/projects/projects.js"),
 		CSS("pages/projects/projects.css"),
 		JS("pages/projects/DependencyCheck.js"),
+		JS("pages/projects/SurfaceDetector.js"),
 		codemirror,
 		underscore,
 		handlebars)

@@ -66,7 +66,7 @@
 		}
 	}
 
-	function PackageController(treeData, depCheckController, $container, $totalsContainer, $clearSelectionButton){
+	function PackageController(treeData, depCheckController, surfaceDetectorController, $container, $totalsContainer, $clearSelectionButton){
 
 		// build this into a Map[packageId -> packageWidget.selectedProp]
 		var selectedWidgetsSP = new SetProp(
@@ -342,6 +342,7 @@
 				var w = widgets[k]
 				if(w.selectable()) w.selected(false)
 			}
+			surfaceDetectorController.cancelShowSurface()
 		})
 
 		/**

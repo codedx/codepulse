@@ -34,20 +34,14 @@ $(document).ready(function(){
 		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
 
 		// initialize dependency check controller
-		depCheckController = new DependencyCheckController($('#dependency-check-report'))
+		depCheckController = new DependencyCheckController($('#dependency-check-report')),
 
-		// initialize surface detector update handling
-		var surfaceDetectorUpdateStream = $(document).asEventStream('surfacedetector-update', function(event, args) { return args })
-		surfaceDetectorUpdateStream.onValue(function(update) {
-			if (update.project == CodePulse.projectPageId) {
-				let surfaceDetectorUpdate = update.surfacedetector_update
-				let surfaceDetectorUpdateMsg = "Surface Detector Status: " + surfaceDetectorUpdate.state
-				if (surfaceDetectorUpdate.state === "finished") {
-                    surfaceDetectorUpdateMsg += " (Count = " + surfaceDetectorUpdate.surfaceMethodCount + ")"
-				}
-				console.log(surfaceDetectorUpdateMsg)
-			}
-		})
+		surfaceDetectorController = new SurfaceDetectorController();
+
+	// A temporary method that serves to demonstrate the external use of the showSurface property
+	surfaceDetectorController.showSurface.onValue(function(isOn) {
+		console.log('surface on = ' + isOn)
+	})
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
@@ -468,7 +462,7 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
+		var controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
