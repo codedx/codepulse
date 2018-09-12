@@ -332,6 +332,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			},
 			{ case (target, nodeTracedSourceLocations) => (target, List("node", nodeTracedSourceLocations.nodeId.toString, "source-locations"))}
 		)
+
+		val AttackSurface = simpleTargetPath("attack-surface")
 	}
 
 	private object DataPath {
@@ -690,6 +692,11 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				("endCharacter" -> l.endCharacter)
 
 			JsonResponse(JObject(JField("sourceLocationCoverage", JObject(coverage.toList)) :: JField("sourceLocations", locations) :: Nil))
+
+		case Paths.AttackSurface(target) Get req =>
+			val attackSurface = target.projectData.treeNodeData.getSurfaceMethods()
+			val json = attackSurface.map(node => ("nodeId" -> node.id))
+			JsonResponse(json)
 	}
 }
 

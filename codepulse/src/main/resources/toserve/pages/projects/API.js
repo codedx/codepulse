@@ -239,6 +239,10 @@
 			getCommand('/node/' + id + "/source-locations", activityRequestParams, callback)
 		},
 
+		'getAttackSurface': function(callback) {
+			$.getJSON(commandPath('/attack-surface'), callback)
+		},
+
         'getSurfaceDetectionStatus': function(callback) {
             $.getJSON(commandPath('/sdstatus'), callback)
         }

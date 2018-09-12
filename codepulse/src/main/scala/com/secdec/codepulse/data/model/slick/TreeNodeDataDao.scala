@@ -24,7 +24,10 @@ import scala.slick.model.ForeignKeyAction
 import scala.util.Try
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.model.{TreeNodeData => TreeNode, _}
+import com.secdec.codepulse.data.model.{ TreeNodeData => TreeNode, _ }
+import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
+
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind.{ Cls, Grp, Mth, Pkg }
 
 /** The Slick DAO for tree node data.
   *
@@ -238,5 +241,37 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 	def markSurfaceMethod(id: Int)(implicit session: Session): Unit = {
 		val q = for (row <- treeNodeData if row.id === id) yield row.isSurfaceMethod
 		q.update(Some(true))
+	}
+
+	implicit val GetTreeNodeKind: GetResult[CodeTreeNodeKind] = GetResult { r =>
+		val label = r.<<[String]
+		val kind = label match {
+			case "g" => Grp
+			case "p" => Pkg
+			case "c" => Cls
+			case "m" => Mth
+			case _ => Grp
+		}
+
+		kind
+	}
+
+	implicit val GetTreeNode: GetResult[TreeNode] = GetResult { r =>
+		TreeNode(
+			id = r.<<[Int],
+			parentId = r.<<[Option[Int]],
+			label = r.<<[String],
+			kind = r.<<[CodeTreeNodeKind],
+			size = r.<<[Option[Int]],
+			sourceFileId = r.<<[Option[Int]],
+			sourceLocationCount = r.<<[Option[Int]],
+			methodStartLine = r.<<[Option[Int]],
+			isSurfaceMethod = r.<<[Option[Boolean]]
+		)
+	}
+
+	def getSurfaceMethods(implicit session: Session): List[TreeNode] = {
+		val query = Q.queryNA[TreeNode]("WITH ANCESTORS(id, parent_id, label, kind, size, source_file_id, source_location_count, method_start_line, is_surface_method) AS (\n    SELECT t.\"id\", t.\"parent_id\", t.\"label\", t.\"kind\", t.\"size\", t.\"source_file_id\", t.\"source_location_count\", t.\"method_start_line\", t.\"is_surface_method\" FROM PUBLIC.\"tree_node_data\" t WHERE t.\"is_surface_method\" = true\n    UNION ALL\n    SELECT tr.\"id\", tr.\"parent_id\", tr.\"label\", tr.\"kind\", tr.\"size\", tr.\"source_file_id\", tr.\"source_location_count\", tr.\"method_start_line\", tr.\"is_surface_method\" FROM ANCESTORS INNER JOIN PUBLIC.\"tree_node_data\" tr ON ANCESTORS.parent_id = tr.\"id\"\n)\nSELECT DISTINCT * FROM ANCESTORS ORDER BY ID")
+		query.list()
 	}
 }

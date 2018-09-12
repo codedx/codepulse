@@ -164,4 +164,8 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 			dao.markSurfaceMethod(id)
 		}
 	}
+
+	def getSurfaceMethods(): List[TreeNodeData] = db withSession { implicit session =>
+		dao.getSurfaceMethods
+	}
 }

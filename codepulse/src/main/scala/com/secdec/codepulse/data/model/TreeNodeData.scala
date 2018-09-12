@@ -97,6 +97,7 @@ trait TreeNodeDataAccess {
 	def findMethods(sourceFilePath: String): List[Int]
 	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int): List[Int]
 	def markSurfaceMethod(id: Int)
+	def getSurfaceMethods(): List[TreeNodeData]
 
 	implicit class ExtendedTreeNodeData(n: TreeNodeData) {
 		/** whether or not this treenode is being traced; this value may be unspecified (None) */
