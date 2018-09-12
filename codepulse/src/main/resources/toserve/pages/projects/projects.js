@@ -38,11 +38,6 @@ $(document).ready(function(){
 
 		surfaceDetectorController = new SurfaceDetectorController();
 
-	// A temporary method that serves to demonstrate the external use of the showSurface property
-	surfaceDetectorController.showSurface.onValue(function(isOn) {
-		console.log('surface on = ' + isOn)
-	})
-
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
 
@@ -463,6 +458,14 @@ $(document).ready(function(){
 		var packageTree = Trace.packageTree
 
 		var controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
+
+        surfaceDetectorController.showSurface.onValue(function(isOn) {
+			if(isOn) {
+                API.getAttackSurface(function(data) {
+                    controller.selectWidgetsForNodes(data)
+                })
+			}
+        })
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.

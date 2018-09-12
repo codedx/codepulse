@@ -371,6 +371,18 @@
 			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings, nodePackageParents)
 		}
 
+		this.selectWidgetsForNodes = function(nodes){
+			nodes.forEach(n => {
+				// TODO: We'd rather select leaf nodes and have the package controller trickle this upward
+				// TODO: as needed. Currently, the data we get about the nodes does not tell us where the leaves are
+				// TODO: so we are taking a more brute method.
+				if(widgets[n.nodeId]) {
+					widgets[n.nodeId].selected(true)
+                }
+            })
+
+		}
+
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets
