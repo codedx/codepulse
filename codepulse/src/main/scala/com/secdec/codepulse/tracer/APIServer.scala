@@ -694,9 +694,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			JsonResponse(JObject(JField("sourceLocationCoverage", JObject(coverage.toList)) :: JField("sourceLocations", locations) :: Nil))
 
 		case Paths.AttackSurface(target) Get req =>
-			val attackSurface = target.projectData.treeNodeData.getSurfaceMethods()
-			val json = attackSurface.map(node => ("nodeId" -> node.id))
-			JsonResponse(json)
+			val attackSurface = target.projectData.treeNodeData.getSurfaceMethodAncestorPackages()
+			JsonResponse(attackSurface)
 	}
 }
 

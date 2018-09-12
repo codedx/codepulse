@@ -372,17 +372,25 @@
 		}
 
 		this.selectWidgetsForNodes = function(nodes){
-			nodes.forEach(n => {
-				// TODO: We'd rather select leaf nodes and have the package controller trickle this upward
-				// TODO: as needed. Currently, the data we get about the nodes does not tell us where the leaves are
-				// TODO: so we are taking a more brute method.
-				if(widgets[n.nodeId]) {
-					widgets[n.nodeId].selected(true)
-                }
+            nodes.forEach(n => {
+				function selectNodeAncestors(id) {
+					if(widgets[id]) {
+						widgets[id].selected(true)
+					}
+
+					let node = nodePackageParents[id]
+					if(node && widgets[node.id]) {
+						widgets[node.id].selected(true)
+                    }
+
+                    if(node && node.parent) {
+						selectNodeAncestors(node.parent.id)
+					}
+				}
+
+				selectNodeAncestors(n)
             })
-
 		}
-
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets

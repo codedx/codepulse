@@ -270,8 +270,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		)
 	}
 
-	def getSurfaceMethods(implicit session: Session): List[TreeNode] = {
-		val query = Q.queryNA[TreeNode]("WITH ANCESTORS(id, parent_id, label, kind, size, source_file_id, source_location_count, method_start_line, is_surface_method) AS (\n    SELECT t.\"id\", t.\"parent_id\", t.\"label\", t.\"kind\", t.\"size\", t.\"source_file_id\", t.\"source_location_count\", t.\"method_start_line\", t.\"is_surface_method\" FROM PUBLIC.\"tree_node_data\" t WHERE t.\"is_surface_method\" = true\n    UNION ALL\n    SELECT tr.\"id\", tr.\"parent_id\", tr.\"label\", tr.\"kind\", tr.\"size\", tr.\"source_file_id\", tr.\"source_location_count\", tr.\"method_start_line\", tr.\"is_surface_method\" FROM ANCESTORS INNER JOIN PUBLIC.\"tree_node_data\" tr ON ANCESTORS.parent_id = tr.\"id\"\n)\nSELECT DISTINCT * FROM ANCESTORS ORDER BY ID")
+	def getSurfaceMethodAncestorPackages(implicit session: Session): List[Int] = {
+		val query = Q.queryNA[Int]("WITH ANCESTORS(id, parent_id, kind) AS (\n    SELECT t.\"id\", t.\"parent_id\", t.\"kind\" FROM PUBLIC.\"tree_node_data\" t WHERE t.\"is_surface_method\" = true\n    UNION ALL\n    SELECT tr.\"id\", tr.\"parent_id\", tr.\"kind\" FROM ANCESTORS INNER JOIN PUBLIC.\"tree_node_data\" tr ON ANCESTORS.parent_id = tr.\"id\"\n)\nSELECT DISTINCT ID FROM ANCESTORS WHERE kind = 'p' ORDER BY ID")
 		query.list()
 	}
 }
