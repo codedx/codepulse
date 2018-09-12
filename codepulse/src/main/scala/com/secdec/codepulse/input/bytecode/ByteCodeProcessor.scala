@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.input.bytecode
 
-import java.io.InputStream
+import java.io.File
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 import scala.util.{ Failure, Success, Try }
 
@@ -34,15 +34,6 @@ import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
 import org.apache.commons.io.input.CloseShieldInputStream
-import com.github.javaparser.JavaParser
-import com.github.javaparser.ParseException
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.PackageDeclaration
-import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.secdec.codepulse.data.bytecode.parse.{ JavaBinaryMethodSignature, JavaSourceParsing, MethodSignature }
 import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing.{ ClassInfo, MethodInfo }
 
@@ -131,7 +122,6 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 
 		storage.readEntries() { (filename, entryPath, entry, contents) =>
 			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
-			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(new CloseShieldInputStream(contents))
@@ -174,10 +164,14 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 							case _ =>
 						}
 
+					case "xml" =>
+						if (entry.getName.toLowerCase.endsWith("web-inf/web.xml")) {
+							val web = new File(entry.getName)
+							val webInf = web.getParent
+							jspAdapter addWebinf webInf
+						}
+
 					case _ => // nothing
-				}
-			} else if (entry.getName.endsWith("WEB-INF/")) {
-				jspAdapter addWebinf entry.getName
 			}
 		}
 
