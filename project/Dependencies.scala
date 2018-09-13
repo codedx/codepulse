@@ -63,9 +63,9 @@ object Dependencies {
 	)
 	lazy val astamCorrelator = Seq(
 		"org.jsoup" % "jsoup" % "1.11.3",
-		"com.github.secdec.astam-correlator" % "master-pom" % "1.2.17",
-		"com.github.secdec.astam-correlator" % "threadfix-entities" % "1.2.17",
-		"com.github.secdec.astam-correlator" % "threadfix-ham" % "1.2.17"
+		"com.github.secdec.astam-correlator" % "master-pom" % "1.2.17.1",
+		"com.github.secdec.astam-correlator" % "threadfix-entities" % "1.2.17.1",
+		"com.github.secdec.astam-correlator" % "threadfix-ham" % "1.2.17.1"
 	)
 	lazy val juniversalchardet = "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
 
