@@ -371,6 +371,26 @@
 			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings, nodePackageParents)
 		}
 
+		this.selectWidgetsForNodes = function(nodes){
+            nodes.forEach(n => {
+				function selectNodeAncestors(id) {
+					if(widgets[id]) {
+						widgets[id].selected(true)
+					}
+
+					let node = nodePackageParents[id]
+					if(node && widgets[node.id]) {
+						widgets[node.id].selected(true)
+                    }
+
+                    if(node && node.parent) {
+						selectNodeAncestors(node.parent.id)
+					}
+				}
+
+				selectNodeAncestors(n)
+            })
+		}
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets
