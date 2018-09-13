@@ -373,23 +373,33 @@
 
 		this.selectWidgetsForNodes = function(nodes){
             nodes.forEach(n => {
-				function selectNodeAncestors(id) {
+				function selectNodeAncestors(id, leaf) {
 					if(widgets[id]) {
-						widgets[id].selected(true)
+						if(leaf) {
+							widgets[id].selected(true)
+						} else {
+							widgets[id].selected(undefined)
+						}
 					}
 
 					let node = nodePackageParents[id]
 					if(node && widgets[node.id]) {
-						widgets[node.id].selected(true)
+						widgets[node.id].selected(undefined)
                     }
 
                     if(node && node.parent) {
-						selectNodeAncestors(node.parent.id)
+						selectNodeAncestors(node.parent.id, false)
 					}
 				}
 
-				selectNodeAncestors(n)
+				selectNodeAncestors(n, true)
             })
+		}
+
+		this.unselectAll = function(){
+			for(const key in widgets) {
+				widgets[key].selected(false)
+			}
 		}
 	}
 

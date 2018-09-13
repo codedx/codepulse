@@ -38,6 +38,8 @@ $(document).ready(function(){
 
 		surfaceDetectorController = new SurfaceDetectorController();
 
+	let isAttackSurfaceOn = false
+
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
 
@@ -460,8 +462,10 @@ $(document).ready(function(){
 		var controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
 
         surfaceDetectorController.showSurface.onValue(function(isOn) {
+        	isAttackSurfaceOn = isOn
 			if(isOn) {
                 API.getAttackSurface(function(data) {
+                	controller.unselectAll()
                     controller.selectWidgetsForNodes(data)
                 })
 			}
@@ -544,12 +548,32 @@ $(document).ready(function(){
 		treemapWidget
 			.nodeColoring(treemapColoring())
 
+		function filterTree(node){
+			node.children = node.children.filter(n => {
+				if(n.isSurfaceMethod) {
+					return true
+				}
+
+				if(n.kind != "method") {
+					if(n.kind == "class") {
+						return n.children && n.children.filter(c => c.isSurfaceMethod).length > 0
+					} else {
+						return true
+					}
+				} else {
+					return false
+				}
+			})
+			node.children.forEach(filterTree)
+		}
+
 		treemapData.onValue(function(tree){
 			treemapContainer.overlay('wait')
 			// put the following in a callback so the overlay has a chance to trigger
 			// (the treemap data update can be expensive, and since it modifies the DOM,
 			// the overlay may never actually show up because the DOM is being blocked.)
 			setTimeout(function(){
+				if(isAttackSurfaceOn) filterTree(tree.root)
 				treemapWidget.data(tree).update()
 				treemapContainer.overlay('ready')
 			}, 1)
