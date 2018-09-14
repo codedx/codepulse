@@ -527,8 +527,17 @@
 			allNodesSvg.selectAll('rect.node').data(function(d){ return [d] })
 				.style('fill', updateFillFunction(widgetState))
 				.classed('ignored', function(n){ return n._ignored })
+				.classed('surface-method', n => n.isSurfaceMethod)
 				.attr('width', select('dx'))
 				.attr('height', select('dy'))
+
+			allNodesSvg.selectAll('circle').data(d => [d])
+				.enter().append('circle')
+				.filter(d => d.isSurfaceMethod)
+				.attr('cx', "7")
+				.attr('cy', '7')
+				.attr('r', 3)
+				.attr('pointer-events', 'none')
 
 			updateLabels(widgetState, treemapNodes)
 			updateHoverLayer(widgetState)

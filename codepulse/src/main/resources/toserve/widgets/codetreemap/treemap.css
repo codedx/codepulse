@@ -22,3 +22,8 @@ g.treemap rect.node-highlight {
 g.treemap rect.node.ignored {
 	display: none;
 }
+
+g.treemap circle {
+	fill: none;
+	stroke: darkgray;
+}

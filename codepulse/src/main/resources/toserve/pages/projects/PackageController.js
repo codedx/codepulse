@@ -385,9 +385,9 @@
 					let node = nodePackageParents[id]
 					if(node && widgets[node.id]) {
 						widgets[node.id].selected(undefined)
-                    }
+					}
 
-                    if(node && node.parent) {
+					if(node && node.parent) {
 						selectNodeAncestors(node.parent.id, false)
 					}
 				}
