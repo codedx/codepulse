@@ -531,9 +531,9 @@
 				.attr('width', select('dx'))
 				.attr('height', select('dy'))
 
-			allNodesSvg.selectAll('circle').data(d => [d])
+			allNodesSvg.selectAll('circle').data(d => [d].filter(f => f.isSurfaceMethod))
 				.enter().append('circle')
-				.filter(d => d.isSurfaceMethod)
+				// .filter(d => d.isSurfaceMethod)
 				.attr('cx', "7")
 				.attr('cy', '7')
 				.attr('r', 3)
