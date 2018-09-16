@@ -129,6 +129,7 @@ $(document).ready(function(){
         let liveDataSubscription = null
         let coverageUpdateSubscription = null
         let traceCoverageUpdateRequestsSubscription = null
+        let toggleSurfaceMethodSubscription = null
 
         function deactivatePopout() {
             $popoutHeader.empty()
@@ -143,6 +144,9 @@ $(document).ready(function(){
             }
             if (traceCoverageUpdateRequestsSubscription != null) {
                 traceCoverageUpdateRequestsSubscription(); traceCoverageUpdateRequestsSubscription = null
+            }
+            if (toggleSurfaceMethodSubscription != null) {
+                toggleSurfaceMethodSubscription(); toggleSurfaceMethodSubscription = null
             }
         }
 
@@ -160,6 +164,23 @@ $(document).ready(function(){
             if (selection.nodeSourceInfo.sourceLocationCount != 0) {
                 var percentage = selection.nodeSourceInfo.tracedSourceLocationCount / selection.nodeSourceInfo.sourceLocationCount * 100
                 selection.nodeSourceInfo.tracedSourceLocationPercentage = "(" + (percentage % 1 === 0 ? percentage : percentage.toFixed(2)) + "%)";
+            }
+        }
+
+        function setSurfaceIcon(isSurfaceMethod) {
+            let $icon = $('#is-surface-method-button');
+            $icon.toggleClass('im-surface-on', isSurfaceMethod);
+            $icon.toggleClass('im-surface-off', !isSurfaceMethod);
+            $icon.attr('title', isSurfaceMethod ? 'Remove application surface mark' : 'Mark as application surface method');
+            $icon.attr('data-node-is-surface-method', isSurfaceMethod);
+        }
+
+        function toggleSurfaceMethod(event) {
+            let nodeId = event.target.getAttribute('data-node-id');
+            if (event.target.getAttribute('data-node-is-surface-method') === "true") {
+                API.removeFromSurface(nodeId, function() { setSurfaceIcon(false); });
+            } else {
+                API.addToSurface(nodeId, function() { setSurfaceIcon(true); });
             }
         }
 
@@ -259,7 +280,9 @@ $(document).ready(function(){
 							API.getNodeSourceMetadata(selection.metadata.nodeId, function(data) {
 								selection.nodeSourceInfo.sourceLocationCount = data.sourceLocationCount
 								selection.dataProvider.loadSourceLocations(Trace.getRecordsReqParams(), true).then((sourceLocationData) => {
-									updateSourceLocations(coverage, activeRecordings, selection, sourceLocationData)
+									updateSourceLocations(coverage, activeRecordings, selection, sourceLocationData);
+									setSurfaceIcon(selection.metadata.isSurfaceMethod);
+									toggleSurfaceMethodSubscription = $('#is-surface-method-button').asEventStream('click').onValue(toggleSurfaceMethod);
 								}, (err) => { showSourceViewError(err, selection) })
 							})
 							selection.refresh = false
@@ -487,7 +510,7 @@ $(document).ready(function(){
 			.map(function(set){ return d3.set(set.values()) })
 			// Watch the most recent 2 values for changes
 			.slidingWindow(2,2).onValue(function(ab){
-				var before = ab[0], 
+				var before = ab[0],
 					after = ab[1],
 					changes = {}
 
@@ -633,7 +656,7 @@ $(document).ready(function(){
 							// .addClass('clearfix')
 							.addClass('coverage-area')
 
-						recordings.forEach(function(ld){ 
+						recordings.forEach(function(ld){
 							var bg = ld.getColor(),
 								lightness = d3.hsl(bg).l,
 								textColor = (lightness > 0.4) ? 'black' : 'white'

@@ -81,6 +81,9 @@
  .packages-header .surface-icon {
 	 cursor: pointer;
 	 color: #9C9C9C;
+	 display: table-cell;
+	 vertical-align: middle;
+	 height: 20px;
  }
 
  .packages-header .surface-icon.failed {

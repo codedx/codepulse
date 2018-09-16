@@ -215,6 +215,14 @@
 			postCommand('/rename', {'name': newName}, callback)
 		},
 
+        'addToSurface': function(nodeId, callback){
+            postCommand('/addToSurface', {'nodeId': nodeId}, callback);
+        },
+
+        'removeFromSurface': function(nodeId, callback){
+            postCommand('/removeFromSurface', {'nodeId': nodeId}, callback);
+        },
+
 		'getDependencyCheckStatus': function(callback) {
 			$.getJSON(commandPath('/dcstatus'), callback)
 		},

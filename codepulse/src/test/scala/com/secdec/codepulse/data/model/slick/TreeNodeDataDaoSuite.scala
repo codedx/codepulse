@@ -85,25 +85,21 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
   }
 
   before {
-    def makeDb(db: JdbcBackend.DatabaseDef, dbName: String): JdbcBackend.DatabaseDef = {
-      if (db == null) {
-        return Database.forURL(s"jdbc:h2:mem:$dbName;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
-      } else {
-        db.withSession(implicit x => Q.updateNA("drop all objects").execute())
-        return db
+    if (projectDb == null) {
+      projectDb = Database.forURL(s"jdbc:h2:mem:project-for-ancestor;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+
+      sourceDataDao = new SourceDataDao(H2Driver)
+      treeNodeDataDao = new TreeNodeDataDao(H2Driver, sourceDataDao)
+
+      projectDb.withSession {
+        implicit session => {
+          sourceDataDao.create
+          treeNodeDataDao.create
+        }
       }
     }
 
-    projectDb = makeDb(projectDb, "project-for-export")
-
-    sourceDataDao = new SourceDataDao(H2Driver)
-    treeNodeDataDao = new TreeNodeDataDao(H2Driver, sourceDataDao)
-
-    projectDb.withSession {
-      implicit session => {
-        sourceDataDao.create
-        treeNodeDataDao.create
-      }
-    }
+    projectDb.withSession(implicit x => Q.updateNA("delete from \"source_file\"").execute())
+    projectDb.withSession(implicit x => Q.updateNA("delete from \"tree_node_data\"").execute())
   }
 }
