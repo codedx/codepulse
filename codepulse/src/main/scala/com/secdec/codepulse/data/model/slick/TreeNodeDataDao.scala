@@ -238,40 +238,23 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		} yield (treeNodeDataItem.id)).list
 	}
 
-	def markSurfaceMethod(id: Int)(implicit session: Session): Unit = {
+	def markSurfaceMethod(id: Int, isSurfaceMethod: Option[Boolean])(implicit session: Session): Unit = {
 		val q = for (row <- treeNodeData if row.id === id) yield row.isSurfaceMethod
-		q.update(Some(true))
-	}
-
-	implicit val GetTreeNodeKind: GetResult[CodeTreeNodeKind] = GetResult { r =>
-		val label = r.<<[String]
-		val kind = label match {
-			case "g" => Grp
-			case "p" => Pkg
-			case "c" => Cls
-			case "m" => Mth
-			case _ => Grp
-		}
-
-		kind
-	}
-
-	implicit val GetTreeNode: GetResult[TreeNode] = GetResult { r =>
-		TreeNode(
-			id = r.<<[Int],
-			parentId = r.<<[Option[Int]],
-			label = r.<<[String],
-			kind = r.<<[CodeTreeNodeKind],
-			size = r.<<[Option[Int]],
-			sourceFileId = r.<<[Option[Int]],
-			sourceLocationCount = r.<<[Option[Int]],
-			methodStartLine = r.<<[Option[Int]],
-			isSurfaceMethod = r.<<[Option[Boolean]]
-		)
+		q.update(isSurfaceMethod)
 	}
 
 	def getSurfaceMethodAncestorPackages(implicit session: Session): List[Int] = {
-		val query = Q.queryNA[Int]("WITH ANCESTORS(id, parent_id, kind) AS (\n    SELECT t.\"id\", t.\"parent_id\", t.\"kind\" FROM PUBLIC.\"tree_node_data\" t WHERE t.\"is_surface_method\" = true\n    UNION ALL\n    SELECT tr.\"id\", tr.\"parent_id\", tr.\"kind\" FROM ANCESTORS INNER JOIN PUBLIC.\"tree_node_data\" tr ON ANCESTORS.parent_id = tr.\"id\"\n)\nSELECT DISTINCT ID FROM ANCESTORS WHERE kind = 'p' ORDER BY ID")
+		val query = Q.queryNA[Int]("""
+			WITH ANCESTORS(id, parent_id, kind) AS (
+			    SELECT t."id", t."parent_id", t."kind" FROM PUBLIC."tree_node_data" t WHERE t."is_surface_method" = true
+			    UNION ALL
+			    SELECT tr."id", tr."parent_id", tr."kind" FROM ANCESTORS INNER JOIN PUBLIC."tree_node_data" tr ON ANCESTORS.parent_id = tr."id"
+			            AND (ANCESTORS.kind = 'm' OR ANCESTORS.kind = 'c' OR (ANCESTORS.kind='p' AND tr."kind"='c'))
+			)
+			SELECT DISTINCT id
+			FROM ANCESTORS
+			WHERE kind='p'
+			ORDER BY id""")
 		query.list()
 	}
 }

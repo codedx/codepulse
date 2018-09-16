@@ -49,6 +49,7 @@ trait TreeNodeDataAccess {
 	def iterate[T](f: Iterator[TreeNodeData] => T): T
 
 	def getNode(id: Int): Option[TreeNodeData]
+	def getNode(id: Int, kind: CodeTreeNodeKind): Option[TreeNodeData]
 	def getNode(label: String): Option[TreeNodeData]
 
 	def getNodeIdsForSignature(signature: String): List[Int]
@@ -96,7 +97,7 @@ trait TreeNodeDataAccess {
 
 	def findMethods(sourceFilePath: String): List[Int]
 	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int): List[Int]
-	def markSurfaceMethod(id: Int)
+	def markSurfaceMethod(id: Int, isSurfaceMethod: Option[Boolean])
 	def getSurfaceMethodAncestorPackages(): List[Int]
 
 	implicit class ExtendedTreeNodeData(n: TreeNodeData) {

@@ -51,10 +51,11 @@ import java.util.concurrent.Executors
 
 import DCJson._
 import SDJson._
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.storage.StorageManager
 import com.secdec.codepulse.version
 
-case class NodeSourceMetadata(nodeId: Int, nodeLabel: String, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int)
+case class NodeSourceMetadata(nodeId: Int, nodeLabel: String, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int, isSurfaceMethod: Boolean)
 case class NodeSourceFileContents(sourceFileId: Int, sourceFileContents: String)
 case class NodeTracedSourceLocations(nodeId: Int, sourceLocations: List[SourceLocation])
 
@@ -243,6 +244,12 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/<target.id>/rename */
 		val Rename = simpleTargetPath("rename")
 
+		/** /api/<target.id>/addToSurface */
+		val AddToSurface = simpleTargetPath("addToSurface")
+
+		/** /api/<target.id>/removeFromSurface */
+		val RemoveFromSurface = simpleTargetPath("removeFromSurface")
+
 		/** /api/<target.id>/packageTree */
 		val PackageTree = simpleTargetPath("packageTree")
 
@@ -288,18 +295,21 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		val Acknowledgment = AcknowledgmentPath
 
 		val NodeSourceCodeMetadata = TargetPath.map[(TracingTarget, NodeSourceMetadata)]({
-				case (target, listParts @ List("node", AsInt(nodeId), "source-metadata")) =>
+			case (target, listParts @ List("node", AsInt(nodeId), "source-metadata")) =>
+				(for {
+					node <- target.projectData.treeNodeData.getNode(nodeId)
+				} yield {
 					(for {
-						node <- target.projectData.treeNodeData.getNode(nodeId)
 						fileId <- node.sourceFileId
 						sourceFile <- target.projectData.sourceData.getSourceFile(fileId)
 					} yield {
-						(target, NodeSourceMetadata(node.id, node.label, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0)))
-					}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, "", -1, "", 0, 0))
-			}, {
-				case (target, nodeSourceMetadata) =>
-					(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
-			}
+						(target, NodeSourceMetadata(node.id, node.label, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0), node.isSurfaceMethod.getOrElse(false)))
+					}) getOrElse (target, NodeSourceMetadata(node.id, node.label, -1, "Unavailable", node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0), node.isSurfaceMethod.getOrElse(false)))
+				}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, "", -1, "", 0, 0, false))
+		}, {
+			case (target, nodeSourceMetadata) =>
+				(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
+		}
 		)
 
 		val NodeSourceCodeFileContents = TargetPath.map[(TracingTarget, NodeSourceFileContents)]({
@@ -351,6 +361,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				logger.error("Future response failed", e)
 				callback(InternalServerErrorResponse())
 		}
+	}
+
+	private def setSurfaceMethodStatus(treeNodeData: TreeNodeDataAccess, nodeId: Int, isSurfaceMethod: Boolean): Unit = {
+		treeNodeData.getNode(nodeId, CodeTreeNodeKind.Mth).map(x => treeNodeData.markSurfaceMethod(nodeId, Some(isSurfaceMethod)))
 	}
 
 	serve {
@@ -561,6 +575,28 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					} else OkResponse()
 			}
 
+		// POST add to surface
+		// query: nodeId=nodeId
+		case Paths.AddToSurface(target) Post req =>
+			req.param("nodeId").toOption match {
+				case None => BadResponse()
+				case Some(nodeId) => {
+					setSurfaceMethodStatus(target.projectData.treeNodeData, nodeId.toInt, true)
+					OkResponse()
+				}
+			}
+
+		// POST remove from surface
+		// query: nodeId=nodeId
+		case Paths.RemoveFromSurface(target) Post req =>
+			req.param("nodeId").toOption match {
+				case None => BadResponse()
+				case Some(nodeId) => {
+					setSurfaceMethodStatus(target.projectData.treeNodeData, nodeId.toInt, false)
+					OkResponse()
+				}
+			}
+
 		// GET the project's package tree as json
 		case Paths.PackageTree(target) Get req =>
 			PackageTreeStreamer.streamPackageTree(treeBuilderManager.get(target.id).packageTree)
@@ -669,7 +705,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				("sourceFileId", nodeSourceMetadata.sourceFileId) ~
 				("sourceFilePath", nodeSourceMetadata.sourceFilePath) ~
 				("sourceLocationCount", nodeSourceMetadata.sourceLocationCount) ~
-				("methodStartLine", nodeSourceMetadata.methodStartLine)
+				("methodStartLine", nodeSourceMetadata.methodStartLine) ~
+				("isSurfaceMethod", nodeSourceMetadata.isSurfaceMethod)
 			JsonResponse(json)
 
 		case Paths.NodeSourceCodeFileContents(target, nodeSourceFileContents) Get req =>

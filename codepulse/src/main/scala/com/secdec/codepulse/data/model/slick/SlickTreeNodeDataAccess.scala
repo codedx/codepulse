@@ -20,6 +20,7 @@
 package com.secdec.codepulse.data.model.slick
 
 import scala.slick.jdbc.JdbcBackend.Database
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.model.{MethodSignatureNode, TreeNodeData, TreeNodeDataAccess, TreeNodeFlag}
 
 /** Slick-based TreeNodeDataAccess implementation.
@@ -39,6 +40,10 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 
 	def getNode(id: Int): Option[TreeNodeData] = db withSession { implicit session =>
 		dao get id
+	}
+
+	def getNode(id: Int, kind: CodeTreeNodeKind) = db withSession { implicit session =>
+		(dao get id).filter(x => x.kind == kind)
 	}
 
 	def getNode(label: String): Option[TreeNodeData] = db withSession { implicit session =>
@@ -159,9 +164,9 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 		dao findMethods(sourceFilePath, startingLineNumber, endingLineNumber)
 	}
 
-	def markSurfaceMethod(id: Int): Unit = {
+	def markSurfaceMethod(id: Int, isSurfaceMethod: Option[Boolean]): Unit = {
 		db withTransaction { implicit transaction =>
-			dao.markSurfaceMethod(id)
+			dao.markSurfaceMethod(id, isSurfaceMethod)
 		}
 	}
 

@@ -48,7 +48,7 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus) extends Actor with
 
         def markSurfaceMethod(sourceFilePath: String, id: Int): Unit = {
           logger.debug("Marking surface method {} from file {}", id, sourceFilePath)
-          treeNodeData.markSurfaceMethod(id)
+          treeNodeData.markSurfaceMethod(id, Some(true))
         }
 
         surfaceEndpoints.map(x => {
