@@ -485,14 +485,12 @@ $(document).ready(function(){
 		var controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
 
         surfaceDetectorController.showSurface.onValue(function(isOn) {
-        	isAttackSurfaceOn = isOn
-			if(isOn) {
-                API.getAttackSurface(function(data) {
-                	controller.unselectAll()
-                    controller.selectWidgetsForNodes(data)
-                })
-			}
-        })
+            isAttackSurfaceOn = isOn;
+            API.getAttackSurface(function(data) {
+                controller.unselectAll();
+                controller.selectWidgetsForNodes(data);
+            });
+        });
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
