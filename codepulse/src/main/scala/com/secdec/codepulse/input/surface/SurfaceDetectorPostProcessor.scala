@@ -28,9 +28,10 @@ import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.processing.ProcessStatus.ProcessDataAvailable
 import com.secdec.codepulse.processing.{ProcessEnvelope, ProcessStatus}
 import com.secdec.codepulse.surface.{SurfaceDetector, SurfaceDetectorFinishedPayload}
+import com.secdec.codepulse.tracer.TreeBuilderManager
 import com.secdec.codepulse.util.Throwable
 
-class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus) extends Actor with Stash with Loggable {
+class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus, treeBuilderManager: TreeBuilderManager) extends Actor with Stash with Loggable {
 
   private val surfaceDetectorActionName = "Surface Detector"
 
@@ -43,12 +44,16 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus) extends Actor with
 
         status(ProcessStatus.Running(identifier, surfaceDetectorActionName))
 
-        val path = StorageManager.getExtractedStorageFor(ProjectId(identifier.toInt))
+        val projectId = ProjectId(identifier.toInt)
+        val path = StorageManager.getExtractedStorageFor(projectId)
         val surfaceEndpoints = SurfaceDetector.run(path)
 
         def markSurfaceMethod(sourceFilePath: String, id: Int): Unit = {
           logger.debug("Marking surface method {} from file {}", id, sourceFilePath)
           treeNodeData.markSurfaceMethod(id, Some(true))
+          treeBuilderManager.visitNode(projectId, id, node => {
+            node.isSurfaceMethod = Some(true)
+          })
         }
 
         surfaceEndpoints.map(x => {

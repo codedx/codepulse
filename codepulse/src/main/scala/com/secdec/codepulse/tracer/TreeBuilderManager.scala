@@ -19,9 +19,7 @@
 
 package com.secdec.codepulse.tracer
 
-import com.secdec.codepulse.data.model.ProjectDataProvider
-import com.secdec.codepulse.data.model.ProjectId
-import com.secdec.codepulse.data.model.TreeBuilder
+import com.secdec.codepulse.data.model.{ProjectDataProvider, ProjectId, TreeBuilder, TreeNodeData}
 
 /** Manages a single TreeBuilder instance, such that we're only holding an
   * entire project tree for a single project at a time.
@@ -48,6 +46,15 @@ class TreeBuilderManager(dataProvider: ProjectDataProvider) {
 				current.getOrElse(changeProject(project))
 			else
 				changeProject(project)
+		}
+	}
+
+	def visitNode(project: ProjectId, nodeId: Int, visitFunc: TreeNodeData => Unit) = {
+		lock.synchronized {
+			val data = get(project)
+			if (data.nodes.contains(nodeId)) {
+				visitFunc(data.nodes(nodeId))
+			}
 		}
 	}
 

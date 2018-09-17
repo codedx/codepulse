@@ -4,6 +4,7 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import com.secdec.codepulse.components.surface.Updates
 import com.secdec.codepulse.events.GeneralEventBus
 import com.secdec.codepulse.input.surface.SurfaceDetectorPostProcessor
+import com.secdec.codepulse.tracer.TreeBuilderManager
 
 package object surface {
   class BootVar[T] {
@@ -19,9 +20,9 @@ package object surface {
   val surfaceDetectorUpdates = new BootVar[ActorRef]
   val surfaceDetectorPostProcessor = new BootVar[ActorRef]
 
-  def boot(actorSystem: ActorSystem, eventBus: GeneralEventBus) {
+  def boot(actorSystem: ActorSystem, eventBus: GeneralEventBus, treeBuilderManager: TreeBuilderManager) {
 
-    val surfaceDetectorPostProcessorActor = actorSystem actorOf Props(new SurfaceDetectorPostProcessor(eventBus))
+    val surfaceDetectorPostProcessorActor = actorSystem actorOf Props(new SurfaceDetectorPostProcessor(eventBus, treeBuilderManager))
     eventBus.subscribe(surfaceDetectorPostProcessorActor, "ProcessDataAvailable")
     surfaceDetectorPostProcessor set surfaceDetectorPostProcessorActor
 

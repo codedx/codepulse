@@ -363,8 +363,11 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		}
 	}
 
-	private def setSurfaceMethodStatus(treeNodeData: TreeNodeDataAccess, nodeId: Int, isSurfaceMethod: Boolean): Unit = {
+	private def setSurfaceMethodStatus(treeNodeData: TreeNodeDataAccess, projectId: ProjectId, nodeId: Int, isSurfaceMethod: Boolean): Unit = {
 		treeNodeData.getNode(nodeId, CodeTreeNodeKind.Mth).map(x => treeNodeData.markSurfaceMethod(nodeId, Some(isSurfaceMethod)))
+		treeBuilderManager.visitNode(projectId, nodeId, node => {
+			node.isSurfaceMethod = Some(isSurfaceMethod)
+		})
 	}
 
 	serve {
@@ -581,7 +584,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			req.param("nodeId").toOption match {
 				case None => BadResponse()
 				case Some(nodeId) => {
-					setSurfaceMethodStatus(target.projectData.treeNodeData, nodeId.toInt, true)
+					setSurfaceMethodStatus(target.projectData.treeNodeData, target.projectData.id, nodeId.toInt, true)
 					OkResponse()
 				}
 			}
@@ -592,7 +595,7 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			req.param("nodeId").toOption match {
 				case None => BadResponse()
 				case Some(nodeId) => {
-					setSurfaceMethodStatus(target.projectData.treeNodeData, nodeId.toInt, false)
+					setSurfaceMethodStatus(target.projectData.treeNodeData, target.projectData.id, nodeId.toInt, false)
 					OkResponse()
 				}
 			}
