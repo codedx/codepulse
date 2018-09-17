@@ -43,18 +43,12 @@ The following section describes steps necessary to build and run Code Pulse from
   - Start an elevated (administrator) command prompt.
   - Run Powershell from this command prompt.
   - Run the command "Set-ExecutionPolicy RemoteSigned"
-* **Acquire Code Pulse source**. Code Pulse source is available here, via your preferred Git client or by a download from GitHub at [https://github.com/codedx/codepulse](https://github.com/codedx/codepulse). If you acquire the source code via download from GitHub, you will need to unblock the download before extracting so that scripts can be run from the source. Once the download is unblocked, extract the contents to a directory of your choice.
-  - Right click the downloaded source zip file.
-  - Select the "Properties" option.
-  - Check the "Unblock" checkbox.
+* **Acquire Code Pulse source**. Use your preferred Git client to download the Code Pulse source from [https://github.com/codedx/codepulse](https://github.com/codedx/codepulse).
 * **Build Code Pulse**. Code Pulse can be built for installation or for development.
-  - To build Code Pulse for installation: from Powershell in the root Code Pulse directory that you either git cloned to or downloaded and extracted source to, run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows. You may provide the following switches to skip building for Linux, Mac, or Windows: "-skipLinux", "-skipMac", and "-skipWindows". Combine the switches as desired. For example: `.\installers\build.ps1 -version 2.5.0 -skipMac -skipLinux`
-  
-* **Run Code Pulse**
-  - If you built Code Pulse installers in the "Build Code Pulse" section, you can use the installers to install Code Pulse and run like any other application.
-  - To run in development mode, where you can use a web browser to run and debug Code Pulse: in a command prompt from the root Code Pulse directory that you either git cloned to or downloaded and extracted source to, enter the command "sbt". Once SBT loads, enter the command "container:start" to start an instance of Code Pulse. Browse via web browser to [localhost:8080](http://localhost:8080). When you are finished, enter the command "container:stop" to do a clean tear-down of Code Pulse.
+  - To build Code Pulse for installation: from Powershell in the root Code Pulse directory that you git cloned to, run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows. You may provide the following switches to skip building for Linux, Mac, or Windows: "-skipLinux", "-skipMac", and "-skipWindows". Combine the switches as desired. For example: `.\installers\build.ps1 -version 2.5.0 -skipMac -skipLinux`
+> Note: If you don't want to run Code Pulse from the development environment, you can use the installers created by build.ps1 to install and run Code Pulse.
 
-  > Note: If you choose to run in development mode, you do not need to install the dependencies - except for Git - listed above and you do not need to build Code Pulse using the steps in the "Build Code Pulse" section.
+* **Run Code Pulse from the Development Environment** To run in development mode, where you can use a web browser to run and debug Code Pulse: in a command prompt from the root Code Pulse directory that you git cloned to, enter the command "sbt". Once SBT loads, enter the command "container:start" to start an instance of Code Pulse. Browse via web browser to [localhost:8080](http://localhost:8080). When you are finished, enter the command "container:stop" to do a clean tear-down of Code Pulse.
 
 For more information, refer to the Code Pulse [User Guide](https://github.com/codedx/codepulse/wiki/user-guide).
 
