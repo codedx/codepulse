@@ -48,12 +48,12 @@ The following section describes steps necessary to build and run Code Pulse from
   - Select the "Properties" option.
   - Check the "Unblock" checkbox.
 * **Build Code Pulse**. Code Pulse can be built for installation or for development.
-  - To build Code Pulse for installation: from Powershell in the root Code Pulse directory that you either git cloned to or downloaded and extracted source to, run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows. You may provide the following switches to skip building for Linux, Mac, or Windows: "-skipLinux", "-skipMac", and "-skipWindows". Combine the switches as desired. For example:
-  > .\installers\build.ps1 -version 2.5.0 -skipMac -skipLinux
+  - To build Code Pulse for installation: from Powershell in the root Code Pulse directory that you either git cloned to or downloaded and extracted source to, run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows. You may provide the following switches to skip building for Linux, Mac, or Windows: "-skipLinux", "-skipMac", and "-skipWindows". Combine the switches as desired. For example: `.\installers\build.ps1 -version 2.5.0 -skipMac -skipLinux`
   
 * **Run Code Pulse**
   - If you built Code Pulse installers in the "Build Code Pulse" section, you can use the installers to install Code Pulse and run like any other application.
   - To run in development mode, where you can use a web browser to run and debug Code Pulse: in a command prompt from the root Code Pulse directory that you either git cloned to or downloaded and extracted source to, enter the command "sbt". Once SBT loads, enter the command "container:start" to start an instance of Code Pulse. Browse via web browser to [localhost:8080](http://localhost:8080). When you are finished, enter the command "container:stop" to do a clean tear-down of Code Pulse.
+
   > Note: If you choose to run in development mode, you do not need to install the dependencies - except for Git - listed above and you do not need to build Code Pulse using the steps in the "Build Code Pulse" section.
 
 For more information, refer to the Code Pulse [User Guide](https://github.com/codedx/codepulse/wiki/user-guide).
