@@ -495,7 +495,7 @@
 			
 			var treemapNodes = widgetState.dataArray = runLayout(widgetState, treeData.root)
 				.filter(function(d){ return d.antiDepth >= widgetState.minHeight })
-				
+
 			// apply data to the treemap viz
 			var allNodesSvg = treemapLayer.selectAll('g.node').data(treemapNodes, select('id'))
 			//treemapLayer.selectAll('rect.node').data(treemapNodes, select('id'))
@@ -531,13 +531,28 @@
 				.attr('width', select('dx'))
 				.attr('height', select('dy'))
 
-			allNodesSvg.selectAll('circle').data(d => [d].filter(f => f.isSurfaceMethod))
-				.enter().append('circle')
-				// .filter(d => d.isSurfaceMethod)
-				.attr('cx', "7")
-				.attr('cy', '7')
-				.attr('r', 3)
+			let surfaceMark = allNodesSvg.selectAll('text').data(d => [d].filter(f => f.isSurfaceMethod))
+			surfaceMark.enter().append('text')
+				.attr('x', '1')
+				.text(function() { return '\ue900' })
 				.attr('pointer-events', 'none')
+
+			function sizer(datum, defaultValue, minValueFunc) {
+				min = datum.dx
+				if(datum.dy < min) {
+					min = datum.dy
+				}
+
+				if(min < 12) {
+					return minValueFunc(min)
+				} else {
+					return defaultValue
+				}
+			}
+
+			surfaceMark
+				.attr('y', d => sizer(d, 12, f => f))
+				.attr('font-size', d => sizer(d, '12px', f => f + 'px'))
 
 			updateLabels(widgetState, treemapNodes)
 			updateHoverLayer(widgetState)

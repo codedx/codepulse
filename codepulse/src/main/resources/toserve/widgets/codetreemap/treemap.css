@@ -23,7 +23,7 @@ g.treemap rect.node.ignored {
 	display: none;
 }
 
-g.treemap circle {
-	fill: none;
-	stroke: darkgray;
+g.treemap text {
+	fill: #aaa;
+	font-family: icomoon;
 }
