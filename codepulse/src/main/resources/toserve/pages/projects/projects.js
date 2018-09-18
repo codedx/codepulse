@@ -421,8 +421,15 @@ $(document).ready(function(){
 
 			return function(node){
 				var baseColor = base(node)
-				if(Trace.isInstrumentedNode(node)) return baseColor
-				else return d3.interpolate('darkgray', baseColor)(.2)
+				let color = baseColor
+				if(Trace.isInstrumentedNode(node)) {
+					color = baseColor
+				} else {
+					color =  d3.interpolate('darkgray', baseColor)(.2)
+				}
+				
+				node.fillColor = color
+				return color
 			}
 		}
 

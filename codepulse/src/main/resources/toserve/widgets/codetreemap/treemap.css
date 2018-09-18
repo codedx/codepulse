@@ -24,6 +24,6 @@ g.treemap rect.node.ignored {
 }
 
 g.treemap text {
-	fill: #aaa;
+	/*fill: #aaa;*/
 	font-family: icomoon;
 }
