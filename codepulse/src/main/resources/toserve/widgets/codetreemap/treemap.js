@@ -537,13 +537,13 @@
 				.text(function() { return '\ue900' })
 				.attr('pointer-events', 'none')
 
-			function sizer(datum, defaultValue, minValueFunc) {
+			function sizer(datum, threshold, defaultValue, minValueFunc) {
 				min = datum.dx
 				if(datum.dy < min) {
 					min = datum.dy
 				}
 
-				if(min < 12) {
+				if(min < threshold) {
 					return minValueFunc(min)
 				} else {
 					return defaultValue
@@ -551,8 +551,9 @@
 			}
 
 			surfaceMark
-				.attr('y', d => sizer(d, 12, f => f))
-				.attr('font-size', d => sizer(d, '12px', f => f + 'px'))
+				.attr('y', d => sizer(d, 12, 12, f => f))
+				.attr('font-size', d => sizer(d, 12, '12px', f => f + 'px'))
+				.text(d => sizer(d, 10, '\ue900', f => '\ue903'))
 
 			updateLabels(widgetState, treemapNodes)
 			updateHoverLayer(widgetState)
