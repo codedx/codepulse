@@ -249,11 +249,11 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 			    SELECT t."id", t."parent_id", t."kind" FROM PUBLIC."tree_node_data" t WHERE t."is_surface_method" = true
 			    UNION ALL
 			    SELECT tr."id", tr."parent_id", tr."kind" FROM ANCESTORS INNER JOIN PUBLIC."tree_node_data" tr ON ANCESTORS.parent_id = tr."id"
-			            AND (ANCESTORS.kind = 'm' OR ANCESTORS.kind = 'c' OR (ANCESTORS.kind='p' AND tr."kind"='c'))
+			            AND (ANCESTORS.kind = 'm' OR ANCESTORS.kind = 'c' OR (ANCESTORS.kind='p' AND tr."kind"='c') OR (ANCESTORS.kind='g' AND tr."kind"='m'))
 			)
 			SELECT DISTINCT id
 			FROM ANCESTORS
-			WHERE kind='p'
+			WHERE kind='p' OR kind='g'
 			ORDER BY id""")
 		query.list()
 	}
