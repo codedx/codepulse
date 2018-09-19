@@ -42,6 +42,8 @@ object PackageTreeStreamer {
 		jg.writeStringField("label", node.label)
 		jg.writeNumberField("methodCount", node.methodCount)
 		for (traced <- node.traced) jg.writeBooleanField("traced", traced)
+		jg.writeBooleanField("isSurfaceMethod", node.isSurfaceMethod)
+		jg.writeBooleanField("hasSurfaceDescendants", node.hasSurfaceDescendants)
 
 		if (!node.otherDescendantIds.isEmpty) {
 			jg writeArrayFieldStart "otherDescendantIds"
