@@ -84,6 +84,52 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     }
   }
 
+  describe("When one nested group and a surface method") {
+    it("should return nested group ID") {
+      projectDb.withSession {
+        implicit session => {
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
+          treeNodeDataDao.storeNode(TreeNodeData(4, Some(1), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+
+          val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
+          assert(methodList.length == 1)
+          assert(methodList.head == 2)
+        }
+      }
+    }
+  }
+
+  describe("When one group and a surface method") {
+    it("should return group ID") {
+      projectDb.withSession {
+        implicit session => {
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
+
+          val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
+          assert(methodList.length == 1)
+          assert(methodList.head == 1)
+        }
+      }
+    }
+  }
+
+  describe("When one group and no surface methods") {
+    it("should return an empty list") {
+      projectDb.withSession {
+        implicit session => {
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+
+          val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
+          assert(methodList.length == 0)
+        }
+      }
+    }
+  }
+
   before {
     if (projectDb == null) {
       projectDb = Database.forURL(s"jdbc:h2:mem:project-for-ancestor;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
