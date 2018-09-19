@@ -19,8 +19,9 @@
 
 package com.secdec.codepulse.data.model
 
-import com.fasterxml.jackson.core.{ JsonFactory, JsonGenerator }
+import scala.collection.immutable.Queue
 
+import com.fasterxml.jackson.core.{ JsonFactory, JsonGenerator }
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 
 case class TreeNode(data: TreeNodeData, children: List[TreeNode])(treeNodeData: TreeNodeDataAccess) {
@@ -41,6 +42,8 @@ case class PackageTreeNode(
 	kind: CodeTreeNodeKind,
 	label: String,
 	methodCount: Int,
+	isSurfaceMethod: Boolean,
+	hasSurfaceDescendants: Boolean,
 	otherDescendantIds: List[Int],
 	children: List[PackageTreeNode])(
 	tracedLookup: => Option[Boolean],
@@ -124,11 +127,28 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 			builder.result
 		}
 
+		def hasSurfaceDescendants(node: TreeNode): Boolean = {
+			val nodes = new collection.mutable.Queue[TreeNode]
+			nodes ++= node.children
+
+			while(!nodes.isEmpty) {
+				val potentialNode = nodes.dequeue()
+				if(potentialNode.data.isSurfaceMethod.getOrElse(false)) {
+					return true
+				} else {
+					nodes ++= potentialNode.children
+				}
+			}
+
+			false
+		}
+
 		def transform(isRoot: Boolean)(node: TreeNode): PackageTreeNode = {
 			// we only want groups and packages
 			def filterChildren(children: List[TreeNode]) = children.filter { n => n.data.kind == CodeTreeNodeKind.Grp || n.data.kind == CodeTreeNodeKind.Pkg }
 
 			val otherDescendants = getOtherDescendants(node)
+			val nodeHasSurfaceDescendants = hasSurfaceDescendants(node)
 
 			if (isEligibleForSelfNode(node)) {
 				// split the node children depending on where they belong
@@ -138,10 +158,10 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 				}
 
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, otherDescendants, Nil)(node.traced, node.vulnerable)
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), Nil, selfNode :: filterChildren(children).map(transform(false)))(node.traced, node.vulnerable)
+				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, node.data.isSurfaceMethod.getOrElse(false), nodeHasSurfaceDescendants, otherDescendants, Nil)(node.traced, node.vulnerable)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.isSurfaceMethod.getOrElse(false), nodeHasSurfaceDescendants, Nil, selfNode :: filterChildren(children).map(transform(false)))(node.traced, node.vulnerable)
 			} else {
-				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), otherDescendants, filterChildren(node.children).map(transform(false)))(node.traced, node.vulnerable)
+				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), node.data.isSurfaceMethod.getOrElse(false), nodeHasSurfaceDescendants, otherDescendants, filterChildren(node.children).map(transform(false)))(node.traced, node.vulnerable)
 			}
 		}
 

@@ -136,6 +136,8 @@
 			var pw = new PackageWidget()
 			widgets[node.id] = pw
 			pw.associatedNode = node
+			pw.hasSurfaceDescendants(node.hasSurfaceDescendants)
+
 			// pw.parentNode = packageParentNode
 			widgetCount++
 
@@ -397,9 +399,16 @@
 		}
 
 		this.unselectAll = function(){
-			for(const key in widgets) {
-				widgets[key].selected(false)
-			}
+			forEachWidget(function(pw, node, id){
+				pw.selected(false)
+			})
+		}
+
+		this.isSurfaceOn = function(isSurfaceOn){
+			forEachWidget(function(pw, node, id){
+				pw.selectable(!isSurfaceOn)
+				pw.isSurfaceOn(isSurfaceOn)
+			})
 		}
 	}
 
