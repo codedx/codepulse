@@ -127,16 +127,16 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 			builder.result
 		}
 
-		def hasSurfaceDescendants(node: TreeNode): Boolean = {
+		def hasSurfaceDescendants(node: TreeNode, descendantFilter: TreeNode => Boolean): Boolean = {
 			val nodes = new collection.mutable.Queue[TreeNode]
-			nodes ++= node.children
+			nodes ++= node.children.filter(descendantFilter)
 
 			while(!nodes.isEmpty) {
 				val potentialNode = nodes.dequeue()
 				if(potentialNode.data.isSurfaceMethod.getOrElse(false)) {
 					return true
 				} else {
-					nodes ++= potentialNode.children
+					nodes ++= potentialNode.children.filter(descendantFilter)
 				}
 			}
 
@@ -148,7 +148,6 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 			def filterChildren(children: List[TreeNode]) = children.filter { n => n.data.kind == CodeTreeNodeKind.Grp || n.data.kind == CodeTreeNodeKind.Pkg }
 
 			val otherDescendants = getOtherDescendants(node)
-			val nodeHasSurfaceDescendants = hasSurfaceDescendants(node)
 
 			if (isEligibleForSelfNode(node)) {
 				// split the node children depending on where they belong
@@ -157,10 +156,13 @@ class TreeBuilder(treeNodeData: TreeNodeDataAccess) {
 					case _ => false
 				}
 
+				val nodeHasClassOrMethodSurfaceDescendants = hasSurfaceDescendants(node, n => n.data.kind == CodeTreeNodeKind.Cls || n.data.kind == CodeTreeNodeKind.Mth)
+
 				// build the self node
-				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, node.data.isSurfaceMethod.getOrElse(false), nodeHasSurfaceDescendants, otherDescendants, Nil)(node.traced, node.vulnerable)
-				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.isSurfaceMethod.getOrElse(false), nodeHasSurfaceDescendants, Nil, selfNode :: filterChildren(children).map(transform(false)))(node.traced, node.vulnerable)
+				val selfNode = PackageTreeNode(Some(node.data.id), node.data.kind, if (isRoot) "<root>" else "<self>", selfChildren.map(countMethods).sum, node.data.isSurfaceMethod.getOrElse(false), nodeHasClassOrMethodSurfaceDescendants, otherDescendants, Nil)(node.traced, node.vulnerable)
+				PackageTreeNode(None, node.data.kind, node.data.label, countMethods(node), node.data.isSurfaceMethod.getOrElse(false), nodeHasClassOrMethodSurfaceDescendants, Nil, selfNode :: filterChildren(children).map(transform(false)))(node.traced, node.vulnerable)
 			} else {
+				val nodeHasSurfaceDescendants = hasSurfaceDescendants(node, n => true)
 				PackageTreeNode(Some(node.data.id), node.data.kind, node.data.label, countMethods(node), node.data.isSurfaceMethod.getOrElse(false), nodeHasSurfaceDescendants, otherDescendants, filterChildren(node.children).map(transform(false)))(node.traced, node.vulnerable)
 			}
 		}
