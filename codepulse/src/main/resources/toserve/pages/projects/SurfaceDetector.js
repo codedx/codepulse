@@ -59,7 +59,7 @@
                 title = "Detecting surface methods..."
             }
             else if (hasResults(status)) {
-                title = "Found " + status.surfaceMethodCount + " surface method"
+                title = "Toggle view of " + status.surfaceMethodCount + " surface method"
                 if (status.surfaceMethodCount > 1) {
                     title += "s"
                 }

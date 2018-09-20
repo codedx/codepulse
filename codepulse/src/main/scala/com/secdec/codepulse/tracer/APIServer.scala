@@ -29,10 +29,11 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, JsonHelpers => DCJson }
-import com.secdec.codepulse.surface.{ JsonHelpers => SDJson }
+import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.dependencycheck.{DependencyCheckReporter, JsonHelpers => DCJson}
+import com.secdec.codepulse.surface.{SurfaceDetectorFinishedPayload, JsonHelpers => SDJson}
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import com.secdec.codepulse.tracer.snippet.{ ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp }
+import com.secdec.codepulse.tracer.snippet.{ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp}
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -53,13 +54,14 @@ import DCJson._
 import SDJson._
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.storage.StorageManager
+import com.secdec.codepulse.processing.ProcessStatus
 import com.secdec.codepulse.version
 
 case class NodeSourceMetadata(nodeId: Int, nodeLabel: String, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int, isSurfaceMethod: Boolean)
 case class NodeSourceFileContents(sourceFileId: Int, sourceFileContents: String)
 case class NodeTracedSourceLocations(nodeId: Int, sourceLocations: List[SourceLocation])
 
-class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
+class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager, generalEventBus: GeneralEventBus) extends RestHelper with Loggable {
 
 	implicit val executionContext = ExecutionContext fromExecutor Executors.newCachedThreadPool
 
@@ -368,6 +370,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		treeBuilderManager.visitNode(projectId, nodeId, node => {
 			node.isSurfaceMethod = Some(isSurfaceMethod)
 		})
+		generalEventBus.publish(ProcessStatus.Finished(projectId.num.toString,
+			"Surface Detector",
+			Some(SurfaceDetectorFinishedPayload(treeNodeData.getSurfaceMethodCount()))))
 	}
 
 	serve {

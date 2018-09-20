@@ -1,7 +1,8 @@
 val baseSettings = Seq(
 	organization := "com.codedx",
 	version := "UNVERSIONED",
-	BuildKeys.releaseDate := "N/A"
+	BuildKeys.releaseDate := "N/A",
+	resolvers := Resolver.sonatypeRepo("snapshots") +: resolvers.value
 )
 
 val scalaSettings = Seq(

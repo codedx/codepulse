@@ -257,4 +257,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 			ORDER BY id""")
 		query.list()
 	}
+
+	def getSurfaceMethodCount(implicit session: Session): Int = {
+		treeNodeData.filter(x => x.isSurfaceMethod).length.run
+	}
 }
