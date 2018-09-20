@@ -173,4 +173,8 @@ private[slick] class SlickTreeNodeDataAccess(dao: TreeNodeDataDao, db: Database)
 	def getSurfaceMethodAncestorPackages: List[Int] = db.withSession { implicit session =>
 		dao.getSurfaceMethodAncestorPackages
 	}
+
+	def getSurfaceMethodCount(): Int = db.withSession { implicit session =>
+		dao.getSurfaceMethodCount
+	}
 }

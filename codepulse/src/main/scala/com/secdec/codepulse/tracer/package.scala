@@ -79,7 +79,7 @@ package object tracer {
 		generalEventBus set new GeneralEventBus
 		projectManager set tm
 		projectFileUploadServer set new ProjectFileUploadHandler(tm, generalEventBus).initializeServer
-		apiServer set new APIServer(tm, tbm).initializeServer
+		apiServer set new APIServer(tm, tbm, generalEventBus).initializeServer
 
 		val projectInputActor = actorSystem actorOf Props[ProjectInputActor]
 		generalEventBus.subscribe(projectInputActor, "Failed")
