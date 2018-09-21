@@ -116,6 +116,7 @@
 			_selected = 0,
 			_selectable = true,
 			_selectedBus = new Bacon.Bus(),
+			_enabled = true,
 
 			_instrumentationSelected = 0,
 			_instrumentationSelectable = true,
@@ -191,6 +192,13 @@
 			if(!arguments.length) return _selectable
 
 			_selectable = newSel
+			return self
+		}
+
+		this.enabled = function(newEnabled){
+			if(!arguments.length) return _enabled
+
+			_enabled = newEnabled
 			return self
 		}
 
@@ -439,7 +447,7 @@
 		$(window).resize(updateBarLabelPlacement)
 		this.uiParts.contentContainer.click(function(){
 			// as long as the widget is 'selectable', toggle it when clicked
-			if(_selectable || (_isSurfaceOn && _hasSurfaceDescendants && _childWidgets.length == 0)) {
+			if(_enabled && (_selectable || (_isSurfaceOn && _hasSurfaceDescendants && _childWidgets.length == 0))) {
 				// self.selected('toggle') 
 				self.selectionClicks.push(1)
 			}

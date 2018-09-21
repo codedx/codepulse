@@ -36,7 +36,9 @@ $(document).ready(function(){
 		// initialize dependency check controller
 		depCheckController = new DependencyCheckController($('#dependency-check-report')),
 
-		surfaceDetectorController = new SurfaceDetectorController();
+		surfaceDetectorController = new SurfaceDetectorController(),
+
+		controller = null;
 
 	let isAttackSurfaceOn = false
 
@@ -132,6 +134,7 @@ $(document).ready(function(){
         let toggleSurfaceMethodSubscription = null
 
         function deactivatePopout() {
+        	if(controller) controller.enabled(true)
             $popoutHeader.empty()
             sourceView.setSourceView(null, '')
             $popout.removeClass('active')
@@ -274,6 +277,7 @@ $(document).ready(function(){
 
 					sourceView.setSourceView(mode, source)
 					sourceView.scrollToLine(selection.metadata.methodStartLine)
+					if(controller) controller.enabled(false)
 
 					coverageUpdateSubscription = Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings) {
 						if (selection.refresh) {
@@ -489,7 +493,7 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
+		controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
 
 		surfaceDetectorController.showSurface.onValue(function(isOn) {
 			isAttackSurfaceOn = isOn;

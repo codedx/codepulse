@@ -410,6 +410,12 @@
 				pw.isSurfaceOn(isSurfaceOn)
 			})
 		}
+
+		this.enabled = function(enabled){
+			forEachWidget(function(pw, node, id) {
+				pw.enabled(enabled)
+			})
+		}
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets
