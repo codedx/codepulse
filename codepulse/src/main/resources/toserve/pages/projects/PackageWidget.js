@@ -125,8 +125,7 @@
 			_collapseChildren = false,
 			_childWidgets = [],
 
-			_isSurfaceOn = false,
-			_hasSurfaceDescendants = false
+			_isSurfaceOn = false
 
 		// ============================================================================
 		// UI Selected Elements
@@ -206,13 +205,6 @@
 			if(!arguments.length) return _isSurfaceOn
 
 			_isSurfaceOn = newIsSurfaceOn
-			return self
-		}
-
-		this.hasSurfaceDescendants = function(newHasSurfaceDescendants){
-			if(!arguments.length) return _hasSurfaceDescendants
-
-			_hasSurfaceDescendants = newHasSurfaceDescendants
 			return self
 		}
 
@@ -447,7 +439,7 @@
 		$(window).resize(updateBarLabelPlacement)
 		this.uiParts.contentContainer.click(function(){
 			// as long as the widget is 'selectable', toggle it when clicked
-			if(_enabled && (_selectable || (_isSurfaceOn && _hasSurfaceDescendants && _childWidgets.length == 0))) {
+			if(_enabled && _selectable) {
 				// self.selected('toggle') 
 				self.selectionClicks.push(1)
 			}

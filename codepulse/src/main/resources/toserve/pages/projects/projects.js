@@ -504,6 +504,16 @@ $(document).ready(function(){
 			});
 		});
 
+		surfaceDetectorController.surfaceDetectorUpdates.onValue(function(status) {
+			if(isAttackSurfaceOn) {
+				API.getAttackSurface(function(data) {
+					controller.unselectAll();
+					controller.selectWidgetsForNodes(data);
+					controller.isSurfaceOn(true)
+				})
+			}
+		})
+
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
 		controller.instrumentedWidgets.onValue(function(set){

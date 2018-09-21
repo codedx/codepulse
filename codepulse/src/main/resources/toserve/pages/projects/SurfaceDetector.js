@@ -34,6 +34,7 @@
         const finishedStateName = "finished"
 
         this.showSurface = showSurfaceBus.toProperty().noLazy()
+        this.surfaceDetectorUpdates = surfaceDetectorUpdateBus.toProperty().noLazy()
 
         this.cancelShowSurface = function() {
             if (isShowSurfaceOn()) {
