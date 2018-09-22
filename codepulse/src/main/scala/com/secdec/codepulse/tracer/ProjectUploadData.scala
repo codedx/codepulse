@@ -20,17 +20,20 @@
 package com.secdec.codepulse.tracer
 
 import java.io.File
+
+import com.codedx.codepulse.utility.Loggable
+import com.secdec.codepulse.data.model.{ProjectData, ProjectId}
+import com.secdec.codepulse.data.storage.StorageManager
+import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.processing.ProcessStatus.ProcessDataAvailable
+import com.secdec.codepulse.tracer.export.ProjectImporter
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import com.secdec.codepulse.components.dependencycheck.{ Updates => DependencyCheckUpdates }
-import com.secdec.codepulse.data.model.{ ProjectData, ProjectId }
-import com.secdec.codepulse.tracer.export.ProjectImporter
-import com.codedx.codepulse.utility.Loggable
-
 object ProjectUploadData extends Loggable {
 
-	def handleProjectExport(file: File, cleanup: => Unit): ProjectId = createAndLoadProjectData { projectData =>
+	def handleProjectExport(file: File, eventBus: GeneralEventBus, cleanup: => Unit): ProjectId = createAndLoadProjectData(eventBus, { projectData =>
 
 		// Note: the `creationDate` should have been filled in by the importer.
 		//The `importDate` is now.
@@ -41,7 +44,7 @@ object ProjectUploadData extends Loggable {
 		} finally {
 			cleanup
 		}
-	}
+	})
 
 	/** A preliminary check on a File to see if it looks like an
 	  * exported .pulse file.
@@ -68,7 +71,7 @@ object ProjectUploadData extends Loggable {
 	  * upload itself was successful; they will see a 'loading' screen on the
 	  * project page, rather than waiting for a progress bar in the upload form.
 	  */
-	def createAndLoadProjectData(doLoad: ProjectData => Unit) = {
+	def createAndLoadProjectData(eventBus: GeneralEventBus, doLoad: ProjectData => Unit) = {
 		val projectId = projectManager.createProject
 		val projectData = projectDataProvider getProject projectId
 
@@ -84,6 +87,7 @@ object ProjectUploadData extends Loggable {
 
 			case util.Success(_) =>
 				for (target <- projectManager getProject projectId) {
+					eventBus.publish(ProcessDataAvailable(projectId.num.toString, StorageManager.getStorageFor(projectId).get, target.projectData.treeNodeData, target.projectData.sourceData))
 					target.notifyLoadingFinished()
 				}
 		}

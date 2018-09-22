@@ -118,7 +118,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 						s"The file you picked isn't an exported project file."
 					}
 				} yield {
-					val projectId = ProjectUploadData.handleProjectExport(inputFile, { cleanup() })
+					val projectId = ProjectUploadData.handleProjectExport(inputFile, eventBus, { cleanup() })
 
 					hrefResponse(projectId)
 				}
