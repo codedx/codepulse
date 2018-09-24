@@ -43,7 +43,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
 
   describe("Version v2.1 of a project export file") {
     it("should import surface method") {
-      val file = new ZipFile(getClass.getResource("WebApi.v2.1.pulse").getPath)
+      val file = new ZipFile(getClass.getResource("WebApi.v2.1.pulse").getPath.replaceAll("%20", " "))
 
       val mockInputStore = mock[InputStore]
       (mockInputStore.storeInput(_,_)).expects(*,*).once()
@@ -74,7 +74,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
 
   describe("Version v2 of a project export file") {
     it("should import source file, location data, and include input file") {
-      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.WithSourceFile.pulse").getPath)
+      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.WithSourceFile.pulse").getPath.replaceAll("%20", " "))
 
       val mockInputStore = mock[InputStore]
       (mockInputStore.storeInput(_,_)).expects(*,*).once()
@@ -170,7 +170,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
 
   describe("Version v2 of a project created from a legacy export file") {
     it("should not include input file") {
-      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.legacy.pulse").getPath)
+      val file = new ZipFile(getClass.getResource("InvokeAMethod.v2.legacy.pulse").getPath.replaceAll("%20", " "))
 
       val mockInputStore2 = mock[InputStore]
       (mockInputStore2.storeInput(_,_)).expects(*,*).never()
@@ -267,7 +267,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
   describe("Version v1 of a project export file") {
     it("should import with no source file and source location data") {
 
-      val file = new ZipFile(getClass.getResource("InvokeAMethod.v1.pulse").getPath)
+      val file = new ZipFile(getClass.getResource("InvokeAMethod.v1.pulse").getPath.replaceAll("%20", " "))
       val importer = new ProjectImportReaderV1()
       importer.doImport(StorageManager, file, data)
       data.flush(); Thread.sleep(5000)

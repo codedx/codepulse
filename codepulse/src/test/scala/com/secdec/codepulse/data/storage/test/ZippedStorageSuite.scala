@@ -28,9 +28,9 @@ import org.scalatest.Matchers._
 
 class ZippedStorageSuite extends FunSpec with Matchers {
 //	val LOCK_ARCHIVE = ""
-	val SINGLE_LEVEL_ARCHIVE = getClass.getResource("single-level.zip").getPath
-	val MULTI_LEVEL_ARCHIVE = getClass.getResource("multi-level.zip").getPath
-	val NESTED_ARCHIVE = getClass.getResource("nested.zip").getPath
+	val SINGLE_LEVEL_ARCHIVE = getClass.getResource("single-level.zip").getPath.replaceAll("%20", " ")
+	val MULTI_LEVEL_ARCHIVE = getClass.getResource("multi-level.zip").getPath.replaceAll("%20", " ")
+	val NESTED_ARCHIVE = getClass.getResource("nested.zip").getPath.replaceAll("%20", " ")
 
 	describe("A ZippedStorage") {
 //		it("should not maintain a lock on the archive file") {

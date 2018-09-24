@@ -40,7 +40,7 @@ class JavaSuite extends FunSpec with Matchers {
 		}
 
 		def shouldParseMethodsFromJarFile(jarFilename: String): Unit = {
-			val file = new ZipFile(getClass.getResource(jarFilename).getPath)
+			val file = new ZipFile(getClass.getResource(jarFilename).getPath.replaceAll("%20", " "))
 			val entry = file.getEntry("Main.class")
 			val stream = file.getInputStream(entry)
 			try {

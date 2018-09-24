@@ -29,8 +29,8 @@ import org.scalatest._
 import org.scalatest.Matchers._
 
 class JavaParsingSuite extends FunSpec with Matchers {
-	val SOURCE = getClass.getResource("Main.java").getPath
-	val BINARY = getClass.getResource("Main.class").getPath
+	val SOURCE = getClass.getResource("Main.java").getPath.replaceAll("%20", " ")
+	val BINARY = getClass.getResource("Main.class").getPath.replaceAll("%20", " ")
 
 	val MAIN_SIGNATURE = "com/sample/Main.main;void;String[]"
 
