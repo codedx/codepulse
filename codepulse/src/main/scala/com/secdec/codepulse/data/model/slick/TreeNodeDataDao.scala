@@ -231,7 +231,7 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 
 	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int)(implicit session: Session): List[Int] = {
 		(for {
-			treeNodeDataItem <- treeNodeData
+			treeNodeDataItem <- treeNodeData.sortBy(x => x.methodStartLine)
 			sourceFile <- treeNodeDataItem.sourceFile
 			if sourceFile.path === sourceFilePath &&
 				treeNodeDataItem.methodStartLine >= startingLineNumber && treeNodeDataItem.methodStartLine <= endingLineNumber
