@@ -87,7 +87,7 @@ object ProjectUploadData extends Loggable {
 
 			case util.Success(_) =>
 				for (target <- projectManager getProject projectId) {
-					eventBus.publish(ProcessDataAvailable(projectId.num.toString, StorageManager.getStorageFor(projectId).get, target.projectData.treeNodeData, target.projectData.sourceData))
+					eventBus.publish(ProcessDataAvailable(projectId.num.toString, StorageManager.getStorageFor(projectId).get, target.projectData.treeNodeData, target.projectData.sourceData, target.projectData.metadata))
 					target.notifyLoadingFinished()
 				}
 		}

@@ -36,39 +36,47 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus, treeBuilderManager
   private val surfaceDetectorActionName = "Surface Detector"
 
   def receive = {
-    case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, treeNodeData, sourceData)) => {
+    case ProcessEnvelope(_, ProcessDataAvailable(identifier, _, treeNodeData, sourceData, metadata)) => {
       try {
         def status(processStatus: ProcessStatus): Unit = {
           eventBus.publish(processStatus)
         }
 
-        status(ProcessStatus.Running(identifier, surfaceDetectorActionName))
-
-        val projectId = ProjectId(identifier.toInt)
-        val path = StorageManager.getExtractedStorageFor(projectId)
-        val surfaceEndpoints = SurfaceDetector.run(path)
-
-        def markSurfaceMethod(sourceFilePath: String, id: Int): Unit = {
-          logger.debug("Marking surface method {} from file {}", id, sourceFilePath)
-          treeNodeData.markSurfaceMethod(id, Some(true))
-          treeBuilderManager.visitNode(projectId, id, node => {
-            node.isSurfaceMethod = Some(true)
-          })
+        val isImportedProject = metadata.importDate.isDefined
+        if (isImportedProject) {
+          status(ProcessStatus.Finished(identifier,
+            surfaceDetectorActionName,
+            Some(SurfaceDetectorFinishedPayload(treeNodeData.getSurfaceMethodCount))))
         }
+        else {
+          status(ProcessStatus.Running(identifier, surfaceDetectorActionName))
 
-        surfaceEndpoints.map(x => {
-          logger.debug("Found endpoint in file {}", x.filePath)
-          logger.debug("  line {} - {}", x.startingLineNumber, x.endingLineNumber)
-          val sourceFilePath = if (x.filePath.length > 1 && x.filePath.startsWith("/")) x.filePath.substring(1) else x.filePath
-          val isJsp = sourceFilePath.toLowerCase().endsWith(".jsp")
-          if (isJsp) {
-            treeNodeData.findMethods(sourceFilePath).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
-          } else {
-            treeNodeData.findMethods(sourceFilePath, x.startingLineNumber, x.endingLineNumber).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+          val projectId = ProjectId(identifier.toInt)
+          val path = StorageManager.getExtractedStorageFor(projectId)
+          val surfaceEndpoints = SurfaceDetector.run(path)
+
+          def markSurfaceMethod(sourceFilePath: String, id: Int): Unit = {
+            logger.debug("Marking surface method {} from file {}", id, sourceFilePath)
+            treeNodeData.markSurfaceMethod(id, Some(true))
+            treeBuilderManager.visitNode(projectId, id, node => {
+              node.isSurfaceMethod = Some(true)
+            })
           }
-        })
 
-        status(ProcessStatus.Finished(identifier, surfaceDetectorActionName, Some(SurfaceDetectorFinishedPayload(surfaceEndpoints.length))))
+          surfaceEndpoints.map(x => {
+            logger.debug("Found endpoint in file {}", x.filePath)
+            logger.debug("  line {} - {}", x.startingLineNumber, x.endingLineNumber)
+            val sourceFilePath = if (x.filePath.length > 1 && x.filePath.startsWith("/")) x.filePath.substring(1) else x.filePath
+            val isJsp = sourceFilePath.toLowerCase().endsWith(".jsp")
+            if (isJsp) {
+              treeNodeData.findMethods(sourceFilePath).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+            } else {
+              treeNodeData.findMethods(sourceFilePath, x.startingLineNumber, x.endingLineNumber).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+            }
+          })
+
+          status(ProcessStatus.Finished(identifier, surfaceDetectorActionName, Some(SurfaceDetectorFinishedPayload(surfaceEndpoints.length))))
+        }
       } catch {
         case exception: Exception => {
           logger.error(s"Surface detector failed with error: ${Throwable.getStackTraceAsString(exception)}")

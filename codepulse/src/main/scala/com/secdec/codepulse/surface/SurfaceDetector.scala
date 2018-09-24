@@ -49,10 +49,9 @@ object SurfaceDetector {
     val databases = frameworkTypes.asScala.map(f => EndpointDatabaseFactory.getDatabase(path, f))
 
     if (!databases.isEmpty) {
-      val endpoints = databases.flatMap(_.generateEndpoints().asScala)
-      val flattenedEndpoints = EndpointUtil.flattenWithVariants(endpoints.asJavaCollection)
-      for (flattenedEndpoint <- flattenedEndpoints.asScala)
-        yield SurfaceEndpoint(flattenedEndpoint.getFilePath, flattenedEndpoint.getStartingLineNumber, flattenedEndpoint.getEndingLineNumber)
+      databases.flatMap(_.generateEndpoints().asScala)
+        .map(x => SurfaceEndpoint(x.getFilePath, x.getStartingLineNumber, x.getEndingLineNumber))
+        .distinct
     } else {
       Seq.empty[SurfaceEndpoint]
     }
