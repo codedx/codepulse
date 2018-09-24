@@ -35,7 +35,7 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 	private val dependencyCheckActionName = "Dependency Check"
 
 	def receive = {
-		case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, treeNodeData, sourceData)) => {
+		case ProcessEnvelope(_, ProcessDataAvailable(identifier, storage, treeNodeData, sourceData, _)) => {
 			def status(processStatus: ProcessStatus): Unit = {
 				eventBus.publish(processStatus)
 			}

@@ -90,7 +90,7 @@ class ProjectFileUploadHandler(projectManager: ProjectManager, eventBus: General
 							}
 						}
 
-						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, storage, projectData.treeNodeData, projectData.sourceData, post))
+						eventBus.publish(ProcessStatus.DataInputAvailable(projectData.id.num.toString, storage, projectData.treeNodeData, projectData.sourceData, projectData.metadata, post))
 					}))
 
 					val projectData = Await.result(createProjectFuture.mapTo[ProjectData], awaitTimeout.duration)

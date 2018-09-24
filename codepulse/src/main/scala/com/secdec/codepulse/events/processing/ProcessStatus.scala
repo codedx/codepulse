@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.processing
 
-import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess }
+import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, ProjectMetadata }
 import com.secdec.codepulse.data.storage.Storage
 
 sealed trait ProcessStatus
@@ -35,8 +35,8 @@ object ProcessStatus {
 	case class Failed(identifier: String, action: String, payload: Option[Exception]) extends ProcessStatus
 	case class Unknown(identifier: String, action: String) extends ProcessStatus
 
-	case class DataInputAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, post: () => Unit) extends ProcessStatus
-	case class ProcessDataAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess) extends ProcessStatus
+	case class DataInputAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, metadata: ProjectMetadata, post: () => Unit) extends ProcessStatus
+	case class ProcessDataAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, metadata: ProjectMetadata) extends ProcessStatus
 
 	import scala.language.implicitConversions
 	implicit def asEnvelope(processStatus: ProcessStatus): ProcessEnvelope = {
