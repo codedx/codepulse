@@ -34,7 +34,7 @@ import org.apache.commons.io.FilenameUtils
 class DotNETProcessor() extends LanguageProcessor {
 	val group = "Classes"
 	val traceGroups = (group :: Nil).toSet
-	val sourceExtensions = List("cs", "vb", "fs", "fsi", "fsx", "fsscript", "cpp")
+	val sourceExtensions = List("cs", "vb", "fs", "cpp", "h")
 
 	val symbolService = new SymbolService
 	symbolService.create
@@ -58,14 +58,14 @@ class DotNETProcessor() extends LanguageProcessor {
 			val groupName = if (filename == storage.name) group else s"Assemblies/${filename substring storage.name.length + 1}"
 			entryFilePath.foreach(efp => {
 				entryPath match {
-					case Some(ep) => pathStore.addBinding((groupName, efp.name), entryPath)
-					case None => pathStore.addBinding((groupName, efp.name), Some(new NestedPath(List(efp))))
+					case Some(ep) => pathStore.addBinding((groupName, efp.name.toLowerCase), entryPath)
+					case None => pathStore.addBinding((groupName, efp.name.toLowerCase), Some(new NestedPath(List(efp))))
 				}
 			})
 		}
 
 		def authoritativePath(group: String, filePath: NestedPath): Option[NestedPath] = {
-			pathStore.get((group, filePath.paths.last.name)) match {
+			pathStore.get((group, filePath.paths.last.name.toLowerCase)) match {
 				case None => None
 				case Some(fps) => {
 					fps.flatten.find { authority => PathNormalization.isLocalisedSameAsAuthority(authority, filePath) }

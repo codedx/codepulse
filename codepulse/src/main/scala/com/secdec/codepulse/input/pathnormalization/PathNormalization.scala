@@ -52,7 +52,7 @@ object FilePath {
 
 object PathNormalization {
 	def isLocalizedSameAsAuthority(authority: FilePath, localized: FilePath): Boolean = {
-		if(authority.name == localized.name) {
+		if(authority.name.equalsIgnoreCase(localized.name)) {
 			authority.parent match {
 				case None => true
 				case Some(_) => (for {
