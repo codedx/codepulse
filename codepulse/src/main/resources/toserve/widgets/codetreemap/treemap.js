@@ -537,6 +537,8 @@
 				.text(function() { return '\ue900' })
 				.attr('pointer-events', 'none')
 
+			surfaceMark.exit().remove()
+
 			function sizer(datum, threshold, defaultValue, minValueFunc) {
 				min = datum.dx
 				if(datum.dy < min) {

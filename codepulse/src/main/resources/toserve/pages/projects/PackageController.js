@@ -416,6 +416,17 @@
 				pw.enabled(enabled)
 			})
 		}
+
+		this.widgetsSelected = function(){
+			let nodeIds = []
+			forEachWidget(function(pw, node, id) {
+				if(pw.selected()) {
+					nodeIds.push(id)
+				}
+			})
+
+			return nodeIds
+		}
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets

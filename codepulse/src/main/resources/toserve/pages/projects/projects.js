@@ -511,6 +511,11 @@ $(document).ready(function(){
 					controller.selectWidgetsForNodes(data);
 					controller.isSurfaceOn(true)
 				})
+			} else {
+				let selectedWidgets = controller.widgetsSelected()
+				controller.unselectAll()
+				controller.selectWidgetsForNodes(selectedWidgets)
+				controller.isSurfaceOn(false)
 			}
 		})
 
