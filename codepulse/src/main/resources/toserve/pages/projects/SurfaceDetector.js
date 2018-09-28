@@ -75,7 +75,7 @@
         }
 
         function toggleShowSurface() {
-            if (!$surfaceButton.hasClass('hasResults')) {
+            if (!$surfaceButton.hasClass('hasResults') && !isShowSurfaceOn()) {
                 return
             }
 
