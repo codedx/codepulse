@@ -75,7 +75,7 @@ class DependencyCheckPostProcessor(eventBus: GeneralEventBus, scanSettings: (Str
 			if (!vulns.isEmpty) {
 				vulnDeps += 1
 				val f = new File((dep \ "filePath").text)
-				val jarLabel = f.pathSegments.drop(scanSettings.app.pathSegments.length).mkString("JARs / ", " / ", "")
+				val jarLabel = f.pathSegments.drop(scanSettings.app.pathSegments.length).mkString("JARs/", "/", "")
 				for (node <- treeNodeData getNode jarLabel) {
 					node.flags += TreeNodeFlag.HasVulnerability
 					vulnNodes += node.id

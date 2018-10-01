@@ -211,16 +211,18 @@
  
  .widget-label .vuln-badge {
  	float: right;
+ 	background: #ec0a0a;
+ 	border-radius: 2px;
+ 	padding: 0 4px;
  	line-height: 22px;
  	margin: 0 4px;
- 	color: coral;
+ 	font-size: 80%;
+ 	color: whitesmoke;
  	cursor: pointer;
- 	padding: 0 2px;
  }
 
  .widget-label .vuln-badge:hover {
- 	background: coral;
- 	color: black;
+ 	background: #f85353;
  }
 
  .widget-label .vuln-badge.bubbled {
@@ -238,6 +240,10 @@
  	cursor: pointer;
  	transition: background 0.25s ease;
  }
+
+.widget-label .dependencycheck-badge:hover {
+	background: #f85353;
+}
 
  .widget-label .dependencycheck-badge.clean {
  	background: rgb(12, 160, 12);
@@ -392,14 +398,14 @@
  /* The 'complete' bar of the barchart */
  .widget-barchart .bar-shell {
  	height: 14px;
- 	background-color: #fefeff12;
+ 	background-color: #323232;
  	box-sizing: border-box;
  	margin-top: 3px;
  }
  
  /* The 'fill' part of the barchart. The width will be set by javascript. */
  .widget-barchart .bar-shell .bar-fill {
- 	background-color: white;
+ 	background-color: #b7b4b4;
  	height: 100%;
  	position: relative;
  }
