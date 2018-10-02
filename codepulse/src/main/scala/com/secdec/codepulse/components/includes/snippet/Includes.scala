@@ -118,7 +118,8 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("thirdparty/codemirror/mode/javascript/javascript.js"),
 		JS("thirdparty/codemirror/mode/css/css.js"),
 		JS("thirdparty/codemirror/mode/htmlmixed/htmlmixed.js"),
-		JS("thirdparty/codemirror/mode/htmlembedded/htmlembedded.js"))
+		JS("thirdparty/codemirror/mode/htmlembedded/htmlembedded.js"),
+		JS("thirdparty/codemirror/mode/mllike/mllike.js"))
 	val underscore = register("underscore", JS("thirdparty/underscore/underscore-min.js"))
 	val handlebars = register("handlebars", JS("thirdparty/handlebars/handlebars.js"))
 
