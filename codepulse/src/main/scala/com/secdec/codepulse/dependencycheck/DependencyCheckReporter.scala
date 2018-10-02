@@ -61,7 +61,7 @@ object DependencyCheckReporter {
 			dep <- xml \\ "dependency"
 			file = new File((dep \ "filePath").text)
 			jarLabel = file.pathSegments.drop(baseSegmentCount).mkString("/")
-			jarPath = file.pathSegments.drop(baseSegmentCount).mkString("JARs / ", " / ", "")
+			jarPath = file.pathSegments.drop(baseSegmentCount).mkString("JARs/", "/", "")
 			if interested contains jarPath
 			vulns = dep \\ "vulnerability"
 		} yield {
