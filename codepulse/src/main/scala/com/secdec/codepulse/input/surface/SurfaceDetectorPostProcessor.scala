@@ -68,10 +68,12 @@ class SurfaceDetectorPostProcessor(eventBus: GeneralEventBus, treeBuilderManager
             logger.debug("  line {} - {}", x.startingLineNumber, x.endingLineNumber)
             val sourceFilePath = if (x.filePath.length > 1 && x.filePath.startsWith("/")) x.filePath.substring(1) else x.filePath
             val isJsp = sourceFilePath.toLowerCase().endsWith(".jsp")
-            if (isJsp) {
-              treeNodeData.findMethods(sourceFilePath).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+            val foundMethod = if (isJsp) treeNodeData.findMethods(sourceFilePath).headOption else treeNodeData.findMethods(sourceFilePath, x.startingLineNumber, x.endingLineNumber).headOption
+            if (foundMethod.isEmpty) {
+              val missingMethodDescription = s"Unable to find method for discovered endpoint in ${x.filePath} at line number range ${x.startingLineNumber}-${x.endingLineNumber}."
+              logger.warn(missingMethodDescription)
             } else {
-              treeNodeData.findMethods(sourceFilePath, x.startingLineNumber, x.endingLineNumber).headOption.map(x => markSurfaceMethod(sourceFilePath, x))
+              markSurfaceMethod(sourceFilePath, foundMethod.get)
             }
           })
 
