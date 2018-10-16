@@ -75,23 +75,23 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			signature.name + ";" + signature.simplifiedReturnType.name + ";" + signature.simplifiedArgumentTypes.map(_.name).mkString(";")
 		}
 
-		def getMethodAndStart(mi: MethodInfo, ci: ClassInfo): (String, Int) = {
-			(ci.signature.name.slashedName + "." + signatureAsString(mi.signature), mi.lines.start)
+		def getMethodAndRange(mi: MethodInfo, ci: ClassInfo): (String, Int, Int) = {
+			(ci.signature.name.slashedName + "." + signatureAsString(mi.signature), mi.lines.start, mi.lines.end)
 		}
 
-		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int)] = {
+		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int, Int)] = {
 			ls match {
 				case Nil => Nil
-				case l => l.flatMap(ci => ci.memberMethods.map(mi => getMethodAndStart(mi, ci))) ::: l.flatMap(ci => flattenToMethods(ci.memberClasses))
+				case l => l.flatMap(ci => ci.memberMethods.map(mi => getMethodAndRange(mi, ci))) ::: l.flatMap(ci => flattenToMethods(ci.memberClasses))
 			}
 		}
 
-		val sourceMethods = new HashMap[String, List[(String, Int)]]
+		val sourceMethods = new HashMap[String, List[(String, Int, Int)]]
 		storage.readEntries(sourceType("java") _) { (filename, entryPath, entry, contents) =>
 			val hierarchy = JavaSourceParsing.tryParseJavaSource(new CloseShieldInputStream(contents))
 			val methodsAndStarts = hierarchy match {
 				case Success(h) => flattenToMethods(h)
-				case Failure(_) => List.empty[(String, Int)]
+				case Failure(_) => List.empty[(String, Int, Int)]
 			}
 
 			val authority = entryPath.flatMap(ep =>
@@ -134,16 +134,24 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 								case None => new NestedPath(List(fp))
 							})
 							authority = nestedPath.flatMap(np => authoritativePath(groupName, np).map (_.toString))
-							methodsAndStartLines = authority.flatMap(sourceMethods.get)
+							methodsAndRanges = authority.flatMap(sourceMethods.get)
 							Array(nameStr, accessStr, rawSignature) = name.split(";", 3)
 							binaryMethodSignature = Try(JavaBinaryMethodSignature.parseMemoV1(String.join(";", accessStr, nameStr, rawSignature)))
 							startLine = binaryMethodSignature.toOption.flatMap(bms =>
-								methodsAndStartLines.flatMap { l =>
-									val potentials = l.filter { case (qualifiedName, line) => qualifiedName == signatureAsString(bms) }
+								methodsAndRanges.flatMap { l =>
+									val potentials = l.filter { case (qualifiedName, _, _) => qualifiedName == signatureAsString(bms) }
 									val selection = potentials.headOption
-									selection.map(_._2)
+									val start = selection.map(_._2)
+									start
 								})
-							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine, None)
+							endLine = binaryMethodSignature.toOption.flatMap(bms =>
+								methodsAndRanges.flatMap { l =>
+									val potentials = l.filter { case (qualifiedName, _, _) => qualifiedName == signatureAsString(bms) }
+									val selection = potentials.headOption
+									val end = selection.map(_._3)
+									end
+								})
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine, endLine, None)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
 						}

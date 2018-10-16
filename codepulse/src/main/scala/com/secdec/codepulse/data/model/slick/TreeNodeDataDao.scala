@@ -56,8 +56,9 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		def sourceFileId = column[Option[Int]]("source_file_id", O.Nullable)
 		def sourceLocationCount = column[Option[Int]]("source_location_count", O.Nullable)
 		def methodStartLine = column[Option[Int]]("method_start_line", O.Nullable)
+		def methodEndLine = column[Option[Int]]("method_end_line", O.Nullable)
 		def isSurfaceMethod = column[Option[Boolean]]("is_surface_method", O.Nullable)
-		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine, isSurfaceMethod) <> (TreeNode.tupled, TreeNode.unapply)
+		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine, methodEndLine, isSurfaceMethod) <> (TreeNode.tupled, TreeNode.unapply)
 		def labelIndex = index("tnd_label_index", label)
 
 		def sourceFile = foreignKey("tree_node_data_to_source_file", sourceFileId, sourceDataDao.sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
@@ -234,7 +235,8 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 			treeNodeDataItem <- treeNodeData.sortBy(x => x.methodStartLine)
 			sourceFile <- treeNodeDataItem.sourceFile
 			if sourceFile.path === sourceFilePath &&
-				treeNodeDataItem.methodStartLine >= startingLineNumber && treeNodeDataItem.methodStartLine <= endingLineNumber
+				(treeNodeDataItem.methodEndLine >= startingLineNumber && treeNodeDataItem.methodStartLine <= endingLineNumber)
+
 		} yield (treeNodeDataItem.id)).list
 	}
 

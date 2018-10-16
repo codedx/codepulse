@@ -27,7 +27,7 @@ import com.secdec.codepulse.data.MethodSignature
 import org.apache.commons.io.{ FileUtils, FilenameUtils }
 
 trait DotNetBuilder {
-	def Methods: List[(MethodSignature, Int, Int, Int)]
+	def Methods: List[(MethodSignature, Int, Int, Int, Int)]
 }
 
 case class MethodInfo(
@@ -41,7 +41,8 @@ case class MethodInfo(
 	instructions: Int,
 	sequencePointCount: Int,
 	surrogateFor: String,
-	methodStartLine: Int
+	methodStartLine: Int,
+	methodEndLine: Int
 )
 
 object DotNet {

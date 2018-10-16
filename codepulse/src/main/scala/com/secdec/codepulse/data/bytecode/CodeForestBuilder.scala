@@ -59,8 +59,9 @@ class CodeForestBuilder {
 			val sourceFileId = node.sourceFile.flatMap(source => getSourceFileId(rootGroup, source))
 			val sourceLocationCount = node.sourceLocationCount
 			val methodStartLine = node.methodStartLine
+			val methodEndLine = node.methodEndLine
 			val isSurfaceMethod = node.isSurfaceMethod
-			root -> TreeNodeData(id, parentId, name, kind, size, sourceFileId, sourceLocationCount, methodStartLine, isSurfaceMethod)
+			root -> TreeNodeData(id, parentId, name, kind, size, sourceFileId, sourceLocationCount, methodStartLine, methodEndLine, isSurfaceMethod)
 		}
 	}
 
@@ -97,13 +98,13 @@ class CodeForestBuilder {
 		this
 	}
 
-	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], isSurfaceMethod: Option[Boolean]): Option[CodeTreeNode] = {
+	def getOrAddMethod(group: String, rawSig: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], methodEndLine: Option[Int], isSurfaceMethod: Option[Boolean]): Option[CodeTreeNode] = {
 		sourceFile.foreach(addSourceFile(group, _))
 
-		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile, sourceLocationCnt, methodStartLine, isSurfaceMethod) }
+		MethodSignatureParser.parseSignature(rawSig, sourceFile) map { getOrAddMethod(group, _, size, sourceFile, sourceLocationCnt, methodStartLine, methodEndLine, isSurfaceMethod) }
 	}
 
-	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], isSurfaceMethod: Option[Boolean]): CodeTreeNode = {
+	def getOrAddMethod(group: String, sig: MethodSignature, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], methodEndLine: Option[Int], isSurfaceMethod: Option[Boolean]): CodeTreeNode = {
 		sourceFile.foreach(addSourceFile(group, _))
 
 		val treePath = CodePath.parse(sig)
@@ -112,7 +113,7 @@ class CodeForestBuilder {
 		def recurse(parent: CodeTreeNode, path: CodePath): CodeTreeNode = path match {
 			case CodePath.Package(name, childPath) => recurse(addChildPackage(parent, name), childPath)
 			case CodePath.Class(name, childPath) => recurse(addChildClass(parent, name, sourceFile, sourceLocationCnt), childPath)
-			case CodePath.Method(name) => addChildMethod(parent, name, size, sourceFile, sourceLocationCnt, methodStartLine, isSurfaceMethod)
+			case CodePath.Method(name) => addChildMethod(parent, name, size, sourceFile, sourceLocationCnt, methodStartLine, methodEndLine, isSurfaceMethod)
 		}
 
 		recurse(startNode, treePath)
@@ -126,7 +127,7 @@ class CodeForestBuilder {
 		sourceFile.foreach(addSourceFile(JSPGroupName, _))
 
 		def recurse(parent: CodeTreeNode, path: List[String]): CodeTreeNode = path match {
-			case className :: Nil => addChildMethod(parent, className, size, sourceFile, sourceLocationCnt, None, None)
+			case className :: Nil => addChildMethod(parent, className, size, sourceFile, sourceLocationCnt, None, None, None)
 			case packageNode :: rest => recurse(addFolder(parent, packageNode), rest)
 		}
 
@@ -202,10 +203,10 @@ class CodeForestBuilder {
 		}
 	}
 
-	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], isSurfaceMethod: Option[Boolean]) = parent.findChild { node =>
+	protected def addChildMethod(parent: CodeTreeNode, name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], methodEndLine: Option[Int], isSurfaceMethod: Option[Boolean]) = parent.findChild { node =>
 		node.name == name && node.kind == CodeTreeNodeKind.Mth
 	} getOrElse {
-		val node = nodeFactory.createMethodNode(name, size, sourceFile, sourceLocationCnt, methodStartLine, isSurfaceMethod)
+		val node = nodeFactory.createMethodNode(name, size, sourceFile, sourceLocationCnt, methodStartLine, methodEndLine, isSurfaceMethod)
 		parent.addChild(node)
 		node
 	}

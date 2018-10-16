@@ -92,7 +92,7 @@ class DotNETProcessor() extends LanguageProcessor {
 						})
 
 						for {
-							(sig, size, sourceLocationCount, methodStartLine) <- methodsSorted
+							(sig, size, sourceLocationCount, methodStartLine, methodEndLine) <- methodsSorted
 							filePath = FilePath(sig.file)
 							nestedPath = filePath.map(fp => entryPath match {
 								case Some(ep) => new NestedPath(ep.paths :+ fp)
@@ -102,7 +102,7 @@ class DotNETProcessor() extends LanguageProcessor {
 								case Some(np) => authoritativePath(groupName, np).map (_.toString)
 								case None => None
 							}
-							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount), Option(methodStartLine), None))
+							treeNode <- Option(builder.getOrAddMethod(groupName, if (sig.isSurrogate) sig.surrogateFor.get else sig, size, authority, Option(sourceLocationCount), Option(methodStartLine), Option(methodEndLine), None))
 						} methodCorrelationsBuilder += (s"${sig.containingClass}.${sig.name};${sig.modifiers};(${sig.params mkString ","});${sig.returnType}" -> treeNode.id)
 					}
 

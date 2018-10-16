@@ -18,10 +18,10 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return package ID") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
-          treeNodeDataDao.storeNode(TreeNodeData(4, Some(2), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(true)))
+          treeNodeDataDao.storeNode(TreeNodeData(4, Some(2), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 1)
@@ -35,10 +35,10 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return an empty list") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Regular Method 1", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
-          treeNodeDataDao.storeNode(TreeNodeData(4, Some(2), "Regular Method 2", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Regular Method 1", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(4, Some(2), "Regular Method 2", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 0)
@@ -51,11 +51,11 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return nested package ID") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Package", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(4, Some(3), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
-          treeNodeDataDao.storeNode(TreeNodeData(5, Some(3), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Package", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(4, Some(3), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(true)))
+          treeNodeDataDao.storeNode(TreeNodeData(5, Some(3), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 1)
@@ -69,12 +69,12 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return nested package ID") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Package", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(4, Some(3), "Nested Class", CodeTreeNodeKind.Cls, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(5, Some(4), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
-          treeNodeDataDao.storeNode(TreeNodeData(6, Some(3), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Package", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Package", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Class", CodeTreeNodeKind.Cls, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(4, Some(3), "Nested Class", CodeTreeNodeKind.Cls, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(5, Some(4), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(true)))
+          treeNodeDataDao.storeNode(TreeNodeData(6, Some(3), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 1)
@@ -88,10 +88,10 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return nested group ID") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
-          treeNodeDataDao.storeNode(TreeNodeData(4, Some(1), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Nested Group", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(3, Some(2), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(true)))
+          treeNodeDataDao.storeNode(TreeNodeData(4, Some(1), "Regular Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 1)
@@ -105,8 +105,8 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return group ID") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(true)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(true)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 1)
@@ -120,8 +120,8 @@ class TreeNodeDataDaoSuite extends FunSpec with BeforeAndAfter {
     it("should return an empty list") {
       projectDb.withSession {
         implicit session => {
-          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None))
-          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, Some(false)))
+          treeNodeDataDao.storeNode(TreeNodeData(1, None, "Group", CodeTreeNodeKind.Pkg, None, None, None, None, None, None))
+          treeNodeDataDao.storeNode(TreeNodeData(2, Some(1), "Surface Method", CodeTreeNodeKind.Mth, None, None, None, None, None, Some(false)))
 
           val methodList = treeNodeDataDao.getSurfaceMethodAncestorPackages
           assert(methodList.length == 0)
