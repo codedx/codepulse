@@ -64,20 +64,20 @@ object Distributor extends BuildExtra {
 	object dependencies {
 		object java {
 			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-			private val trimPathRegex = raw"^\Qjre1.8.0_181\E(?:\.jre)?/".r
+			private val trimPathRegex = raw"^\Qjre1.8.0_191\E(?:\.jre)?/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win64 = Dependency("jre.win64", "8u181", "http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-windows-x64.tar.gz")
+			val win64 = Dependency("jre.win64", "8u191", "http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-windows-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "win64" / "jre" }
 
-			val linuxX64 = Dependency("jre.linux-x64", "8u181", "http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-linux-x64.tar.gz")
+			val linuxX64 = Dependency("jre.linux-x64", "8u191", "http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-linux-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "linux-x64" / "jre" }
 
-			val osx = Dependency("jre.osx", "8u181", "http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jre-8u181-macosx-x64.tar.gz")
+			val osx = Dependency("jre.osx", "8u191", "http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-macosx-x64.tar.gz")
 				.withConnectionStep(setOracleCookie)
 				.extractAsTarGz { trimPath }
 				.to { _ / "distrib-dependencies" / "osx" / "jre" }
