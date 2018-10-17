@@ -37,7 +37,7 @@ trait ProjectDataProvider {
 object ProjectDataProvider {
 	lazy val DefaultStorageDir = {
 		val basePath = com.secdec.codepulse.paths.appData
-		val dir = new java.io.File(basePath, "projects")
+		val dir = new java.io.File(basePath, "project-data")
 		dir.mkdirs
 		dir
 	}

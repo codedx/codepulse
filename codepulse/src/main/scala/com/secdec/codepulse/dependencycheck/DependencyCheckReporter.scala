@@ -43,7 +43,7 @@ object DependencyCheckReporter {
 		val treeNodeData = project.treeNodeData
 		import treeNodeData.ExtendedTreeNodeData
 
-		val reportFolder = paths.appData / "dependency-check" / "projects" / project.id.num.toString
+		val reportFolder = paths.appData / "owasp-dependency-check" / "projects" / project.id.num.toString
 		val xmlReportFile = reportFolder / "dependency-check-report.xml"
 		val htmlReportFile = reportFolder / "dependency-check-report.html"
 		if (!xmlReportFile.exists || !htmlReportFile.exists) ???

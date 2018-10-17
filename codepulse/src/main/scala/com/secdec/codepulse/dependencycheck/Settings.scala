@@ -78,7 +78,7 @@ case class ScanSettings(
 )
 
 object ScanSettings {
-	def apply(app: File, appName: String, identifier: String, reportFormat: ReportFormat = ReportFormat.All): ScanSettings = ScanSettings(app, appName, paths.appData / "dependency-check" / "projects" / identifier, reportFormat)
+	def apply(app: File, appName: String, identifier: String, reportFormat: ReportFormat = ReportFormat.All): ScanSettings = ScanSettings(app, appName, paths.appData / "owasp-dependency-check" / "projects" / identifier, reportFormat)
 	def createFromProject(identifier: String, app: File): ScanSettings = {
 		val project = projectDataProvider getProject ProjectId(identifier.toInt)
 		val name = project.metadata.name
