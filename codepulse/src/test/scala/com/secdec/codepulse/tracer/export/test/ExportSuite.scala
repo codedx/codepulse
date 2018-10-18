@@ -117,7 +117,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
       val outputStream = new ByteArrayOutputStream()
       ProjectExporter.exportTo(outputStream, data)
       val contents = unzipExport(outputStream)
-      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 1,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 1,\r\n  \"sourceLocationCount\" : 2,\r\n  \"methodStartLine\" : 3\r\n} ]")
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 1,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 1,\r\n  \"sourceLocationCount\" : 2,\r\n  \"methodStartLine\" : 3,\r\n  \"methodEndLine\" : 4\r\n} ]")
     }
 
     it("should reference source file when source file is unavailable") {
@@ -148,6 +148,26 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
       ProjectExporter.exportTo(outputStream, data)
       val contents = unzipExport(outputStream)
       assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
+    }
+
+    it("should reference method-start-line") {
+      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), Option(1), None, Some(true)))
+
+      val outputStream = new ByteArrayOutputStream()
+      ProjectExporter.exportTo(outputStream, data)
+      val contents = unzipExport(outputStream)
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"methodStartLine\" : 1,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
+    }
+
+    it("should reference method-end-line") {
+      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), None, Option(7), Some(true)))
+
+      val outputStream = new ByteArrayOutputStream()
+      ProjectExporter.exportTo(outputStream, data)
+      val contents = unzipExport(outputStream)
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"methodEndLine\" : 7,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
     }
   }
 

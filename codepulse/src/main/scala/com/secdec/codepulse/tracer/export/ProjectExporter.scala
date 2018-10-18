@@ -124,6 +124,7 @@ object ProjectExporter extends JsonHelpers {
 				for (sourceFileId <- node.sourceFileId) jg.writeNumberField("sourceFileId", sourceFileId)
 				for (sourceLocationCount <- node.sourceLocationCount) jg.writeNumberField("sourceLocationCount", sourceLocationCount)
 				for (methodStartLine <- node.methodStartLine) jg.writeNumberField("methodStartLine", methodStartLine)
+				for (methodEndLine <- node.methodEndLine) jg.writeNumberField("methodEndLine", methodEndLine)
 				for (isSurfaceMethod <- node.isSurfaceMethod) {
 					if (node.isSurfaceMethod.isDefined) jg.writeBooleanField("isSurfaceMethod", isSurfaceMethod)
 				}

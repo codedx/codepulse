@@ -42,7 +42,7 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
   var projectDb: JdbcBackend.DatabaseDef = _
 
   describe("Version v2.1 of a project export file") {
-    it("should import surface method") {
+    it("should import surface method, start lines, and end lines") {
       val file = new ZipFile(getClass.getResource("WebApi.v2.1.pulse").getPath.replaceAll("%20", " "))
 
       val mockInputStore = mock[InputStore]
@@ -56,17 +56,17 @@ class ImportSuite extends FunSpec with BeforeAndAfter with MockFactory {
         (0,	 None,	     "Classes",                                            "g", None,       None,      None,       None,       None, None),
         (1,	 Option(0),	 "WebApi",                                             "p", None,       None,      None,       None,       None, None),
         (2,	 Option(1),	 "RouteConfig",                                        "c", None,       Option(1), Option(3),  None,       None, None),
-        (3,	 Option(2),	 "public static Void RegisterRoutes(RouteCollection)", "m", Option(13),	Option(1), Option(3),  Option(10), None, None),
+        (3,	 Option(2),	 "public static Void RegisterRoutes(RouteCollection)", "m", Option(13),	Option(1), Option(3),  Option(10), Option(17), None),
         (4,	 Option(1),	 "WebApiConfig",                                       "c", None,       Option(2), Option(3),  None,       None, None),
-        (5,	 Option(4),	 "public static Void Register(HttpConfiguration)",     "m", Option(11),	Option(2), Option(3),  Option(9),  None, None),
+        (5,	 Option(4),	 "public static Void Register(HttpConfiguration)",     "m", Option(11),	Option(2), Option(3),  Option(9),  Option(16), None),
         (6,	 Option(1),	 "WebApiApplication",                                  "c", None,	    Option(3), Option(3),  None,       None, None),
-        (7,	 Option(6),	 "protected Void Application_Start()",                 "m", Option(7),	Option(3), Option(3),  Option(10), None, None),
+        (7,	 Option(6),	 "protected Void Application_Start()",                 "m", Option(7),	Option(3), Option(3),  Option(10), Option(12), None),
         (8,	 Option(1),	 "WebApi.Controllers",                                 "p", None,       None,      None,       None,       None, None),
         (9,	 Option(8),	 "HomeController",                                     "c", None,	    Option(4), Option(1),  None,       None, None),
-        (10, Option(9),	 "public ActionResult Index()",                        "m", Option(3),  Option(4), Option(1),  Option(9),  None, Option(true)),
+        (10, Option(9),	 "public ActionResult Index()",                        "m", Option(3),  Option(4), Option(1),  Option(9),  Option(9), Option(true)),
         (11, Option(8),	 "ValuesController",                                   "c", None,       Option(5), Option(1),  None,       None, None),
-        (12, Option(11), "public HttpResponseMessage Get()",                   "m", Option(6),	Option(5), Option(1),  Option(11), None, Option(true)),
-        (13, Option(11), "private static String GetResponseContent()",         "m", Option(2),	Option(5), Option(1),  Option(16), None, None))
+        (12, Option(11), "public HttpResponseMessage Get()",                   "m", Option(6),	Option(5), Option(1),  Option(11), Option(11), Option(true)),
+        (13, Option(11), "private static String GetResponseContent()",         "m", Option(2),	Option(5), Option(1),  Option(16), Option(16), None))
 
       assertTreeNodeData(treeNodeDataSet)
     }
