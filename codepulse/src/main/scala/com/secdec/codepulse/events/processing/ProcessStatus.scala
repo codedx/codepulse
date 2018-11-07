@@ -19,38 +19,35 @@
 
 package com.secdec.codepulse.processing
 
-import java.io.File
-
-import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess }
+import com.secdec.codepulse.data.model.{ SourceDataAccess, TreeNodeDataAccess, ProjectMetadata }
 import com.secdec.codepulse.data.storage.Storage
 
 sealed trait ProcessStatus
 sealed trait TransientProcessStatus extends ProcessStatus
 final case class ProcessEnvelope(topic: String, processStatus: ProcessStatus)
 
+class ProcessStatusFinishedPayload
+
 object ProcessStatus {
-	case class Queued(identifier: String) extends TransientProcessStatus
-	case class Running(identifier: String) extends TransientProcessStatus
-	case class Finished(identifier: String, payload: Option[AnyRef]) extends ProcessStatus
+	case class Queued(identifier: String, action: String) extends TransientProcessStatus
+	case class Running(identifier: String, action: String) extends TransientProcessStatus
+	case class Finished(identifier: String, action: String, payload: Option[ProcessStatusFinishedPayload]) extends ProcessStatus
 	case class Failed(identifier: String, action: String, payload: Option[Exception]) extends ProcessStatus
-	case class NotRun(identifier: String) extends ProcessStatus
-	case class Unknown(identifier: String) extends ProcessStatus
+	case class Unknown(identifier: String, action: String) extends ProcessStatus
 
-	case class DataInputAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, post: () => Unit) extends ProcessStatus
-	case class ProcessDataAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess) extends ProcessStatus
-	case class PostProcessDataAvailable(identifier: String, payload: Option[AnyRef]) extends ProcessStatus
+	case class DataInputAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, metadata: ProjectMetadata, post: () => Unit) extends ProcessStatus
+	case class ProcessDataAvailable(identifier: String, storage: Storage, treeNodeData: TreeNodeDataAccess, sourceData: SourceDataAccess, metadata: ProjectMetadata) extends ProcessStatus
 
+	import scala.language.implicitConversions
 	implicit def asEnvelope(processStatus: ProcessStatus): ProcessEnvelope = {
 		processStatus match {
 			case status: Queued => ProcessEnvelope("Queued", status)
 			case status: Running => ProcessEnvelope("Running", status)
 			case status: Finished => ProcessEnvelope("Finished", status)
 			case status: Failed => ProcessEnvelope("Failed", status)
-			case status: NotRun => ProcessEnvelope("NotRun", status)
 			case status: Unknown => ProcessEnvelope("Unknown", status)
 			case status: DataInputAvailable => ProcessEnvelope("DataInputAvailable", status)
 			case status: ProcessDataAvailable => ProcessEnvelope("ProcessDataAvailable", status)
-			case status: PostProcessDataAvailable => ProcessEnvelope("PostProcessDataAvailable", status)
 		}
 	}
 }

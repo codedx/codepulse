@@ -34,7 +34,13 @@ $(document).ready(function(){
 		treemapWidget = new CodebaseTreemap('#treemap-container .widget-body').nodeSizing('line-count'),
 
 		// initialize dependency check controller
-		depCheckController = new DependencyCheckController($('#dependency-check-report'))
+		depCheckController = new DependencyCheckController($('#dependency-check-report')),
+
+		surfaceDetectorController = new SurfaceDetectorController(),
+
+		controller = null;
+
+	let isAttackSurfaceOn = false
 
 	// Set a UI state for the 'loading' and 'deleted' states.
 	;(function(){
@@ -125,8 +131,10 @@ $(document).ready(function(){
         let liveDataSubscription = null
         let coverageUpdateSubscription = null
         let traceCoverageUpdateRequestsSubscription = null
+        let toggleSurfaceMethodSubscription = null
 
         function deactivatePopout() {
+        	if(controller) controller.enabled(true)
             $popoutHeader.empty()
             sourceView.setSourceView(null, '')
             $popout.removeClass('active')
@@ -139,6 +147,9 @@ $(document).ready(function(){
             }
             if (traceCoverageUpdateRequestsSubscription != null) {
                 traceCoverageUpdateRequestsSubscription(); traceCoverageUpdateRequestsSubscription = null
+            }
+            if (toggleSurfaceMethodSubscription != null) {
+                toggleSurfaceMethodSubscription(); toggleSurfaceMethodSubscription = null
             }
         }
 
@@ -156,6 +167,23 @@ $(document).ready(function(){
             if (selection.nodeSourceInfo.sourceLocationCount != 0) {
                 var percentage = selection.nodeSourceInfo.tracedSourceLocationCount / selection.nodeSourceInfo.sourceLocationCount * 100
                 selection.nodeSourceInfo.tracedSourceLocationPercentage = "(" + (percentage % 1 === 0 ? percentage : percentage.toFixed(2)) + "%)";
+            }
+        }
+
+        function setSurfaceIcon(isSurfaceMethod) {
+            let $icon = $('#is-surface-method-button');
+            $icon.toggleClass('im-surface-on', isSurfaceMethod);
+            $icon.toggleClass('im-surface-off', !isSurfaceMethod);
+            $icon.attr('title', isSurfaceMethod ? 'Remove application surface mark' : 'Mark as application surface method');
+            $icon.attr('data-node-is-surface-method', isSurfaceMethod);
+        }
+
+        function toggleSurfaceMethod(event) {
+            let nodeId = event.target.getAttribute('data-node-id');
+            if (event.target.getAttribute('data-node-is-surface-method') === "true") {
+                API.removeFromSurface(nodeId, function() { setSurfaceIcon(false); });
+            } else {
+                API.addToSurface(nodeId, function() { setSurfaceIcon(true); });
             }
         }
 
@@ -249,13 +277,16 @@ $(document).ready(function(){
 
 					sourceView.setSourceView(mode, source)
 					sourceView.scrollToLine(selection.metadata.methodStartLine)
+					if(controller) controller.enabled(false)
 
 					coverageUpdateSubscription = Bacon.onValues(Trace.coverageRecords, Trace.activeRecordingsProp, function(coverage, activeRecordings) {
 						if (selection.refresh) {
 							API.getNodeSourceMetadata(selection.metadata.nodeId, function(data) {
 								selection.nodeSourceInfo.sourceLocationCount = data.sourceLocationCount
 								selection.dataProvider.loadSourceLocations(Trace.getRecordsReqParams(), true).then((sourceLocationData) => {
-									updateSourceLocations(coverage, activeRecordings, selection, sourceLocationData)
+									updateSourceLocations(coverage, activeRecordings, selection, sourceLocationData);
+									setSurfaceIcon(selection.metadata.isSurfaceMethod);
+									toggleSurfaceMethodSubscription = $('#is-surface-method-button').asEventStream('click').onValue(toggleSurfaceMethod);
 								}, (err) => { showSourceViewError(err, selection) })
 							})
 							selection.refresh = false
@@ -394,8 +425,15 @@ $(document).ready(function(){
 
 			return function(node){
 				var baseColor = base(node)
-				if(Trace.isInstrumentedNode(node)) return baseColor
-				else return d3.interpolate('darkgray', baseColor)(.2)
+				let color = baseColor
+				if(Trace.isInstrumentedNode(node)) {
+					color = baseColor
+				} else {
+					color =  d3.interpolate('darkgray', baseColor)(.2)
+				}
+
+				node.fillColor = color
+				return color
 			}
 		}
 
@@ -455,7 +493,31 @@ $(document).ready(function(){
 	Trace.onTreeDataReady(function(){
 		var packageTree = Trace.packageTree
 
-		var controller = new PackageController(packageTree, depCheckController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
+		controller = new PackageController(packageTree, depCheckController, surfaceDetectorController, packagesContainer, $('#totals'), $('#packages-controls-menu'))
+
+		surfaceDetectorController.showSurface.onValue(function(isOn) {
+			isAttackSurfaceOn = isOn;
+			API.getAttackSurface(function(data) {
+				controller.unselectAll();
+				controller.selectWidgetsForNodes(data);
+				controller.isSurfaceOn(isOn)
+			});
+		});
+
+		surfaceDetectorController.surfaceDetectorUpdates.onValue(function(status) {
+			if(isAttackSurfaceOn) {
+				API.getAttackSurface(function(data) {
+					controller.unselectAll();
+					controller.selectWidgetsForNodes(data);
+					controller.isSurfaceOn(true)
+				})
+			} else {
+				let selectedWidgets = controller.widgetsSelected()
+				controller.unselectAll()
+				controller.selectWidgetsForNodes(selectedWidgets)
+				controller.isSurfaceOn(false)
+			}
+		})
 
 		// When the selection of "instrumented" packages changes, trigger a coloring update
 		// on the treemap, since nodes get special treatment if they are uninstrumented.
@@ -473,7 +535,7 @@ $(document).ready(function(){
 			.map(function(set){ return d3.set(set.values()) })
 			// Watch the most recent 2 values for changes
 			.slidingWindow(2,2).onValue(function(ab){
-				var before = ab[0], 
+				var before = ab[0],
 					after = ab[1],
 					changes = {}
 
@@ -534,12 +596,32 @@ $(document).ready(function(){
 		treemapWidget
 			.nodeColoring(treemapColoring())
 
+		function filterTree(node){
+			node.children = node.children.filter(n => {
+				if(n.isSurfaceMethod) {
+					return true
+				}
+
+				if(n.kind != "method") {
+					if(n.kind == "class") {
+						return n.children && n.children.filter(c => c.isSurfaceMethod).length > 0
+					} else {
+						return true
+					}
+				} else {
+					return false
+				}
+			})
+			node.children.forEach(filterTree)
+		}
+
 		treemapData.onValue(function(tree){
 			treemapContainer.overlay('wait')
 			// put the following in a callback so the overlay has a chance to trigger
 			// (the treemap data update can be expensive, and since it modifies the DOM,
 			// the overlay may never actually show up because the DOM is being blocked.)
 			setTimeout(function(){
+				if(isAttackSurfaceOn) filterTree(tree.root)
 				treemapWidget.data(tree).update()
 				treemapContainer.overlay('ready')
 			}, 1)
@@ -599,7 +681,7 @@ $(document).ready(function(){
 							// .addClass('clearfix')
 							.addClass('coverage-area')
 
-						recordings.forEach(function(ld){ 
+						recordings.forEach(function(ld){
 							var bg = ld.getColor(),
 								lightness = d3.hsl(bg).l,
 								textColor = (lightness > 0.4) ? 'black' : 'white'

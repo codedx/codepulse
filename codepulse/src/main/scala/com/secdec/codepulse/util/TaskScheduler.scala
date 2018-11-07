@@ -21,7 +21,6 @@ package com.secdec.codepulse.util
 
 import scala.concurrent.duration.FiniteDuration
 
-import akka.actor.Actor
 import akka.actor.ActorSystem
 import akka.actor.Cancellable
 import akka.actor.Props
@@ -54,7 +53,7 @@ object TaskScheduler {
 	private case object ResetInterval
 	private case class Stop(triggerOnStop: Boolean)
 
-	private class SchedulerActor(task: => Unit, interval: FiniteDuration) extends Actor {
+	private class SchedulerActor(task: => Unit, interval: FiniteDuration) extends akka.actor.Actor {
 		import context.dispatcher
 		val scheduler = context.system.scheduler
 

@@ -99,6 +99,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("thirdparty/fileupload/jquery.iframe-transport.js"),
 		JS("thirdparty/fileupload/jquery.fileupload.js"))
 	val fontAwesome = register("FontAwesome", CSS("thirdparty/fontawesome/css/font-awesome.min.css"))
+	val icomoon = register("icomoon", CSS("thirdparty/icomoon/css/style.css"))
 	val jquery = register("jquery", JS("thirdparty/jquery/jquery-2.0.2.min.js"))
 	val qtip2 = register("qtip2", JS("thirdparty/qtip2/jquery.qtip.min.js"), CSS("thirdparty/qtip2/jquery.qtip.min.css"))
 	val spinner = register("spinner", JS("thirdparty/spin/spin.min.js"))
@@ -117,7 +118,8 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("thirdparty/codemirror/mode/javascript/javascript.js"),
 		JS("thirdparty/codemirror/mode/css/css.js"),
 		JS("thirdparty/codemirror/mode/htmlmixed/htmlmixed.js"),
-		JS("thirdparty/codemirror/mode/htmlembedded/htmlembedded.js"))
+		JS("thirdparty/codemirror/mode/htmlembedded/htmlembedded.js"),
+		JS("thirdparty/codemirror/mode/mllike/mllike.js"))
 	val underscore = register("underscore", JS("thirdparty/underscore/underscore-min.js"))
 	val handlebars = register("handlebars", JS("thirdparty/handlebars/handlebars.js"))
 
@@ -163,6 +165,7 @@ object Includes extends DispatchSnippet with IncludesRegistry {
 		JS("pages/projects/projects.js"),
 		CSS("pages/projects/projects.css"),
 		JS("pages/projects/DependencyCheck.js"),
+		JS("pages/projects/SurfaceDetector.js"),
 		codemirror,
 		underscore,
 		handlebars)

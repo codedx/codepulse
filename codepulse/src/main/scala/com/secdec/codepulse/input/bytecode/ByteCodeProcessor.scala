@@ -19,7 +19,7 @@
 
 package com.secdec.codepulse.input.bytecode
 
-import java.io.InputStream
+import java.io.File
 import scala.collection.mutable.{ HashMap, MultiMap, Set }
 import scala.util.{ Failure, Success, Try }
 
@@ -34,15 +34,6 @@ import com.secdec.codepulse.util.SmartLoader
 import org.apache.commons.io.FilenameUtils
 import net.liftweb.common.Loggable
 import org.apache.commons.io.input.CloseShieldInputStream
-import com.github.javaparser.JavaParser
-import com.github.javaparser.ParseException
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.PackageDeclaration
-import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.secdec.codepulse.data.bytecode.parse.{ JavaBinaryMethodSignature, JavaSourceParsing, MethodSignature }
 import com.secdec.codepulse.data.bytecode.parse.JavaSourceParsing.{ ClassInfo, MethodInfo }
 
@@ -84,29 +75,32 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 			signature.name + ";" + signature.simplifiedReturnType.name + ";" + signature.simplifiedArgumentTypes.map(_.name).mkString(";")
 		}
 
-		def getMethodAndStart(mi: MethodInfo, ci: ClassInfo): (String, Int) = {
-			(ci.signature.name.slashedName + "." + signatureAsString(mi.signature), mi.lines.start)
+		def getMethodAndRange(mi: MethodInfo, ci: ClassInfo): (String, Int, Int) = {
+			(ci.signature.name.slashedName + "." + signatureAsString(mi.signature), mi.lines.start, mi.lines.end)
 		}
 
-		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int)] = {
+		def flattenToMethods(ls: List[ClassInfo]): List[(String, Int, Int)] = {
 			ls match {
 				case Nil => Nil
-				case l => l.flatMap(ci => ci.memberMethods.map(mi => getMethodAndStart(mi, ci))) ::: l.flatMap(ci => flattenToMethods(ci.memberClasses))
+				case l => l.flatMap(ci => ci.memberMethods.map(mi => getMethodAndRange(mi, ci))) ::: l.flatMap(ci => flattenToMethods(ci.memberClasses))
 			}
 		}
 
-		val sourceMethods = new HashMap[String, List[(String, Int)]]
+		val sourceMethods = new HashMap[String, List[(String, Int, Int)]]
 		storage.readEntries(sourceType("java") _) { (filename, entryPath, entry, contents) =>
 			val hierarchy = JavaSourceParsing.tryParseJavaSource(new CloseShieldInputStream(contents))
 			val methodsAndStarts = hierarchy match {
 				case Success(h) => flattenToMethods(h)
-				case Failure(_) => List.empty[(String, Int)]
+				case Failure(_) => List.empty[(String, Int, Int)]
 			}
-//			val x = 3
-//			val methodsAndStarts = parseJava9(contents)
-			sourceMethods.get(entry.getName()) match {
-				case None => sourceMethods += (entry.getName() -> methodsAndStarts)
-				case Some(entries) => sourceMethods += (entry.getName() -> (entries ::: methodsAndStarts))
+
+			val authority = entryPath.flatMap(ep =>
+				Option(Array(ep.toString, entry.getName).mkString(";"))
+			).getOrElse(entry.getName)
+
+			sourceMethods.get(authority) match {
+				case None => sourceMethods += (authority -> methodsAndStarts)
+				case Some(entries) => sourceMethods += (authority -> (entries ::: methodsAndStarts))
 			}
 		}
 
@@ -128,7 +122,6 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 
 		storage.readEntries() { (filename, entryPath, entry, contents) =>
 			val groupName = if (filename == storage.name) RootGroupName else s"JARs/${filename substring storage.name.length + 1}"
-			if (!entry.isDirectory) {
 				FilenameUtils.getExtension(entry.getName) match {
 					case "class" =>
 						val methods = AsmVisitors.parseMethodsFromClass(new CloseShieldInputStream(contents))
@@ -141,16 +134,24 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 								case None => new NestedPath(List(fp))
 							})
 							authority = nestedPath.flatMap(np => authoritativePath(groupName, np).map (_.toString))
-							methodsAndStartLines = authority.flatMap(sourceMethods.get)
+							methodsAndRanges = authority.flatMap(sourceMethods.get)
 							Array(nameStr, accessStr, rawSignature) = name.split(";", 3)
 							binaryMethodSignature = Try(JavaBinaryMethodSignature.parseMemoV1(String.join(";", accessStr, nameStr, rawSignature)))
 							startLine = binaryMethodSignature.toOption.flatMap(bms =>
-								methodsAndStartLines.flatMap { l =>
-									val potentials = l.filter { case (qualifiedName, line) => qualifiedName == signatureAsString(bms) }
+								methodsAndRanges.flatMap { l =>
+									val potentials = l.filter { case (qualifiedName, _, _) => qualifiedName == signatureAsString(bms) }
 									val selection = potentials.headOption
-									selection.map(_._2)
+									val start = selection.map(_._2)
+									start
 								})
-							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine)
+							endLine = binaryMethodSignature.toOption.flatMap(bms =>
+								methodsAndRanges.flatMap { l =>
+									val potentials = l.filter { case (qualifiedName, _, _) => qualifiedName == signatureAsString(bms) }
+									val selection = potentials.headOption
+									val end = selection.map(_._3)
+									end
+								})
+							treeNode <- builder.getOrAddMethod(groupName, name, size, authority, Option(lineCount), startLine, endLine, None)
 						} {
 							methodCorrelationsBuilder += (name -> treeNode.id)
 						}
@@ -171,10 +172,14 @@ class ByteCodeProcessor() extends LanguageProcessor with Loggable {
 							case _ =>
 						}
 
+					case "xml" =>
+						if (entry.getName.toLowerCase.endsWith("web-inf/web.xml")) {
+							val web = new File(entry.getName)
+							val webInf = web.getParent
+							jspAdapter addWebinf webInf
+						}
+
 					case _ => // nothing
-				}
-			} else if (entry.getName.endsWith("WEB-INF/")) {
-				jspAdapter addWebinf entry.getName
 			}
 		}
 

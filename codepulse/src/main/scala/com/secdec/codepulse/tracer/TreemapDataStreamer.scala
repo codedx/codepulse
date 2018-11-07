@@ -45,6 +45,7 @@ object TreemapDataStreamer {
 		jg.writeStringField("kind", node.data.kind.label)
 		for (size <- node.data.size) jg.writeNumberField("lineCount", size)
 		for (traced <- node.data.traced) jg.writeBooleanField("traced", traced)
+		jg.writeBooleanField("isSurfaceMethod", node.data.isSurfaceMethod.getOrElse(false))
 
 		if (!node.children.isEmpty) {
 			jg writeArrayFieldStart "children"

@@ -33,6 +33,8 @@ trait CodeTreeNode {
 	def sourceFile: Option[String]
 	def sourceLocationCount: Option[Int]
 	def methodStartLine: Option[Int]
+	def methodEndLine: Option[Int]
+	def isSurfaceMethod: Option[Boolean]
 
 	def parentId = parent map { _.id }
 
@@ -122,7 +124,7 @@ trait CodeTreeNodeFactory {
 	def createGroupNode(name: String): CodeTreeNode
 	def createPackageNode(name: String): CodeTreeNode
 	def createClassNode(name: String, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode
-	def createMethodNode(name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int]): CodeTreeNode
+	def createMethodNode(name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], methodEndLine: Option[Int], isSurfaceMethod: Option[Boolean]): CodeTreeNode
 }
 
 object CodeTreeNodeFactory {
@@ -132,6 +134,8 @@ object CodeTreeNodeFactory {
 		def sourceFile = None
 		def sourceLocationCount = None
 		def methodStartLine = None
+		def methodEndLine = None
+		def isSurfaceMethod = None
 	}
 	private case class PackageNode(id: Int, name: String) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Pkg
@@ -139,6 +143,8 @@ object CodeTreeNodeFactory {
 		def sourceFile = None
 		def sourceLocationCount = None
 		def methodStartLine = None
+		def methodEndLine = None
+		def isSurfaceMethod = None
 	}
 	private case class ClassNode(id: Int, name: String, sourceFilePath: Option[String], sourceLocationCnt: Option[Int]) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Cls
@@ -146,13 +152,17 @@ object CodeTreeNodeFactory {
 		def sourceFile = sourceFilePath
 		def sourceLocationCount = sourceLocationCnt
 		def methodStartLine = None
+		def methodEndLine = None
+		def isSurfaceMethod = None
 	}
-	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: Option[String], sourceLocationCnt: Option[Int], methodStart: Option[Int]) extends CodeTreeNode {
+	private case class MethodNode(id: Int, name: String, methodSize: Int, sourceFilePath: Option[String], sourceLocationCnt: Option[Int], methodStart: Option[Int], methodEnd: Option[Int], surfaceMethod: Option[Boolean]) extends CodeTreeNode {
 		def kind = CodeTreeNodeKind.Mth
 		def size = Some(methodSize)
 		def sourceFile = sourceFilePath
 		def sourceLocationCount = sourceLocationCnt
 		def methodStartLine = methodStart
+		def methodEndLine = methodEnd
+		def isSurfaceMethod = surfaceMethod
 	}
 
 	def mkDefaultFactory: CodeTreeNodeFactory = new DefaultImpl
@@ -163,7 +173,7 @@ object CodeTreeNodeFactory {
 		def createGroupNode(name: String): CodeTreeNode = GroupNode(ids.next, name)
 		def createPackageNode(name: String): CodeTreeNode = PackageNode(ids.next, name)
 		def createClassNode(name: String, sourceFile: Option[String], sourceLocationCnt: Option[Int]): CodeTreeNode = ClassNode(ids.next, name, sourceFile, sourceLocationCnt)
-		def createMethodNode(name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int]): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile, sourceLocationCnt, methodStartLine)
+		def createMethodNode(name: String, size: Int, sourceFile: Option[String], sourceLocationCnt: Option[Int], methodStartLine: Option[Int], methodEndLine: Option[Int], isSurfaceMethod: Option[Boolean]): CodeTreeNode = MethodNode(ids.next, name, size, sourceFile, sourceLocationCnt, methodStartLine, methodEndLine, isSurfaceMethod)
 	}
 }
 sealed abstract class CodeTreeNodeKind(val label: String)

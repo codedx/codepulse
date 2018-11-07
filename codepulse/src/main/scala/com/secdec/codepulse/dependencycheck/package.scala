@@ -22,6 +22,7 @@ package com.secdec.codepulse
 import akka.actor.{ ActorRef, ActorSystem, Props }
 import com.secdec.codepulse.components.dependencycheck.Updates
 import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.input.dependencycheck.DependencyCheckPostProcessor
 import com.secdec.codepulse.processing.ProcessStatus
 
 package object dependencycheck {
@@ -37,6 +38,7 @@ package object dependencycheck {
 	}
 
 	val dependencyCheckActor = new BootVar[ActorRef]
+	val dependencyCheckPostProcessor = new BootVar[ActorRef]
 
 	def boot(actorSystem: ActorSystem, eventBus: GeneralEventBus) {
 		val dca = actorSystem actorOf Props[DependencyCheckActor]
@@ -44,12 +46,14 @@ package object dependencycheck {
 		dca ! DependencyCheckActor.Update
 		dependencyCheckActor set dca
 
+		val dependencyCheckPostProcessorActor = actorSystem actorOf Props(new DependencyCheckPostProcessor(eventBus, ScanSettings.createFromProject))
+		eventBus.subscribe(dependencyCheckPostProcessorActor, "ProcessDataAvailable")
+		dependencyCheckPostProcessor set dependencyCheckPostProcessorActor
+
 		val updates = actorSystem actorOf Props[Updates]
 		eventBus.subscribe(updates, "Queued")
 		eventBus.subscribe(updates, "Running")
 		eventBus.subscribe(updates, "Finished")
 		eventBus.subscribe(updates, "Failed")
-		eventBus.subscribe(updates, "NotRun")
-		eventBus.subscribe(updates, "Unknown")
 	}
 }

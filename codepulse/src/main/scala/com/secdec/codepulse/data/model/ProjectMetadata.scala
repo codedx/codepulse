@@ -19,8 +19,9 @@
 
 package com.secdec.codepulse.data.model
 
-import reactive.{ EventStream, EventSource }
+import reactive.{ EventSource, EventStream }
 import com.secdec.codepulse.dependencycheck.DependencyCheckStatus
+import com.secdec.codepulse.surface.SurfaceDetectorStatus
 
 /** Access trait for project metadata.
   *
@@ -46,6 +47,9 @@ trait ProjectMetadataAccess {
 
 	def input: String
 	def input_=(newInput: String): String
+
+	def surfaceDetectorStatus: SurfaceDetectorStatus
+	def surfaceDetectorStatus_=(newStatus: SurfaceDetectorStatus): SurfaceDetectorStatus
 }
 
 /** Trait for project metadata update events.

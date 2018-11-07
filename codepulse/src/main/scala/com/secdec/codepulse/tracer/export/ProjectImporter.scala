@@ -27,7 +27,7 @@ import java.util.zip.ZipFile
 
 import com.secdec.codepulse.data.model.ProjectData
 import com.secdec.codepulse.data.storage.{InputStore, StorageManager}
-import net.liftweb.util.Helpers.AsInt
+import net.liftweb.util.Helpers.AsDouble
 
 /** The actual guts of the import process. Handles the actual reading. This is
   * split up for versioning reasons.
@@ -66,9 +66,10 @@ class ProjectImportException(msg: String, cause: Exception = null) extends IOExc
   * @author robertf
   */
 object ProjectImporter {
-	val Importers = Map[Int, ProjectImportReader](
-		1 -> new ProjectImportReaderV1,
-		2 -> new ProjectImportReaderV2)
+	val Importers = Map[Double, ProjectImportReader](
+		1d -> new ProjectImportReaderV1,
+		2d -> new ProjectImportReaderV2,
+		2.1d -> new ProjectImportReaderV2)
 
 	def canImportFrom(file: File) = {
 		val zip = new ZipFile(file)
@@ -83,7 +84,7 @@ object ProjectImporter {
 			val props = new Properties
 			try props.load(in) finally in.close
 
-			AsInt.unapply(props getProperty "version") flatMap Importers.get
+			AsDouble.unapply(props getProperty "version") flatMap Importers.get
 		}
 	}
 

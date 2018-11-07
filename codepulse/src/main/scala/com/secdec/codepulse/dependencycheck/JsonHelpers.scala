@@ -19,7 +19,6 @@
 
 package com.secdec.codepulse.dependencycheck
 
-import com.secdec.codepulse.data.model._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 

@@ -61,6 +61,12 @@ object Dependencies {
 		"com.fasterxml.jackson.core" % "jackson-core" % "2.3.2",
 		"com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.3.2"
 	)
+	lazy val astamCorrelator = Seq(
+		"org.jsoup" % "jsoup" % "1.11.3",
+		"com.github.secdec.astam-correlator" % "master-pom" % "1.3.3",
+		"com.github.secdec.astam-correlator" % "threadfix-entities" % "1.3.3",
+		"com.github.secdec.astam-correlator" % "threadfix-ham" % "1.3.3"
+	)
 	lazy val juniversalchardet = "com.googlecode.juniversalchardet" % "juniversalchardet" % "1.0.3"
 
 	// database related

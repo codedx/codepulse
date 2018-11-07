@@ -83,3 +83,17 @@
 .code-coverage {
     background-color: #acf2bd
 }
+
+.is-surface-method {
+    cursor: pointer;
+    font-size: .9em;
+    vertical-align: middle;
+}
+
+.is-surface-method:hover {
+    color: #7E7E7E;
+}
+
+.is-surface-method-label {
+    font-size: small
+}

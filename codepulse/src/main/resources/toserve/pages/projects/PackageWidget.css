@@ -20,17 +20,45 @@
 \********************/
 
  .packages-header {
- 	border-bottom: 2px solid black;
  	margin-bottom: 5px;
+	box-shadow: 2px 2px 2px #3c3c3c;
  
  	position: fixed;
  	top: 60px;
  	width: calc(100% - 250px);
  	z-index: 2;
  }
- 
+
+.packages-header .title-row {
+	height: 40px;
+	background-color: #b1afaf;
+}
+
+.packages-header .title-label,
+.packages-header .title-toolbar {
+
+	float: left;
+	color: #FFF;
+	box-sizing: border-box;
+}
+
+.packages-header .title-label {
+	width: 200px;
+	padding-left: 5px;
+	line-height: 40px;
+	background-color: #b1afaf;
+}
+
+.packages-header .title-toolbar {
+	width: 170px;
+	text-align: right;
+	line-height: 40px;
+	background-color: #b1afaf;
+	padding-right: 5px;
+}
+
  .packages-header .header-row {
- 	height: 40px;
+ 	height: 20px;
  }
  
  .packages-header .header-label,
@@ -46,31 +74,52 @@
  .packages-header .header-label {
  	width: 200px;
  	padding-left: 5px;
- 	line-height: 40px;
- 	background-color: #7E7E7E;
+ 	line-height: 20px;
+ 	background-color: #6D6D6D;
+ }
+
+ .packages-header .surface-icon {
+	 cursor: pointer;
+	 color: #9C9C9C;
+	 display: table-cell;
+	 vertical-align: middle;
+	 height: 20px;
+ }
+
+ .packages-header .surface-icon.failed {
+     color: #B30606;
+ }
+
+ .packages-header .surface-icon.hasResults {
+     color: #FFFFFF
+ }
+
+ .packages-header .surface-icon.hasResults:hover {
+     color: #A5A5A5
  }
 
  .packages-header .header-trace {
- 	width: 40px;
+ 	width: 50px;
  	text-align: center;
  	font-size: small;
- 	line-height: 40px;
+ 	line-height: 20px;
  	background-color: #9C9C9C;
  }
  
  .packages-header .header-method-count {
- 	width: 50px;
+ 	width: 60px;
  	text-align: center;
  	font-size: small;
- 	background-color: #7E7E7E;
+ 	background-color: #6b6b6b;
  }
  
  .packages-header .header-barchart {
- 	background-color: #6D6D6D;
+ 	background-color: #505050;
 
- 	width: calc(100% - 290px); 
- 	line-height: 40px;
+ 	width: calc(100% - 310px);
+ 	line-height: 20px;
  	padding-left: 5px;
+	font-size: small;
  }
 
  .packages-header.compact .header-barchart {
@@ -120,7 +169,7 @@
  
  .widget-label .content {
  	float: left;
- 	border-left: 4px solid #6D6D6D;
+ 	border-left: 4px solid #484848;
  	box-sizing: border-box;
  	width: calc(180px);
  
@@ -150,28 +199,30 @@
  .selected > .widget-row .widget-label .widget-collapser,
  .selected > .widget-row .widget-label .content {
  
- 	background-color: #66B6B6;
+ 	background-color: #0CA1E4;
  }
  
  /* Selected + Hover Background color for the label collapser and content */
  .selected > .widget-row .widget-label .widget-collapser:hover,
  .selected > .widget-row .widget-label .content:hover {
  
- 	background-color: #2C9494;
+ 	background-color: #35B6F1;
  }
  
  .widget-label .vuln-badge {
  	float: right;
+ 	background: #ec0a0a;
+ 	border-radius: 2px;
+ 	padding: 0 4px;
  	line-height: 22px;
  	margin: 0 4px;
- 	color: coral;
+ 	font-size: 80%;
+ 	color: whitesmoke;
  	cursor: pointer;
- 	padding: 0 2px;
  }
 
  .widget-label .vuln-badge:hover {
- 	background: coral;
- 	color: black;
+ 	background: #f85353;
  }
 
  .widget-label .vuln-badge.bubbled {
@@ -180,7 +231,7 @@
 
  .widget-label .dependencycheck-badge {
  	float: right;
- 	background: firebrick;
+ 	background: #ec0a0a;
  	border-radius: 2px;
  	padding: 0 4px;
  	margin: 0 4px;
@@ -190,8 +241,12 @@
  	transition: background 0.25s ease;
  }
 
+.widget-label .dependencycheck-badge:hover {
+	background: #f85353;
+}
+
  .widget-label .dependencycheck-badge.clean {
- 	background: rgb(43, 177, 43);
+ 	background: rgb(12, 160, 12);
  	cursor: default;
  }
 
@@ -226,11 +281,11 @@
  	background-color: rgb(138,138,138);
  }
 
- .selected > .widget-row .widget-label .label-text:before {
- 	content: '\f00c'; /* fa-check */
- 	color: rgb(20, 78, 78);
- 	background-color: rgb(82, 163, 163);
- }
+.selected > .widget-row .widget-label .label-text:before {
+    content: '\f00c'; /* fa-check */
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #35b6f1;
+}
 
  .selected.partial-select > .widget-row .widget-label .label-text:before {
  	content: '\f0c8'; /* fa-minus-square */
@@ -241,7 +296,7 @@
 \*******************************/
 
 .widget-trace-toggle {
-	width: 40px;
+	width: 50px;
 	float: left;
 	text-align: center;
 	background-color: #9C9C9C;
@@ -283,7 +338,7 @@
 
  .widget-method-count {
  	background-color: #7E7E7E;
- 	width: 50px;
+ 	width: 60px;
  	display: inline-block;
  	float: left;
  	height: 20px;
@@ -335,7 +390,7 @@
 \************************/
 
  .widget-barchart {
- 	width: calc(100% - 290px);
+ 	width: calc(100% - 310px);
  	display: inline-block;
  	height: 20px;
  }
@@ -343,15 +398,14 @@
  /* The 'complete' bar of the barchart */
  .widget-barchart .bar-shell {
  	height: 14px;
- 	background-color: #9C9C9C;
- 	border: 1px solid #616161;
+ 	background-color: #323232;
  	box-sizing: border-box;
  	margin-top: 3px;
  }
  
  /* The 'fill' part of the barchart. The width will be set by javascript. */
  .widget-barchart .bar-shell .bar-fill {
- 	background-color: white;
+ 	background-color: #b7b4b4;
  	height: 100%;
  	position: relative;
  }

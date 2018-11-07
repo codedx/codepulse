@@ -24,7 +24,10 @@ import scala.slick.model.ForeignKeyAction
 import scala.util.Try
 
 import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
-import com.secdec.codepulse.data.model.{TreeNodeData => TreeNode, _}
+import com.secdec.codepulse.data.model.{ TreeNodeData => TreeNode, _ }
+import scala.slick.jdbc.{ GetResult, StaticQuery => Q }
+
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind.{ Cls, Grp, Mth, Pkg }
 
 /** The Slick DAO for tree node data.
   *
@@ -53,7 +56,9 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 		def sourceFileId = column[Option[Int]]("source_file_id", O.Nullable)
 		def sourceLocationCount = column[Option[Int]]("source_location_count", O.Nullable)
 		def methodStartLine = column[Option[Int]]("method_start_line", O.Nullable)
-		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine) <> (TreeNode.tupled, TreeNode.unapply)
+		def methodEndLine = column[Option[Int]]("method_end_line", O.Nullable)
+		def isSurfaceMethod = column[Option[Boolean]]("is_surface_method", O.Nullable)
+		def * = (id, parentId, label, kind, size, sourceFileId, sourceLocationCount, methodStartLine, methodEndLine, isSurfaceMethod) <> (TreeNode.tupled, TreeNode.unapply)
 		def labelIndex = index("tnd_label_index", label)
 
 		def sourceFile = foreignKey("tree_node_data_to_source_file", sourceFileId, sourceDataDao.sourceFilesQuery)(_.id, onDelete = ForeignKeyAction.Cascade)
@@ -215,5 +220,47 @@ private[slick] class TreeNodeDataDao(val driver: JdbcProfile, val sourceDataDao:
 
 	def clearFlag(id: Int, flag: TreeNodeFlag)(implicit session: Session) {
 		(for (flag <- treeNodeFlags if flag.nodeId === id) yield flag).delete
+	}
+
+	def findMethods(sourceFilePath: String)(implicit session: Session): List[Int] = {
+		(for {
+			treeNodeDataItem <- treeNodeData
+			sourceFile <- treeNodeDataItem.sourceFile
+			if sourceFile.path === sourceFilePath
+		} yield (treeNodeDataItem.id)).list
+	}
+
+	def findMethods(sourceFilePath: String, startingLineNumber: Int, endingLineNumber: Int)(implicit session: Session): List[Int] = {
+		(for {
+			treeNodeDataItem <- treeNodeData.sortBy(x => x.methodStartLine)
+			sourceFile <- treeNodeDataItem.sourceFile
+			if sourceFile.path === sourceFilePath &&
+				(treeNodeDataItem.methodEndLine >= startingLineNumber && treeNodeDataItem.methodStartLine <= endingLineNumber)
+
+		} yield (treeNodeDataItem.id)).list
+	}
+
+	def markSurfaceMethod(id: Int, isSurfaceMethod: Option[Boolean])(implicit session: Session): Unit = {
+		val q = for (row <- treeNodeData if row.id === id) yield row.isSurfaceMethod
+		q.update(isSurfaceMethod)
+	}
+
+	def getSurfaceMethodAncestorPackages(implicit session: Session): List[Int] = {
+		val query = Q.queryNA[Int]("""
+			WITH ANCESTORS(id, parent_id, kind) AS (
+			    SELECT t."id", t."parent_id", t."kind" FROM PUBLIC."tree_node_data" t WHERE t."is_surface_method" = true
+			    UNION ALL
+			    SELECT tr."id", tr."parent_id", tr."kind" FROM ANCESTORS INNER JOIN PUBLIC."tree_node_data" tr ON ANCESTORS.parent_id = tr."id"
+			            AND (ANCESTORS.kind = 'm' OR ANCESTORS.kind = 'c' OR (ANCESTORS.kind='p' AND tr."kind"='c') OR (ANCESTORS.kind='g' AND tr."kind"='m'))
+			)
+			SELECT DISTINCT id
+			FROM ANCESTORS
+			WHERE kind='p' OR kind='g'
+			ORDER BY id""")
+		query.list()
+	}
+
+	def getSurfaceMethodCount(implicit session: Session): Int = {
+		treeNodeData.filter(x => x.isSurfaceMethod).length.run
 	}
 }

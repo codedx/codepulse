@@ -215,6 +215,14 @@
 			postCommand('/rename', {'name': newName}, callback)
 		},
 
+        'addToSurface': function(nodeId, callback){
+            postCommand('/addToSurface', {'nodeId': nodeId}, callback);
+        },
+
+        'removeFromSurface': function(nodeId, callback){
+            postCommand('/removeFromSurface', {'nodeId': nodeId}, callback);
+        },
+
 		'getDependencyCheckStatus': function(callback) {
 			$.getJSON(commandPath('/dcstatus'), callback)
 		},
@@ -237,7 +245,15 @@
 
 		'getNodeSourceLocations': function(id, activityRequestParams, callback) {
 			getCommand('/node/' + id + "/source-locations", activityRequestParams, callback)
-		}
+		},
+
+		'getAttackSurface': function(callback) {
+			$.getJSON(commandPath('/attack-surface'), callback)
+		},
+
+        'getSurfaceDetectionStatus': function(callback) {
+            $.getJSON(commandPath('/sdstatus'), callback)
+        }
 	}
 
 })(this);

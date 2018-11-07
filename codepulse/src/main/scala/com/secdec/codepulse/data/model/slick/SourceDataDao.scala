@@ -31,6 +31,8 @@ private[slick] class SourceDataDao(val driver: JdbcProfile) extends SlickHelpers
 		def id = column[Int]("id", O.PrimaryKey, O.NotNull)
 		def path = column[String]("path", O.NotNull)
 		def * = (id, path) <> (SourceFile.tupled, SourceFile.unapply)
+		
+		def pathIndex = index("ind_source_file_path", (path), unique = true)
 	}
 
 	val sourceFilesQuery = TableQuery[SourceFileData]

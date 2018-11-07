@@ -116,13 +116,16 @@
 			_selected = 0,
 			_selectable = true,
 			_selectedBus = new Bacon.Bus(),
+			_enabled = true,
 
 			_instrumentationSelected = 0,
 			_instrumentationSelectable = true,
 			_instrumentationSelectedBus = new Bacon.Bus(),
 
 			_collapseChildren = false,
-			_childWidgets = []
+			_childWidgets = [],
+
+			_isSurfaceOn = false
 
 		// ============================================================================
 		// UI Selected Elements
@@ -188,6 +191,20 @@
 			if(!arguments.length) return _selectable
 
 			_selectable = newSel
+			return self
+		}
+
+		this.enabled = function(newEnabled){
+			if(!arguments.length) return _enabled
+
+			_enabled = newEnabled
+			return self
+		}
+
+		this.isSurfaceOn = function(newIsSurfaceOn){
+			if(!arguments.length) return _isSurfaceOn
+
+			_isSurfaceOn = newIsSurfaceOn
 			return self
 		}
 
@@ -422,7 +439,7 @@
 		$(window).resize(updateBarLabelPlacement)
 		this.uiParts.contentContainer.click(function(){
 			// as long as the widget is 'selectable', toggle it when clicked
-			if(_selectable) {
+			if(_enabled && _selectable) {
 				// self.selected('toggle') 
 				self.selectionClicks.push(1)
 			}

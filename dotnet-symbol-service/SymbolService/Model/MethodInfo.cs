@@ -43,6 +43,8 @@ namespace SymbolService.Model
 
 		public int MethodStartLine { get; set; }
 
+		public int MethodEndLine { get; set; }
+
 
 		public MethodInfo()
 	    {

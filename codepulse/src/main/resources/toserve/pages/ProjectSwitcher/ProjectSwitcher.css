@@ -57,18 +57,18 @@
 [data-toggle=ProjectSwitcher] {
 	height: 100%;
 	padding: 0 20px;
-	background-color: #055;
+	background-color: #0CA1E4;
 	font-size: 1.2em;
 	cursor: pointer;
 }
 [data-toggle=ProjectSwitcher]:hover {
-	background-color: #066;
+	background-color: #35B6F1;
 }
 [data-toggle=ProjectSwitcher].active {
-	background-color: #FFA500;
+	background-color: #036FA0;
 }
 [data-toggle=ProjectSwitcher].active:hover {
-	background-color: #FFBA00;
+	background-color: #35B6F1;
 }
 
 /********************\

@@ -85,7 +85,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
 
   describe("Method mappings of exported project") {
     it("should include signature and node") {
-      data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None))
+      data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None, None, None))
       data.treeNodeData.mapMethodSignature(MethodSignatureNode(0, "method1", 1))
 
       val outputStream = new ByteArrayOutputStream()
@@ -112,17 +112,17 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
   describe("Nodes of exported project") {
     it("should not reference source file when source file is unavailable") {
       data.sourceData.importSourceFiles(Map[Int,String]((1, "C:\\code\\program.java")))
-      data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(1), Option(2), Option(3)))
+      data.treeNodeData.storeNode(TreeNodeData(1, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(1), Option(2), Option(3), Option(4), None))
 
       val outputStream = new ByteArrayOutputStream()
       ProjectExporter.exportTo(outputStream, data)
       val contents = unzipExport(outputStream)
-      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 1,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 1,\r\n  \"sourceLocationCount\" : 2,\r\n  \"methodStartLine\" : 3\r\n} ]")
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 1,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 1,\r\n  \"sourceLocationCount\" : 2,\r\n  \"methodStartLine\" : 3,\r\n  \"methodEndLine\" : 4\r\n} ]")
     }
 
     it("should reference source file when source file is unavailable") {
       data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
-      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None, None, None))
 
       val outputStream = new ByteArrayOutputStream()
       ProjectExporter.exportTo(outputStream, data)
@@ -132,18 +132,48 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
 
     it("should reference source location count") {
       data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
-      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), None))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), None, None, None))
 
       val outputStream = new ByteArrayOutputStream()
       ProjectExporter.exportTo(outputStream, data)
       val contents = unzipExport(outputStream)
       assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42\r\n} ]")
     }
+
+    it("should reference is-surface-method") {
+      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), None, None, Some(true)))
+
+      val outputStream = new ByteArrayOutputStream()
+      ProjectExporter.exportTo(outputStream, data)
+      val contents = unzipExport(outputStream)
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
+    }
+
+    it("should reference method-start-line") {
+      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), Option(1), None, Some(true)))
+
+      val outputStream = new ByteArrayOutputStream()
+      ProjectExporter.exportTo(outputStream, data)
+      val contents = unzipExport(outputStream)
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"methodStartLine\" : 1,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
+    }
+
+    it("should reference method-end-line") {
+      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), Option(42), None, Option(7), Some(true)))
+
+      val outputStream = new ByteArrayOutputStream()
+      ProjectExporter.exportTo(outputStream, data)
+      val contents = unzipExport(outputStream)
+      assert(contents.get("nodes.json").get == "[ {\r\n  \"id\" : 5,\r\n  \"label\" : \"method1\",\r\n  \"kind\" : \"method\",\r\n  \"size\" : 50,\r\n  \"sourceFileId\" : 10,\r\n  \"sourceLocationCount\" : 42,\r\n  \"methodEndLine\" : 7,\r\n  \"isSurfaceMethod\" : true\r\n} ]")
+    }
   }
 
   describe("Encounters of exported project unassociated with a recorcing") {
     it("should not reference source location when it is unavailable") {
-      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None, None, None))
       data.encounters.record(Nil, List[(Int,Option[Int])](5 -> None))
       data.flush()
 
@@ -155,7 +185,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
 
    it("should reference source location when it is available") {
      data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
-     data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None))
+     data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None, None, None))
      val sourceLocationId = data.sourceData.getSourceLocationId(10, 1, 1, Option(1), Option(5))
      data.encounters.record(Nil, List[(Int,Option[Int])](5 -> Option(sourceLocationId)))
      data.flush()
@@ -173,7 +203,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
       recording.clientLabel = Option("Recording 1")
       recording.clientColor = Option("#FFFFFF")
 
-      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), None, None, None, None, None))
       data.encounters.record(List[Int](recording.id), List[(Int,Option[Int])](5 -> None))
       data.flush()
       data.encounters.record(List[Int](recording.id), List[(Int,Option[Int])](5 -> None))
@@ -191,7 +221,7 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
       recording.clientColor = Option("#FFFFFF")
 
       data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
-      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None, None, None))
       val sourceLocationId1 = data.sourceData.getSourceLocationId(10, 1, 1, Option(1), Option(5))
       val sourceLocationId2 = data.sourceData.getSourceLocationId(10, 5, 5, None, None)
       data.encounters.record(Nil, List[(Int,Option[Int])](5 -> Option(sourceLocationId1)))
@@ -218,8 +248,8 @@ class ExportSuite extends FunSpec with BeforeAndAfter {
 
       data.sourceData.importSourceFiles(Map[Int,String]((10, "C:\\code\\program.java")))
       data.sourceData.importSourceFiles(Map[Int,String]((11, "C:\\code\\foo.java")))
-      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None))
-      data.treeNodeData.storeNode(TreeNodeData(6, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(11), None, None))
+      data.treeNodeData.storeNode(TreeNodeData(5, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(10), None, None, None, None))
+      data.treeNodeData.storeNode(TreeNodeData(6, None, "method1", CodeTreeNodeKind.Mth, Option(50), Option(11), None, None, None, None))
 
       val sourceLocationId1 = data.sourceData.getSourceLocationId(10, 1, 1, Option(1), Option(5))
       val sourceLocationId2 = data.sourceData.getSourceLocationId(10, 5, 5, None, None)

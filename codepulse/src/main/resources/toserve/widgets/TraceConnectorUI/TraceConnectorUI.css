@@ -92,8 +92,8 @@ edgeWidth = 25px
 .TraceConnectorUI.trace-connecting .main-container .gear-button:hover { background: #FFE100; }
 
 /* running theme: green */
-.TraceConnectorUI.trace-running .main-container .gear-button { background: #00C400; }
-.TraceConnectorUI.trace-running .main-container .gear-button:hover { background: #00CC00; }
+.TraceConnectorUI.trace-running .main-container .gear-button { background: #0CA1E4; }
+.TraceConnectorUI.trace-running .main-container .gear-button:hover { background: #35B6F1; }
 
 
 /***************************\

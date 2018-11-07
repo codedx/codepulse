@@ -10,7 +10,7 @@ html, body {height: 100%; }
 body, td, textarea, input { font-family: tahoma, georgia, sans-serif; font-size: 1em; }
 
 body, td {
-	background: #eee;
+	background: #ffffff;
 	color: #333;
 	margin: 0px;
 }
@@ -106,8 +106,8 @@ svg {
 	opacity: 0.2;
 }
 
-.btn-primary, .btn-primary:focus { background: #3a87ad; color: #eee; }
-.btn-primary:hover:not(.disabled) { background: #4299C3; }
+.btn-primary, .btn-primary:focus { background: #0CA1E4; color: #eee; }
+.btn-primary:hover:not(.disabled) { background: #35B6F1; }
 
 .btn-danger, .btn-danger:focus { background: #bd362f; color: #eee; }
 .btn-danger:hover:not(.disabled) { background: #F34739; }
@@ -400,14 +400,14 @@ a.to-login:hover { border-bottom-style: solid; }
 \************************/
 .controls-menu {
 	box-sizing: border-box;
-	background: #C7C7C7;
+	background: #B1AFAF;
 	padding-left: 20px;
 }
 
 .controls-menu .menu-button {
 	font-size: 14px;
-	color: steelblue;
-	background: #C7C7C7;
+	color: #484848;
+	background: #B1AFAF;
 	vertical-align: top;
 	cursor: pointer;
 	padding: 0 4px;

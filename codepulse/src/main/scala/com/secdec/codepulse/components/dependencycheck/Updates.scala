@@ -21,8 +21,8 @@ package com.secdec.codepulse.components.dependencycheck
 
 import akka.actor.Actor
 import com.secdec.codepulse.data.model.ProjectId
-import com.secdec.codepulse.dependencycheck.DependencyCheckStatus
-import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus }
+import com.secdec.codepulse.dependencycheck.{ DependencyCheckFinishedPayload, DependencyCheckStatus }
+import com.secdec.codepulse.processing.{ ProcessEnvelope, ProcessStatus, ProcessStatusFinishedPayload }
 import com.secdec.codepulse.tracer.projectDataProvider
 import com.secdec.codepulse.util.comet.PublicCometInit
 import net.liftweb.http.CometActor
@@ -34,42 +34,38 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 
 class Updates extends Actor {
+
+	private val dependencyCheckActionName = "Dependency Check"
+
 	def receive = {
-		case ProcessEnvelope(_, ProcessStatus.Queued(identifier)) => {
+		case ProcessEnvelope(_, ProcessStatus.Queued(identifier, action)) if action == dependencyCheckActionName => {
 			val project = projectDataProvider getProject ProjectId(identifier.toInt)
 			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Queued
 			Updates.pushUpdate(identifier, ("state" -> "queued"))
 		}
 
-		case ProcessEnvelope(_, ProcessStatus.Running(identifier)) => {
+		case ProcessEnvelope(_, ProcessStatus.Running(identifier, action)) if action == dependencyCheckActionName => {
 			val project = projectDataProvider getProject ProjectId(identifier.toInt)
 			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Running
 			Updates.pushUpdate(identifier, ("state" -> "running"))
 		}
 
-		case ProcessEnvelope(_, ProcessStatus.Finished(identifier, Some((dependencies: Int, vulnerableDependencies: Int, vulnerableNodes: Seq[Int])))) => {
-			val project = projectDataProvider getProject ProjectId(identifier.toInt)
-			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Finished(dependencies, vulnerableDependencies)
-			Updates.pushUpdate(identifier, ("state" -> "finished") ~ ("numDeps" -> dependencies) ~ ("numFlaggedDeps" -> vulnerableDependencies),
-				vulnerableNodes)
+		case ProcessEnvelope(_, ProcessStatus.Finished(identifier, action, payload @ Some(_))) if action == dependencyCheckActionName => {
+			if (payload.isDefined && payload.get.isInstanceOf[DependencyCheckFinishedPayload]) {
+				val dependencyCheckPayload = payload.get.asInstanceOf[DependencyCheckFinishedPayload]
+				val project = projectDataProvider getProject ProjectId(identifier.toInt)
+				project.metadata.dependencyCheckStatus = DependencyCheckStatus.Finished(dependencyCheckPayload.dependencies, dependencyCheckPayload.vulnerableDependencies)
+				Updates.pushUpdate(identifier, ("state" -> "finished") ~
+					("numDeps" -> dependencyCheckPayload.dependencies) ~
+					("numFlaggedDeps" -> dependencyCheckPayload.vulnerableDependencies) ~
+					("vulnerableNodes" -> dependencyCheckPayload.vulnerableNodes))
+			}
 		}
 
-		case ProcessEnvelope(_, ProcessStatus.Failed(identifier, action, _)) if action == "Dependency Check" => {
+		case ProcessEnvelope(_, ProcessStatus.Failed(identifier, action, _)) if action == dependencyCheckActionName => {
 			val project = projectDataProvider getProject ProjectId(identifier.toInt)
 			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Failed
 			Updates.pushUpdate(identifier, ("state" -> "failed"))
-		}
-
-		case ProcessEnvelope(_, ProcessStatus.NotRun(identifier)) => {
-			val project = projectDataProvider getProject ProjectId(identifier.toInt)
-			project.metadata.dependencyCheckStatus = DependencyCheckStatus.NotRun
-			Updates.pushUpdate(identifier, ("state" -> "none"))
-		}
-
-		case ProcessEnvelope(_, ProcessStatus.Unknown(identifier)) => {
-			val project = projectDataProvider getProject ProjectId(identifier.toInt)
-			project.metadata.dependencyCheckStatus = DependencyCheckStatus.Unknown
-			Updates.pushUpdate(identifier, ("state" -> "unknown"))
 		}
 
 		case _ =>
@@ -77,16 +73,10 @@ class Updates extends Actor {
 }
 
 object Updates extends CometActor with PublicCometInit {
-	def pushUpdate(projectId: String, status: JObject, vulnerableNodes: Seq[Int]) {
-		val update = ("project" -> projectId) ~
-			("summary" -> status) ~ ("vulnerableNodes" -> vulnerableNodes)
-		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
-		partialUpdate {cmd}
-	}
 
 	def pushUpdate(projectId: String, status: JObject) {
 		val update = ("project" -> projectId) ~
-			("summary" -> status) ~ ("vulnerableNodes" -> List.empty[JObject])
+			("dependencycheck_update" -> status)
 		val cmd: JsCmd = Jq(JsVar("document")) ~> JsFunc("trigger", "dependencycheck-update", update)
 		partialUpdate {cmd}
 	}

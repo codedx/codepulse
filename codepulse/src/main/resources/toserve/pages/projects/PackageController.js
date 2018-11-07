@@ -66,7 +66,7 @@
 		}
 	}
 
-	function PackageController(treeData, depCheckController, $container, $totalsContainer, $clearSelectionButton){
+	function PackageController(treeData, depCheckController, surfaceDetectorController, $container, $totalsContainer, $clearSelectionButton){
 
 		// build this into a Map[packageId -> packageWidget.selectedProp]
 		var selectedWidgetsSP = new SetProp(
@@ -136,6 +136,7 @@
 			var pw = new PackageWidget()
 			widgets[node.id] = pw
 			pw.associatedNode = node
+
 			// pw.parentNode = packageParentNode
 			widgetCount++
 
@@ -342,6 +343,7 @@
 				var w = widgets[k]
 				if(w.selectable()) w.selected(false)
 			}
+			surfaceDetectorController.cancelShowSurface()
 		})
 
 		/**
@@ -370,6 +372,61 @@
 			applyMethodCoverage(treeData, widgets, coverageRecords, activeRecordings, nodePackageParents)
 		}
 
+		this.selectWidgetsForNodes = function(nodes){
+            nodes.forEach(n => {
+				function selectNodeAncestors(id, leaf) {
+					if(widgets[id]) {
+						if(leaf) {
+							widgets[id].selected(true)
+						} else {
+							widgets[id].selected(undefined)
+						}
+					}
+
+					let node = nodePackageParents[id]
+					if(node && widgets[node.id]) {
+						widgets[node.id].selected(undefined)
+					}
+
+					if(node && node.parent) {
+						selectNodeAncestors(node.parent.id, false)
+					}
+				}
+
+				selectNodeAncestors(n, true)
+            })
+		}
+
+		this.unselectAll = function(){
+			forEachWidget(function(pw, node, id){
+				pw.selected(false)
+			})
+		}
+
+		this.isSurfaceOn = function(isSurfaceOn){
+			forEachWidget(function(pw, node, id){
+				let selected = pw.selected() == true
+				pw.selectable(selected || !isSurfaceOn)
+				pw.isSurfaceOn(isSurfaceOn)
+			})
+		}
+
+		this.enabled = function(enabled){
+			forEachWidget(function(pw, node, id) {
+				pw.enabled(enabled)
+			})
+		}
+
+		this.widgetsSelected = function(){
+			let nodeIds = []
+			forEachWidget(function(pw, node, id) {
+				if(pw.selected()) {
+					nodeIds.push(id)
+				}
+			})
+
+			return nodeIds
+		}
 	}
 
 	// Trigger a `flashHighlight` on the appropriate package widgets

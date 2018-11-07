@@ -81,8 +81,11 @@ object FileUploadSetup extends Loggable {
 					} catch {
 						case e: Exception => logger.error("Exception while handling File Upload", e)
 					} finally {
-						IOUtils.closeQuietly(o)
-						IOUtils.closeQuietly(stream)
+						try {
+							// Note: IOUtils.closeQuietly is deprecated
+							try { o.close() } catch { case _: Throwable => }
+							try { stream.close() } catch { case _: Throwable => }
+						}
 					}
 				}
 				tempFile

@@ -170,7 +170,8 @@ namespace SymbolService.Controllers
                 ReturnType = method.ReturnType.FullName,
                 Instructions = method.Body?.Instructions?.Count ?? 0,
 				SequencePointCount = visibleSequencePoints,
-				MethodStartLine = GetMethodStartLine(method)
+				MethodStartLine = GetMethodStartLine(method),
+				MethodEndLine = GetMethodEndLine(method)
 			};
         }
 
@@ -206,6 +207,18 @@ namespace SymbolService.Controllers
 			}
 
 			return methodStartLine;
+		}
+
+		private int GetMethodEndLine(MethodDefinition method)
+		{
+			var methodEndLine = -1;
+
+			if (method.DebugInformation.HasSequencePoints)
+			{
+				methodEndLine = method.DebugInformation.SequencePoints.OrderBy(t => t.StartLine).Where(t => !t.IsHidden).Last().EndLine;
+			}
+
+			return methodEndLine;
 		}
     }
 }

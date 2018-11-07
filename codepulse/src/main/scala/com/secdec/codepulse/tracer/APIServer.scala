@@ -29,9 +29,11 @@ import scala.util.Success
 import org.joda.time.format.DateTimeFormat
 import com.secdec.codepulse.userSettings
 import com.secdec.codepulse.data.model._
-import com.secdec.codepulse.dependencycheck.{ DependencyCheckReporter, DependencyCheckStatus, JsonHelpers => DCJson }
+import com.secdec.codepulse.events.GeneralEventBus
+import com.secdec.codepulse.dependencycheck.{DependencyCheckReporter, JsonHelpers => DCJson}
+import com.secdec.codepulse.surface.{SurfaceDetectorFinishedPayload, JsonHelpers => SDJson}
 import com.secdec.codepulse.pages.traces.ProjectDetailsPage
-import com.secdec.codepulse.tracer.snippet.{ ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp }
+import com.secdec.codepulse.tracer.snippet.{ConnectionHelp, DotNETExecutableHelp, DotNETIISHelp}
 import akka.actor.Cancellable
 import net.liftweb.common.Full
 import net.liftweb.common.Loggable
@@ -49,14 +51,17 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
 
 import DCJson._
+import SDJson._
+import com.secdec.codepulse.data.bytecode.CodeTreeNodeKind
 import com.secdec.codepulse.data.storage.StorageManager
+import com.secdec.codepulse.processing.ProcessStatus
 import com.secdec.codepulse.version
 
-case class NodeSourceMetadata(nodeId: Int, nodeLabel: String, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int)
+case class NodeSourceMetadata(nodeId: Int, nodeLabel: String, sourceFileId: Int, sourceFilePath: String, sourceLocationCount: Int, methodStartLine: Int, isSurfaceMethod: Boolean)
 case class NodeSourceFileContents(sourceFileId: Int, sourceFileContents: String)
 case class NodeTracedSourceLocations(nodeId: Int, sourceLocations: List[SourceLocation])
 
-class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager) extends RestHelper with Loggable {
+class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager, generalEventBus: GeneralEventBus) extends RestHelper with Loggable {
 
 	implicit val executionContext = ExecutionContext fromExecutor Executors.newCachedThreadPool
 
@@ -232,11 +237,20 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		/** /api/<target.id>/dcreport */
 		val DepCheckReport = simpleTargetPath("dcreport")
 
+		/** /api/<target.id>/sdstatus */
+		val SurfaceDetectionStatus = simpleTargetPath("sdstatus")
+
 		/** /api/<target.id>/export */
 		val Export = simpleTargetPath("export")
 
 		/** /api/<target.id>/rename */
 		val Rename = simpleTargetPath("rename")
+
+		/** /api/<target.id>/addToSurface */
+		val AddToSurface = simpleTargetPath("addToSurface")
+
+		/** /api/<target.id>/removeFromSurface */
+		val RemoveFromSurface = simpleTargetPath("removeFromSurface")
 
 		/** /api/<target.id>/packageTree */
 		val PackageTree = simpleTargetPath("packageTree")
@@ -283,18 +297,21 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 		val Acknowledgment = AcknowledgmentPath
 
 		val NodeSourceCodeMetadata = TargetPath.map[(TracingTarget, NodeSourceMetadata)]({
-				case (target, listParts @ List("node", AsInt(nodeId), "source-metadata")) =>
+			case (target, listParts @ List("node", AsInt(nodeId), "source-metadata")) =>
+				(for {
+					node <- target.projectData.treeNodeData.getNode(nodeId)
+				} yield {
 					(for {
-						node <- target.projectData.treeNodeData.getNode(nodeId)
 						fileId <- node.sourceFileId
 						sourceFile <- target.projectData.sourceData.getSourceFile(fileId)
 					} yield {
-						(target, NodeSourceMetadata(node.id, node.label, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0)))
-					}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, "", -1, "", 0, 0))
-			}, {
-				case (target, nodeSourceMetadata) =>
-					(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
-			}
+						(target, NodeSourceMetadata(node.id, node.label, fileId, sourceFile.path, node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0), node.isSurfaceMethod.getOrElse(false)))
+					}) getOrElse (target, NodeSourceMetadata(node.id, node.label, -1, "Unavailable", node.sourceLocationCount.getOrElse(0), node.methodStartLine.getOrElse(0), node.isSurfaceMethod.getOrElse(false)))
+				}) getOrElse (target, NodeSourceMetadata(listParts(1).toInt, "", -1, "", 0, 0, false))
+		}, {
+			case (target, nodeSourceMetadata) =>
+				(target, List("node", nodeSourceMetadata.nodeId.toString, "source-metadata"))
+		}
 		)
 
 		val NodeSourceCodeFileContents = TargetPath.map[(TracingTarget, NodeSourceFileContents)]({
@@ -327,6 +344,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 			},
 			{ case (target, nodeTracedSourceLocations) => (target, List("node", nodeTracedSourceLocations.nodeId.toString, "source-locations"))}
 		)
+
+		val AttackSurface = simpleTargetPath("attack-surface")
 	}
 
 	private object DataPath {
@@ -344,6 +363,16 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				logger.error("Future response failed", e)
 				callback(InternalServerErrorResponse())
 		}
+	}
+
+	private def setSurfaceMethodStatus(treeNodeData: TreeNodeDataAccess, projectId: ProjectId, nodeId: Int, isSurfaceMethod: Boolean): Unit = {
+		treeNodeData.getNode(nodeId, CodeTreeNodeKind.Mth).map(x => treeNodeData.markSurfaceMethod(nodeId, Some(isSurfaceMethod)))
+		treeBuilderManager.visitNode(projectId, nodeId, node => {
+			node.isSurfaceMethod = Some(isSurfaceMethod)
+		})
+		generalEventBus.publish(ProcessStatus.Finished(projectId.num.toString,
+			"Surface Detector",
+			Some(SurfaceDetectorFinishedPayload(treeNodeData.getSurfaceMethodCount()))))
 	}
 
 	serve {
@@ -372,7 +401,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					("exportHref" -> Paths.Export.toHref(target)) ~
 					("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
 					("state" -> traceState.name) ~
-					("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
+					("dependencyCheck" -> data.metadata.dependencyCheckStatus.json) ~
+					("surfaceDetector" -> data.metadata.surfaceDetectorStatus.json)
 			}
 
 			Future.sequence(projectJsonFutures) map { JsonResponse(_) }
@@ -473,7 +503,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				("exportHref" -> Paths.Export.toHref(target)) ~
 				("deleteHref" -> TargetPath.toHref(target -> Nil)) ~
 				("state" -> traceState.name) ~
-				("dependencyCheck" -> data.metadata.dependencyCheckStatus.json)
+				("dependencyCheck" -> data.metadata.dependencyCheckStatus.json) ~
+				("surfaceDetector" -> data.metadata.surfaceDetectorStatus.json)
 
 			project.map(JsonResponse(_))
 
@@ -512,6 +543,9 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				case _ => BadResponse()
 			}
 
+		case Paths.SurfaceDetectionStatus(target) Get req =>
+			JsonResponse(target.projectData.metadata.surfaceDetectorStatus.json)
+
 		// GET the vulnerable nodes
 		case Paths.VulnerableNodes(target) Get req =>
 			def collectVulnNodes(node: PackageTreeNode): List[Int] = {
@@ -547,6 +581,28 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 					if (hasConflict) {
 						JsonResponse(Map("warn" -> "nameConflict"))
 					} else OkResponse()
+			}
+
+		// POST add to surface
+		// query: nodeId=nodeId
+		case Paths.AddToSurface(target) Post req =>
+			req.param("nodeId").toOption match {
+				case None => BadResponse()
+				case Some(nodeId) => {
+					setSurfaceMethodStatus(target.projectData.treeNodeData, target.projectData.id, nodeId.toInt, true)
+					OkResponse()
+				}
+			}
+
+		// POST remove from surface
+		// query: nodeId=nodeId
+		case Paths.RemoveFromSurface(target) Post req =>
+			req.param("nodeId").toOption match {
+				case None => BadResponse()
+				case Some(nodeId) => {
+					setSurfaceMethodStatus(target.projectData.treeNodeData, target.projectData.id, nodeId.toInt, false)
+					OkResponse()
+				}
 			}
 
 		// GET the project's package tree as json
@@ -657,7 +713,8 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				("sourceFileId", nodeSourceMetadata.sourceFileId) ~
 				("sourceFilePath", nodeSourceMetadata.sourceFilePath) ~
 				("sourceLocationCount", nodeSourceMetadata.sourceLocationCount) ~
-				("methodStartLine", nodeSourceMetadata.methodStartLine)
+				("methodStartLine", nodeSourceMetadata.methodStartLine) ~
+				("isSurfaceMethod", nodeSourceMetadata.isSurfaceMethod)
 			JsonResponse(json)
 
 		case Paths.NodeSourceCodeFileContents(target, nodeSourceFileContents) Get req =>
@@ -680,6 +737,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager)
 				("endCharacter" -> l.endCharacter)
 
 			JsonResponse(JObject(JField("sourceLocationCoverage", JObject(coverage.toList)) :: JField("sourceLocations", locations) :: Nil))
+
+		case Paths.AttackSurface(target) Get req =>
+			val attackSurface = target.projectData.treeNodeData.getSurfaceMethodAncestorPackages()
+			JsonResponse(attackSurface)
 	}
 }
 
