@@ -32,7 +32,7 @@ public class InstrumentationMethodVisitor extends MethodVisitor {
 
     public InstrumentationMethodVisitor()
     {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM7);
     }
 
     public BitSet getLineNumbers() { return lineNumbers; }

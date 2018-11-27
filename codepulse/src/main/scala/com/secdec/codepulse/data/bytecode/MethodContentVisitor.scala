@@ -39,7 +39,7 @@ object AsmVisitors {
 	}
 }
 
-class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends MethodVisitor(Opcodes.ASM5) {
+class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends MethodVisitor(Opcodes.ASM7) {
 	private var instructionCounter = 0
 	private var lineCounter = 0
 
@@ -63,7 +63,7 @@ class MethodContentVisitor(counterCallback: AsmVisitors.CounterCallback) extends
 	override def visitLineNumber(line: Int, start: Label): Unit = lineCounter += 1
 }
 
-class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends ClassVisitor(Opcodes.ASM5) {
+class ClassStructureVisitor2(methodCallback: AsmVisitors.MethodCallback) extends ClassVisitor(Opcodes.ASM7) {
 	private var classSignature = ""
 	private var classFile = ""
 

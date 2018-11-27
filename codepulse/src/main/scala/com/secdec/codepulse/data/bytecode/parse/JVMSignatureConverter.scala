@@ -113,7 +113,7 @@ object JVMSignatureConverter {
 	/** ASM SignatureVisitor that accumulates all of the "visitX" instructions
 	  * to a list of `SigPart`s, which can be retrieved by calling `result()`.
 	  */
-	class SigPartCollectingVisitor extends SignatureVisitor(Opcodes.ASM5) {
+	class SigPartCollectingVisitor extends SignatureVisitor(Opcodes.ASM7) {
 		private val parts = List.newBuilder[SigPart]
 		private def add(part: SigPart): this.type = {
 			parts += part

@@ -44,8 +44,8 @@ object Dependencies {
 	lazy val concLinkedHashMap = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.2_jdk5"
 	lazy val minlog = "com.esotericsoftware" % "minlog" % "1.3.0"
 	lazy val asm = Seq(
-		"org.ow2.asm" % "asm" % "6.0",
-		"org.ow2.asm" % "asm-commons" % "6.0"
+		"org.ow2.asm" % "asm" % "7.0",
+		"org.ow2.asm" % "asm-commons" % "7.0"
 	)
 	lazy val jsonb = Seq(
 		"javax.json" % "javax.json-api" % "1.1",

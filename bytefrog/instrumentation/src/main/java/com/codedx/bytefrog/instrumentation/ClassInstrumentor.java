@@ -41,7 +41,7 @@ public class ClassInstrumentor extends ClassVisitor {
 	public String getName() { return name; }
 
 	public ClassInstrumentor(final ClassVisitor cv, final MethodIdentifier methodIdentifier, final int classId, final ClassInspector.Result inspection, final TraceHandler handler) {
-		super(Opcodes.ASM5, cv);
+		super(Opcodes.ASM7, cv);
 		this.classId = classId;
 		this.methodIdentifier = methodIdentifier;
 		this.inspection = inspection;

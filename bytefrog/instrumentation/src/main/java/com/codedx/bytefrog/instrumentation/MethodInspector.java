@@ -31,7 +31,7 @@ public class MethodInspector extends MethodVisitor {
 	private int startLine = 0, endLine = 0;
 
 	public MethodInspector(String methodName, String methodDesc) {
-		super(Opcodes.ASM5);
+		super(Opcodes.ASM7);
 		this.methodName = methodName;
 		this.methodDesc = methodDesc;
 	}

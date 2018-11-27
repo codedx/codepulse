@@ -53,7 +53,7 @@ public class JettyAdapter implements Adapter {
 		private final InjectableFilter filter;
 
 		public Visitor(final ClassVisitor cv, final InjectableFilter filter) {
-			super(Opcodes.ASM5, cv);
+			super(Opcodes.ASM7, cv);
 			this.filter = filter;
 		}
 
@@ -78,7 +78,7 @@ public class JettyAdapter implements Adapter {
 		private final InjectableFilter filter;
 
 		public ConstructorInstrumentor(final MethodVisitor mv, final String className, final InjectableFilter filter) {
-			super(Opcodes.ASM5, mv);
+			super(Opcodes.ASM7, mv);
 
 			this.className = className;
 			this.filter = filter;
