@@ -2,7 +2,7 @@ version: 2.6.{build}
 image: Visual Studio 2017
 clone_folder: C:\CodePulse
 build_script:
-- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version 2.6.0 -versionForDotNetTracerWindowsDownloadUrl 2.6.0 -useGitHubDotNetTracerWindowsDownloadUrl
+- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version 2.6.1 -versionForDotNetTracerWindowsDownloadUrl 2.6.1 -useGitHubDotNetTracerWindowsDownloadUrl
 # - cmd: powershell -file C:\CodePulse\installers\build.ps1 -version %APPVEYOR_BUILD_VERSION% -versionForDotNetTracerWindowsDownloadUrl %APPVEYOR_JOB_ID% -skipMac -skipLinux # skips building packages for macOS and Linux
 before_test:
 - cmd: >-
@@ -31,11 +31,11 @@ after_test:
 
     $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", "C:\CodePulse\OpenCover.Test.Profiler.x64.xml")
 artifacts:
-- path: installers\CodePulse-2.6.0-Linux-x64.zip #  Comment out when using -skipLinux switch
+- path: installers\CodePulse-2.6.1-Linux-x64.zip #  Comment out when using -skipLinux switch
   name: Code Pulse Linux                         #
-- path: installers\CodePulse-2.6.0-macOS-x64.zip #  Comment out when using -skipMac switch
+- path: installers\CodePulse-2.6.1-macOS-x64.zip #  Comment out when using -skipMac switch
   name: Code Pulse Mac                           #
-- path: installers\CodePulse-2.6.0-Windows-x64.zip
+- path: installers\CodePulse-2.6.1-Windows-x64.zip
   name: Code Pulse Windows
-- path: installers\CodePulse-DotNetTracer-2.6.0-Windows.zip
+- path: installers\CodePulse-DotNetTracer-2.6.1-Windows.zip
   name: Code Pulse .NET Tracer
