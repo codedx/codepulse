@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![GitHub release](https://img.shields.io/github/release/codedx/codepulse.svg)](https://github.com/codedx/codepulse/releases) [![Build status](https://ci.appveyor.com/api/projects/status/ifckp12pjgi96jxs?svg=true)](https://ci.appveyor.com/project/CodeDx/codepulse) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1760/badge)](https://bestpractices.coreinfrastructure.org/projects/1760) [![Github All Releases](https://img.shields.io/github/downloads/codedx/codepulse/total.svg)](https://github.com/codedx/codepulse) [![OWASP Labs](https://img.shields.io/badge/owasp-labs%20project-f7b73c.svg)](https://www.owasp.org/index.php/OWASP_Project_Inventory#tab=Labs_Projects)
 
-Code Pulse is a real-time code coverage tool. It works by monitoring Java or .NET Framework applications while they run, keeps track of coverage data, and shows you what's being called and when. Code Pulse currently supports Java programs up to Java 9, and .NET Framework programs for CLR versions 2 & 4.
+Code Pulse is a real-time code coverage tool. It works by monitoring Java or .NET Framework applications while they run, keeps track of coverage data, and shows you what's being called and when. Code Pulse currently supports Java programs up to Java 11, and .NET Framework programs for CLR versions 2 & 4.
 
 ## Layout
 
