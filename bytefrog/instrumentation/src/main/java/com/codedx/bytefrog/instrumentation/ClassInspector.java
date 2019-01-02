@@ -37,7 +37,7 @@ public class ClassInspector extends ClassVisitor {
 	private LinkedList<MethodInspector> inspectors = new LinkedList<>();
 
 	public ClassInspector() {
-		super(Opcodes.ASM5);
+		super(Opcodes.ASM7);
 	}
 
 	@Override public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {

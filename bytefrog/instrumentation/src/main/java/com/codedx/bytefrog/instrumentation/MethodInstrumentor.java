@@ -65,7 +65,7 @@ class MethodInstrumentor extends AdviceAdapter {
 	private final List<NewLocation> newReplacementLocations = new ArrayList<>();
 
 	public MethodInstrumentor(final ClassInstrumentor ci, final MethodVisitor mv, final int access, final String methodName, final String desc, final int methodId, final MethodInspector.Result inspection, final TraceHandler handler) {
-		super(Opcodes.ASM5, mv, access, methodName, desc);
+		super(Opcodes.ASM7, mv, access, methodName, desc);
 
 		this.ci = ci;
 		this.access = access;

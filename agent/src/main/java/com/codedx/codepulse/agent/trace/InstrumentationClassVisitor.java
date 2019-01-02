@@ -32,7 +32,7 @@ public class InstrumentationClassVisitor extends ClassVisitor {
     private LinkedList<InstrumentationMethodVisitor> inspectors = new LinkedList<>();
 
     public InstrumentationClassVisitor() {
-        super(Opcodes.ASM5);
+        super(Opcodes.ASM7);
     }
 
     public BitSet getLineNumbers() {

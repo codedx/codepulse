@@ -69,7 +69,7 @@ public class FilterInjector {
 		private Adapter adapter = null;
 
 		public Visitor() {
-			super(Opcodes.ASM5);
+			super(Opcodes.ASM7);
 		}
 
 		public Adapter getAdapter() {
