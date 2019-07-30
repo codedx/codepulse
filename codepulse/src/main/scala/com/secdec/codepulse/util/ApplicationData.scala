@@ -27,34 +27,43 @@ import java.io.File
 object ApplicationData {
 	import Implicits._
 
-	private def getAppData(companyName: String, appName: String, appShortName: String, local: Boolean) = OperatingSystem.current match {
-		case OperatingSystem.Windows =>
-			val appData = if (local) WindowsHelper.localAppDataFolder else WindowsHelper.appDataFolder
-			if (appData == null)
-				throw new IllegalStateException("Could not find application data folder")
+	private def getAppData(companyName: String, appName: String, appShortName: String, local: Boolean, instanceName: String) = {
 
-			new File(appData) / companyName / appName
+		val appDataFolder = OperatingSystem.current match {
+			case OperatingSystem.Windows =>
+				val appData = if (local) WindowsHelper.localAppDataFolder else WindowsHelper.appDataFolder
+				if (appData == null)
+					throw new IllegalStateException("Could not find application data folder")
 
-		case OperatingSystem.OSX =>
-			val home = System.getProperty("user.home")
-			if (home == null)
-				throw new IllegalStateException("Could not find user home folder")
+				new File(appData) / companyName / appName
 
-			new File(home) / "Library" / "Application Support" / appName
+			case OperatingSystem.OSX =>
+				val home = System.getProperty("user.home")
+				if (home == null)
+					throw new IllegalStateException("Could not find user home folder")
 
-		case OperatingSystem.Linux | OperatingSystem.Unix =>
-			val home = System.getProperty("user.home")
-			if (home == null)
-				throw new IllegalStateException("Could not find user home folder")
+				new File(home) / "Library" / "Application Support" / appName
 
-			new File(home) / s".$appShortName"
+			case OperatingSystem.Linux | OperatingSystem.Unix =>
+				val home = System.getProperty("user.home")
+				if (home == null)
+					throw new IllegalStateException("Could not find user home folder")
 
-		case _ =>
-			throw new NotImplementedError
+				new File(home) / s".$appShortName"
+
+			case _ =>
+				throw new NotImplementedError
+		}
+
+		if (instanceName.isEmpty()) {
+			appDataFolder
+		} else {
+			new File(appDataFolder.getPath, instanceName)
+		}
 	}
 
-	def getApplicationDataFolder(companyName: String, appName: String, appShortName: String) = getAppData(companyName, appName, appShortName, false)
-	def getLocalApplicationDataFolder(companyName: String, appName: String, appShortName: String) = getAppData(companyName, appName, appShortName, true)
+	def getApplicationDataFolder(companyName: String, appName: String, appShortName: String, instanceName: String) = getAppData(companyName, appName, appShortName, false, instanceName)
+	def getLocalApplicationDataFolder(companyName: String, appName: String, appShortName: String, instanceName: String) = getAppData(companyName, appName, appShortName, true, instanceName)
 
 	/** Internal helper for Windows to query for appdata folder the proper way */
 	private object WindowsHelper {

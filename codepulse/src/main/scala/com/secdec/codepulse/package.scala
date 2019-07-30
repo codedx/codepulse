@@ -62,9 +62,14 @@ package object codepulse {
 		lazy val dateRaw = versionInfo.releaseDate
 	}
 
+	val maxInstanceNameEnvLength = 50
+	val instanceNameEnvVar = "CODE_PULSE_INSTANCE_NAME"
+	val instanceName: String = sys.env.get(instanceNameEnvVar).getOrElse("").replaceAll("[^A-Za-z0-9_-]", "_").take(maxInstanceNameEnvLength)
+
 	object paths {
-		val appData = ApplicationData.getApplicationDataFolder("Code Dx", "Code Pulse", "codepulse")
-		val localAppData = ApplicationData.getLocalApplicationDataFolder("Code Dx", "Code Pulse", "codepulse")
+
+		val appData = ApplicationData.getApplicationDataFolder("Code Dx", "Code Pulse", "codepulse", codepulse.instanceName)
+		val localAppData = ApplicationData.getLocalApplicationDataFolder("Code Dx", "Code Pulse", "codepulse", codepulse.instanceName)
 		val logFiles = appData / "log-files"
 
 		logFiles.mkdirs
@@ -75,6 +80,7 @@ package object codepulse {
 		private var config =
 			ConfigFactory
 				.parseFile(configFile)
+  		  .resolve()
 				.withFallback(ConfigFactory.load())
 				.withOnlyPath("cp.userSettings") // do not return systemSettings, which could get persisted to disk later on
 
@@ -135,8 +141,16 @@ package object codepulse {
 			val renderOptions = ConfigRenderOptions.defaults.setJson(false).setOriginComments(false)
 			val output = config.root.render(renderOptions)
 
+			// preserve option to override tracePort via an environment variable
+			val tracePortPattern = """(tracePort="?\d+"?)""".r
+			val outputWithTracePort = tracePortPattern.replaceFirstIn(output, "$1\n" + " " * 12 + "tracePort=\\${?CODE_PULSE_TRACE_PORT}")
+
+			// preserve option to override port for symbol service via an environment variable
+			val symbolServicePortPattern = """(port="?\d+"?)""".r
+			val outputWithServicePortPattern = symbolServicePortPattern.replaceFirstIn(outputWithTracePort, "$1\n" + " " * 16 + "port=\\${?SYMBOL_SERVICE_PORT}")
+
 			val writer = new FileWriter(configFile)
-			writer.write(output)
+			writer.write(outputWithServicePortPattern)
 			writer.close()
 		}
 	}
