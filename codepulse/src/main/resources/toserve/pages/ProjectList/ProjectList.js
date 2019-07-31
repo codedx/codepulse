@@ -94,6 +94,7 @@
 		var $item = $(this),
 			$link = $item.find('a.projectLink'),
 			$nameDiv = $item.find('.projectName'),
+			$projectId = $item.find('.identifier span[name=identifier]'),
 			$created = $item.find('.date-created span[name=date]'),
 			$importedDiv = $item.find('.date-imported'),
 			$imported = $importedDiv.find('span[name=date]'),
@@ -107,6 +108,7 @@
 			.attr('href', data.href)
 			.text(data.name)
 
+		$projectId.text(data.id)
 		$created.text(data.created)
 
 		var imported = data.imported

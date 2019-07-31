@@ -123,6 +123,14 @@
  	font-size: x-small;
  }
 
+.projectSwitcher .projectListItem .identifier {
+	color: rgb(102,102,102);
+	line-height: 10px;
+}
+
+.projectSwitcher .projectListItem .identifier span {
+	font-size: x-small;
+}
 
 /******************************\
 | Striped Background Animation |
