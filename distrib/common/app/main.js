@@ -44,13 +44,13 @@ function getJava() {
 
 	switch (platform()) {
 		case 'darwin':
-			return 'jre/Contents/Home/bin/java'
+			return 'jdk/Contents/Home/bin/java'
 
 		case 'linux':
-			return 'jre/bin/java'
+			return 'jdk/bin/java'
 
 		case 'win32':
-			return 'jre/bin/java.exe';
+			return 'jdk/bin/java.exe';
 
 		default:
 			throw 'unknown platform ' + platform();

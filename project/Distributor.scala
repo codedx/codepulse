@@ -63,24 +63,20 @@ object Distributor extends BuildExtra {
 
 	object dependencies {
 		object java {
-			private val setOracleCookie: URLConnection => Unit = { _.setRequestProperty("Cookie", "oraclelicense=accept-securebackup-cookie") }
-			private val trimPathRegex = raw"^\Qjre1.8.0_191\E(?:\.jre)?/".r
+			private val trimPathRegex = raw"^\Qjdk-9.0.4\E/".r
 			private val trimPath: String => String = { trimPathRegex.replaceFirstIn(_, "") }
 
-			val win64 = Dependency("jre.win64", "8u191", "http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-windows-x64.tar.gz")
-				.withConnectionStep(setOracleCookie)
+			val win64 = Dependency("jdk.win64", "9.0.4+11", "https://download.java.net/java/GA/jdk9/9.0.4/binaries/openjdk-9.0.4_windows-x64_bin.tar.gz")
 				.extractAsTarGz { trimPath }
-				.to { _ / "distrib-dependencies" / "win64" / "jre" }
+				.to { _ / "distrib-dependencies" / "win64" / "jdk" }
 
-			val linuxX64 = Dependency("jre.linux-x64", "8u191", "http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-linux-x64.tar.gz")
-				.withConnectionStep(setOracleCookie)
+			val linuxX64 = Dependency("jdk.linux-x64", "9.0.4+11", "https://download.java.net/java/GA/jdk9/9.0.4/binaries/openjdk-9.0.4_linux-x64_bin.tar.gz")
 				.extractAsTarGz { trimPath }
-				.to { _ / "distrib-dependencies" / "linux-x64" / "jre" }
+				.to { _ / "distrib-dependencies" / "linux-x64" / "jdk" }
 
-			val osx = Dependency("jre.osx", "8u191", "http://download.oracle.com/otn-pub/java/jdk/8u191-b12/2787e4a523244c269598db4e85c51e0c/jre-8u191-macosx-x64.tar.gz")
-				.withConnectionStep(setOracleCookie)
+			val osx = Dependency("jdk.osx", "9.0.4+11", "https://download.java.net/java/GA/jdk9/9.0.4/binaries/openjdk-9.0.4_osx-x64_bin.tar.gz")
 				.extractAsTarGz { trimPath }
-				.to { _ / "distrib-dependencies" / "osx" / "jre" }
+				.to { _ / "distrib-dependencies" / "osx" / "jdk" }
 		}
 
 		object nwjs {
@@ -306,14 +302,14 @@ object Distributor extends BuildExtra {
 			}
 		}
 
-		def javaRuntime(platform: String, jreDep: DependencyTask): FileMappingTask = Def.task {
+		def javaRuntime(platform: String, jdkDep: DependencyTask): FileMappingTask = Def.task {
 			val log = streams.value.log
 
 			val root = (rootZipFolder in Distribution).value
-			val jreDest = s"$root/jre/"
+			val jreDest = s"$root/jdk/"
 
-			val jre = jreDep.value
-			val jreFiles: Seq[ZipEntry] = appResource(platform, root, jre.*** pair rebase(jre, jreDest)) map {
+			val jdk = jdkDep.value
+			val jdkFiles: Seq[ZipEntry] = appResource(platform, root, jdk.*** pair rebase(jdk, jreDest)) map {
 				// replace \ in paths with /, for easier matching below
 				case (src, dest) => (src, dest.replace('\\', '/'))
 			}
@@ -324,7 +320,7 @@ object Distributor extends BuildExtra {
 			// For Java 8: <http://www.oracle.com/technetwork/java/javase/jre-8-readme-2095710.html>
 			platform match {
 				case "win64" =>
-					val base = s"$root/jre/"
+					val base = s"$root/jdk/"
 
 					val exclusions = Set(
 						"bin/rmid.exe", "bin/rmiregistry.exe", "bin/tnameserv.exe", "bin/keytool.exe", "bin/policytool.exe", "bin/orbd.exe", "bin/servertool.exe",
@@ -346,13 +342,13 @@ object Distributor extends BuildExtra {
 						"lib/deploy/", "lib/oblique-fonts/", "lib/desktop/", "plugin/"
 					).map { exc => s"$base/$exc" }
 
-					jreFiles filter {
+					jdkFiles filter {
 						case ZipEntry(_, path, _) if (exclusions contains path) || exclusionPatterns.exists(path.startsWith) => log.info(s"Excluding $path"); false
 						case _ => true
 					}
 
 				case "osx" =>
-					val base = s"$root/Code Pulse.app/Contents/Resources/app.nw/jre/Contents/Home/"
+					val base = s"$root/Code Pulse.app/Contents/Resources/app.nw/jdk/Contents/Home/"
 
 					val exclusions = Set(
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
@@ -368,7 +364,7 @@ object Distributor extends BuildExtra {
 						"lib/oblique-fonts/", "lib/desktop/", "plugin/"
 					).map { exc => s"$base/$exc" }
 
-					jreFiles flatMap {
+					jdkFiles flatMap {
 						case ZipEntry(file, path, _) if path == (s"$base/Contents/Home/bin/java") =>
 							Some(ZipEntry(file, path, ExecutableType.Mac.mode)) // executable
 
@@ -380,7 +376,7 @@ object Distributor extends BuildExtra {
 					}
 
 				case "linux-x64" =>
-					val base = s"$root/jre/"
+					val base = s"$root/jdk/"
 
 					val exclusions = Set(
 						"bin/rmid", "bin/rmiregistry", "bin/tnameserv", "bin/keytool", "bin/policytool", "bin/orbd", "bin/servertool",
@@ -397,7 +393,7 @@ object Distributor extends BuildExtra {
 						"lib/oblique-fonts/", "lib/desktop/", "plugin/"
 					).map { exc => s"$base/$exc" }
 
-					jreFiles flatMap {
+					jdkFiles flatMap {
 						case ZipEntry(file, path, _) if path == (base + "bin/java") =>
 							Some(ZipEntry(file, path, ExecutableType.Unix.mode)) // executable
 
@@ -430,13 +426,13 @@ object Distributor extends BuildExtra {
 
 	import Settings._
 
-	def distribution(platform: String, agent: Project, nwjs: DependencyTask, jre: DependencyTask, task: TaskKey[File])(config: Configuration) =
+	def distribution(platform: String, agent: Project, nwjs: DependencyTask, jdk: DependencyTask, task: TaskKey[File])(config: Configuration) =
 		Seq(packageMappings in (config, task) := embeddedWebApp(config, platform).value) ++
 		inConfig(config) { Seq(
 			packageMappings in task ++= jettyDist(platform).value,
 			packageMappings in task ++= embeddedAppFiles(platform).value,
 			packageMappings in task ++= nwjsRuntime(platform, nwjs).value,
-			packageMappings in task ++= javaRuntime(platform, jre).value,
+			packageMappings in task ++= javaRuntime(platform, jdk).value,
 			packageMappings in task ++= agentJar(agent, platform).value,
 			task := {
 				val log = streams.value.log
