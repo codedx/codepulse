@@ -43,6 +43,18 @@ namespace CodePulse.Client.Test
         }
 
         [TestMethod]
+        public void WhenWriteProjectHelloMessageCreated()
+        {
+            TestMessage((writer, protocol) => protocol.WriteProjectHello(writer, 42),
+                (reader, protocol) =>
+                {
+                    Assert.AreEqual(MessageTypes.ProjectHello, reader.ReadByte());
+                    Assert.AreEqual(protocol.ProtocolVersion, reader.ReadByte());
+                    Assert.AreEqual(42, reader.ReadInt32BigEndian());
+                });
+        }
+
+        [TestMethod]
         public void WhenWriteDataHelloMessageCreated()
         {
             const byte runId = 1;

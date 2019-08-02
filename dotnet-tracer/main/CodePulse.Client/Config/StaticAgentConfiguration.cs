@@ -35,11 +35,22 @@ namespace CodePulse.Client.Config
 
         public int ConnectTimeout { get; }
 
+        public int ProjectId { get; }
+
         public ILog Logger { get; }
 
         public StaticAgentConfiguration(int hqPort,
             string hqHost,
             int connectTimeout,
+            ILog logger)
+            : this(hqPort, hqHost, connectTimeout, 0, logger)
+        {
+        }
+
+        public StaticAgentConfiguration(int hqPort,
+            string hqHost,
+            int connectTimeout,
+            int projectId,
             ILog logger)
         {
             if (hqHost == null)
@@ -54,11 +65,16 @@ namespace CodePulse.Client.Config
             {
                 throw new ArgumentOutOfRangeException(nameof(connectTimeout));
             }
+            if (projectId < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            }
 
             HqPort = hqPort;
             HqHost = hqHost;
             ConnectTimeout = connectTimeout;
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            ProjectId = projectId;
         }
     }
 }

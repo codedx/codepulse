@@ -132,7 +132,7 @@ namespace CodePulse.Console
 
                             _persistence = new CodePulsePersistence(parser, Logger);
                             container.Initialise(filter, parser, _persistence, perfCounter);
-                            if (!_persistence.Initialize(new StaticAgentConfiguration(parser.CodePulsePort, parser.CodePulseHost, parser.CodePulseConnectTimeout, Logger)))
+                            if (!_persistence.Initialize(new StaticAgentConfiguration(parser.CodePulsePort, parser.CodePulseHost, parser.CodePulseConnectTimeout, parser.ProjectId, Logger)))
                             {
                                 LogMandatoryFatal("Failed to initialize Code Pulse connection. Is Code Pulse running?");
                                 return MakeExitCode(ProgramExitCodes.CannotInitializeCodePulseConnection);

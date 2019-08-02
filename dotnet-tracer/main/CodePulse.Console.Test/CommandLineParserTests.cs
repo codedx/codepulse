@@ -281,6 +281,45 @@ namespace CodePulse.Console.Test
             ValidateCommandLineArguments(parameters);
         }
 
+        [TestMethod]
+        public void WhenProjectIdInvalidExceptionOccurs()
+        {
+            // arrange
+            var parameters = new[]
+            {
+                "-Target:file",
+                "-SendVisitPointsTimerInterval:45",
+                "-ProjectId:not-an-id"
+            };
+            ValidateCommandLineArguments(parameters, "The Code Pulse project ID must be a valid identifier: not-an-id is not a valid value for Int32.");
+        }
+
+        [TestMethod]
+        public void WhenProjectIdSpecifiedCorrectly()
+        {
+            // arrange
+            var parameters = new[]
+            {
+                "-Target:file",
+                "-SendVisitPointsTimerInterval:45",
+                "-ProjectId:1"
+            };
+            ValidateCommandLineArguments(parameters);
+        }
+
+        [TestMethod]
+        public void WhenProjectIdNegativeExceptionOccurs()
+        {
+            // arrange
+            var parameters = new[]
+            {
+                "-Target:file",
+                "-SendVisitPointsTimerInterval:45",
+                "-ProjectId:-11"
+            };
+            ValidateCommandLineArguments(parameters, "The Code Pulse project ID must be a valid identifier: The argument projectid must be between 0 and 2147483647");
+        }
+
         private static void ValidateCommandLineArguments(string[] parameters, string expectedError = "")
         {
             // arrange

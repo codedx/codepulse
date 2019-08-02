@@ -139,7 +139,7 @@ namespace CodePulse.Client.Agent
             {
                 try
                 {
-                    RuntimeAgentConfiguration = _protocolVersion.ControlConnectionHandshake.PerformHandshake(socketConnection);
+                    RuntimeAgentConfiguration = _protocolVersion.ControlConnectionHandshake.PerformHandshake(socketConnection, StaticAgentConfiguration.ProjectId);
                 }
                 catch (HandshakeException ex)
                 {

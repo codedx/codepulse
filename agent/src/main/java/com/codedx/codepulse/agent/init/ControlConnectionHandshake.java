@@ -24,5 +24,5 @@ import com.codedx.codepulse.agent.common.connect.Connection;
 
 public interface ControlConnectionHandshake
 {
-	RuntimeAgentConfigurationV1 performHandshake(Connection connection) throws IOException;
+	RuntimeAgentConfigurationV1 performHandshake(Connection connection, int projectId) throws IOException;
 }

@@ -21,9 +21,8 @@ import java.util.concurrent.TimeoutException
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
-
 import com.codedx.codepulse.agent.common.connect.Connection
-import com.codedx.codepulse.agent.common.message.MessageConstantsV1
+import com.codedx.codepulse.agent.common.message.{MessageConstantsV1, MessageConstantsV4}
 import com.codedx.codepulse.hq.protocol.ControlMessage._
 import com.codedx.codepulse.hq.protocol._
 
@@ -56,7 +55,11 @@ class ClientGreeter(
 
 		//the 2 bytes should either be [Hello, protocolVersion] or [DataHello, runId]
 		(firstByte, secondByte) match {
-			case (MessageConstantsV1.MsgHello, protocolVersion) => handleHello(protocolVersion)
+			case (MessageConstantsV1.MsgHello, protocolVersion) => handleHello(protocolVersion, None)
+			case (MessageConstantsV4.MsgProjectHello, protocolVersion) => {
+				val projectId = client.input.readInt
+				handleHello(protocolVersion, Some(projectId))
+			}
 			case (MessageConstantsV1.MsgDataHello, runId) => handleDataHello(runId)
 			case _ =>
 				latestProtocol.writeError(client.output, "Unexpected Input Format")
@@ -73,7 +76,7 @@ class ClientGreeter(
 	  * 		If the senderOpt is a `None`, the connection will be closed, after writing
 	  * 		an error to the client.
 	  */
-	def handleHello(protocolVersion: Int): Unit = {
+	def handleHello(protocolVersion: Int, projectId: Option[Int]): Unit = {
 		val readerWriterOpt = for {
 			reader <- getControlMessageReader(protocolVersion)
 			writer <- getControlMessageSender(protocolVersion)
@@ -90,7 +93,8 @@ class ClientGreeter(
 					protocolVersion,
 					client,
 					receiver,
-					sender)
+					sender,
+					projectId)
 
 				/* Calling addControlConnection triggers the connector to associate
 				 * this connection with the next waiting trace object in line. The

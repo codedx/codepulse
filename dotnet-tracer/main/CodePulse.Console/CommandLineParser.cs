@@ -244,6 +244,11 @@ namespace CodePulse.Console
         public string ExpectedOwnerOfApplicationUnderTest { get; private set; }
 
         /// <summary>
+        /// Project ID associated with the trace.
+        /// </summary>
+        public int ProjectId { get; private set; } 
+
+        /// <summary>
         /// Constructs the parser
         /// </summary>
         /// <param name="arguments">An array of command line arguments</param>
@@ -270,6 +275,7 @@ namespace CodePulse.Console
             CodePulseHost = "127.0.0.1";
             CodePulsePort = 8765;
             CodePulseConnectTimeout = 5000;
+            ProjectId = 0;
         }
 
         /// <summary>
@@ -290,6 +296,7 @@ namespace CodePulse.Console
             builder.AppendLine();
             builder.AppendLine("Common-Parameters:");
             builder.AppendLine("[-Register[:user|path32|path64]]");
+            builder.AppendLine("[-ProjectId[:id]");
             builder.AppendLine("[-CodePulsePort[:port]]");
             builder.AppendLine("[-CodePulseHost[:host]]");
             builder.AppendLine("[-CodePulseConnectTimeout[:milliseconds]]");
@@ -354,6 +361,9 @@ namespace CodePulse.Console
                         Register = true;
                         Enum.TryParse(GetArgumentValue("register"), true, out Registration registration);
                         Registration = registration;
+                        break;
+                    case "projectid":
+                        ProjectId = ExtractValue("projectid", 0, int.MaxValue, error => throw new InvalidOperationException($"The Code Pulse project ID must be a valid identifier: {error}"));
                         break;
                     case "codepulseport":
                         CodePulsePort = ExtractValue("codepulseport", 0, ushort.MaxValue, error => throw new InvalidOperationException($"The Code Pulse port must be a valid port number. {error}."));

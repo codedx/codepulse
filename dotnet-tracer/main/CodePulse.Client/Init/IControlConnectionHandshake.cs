@@ -28,5 +28,7 @@ namespace CodePulse.Client.Init
     public interface IControlConnectionHandshake
     {
         RuntimeAgentConfiguration PerformHandshake(IConnection connection);
+
+        RuntimeAgentConfiguration PerformHandshake(IConnection connection, int projectId);
     }
 }

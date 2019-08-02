@@ -80,7 +80,7 @@ package object codepulse {
 		private var config =
 			ConfigFactory
 				.parseFile(configFile)
-  		  .resolve()
+				.resolve()
 				.withFallback(ConfigFactory.load())
 				.withOnlyPath("cp.userSettings") // do not return systemSettings, which could get persisted to disk later on
 
@@ -92,6 +92,8 @@ package object codepulse {
 		}
 
 		def symbolServicePort = config.getString("cp.userSettings.symbolService.port")
+
+		def skipUserAcknowledgment = config.getBoolean("cp.userSettings.skipUserAcknowledgment")
 
 		def secdecLoggingLevel: Option[Level] = {
 			getLogLevel(config, "cp.userSettings.logging.secdecLoggingLevel")
@@ -147,10 +149,14 @@ package object codepulse {
 
 			// preserve option to override port for symbol service via an environment variable
 			val symbolServicePortPattern = """(port="?\d+"?)""".r
-			val outputWithServicePortPattern = symbolServicePortPattern.replaceFirstIn(outputWithTracePort, "$1\n" + " " * 16 + "port=\\${?SYMBOL_SERVICE_PORT}")
+			val outputWithServicePort = symbolServicePortPattern.replaceFirstIn(outputWithTracePort, "$1\n" + " " * 16 + "port=\\${?SYMBOL_SERVICE_PORT}")
+
+			// preserve option to skip user ack via an environment variable
+			val allowAgentToAcceptTraceConnectionPattern = """(skipUserAcknowledgment="?(?:false|true|yes|no)"?)""".r
+			val outputWithSkipAck = allowAgentToAcceptTraceConnectionPattern.replaceFirstIn(outputWithServicePort, "$1\n" + " " * 12 + "skipUserAcknowledgment=\\${?CODE_PULSE_SKIP_ACK}")
 
 			val writer = new FileWriter(configFile)
-			writer.write(outputWithServicePortPattern)
+			writer.write(outputWithSkipAck)
 			writer.close()
 		}
 	}

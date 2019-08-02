@@ -37,6 +37,12 @@ public class MessageProtocolV1 implements MessageProtocol
 	}
 
 	@Override
+	public void writeProjectHello(DataOutputStream out, int projectId) throws IOException, NotSupportedException
+	{
+		throw new NotSupportedException();
+	}
+
+	@Override
 	public void writeDataHello(DataOutputStream out, byte runId) throws IOException
 	{
 		out.writeByte(MessageConstantsV1.MsgDataHello);

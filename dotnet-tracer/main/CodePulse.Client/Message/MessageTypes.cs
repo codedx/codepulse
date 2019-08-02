@@ -41,6 +41,8 @@ namespace CodePulse.Client.Message
 	    public const byte MapSourceLocation = 13;
 	    public const byte MethodVisit = 14;
 
+        public const byte ProjectHello = 16;
+
         public const byte MethodEntry = 20;
         public const byte MethodExit = 21;
         public const byte Exception = 22;

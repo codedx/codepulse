@@ -42,6 +42,11 @@ namespace CodePulse.Client.Init
 
         public RuntimeAgentConfiguration PerformHandshake(IConnection connection)
         {
+            return PerformHandshake(connection, 0);
+        }
+
+        public RuntimeAgentConfiguration PerformHandshake(IConnection connection, int projectId)
+        {
             if (connection == null)
             {
                 throw new ArgumentNullException(nameof(connection));
@@ -49,8 +54,16 @@ namespace CodePulse.Client.Init
 
             var outputWriter = connection.OutputWriter;
 
-            _messageProtocol.WriteHello(outputWriter);
-            outputWriter.FlushAndLog("WriteHello");
+            if (projectId == 0)
+            {
+                _messageProtocol.WriteHello(outputWriter);
+                outputWriter.FlushAndLog("WriteHello");
+            }
+            else
+            {
+                _messageProtocol.WriteProjectHello(outputWriter, projectId);
+                outputWriter.FlushAndLog("WriteProjectHello");
+            }
 
             var inputReader = connection.InputReader;
             var reply = inputReader.ReadByte();

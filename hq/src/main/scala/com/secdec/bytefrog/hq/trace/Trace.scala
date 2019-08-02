@@ -148,6 +148,9 @@ class Trace(val runId: Byte, controlConnection: ControlConnection, hqConfig: HQC
 	/** The version of the underlying messaging protocol used by the connections to the Agent */
 	val protocolVersion = controlConnection.protocolVersion
 
+	/** The ID of the project associated with the trace */
+	val projectId = controlConnection.projectId
+
 	private lazy val dataRouter = {
 		val router = new DataRouter(errorController)
 

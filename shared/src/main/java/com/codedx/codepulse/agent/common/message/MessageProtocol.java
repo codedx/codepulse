@@ -33,6 +33,8 @@ public interface MessageProtocol
 
 	public void writeHello(DataOutputStream out) throws IOException;
 
+	public void writeProjectHello(DataOutputStream out, int projectId) throws IOException, NotSupportedException;
+
 	public void writeDataHello(DataOutputStream out, byte runId) throws IOException;
 
 	public void writeError(DataOutputStream out, String error) throws IOException;

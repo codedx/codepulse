@@ -29,6 +29,7 @@ namespace CodePulse.Client.Message
         byte ProtocolVersion { get; }
 
         void WriteHello(BinaryWriter writer);
+        void WriteProjectHello(BinaryWriter writer, int projectId);
         void WriteDataHello(BinaryWriter writer, byte runId);
         void WriteError(BinaryWriter writer, string error);
         void WriteHeartbeat(BinaryWriter writer, AgentOperationMode mode, ushort sendBufferSize);

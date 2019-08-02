@@ -28,12 +28,19 @@ namespace CodePulse.Client.Message
 {
     public class MessageProtocol : IMessageProtocol
     {
-        public byte ProtocolVersion { get; } = 3;
+        public byte ProtocolVersion { get; } = 4;
 
         public void WriteHello(BinaryWriter writer)
         {
             writer.Write(MessageTypes.Hello);
             writer.Write(ProtocolVersion);
+        }
+
+        public void WriteProjectHello(BinaryWriter writer, int projectId)
+        {
+            writer.Write(MessageTypes.ProjectHello);
+            writer.Write(ProtocolVersion);
+            writer.WriteBigEndian(projectId);
         }
 
         public void WriteDataHello(BinaryWriter writer, byte runId)

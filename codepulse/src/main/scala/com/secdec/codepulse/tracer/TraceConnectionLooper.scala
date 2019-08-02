@@ -44,6 +44,7 @@ import akka.actor.actorRef2Scala
 import akka.pattern.ask
 import akka.pattern.pipe
 import akka.util.Timeout
+import com.secdec.codepulse.userSettings
 import net.liftweb.common.Loggable
 import reactive.EventSource
 import reactive.EventStream
@@ -288,6 +289,24 @@ class TraceConnectionLooper(acknowledger: TraceConnectionAcknowledger) extends A
 		becomeState(WaitingForAcknowledgement(currentCounter, trace))
 
 		val acknowledgment = acknowledger.getTraceAcknowledgment(trace)
+
+		if (trace.projectId.isDefined) {
+			val projectId = trace.projectId.get
+
+			if (userSettings.skipUserAcknowledgment) {
+				logger.debug(s"Skipping user acknowledgement for project ID $projectId...")
+
+				val project = com.secdec.codepulse.tracer.projectManager().getProject(com.secdec.codepulse.data.model.ProjectId(projectId))
+				if (project.isDefined) {
+					com.secdec.codepulse.tracer.traceConnectionAcknowledger().acknowledgeCurrentTrace(project.get)
+					logger.debug("Skipped user acknowledgement")
+				} else {
+					logger.error(s"A trace specified project ID $projectId, but there is no project with that ID.")
+				}
+			} else {
+				logger.error(s"A trace specified project ID $projectId, but the value of cp.userSettings.skipUserAcknowledgment prevents skipping user acknowledgement.")
+			}
+		}
 
 		// if the trace 'completes' before it has been acknowledged, we need to look for a new one
 		// (this might happen if the agent gets ctrl+C'd before the ack)

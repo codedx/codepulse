@@ -38,7 +38,10 @@ class ControlConnection(
 	val protocolVersion: Int,
 	connection: Connection,
 	messageReader: ControlMessageReader,
-	messageSender: ControlMessageSender) {
+	messageSender: ControlMessageSender,
+	traceProjectId: Option[Int]) {
+
+	val projectId = traceProjectId
 
 	/** Closes the connection between HQ and the Agent.
 	  * After closing, send and receive operations will generally be expected to fail.

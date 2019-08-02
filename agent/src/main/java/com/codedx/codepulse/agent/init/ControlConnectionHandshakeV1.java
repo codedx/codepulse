@@ -21,6 +21,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import com.codedx.codepulse.agent.common.message.NotSupportedException;
 import com.codedx.codepulse.agent.control.ConfigurationReader;
 import com.codedx.codepulse.agent.errors.ErrorHandler;
 import com.codedx.codepulse.agent.common.config.RuntimeAgentConfigurationV1;
@@ -29,7 +30,7 @@ import com.codedx.codepulse.agent.common.message.MessageConstantsV1;
 import com.codedx.codepulse.agent.common.message.MessageProtocol;
 
 /**
- * Implements control connection handshake for protocol version 1.
+ * Implements control connection handshake for protocol version 4.
  * @author RobertF
  */
 public class ControlConnectionHandshakeV1 implements ControlConnectionHandshake
@@ -44,13 +45,22 @@ public class ControlConnectionHandshakeV1 implements ControlConnectionHandshake
 	}
 
 	@Override
-	public RuntimeAgentConfigurationV1 performHandshake(Connection connection) throws IOException
+	public RuntimeAgentConfigurationV1 performHandshake(Connection connection, int projectId) throws IOException
 	{
 		DataOutputStream outStream = connection.output();
 		DataInputStream inStream = connection.input();
 
 		// say hello!
-		protocol.writeHello(outStream);
+		try {
+			if (projectId == 0) {
+				protocol.writeHello(outStream);
+			} else {
+				protocol.writeProjectHello(outStream, projectId);
+			}
+		} catch (NotSupportedException e) {
+			ErrorHandler.handleError("protocol error: project-hello message is not supported");
+			return null;
+		}
 		outStream.flush();
 
 		byte reply = inStream.readByte();

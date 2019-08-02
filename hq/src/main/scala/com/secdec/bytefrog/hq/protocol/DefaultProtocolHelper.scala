@@ -17,12 +17,12 @@
 
 package com.codedx.codepulse.hq.protocol
 
-import com.codedx.codepulse.agent.common.message.{MessageProtocol, MessageProtocolV1, MessageProtocolV2, MessageProtocolV3}
-import com.secdec.bytefrog.hq.protocol.{DataMessageParserV2}
+import com.codedx.codepulse.agent.common.message._
+import com.secdec.bytefrog.hq.protocol.DataMessageParserV2
 
 object DefaultProtocolHelper extends ProtocolHelper {
 
-	def latestProtocolVersion = 3
+	def latestProtocolVersion = 4
 
 	/** Returns a `MessageProtocol` instance associated with the given `version`, as
 	  * an option.
@@ -34,6 +34,7 @@ object DefaultProtocolHelper extends ProtocolHelper {
 		case 1 => Some(new MessageProtocolV1)
 		case 2 => Some(new MessageProtocolV2)
 		case 3 => Some(new MessageProtocolV3)
+		case 4 => Some(new MessageProtocolV4)
 		case _ => None
 	}
 
@@ -47,6 +48,7 @@ object DefaultProtocolHelper extends ProtocolHelper {
 		case 1 => Some(ControlMessageSenderV1)
 		case 2 => Some(ControlMessageSenderV2)
 		case 3 => Some(ControlMessageSenderV2)
+		case 4 => Some(ControlMessageSenderV2)
 		case _ => None
 	}
 
@@ -54,6 +56,7 @@ object DefaultProtocolHelper extends ProtocolHelper {
 		case 1 => Some(ControlMessageReaderV1)
 		case 2 => Some(ControlMessageReaderV1)
 		case 3 => Some(ControlMessageReaderV1)
+		case 4 => Some(ControlMessageReaderV1)
 		case _ => None
 	}
 
@@ -61,6 +64,7 @@ object DefaultProtocolHelper extends ProtocolHelper {
 		case 1 => Some(DataMessageParserV1)
 		case 2 => Some(DataMessageParserV1)
 		case 3 => Some(DataMessageParserV2)
+		case 4 => Some(DataMessageParserV2)
 		case _ => None
 	}
 }

@@ -89,31 +89,38 @@ public class StaticAgentConfiguration
 			return null;
 		}
 
-		return new StaticAgentConfiguration(hqHost, hqPort, logFilename, connectTimeout);
+		int projectId;
+		try
+		{
+			projectId = Integer.parseInt(props.getProperty("projectId", String.valueOf(0)));
+		}
+		catch (NumberFormatException e)
+		{
+			return null;
+		}
+
+		return new StaticAgentConfiguration(hqHost, hqPort, logFilename, connectTimeout, projectId);
 	}
 
 	private final int hqPort;
 	private final String hqHost;
 	private final String logFilename;
 	private final int connectTimeout;
-
-	public StaticAgentConfiguration(String hqHost, int hqPort)
-	{
-		this(hqHost, hqPort, null);
-	}
+	private final int projectId;
 
 	public StaticAgentConfiguration(String hqHost, int hqPort, String logFilename)
 	{
-		this(hqHost, hqPort, logFilename, DefaultConnectTimeout);
+		this(hqHost, hqPort, logFilename, DefaultConnectTimeout, 0);
 	}
 
 	public StaticAgentConfiguration(String hqHost, int hqPort, String logFilename,
-			int connectTimeout)
+			int connectTimeout, int projectId)
 	{
 		this.hqHost = hqHost;
 		this.hqPort = hqPort;
 		this.logFilename = logFilename;
 		this.connectTimeout = connectTimeout;
+		this.projectId = projectId;
 	}
 
 	public String toOptionString()
@@ -167,4 +174,6 @@ public class StaticAgentConfiguration
 	{
 		return connectTimeout;
 	}
+
+	public int getProjectId() { return projectId; }
 }
