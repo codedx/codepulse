@@ -92,7 +92,7 @@ class ControlConnectionHandshakeV1Suite extends FunSuite with Matchers with Cont
 			messageProtocol.writeConfiguration(out, configBytes)
 			out.flush
 		} { (in, out) =>
-			val result = handshake.performHandshake(connectionOf(in, out))
+			val result = handshake.performHandshake(connectionOf(in, out), 0)
 
 			// result should not be null and should match staged configuration
 			result should not be (null)
@@ -117,7 +117,7 @@ class ControlConnectionHandshakeV1Suite extends FunSuite with Matchers with Cont
 			// and writes an error
 			messageProtocol.writeError(out, errorMessage)
 		} { (in, out) =>
-			val result = handshake.performHandshake(connectionOf(in, out))
+			val result = handshake.performHandshake(connectionOf(in, out), 0)
 
 			result should be(null)
 		}
@@ -133,7 +133,7 @@ class ControlConnectionHandshakeV1Suite extends FunSuite with Matchers with Cont
 			messageProtocol.writeDataHelloReply(out)
 		} { (in, out) =>
 			// agent should figure this out
-			val result = handshake.performHandshake(connectionOf(in, out))
+			val result = handshake.performHandshake(connectionOf(in, out), 0)
 
 			result should be(null)
 		}
