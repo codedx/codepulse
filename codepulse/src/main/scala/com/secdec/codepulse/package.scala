@@ -153,7 +153,7 @@ package object codepulse {
 
 			// preserve option to skip user ack via an environment variable
 			val allowAgentToAcceptTraceConnectionPattern = """(skipUserAcknowledgment="?(?:false|true|yes|no)"?)""".r
-			val outputWithSkipAck = allowAgentToAcceptTraceConnectionPattern.replaceFirstIn(outputWithServicePort, "$1\n" + " " * 12 + "skipUserAcknowledgment=\\${?CODE_PULSE_SKIP_ACK}")
+			val outputWithSkipAck = allowAgentToAcceptTraceConnectionPattern.replaceFirstIn(outputWithServicePort, "$1\n" + " " * 12 + "skipUserAcknowledgment=\\${?CODE_PULSE_TRACE_SKIP_ACK}")
 
 			val writer = new FileWriter(configFile)
 			writer.write(outputWithSkipAck)
