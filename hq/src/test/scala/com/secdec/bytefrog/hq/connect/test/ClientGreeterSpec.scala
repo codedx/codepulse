@@ -101,7 +101,7 @@ class ClientGreeterSpec extends FunSpec with Matchers with MockFactory with Mock
 
 			val greeterHandleHello = mockFunction[Int, Unit]
 			val greeter = new ClientGreeter(client, mock[TraceControlConnector], mock[TraceRegistry]) {
-				override def handleHello(pv: Int) = greeterHandleHello(pv)
+				override def handleHello(pv: Int, projectId: Option[Int]) = greeterHandleHello(pv)
 			}
 
 			clientClose.expects.never
@@ -152,7 +152,7 @@ class ClientGreeterSpec extends FunSpec with Matchers with MockFactory with Mock
 			}
 			clientClose.expects.once
 
-			greeter.handleHello(1)
+			greeter.handleHello(1, None)
 		}
 
 		it("should write a configuration to the client if everything goes smoothly in 'handleHello'") {
@@ -180,7 +180,7 @@ class ClientGreeterSpec extends FunSpec with Matchers with MockFactory with Mock
 			}
 			clientClose.expects.never
 
-			greeter.handleHello(1)
+			greeter.handleHello(1, None)
 
 		}
 
@@ -209,7 +209,7 @@ class ClientGreeterSpec extends FunSpec with Matchers with MockFactory with Mock
 			mockedMessageProtocolV2.writeConfigJson.expects("{\"bufferMemoryBudget\":2,\"exclusions\":[],\"heartbeatInterval\":1,\"inclusions\":[],\"numDataSenders\":4,\"queueRetryCount\":3,\"runId\":1}").once()
 			clientClose.expects.never
 
-			greeter.handleHello(1)
+			greeter.handleHello(1, None)
 		}
 
 		it("should close a 'data' client if the TraceRegistry's getTrace Future doesn't provide a result within 500ms") {

@@ -31,7 +31,7 @@ import com.codedx.codepulse.hq.protocol._
 trait MockedSendingHelpers { self: MockFactory =>
 
 	class MockedSendingConnection(sender: ControlMessageSender, writer: MockFunction1[ControlMessage, Unit])
-		extends ControlConnection(1, null, null, sender) {
+		extends ControlConnection(1, null, null, sender, None) {
 		val writeMsg = writer
 	}
 

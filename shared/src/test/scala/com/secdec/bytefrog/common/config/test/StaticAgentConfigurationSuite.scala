@@ -65,7 +65,7 @@ class StaticAgentConfigurationSuite extends FunSpec with Matchers {
 	}
 
 	describe("StaticAgentConfiguration option string output") {
-		val testConfig = new StaticAgentConfiguration("host", 1234, "logFile", 30)
+		val testConfig = new StaticAgentConfiguration("host", 1234, "logFile", 30, 0)
 
 		it("should return the correct option string when toOptionString is called") {
 			val result = testConfig.toOptionString
