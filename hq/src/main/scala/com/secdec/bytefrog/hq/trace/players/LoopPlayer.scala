@@ -29,5 +29,5 @@ trait LoopPlayer extends LoopingThread with StopControl with Cleanup {
 		case _ => // for other cases, let the player itself override
 	}
 
-	def cleanup = shutdown
+	override def cleanup = shutdown
 }
