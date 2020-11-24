@@ -97,12 +97,12 @@ object Distributor extends BuildExtra {
 		}
 
 
-		val jetty = Dependency("jetty", "9.4.7.v20170914", "http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.7.v20170914/jetty-distribution-9.4.7.v20170914.zip")
+		val jetty = Dependency("jetty", "9.4.7.v20170914", "https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/9.4.7.v20170914/jetty-distribution-9.4.7.v20170914.zip")
 			.extractAsZip { raw"^\Qjetty-distribution-9.4.7.v20170914\E/".r.replaceFirstIn(_, "") }
 			.to { _ / "distrib-dependencies" / "common" / "jetty" }
 
 		object tools {
-			val resourcer = Dependency("resourcer", "0.9", "https://dl.dropboxusercontent.com/s/zifogi9efgtsq1s/Anolis.Resourcer-0.9.zip?dl=1") // http://anolis.codeplex.com/downloads/get/81545
+			val resourcer = Dependency("resourcer", "0.9", "https://github.com/codedx/codepulse/blob/master/tools/Anolis.Resourcer-0.9.zip") // from https://codeplexarchive.blob.core.windows.net/archive/projects/anolis/anolis.zip, releases/0/69c6e9d4-07aa-414b-9a5d-4a22572423d9
 				.extractAsZip { identity }
 				.to { _ / "tools" / "resourcer" }
 		}
