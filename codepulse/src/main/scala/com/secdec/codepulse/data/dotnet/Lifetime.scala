@@ -49,8 +49,8 @@ class SymbolService extends Lifetime with Loggable {
 
 			var binaryCanonical = new File(binaryPath).getCanonicalPath
 			logger.debug(s"attempting to start $binaryCanonical using $url...")
-			process = Some(Process(s"$binaryPath", new java.io.File(symbolServiceLocation), "ASPNETCORE_URLS" -> url).run())
-			logger.debug(s"created SymbolService from $binaryPath")
+			process = Some(Process(s"$binaryCanonical", new java.io.File(symbolServiceLocation), "ASPNETCORE_URLS" -> url).run())
+			logger.debug(s"created SymbolService from $binaryCanonical")
 
 			def shutdown(area: String): () => Unit = {
 				() => {
