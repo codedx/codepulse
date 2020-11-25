@@ -25,30 +25,39 @@ Code Pulse is a real-time code coverage tool. It works by monitoring Java or .NE
 ## Development Environment Setup
 The following section describes steps necessary to build and run Code Pulse from source. If you want to download a pre-built version of Code Pulse to run, please visit our [releases](https://github.com/codedx/codepulse/releases) page for downloads.
 
-* **Install .NET Core 2.1 SDK**. The 2.1 version of the SDK can be downloaded from the official Microsoft website at [https://www.microsoft.com/net/download](https://www.microsoft.com/net/download).
-* **Enable .NET Framework 3.5 Windows feature**. To enable this feature:
+Code Pulse lets you trace Java and .NET Framework applications. Use Windows to build a development environment that supports all Code Pulse features. If you are not interested in tracing .NET Framework applications, you can build a development environment on a different operating system by skipping the Windows-specific steps listed below.
+
+* **Install .NET Core 3.1 SDK**. The 3.1 version of the SDK can be downloaded from the official Microsoft website at [https://www.microsoft.com/net/download](https://www.microsoft.com/net/download).
+* **[Windows Only] Enable .NET Framework 3.5 Windows feature**. To enable this feature:
   - Run "appwiz.cpl" from the run command or start menu.
   - Select the "Turn Windows features on or off" option.
   - In the Windows Features popup, find and select the ".NET Framework 3.5" feature.
   - Allow Windows to update the operating system as needed to complete the operation.
-* **Install Windows SDK 10.0.16299.91**. This version of the Windows SDK can be downloaded from the official Microsoft website's SDK archives at [https://developer.microsoft.com/en-us/windows/downloads/sdk-archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive)
-* **Install Visual Studio 2017, including the C++ workload**. The free community edition of Visual Studio 2017 is available at [https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/). When installing, select the .NET and C++ desktop development workloads.
-* **Install Wix Toolset 3.11**. The 3.11 version of the Wix Toolset can be downloaded from the official Wix website at [http://wixtoolset.org/releases/](http://wixtoolset.org/releases/).
-* **Install SBT 0.13.16**. The 0.13.16 version of SBT can be downloaded from the official SBT website at [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html).
-* **Install JDK 8.181**. The 8u181 version of the Java JDK can be downloaded from the official website at [http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+* **[Windows Only] Install Windows SDK 10.0.16299.91**. This version of the Windows SDK can be downloaded from the official Microsoft website's SDK archives at [https://developer.microsoft.com/en-us/windows/downloads/sdk-archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive)
+* **[Windows Only] Install Visual Studio, including the C++ workload**. The free community edition of Visual Studio is available at [https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/). When installing, select the .NET and C++ desktop development workloads.
+* **[Windows Only] Install Wix Toolset 3.11**. The 3.11 version of the Wix Toolset can be downloaded from the official Wix website at [http://wixtoolset.org/releases/](http://wixtoolset.org/releases/).
+* **Install SBT 0.13.18**. The 0.13.18 version of SBT can be downloaded from the official SBT website at [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html).
+* **Install AdoptOpenJDK OpenJ9 8**. The Java JDK can be downloaded from [https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=openj9](https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=openj9).
   - Create a "JAVA_HOME" environment variable. Set the value of this environment variable to the root location you installed the JDK to, such as "C:\Program Files\Java\jdk1.8.0_181".
   - Add to the PATH variable the value "%JAVA_HOME%\bin".
-* **Install Git 2.19.0**. The 2.19.0 version of Git can be downloaded from the official Git website at [https://git-scm.com/downloads](https://git-scm.com/downloads)
-* **Change Powershell script execution policy to allow local, unsigned scripts to run**.
+* **Install Git**. Git can be downloaded from the official Git website at [https://git-scm.com/downloads](https://git-scm.com/downloads)
+* **Install PowerShell Core**. Install PowerShell Core from [https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell).
+* **[Windows Only] Change Powershell script execution policy to allow local, unsigned scripts to run**.
   - Start an elevated (administrator) command prompt.
-  - Run Powershell from this command prompt.
+  - Run pwsh from this command prompt.
   - Run the command "Set-ExecutionPolicy RemoteSigned"
 * **Acquire Code Pulse source**. Use your preferred Git client to download the Code Pulse source from [https://github.com/codedx/codepulse](https://github.com/codedx/codepulse).
-* **Build Code Pulse**. Code Pulse can be built for installation or for development.
-  - To build Code Pulse for installation: from Powershell in the root Code Pulse directory that you git cloned to, run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows. You may provide the following switches to skip building for Linux, Mac, or Windows: "-skipLinux", "-skipMac", and "-skipWindows". Combine the switches as desired. For example: `.\installers\build.ps1 -version 2.5.0 -skipMac -skipLinux`
+* **[Windows Only] Package Code Pulse**. Code Pulse uses Windows PowerShell to create Code Pulse releases for macOS, Linux, and Windows.
+  - To build Code Pulse for installation: from Windows Powershell in the root Code Pulse directory that you git cloned to, run .\installers\build.ps1 with desired script parameter values to create packages for macOS, Linux, and Windows. You may provide the following switches to skip building for Linux, Mac, or Windows: "-skipLinux", "-skipMac", and "-skipWindows". Combine the switches as desired. For example: `.\installers\build.ps1 -version 2.5.0 -skipMac -skipLinux`
 > Note: If you don't want to run Code Pulse from the development environment, you can use the installers created by build.ps1 to install and run Code Pulse.
 
-* **Run Code Pulse from the Development Environment** To run in development mode, where you can use a web browser to run and debug Code Pulse: in a command prompt from the root Code Pulse directory that you git cloned to, enter the command "sbt". Once SBT loads, enter the command "container:start" to start an instance of Code Pulse. Browse via web browser to [localhost:8080](http://localhost:8080). When you are finished, enter the command "container:stop" to do a clean tear-down of Code Pulse.
+* **Run Code Pulse from the Development Environment** - to run in development mode, where you can use a web browser to run and debug Code Pulse:
+  - Start a terminal/command prompt and switch to the Code Pulse root directory
+  - [Linux or macOS Only] Edit codepulse/src/main/resources/application.conf by switching systemSettings.symbolService.binary from "SymbolService.exe" to "SymbolService"
+  - Run the "sbt" command from the Code Pulse root directory
+  - Once sbt loads, enter the command "container:start" to start an instance of Code Pulse
+  - Browse via web browser to [localhost:8080](http://localhost:8080)
+  - When you are finished, enter the command "container:stop" to do a clean tear down of Code Pulse
 
 For more information, refer to the Code Pulse [User Guide](https://github.com/codedx/codepulse/wiki/user-guide).
 
