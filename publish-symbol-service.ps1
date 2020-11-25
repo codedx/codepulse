@@ -42,7 +42,7 @@ function Get-LastCommit([string] $sinceCommitHash) {
 
 function Invoke-Publish() {
     push-location 'dotnet-symbol-service'
-    dotnet publish -c Release -r (Get-OSRID) -o ..\..\dotnet-symbol-service\publish
+    dotnet publish -c Release -r (Get-OSRID) -o .\publish
     if ($LASTEXITCODE -ne 0) {
         write-error "Failed to publish with exit code $LASTEXITCODE"
         exit $LASTEXITCODE
