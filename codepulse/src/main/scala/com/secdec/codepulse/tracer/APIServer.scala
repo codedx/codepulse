@@ -460,6 +460,10 @@ class APIServer(manager: ProjectManager, treeBuilderManager: TreeBuilderManager,
 				case _ => PlainTextResponse("Unknown error.", 500)
 			}
 
+		case List("api", "user-settings") Get req =>
+			val settings: JObject = "maxFileUploadSizeBytes" -> userSettings.maxFileUploadSizeBytes
+			JsonResponse(settings)
+
 		// GET the agent string
 		case List("api", "agent-string") Get req =>
 			PlainTextResponse(ConnectionHelp.traceAgentCommand)

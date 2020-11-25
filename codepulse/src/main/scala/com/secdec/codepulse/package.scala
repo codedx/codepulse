@@ -21,17 +21,16 @@ package com.secdec
 
 import java.text.SimpleDateFormat
 import java.util.Properties
+
 import scala.collection.JavaConverters.propertiesAsScalaMapConverter
 import scala.util.Try
 import com.secdec.codepulse.util.ApplicationData
 import com.secdec.codepulse.util.Implicits._
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{Config, ConfigException, ConfigFactory, ConfigRenderOptions, ConfigValueFactory}
 import java.io.File
-import com.typesafe.config.ConfigRenderOptions
 import java.io.FileWriter
+
 import ch.qos.logback.classic.Level
-import com.typesafe.config.ConfigValueFactory
 
 /** @author dylanh
   *
@@ -89,6 +88,17 @@ package object codepulse {
 			config = config.withValue("cp.userSettings.tracePort", ConfigValueFactory.fromAnyRef(newPort, "specified value"))
 			saveToAppData
 			newPort
+		}
+
+		def maxFileUploadSizeBytes: Int = {
+			val mebibytes = 1024 * 1024
+			val defaultMaxSizeBytes = 500 * mebibytes
+			try {
+				val sizeMebibytes = config.getInt("cp.userSettings.maxFileUploadSizeMebibytes")
+				if (sizeMebibytes > 0) sizeMebibytes * mebibytes else defaultMaxSizeBytes
+			} catch {
+				case _: com.typesafe.config.ConfigException.Missing => defaultMaxSizeBytes
+			}
 		}
 
 		def symbolServicePort = config.getString("cp.userSettings.symbolService.port")

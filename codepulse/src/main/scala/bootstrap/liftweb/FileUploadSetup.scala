@@ -22,25 +22,22 @@ package bootstrap.liftweb
 import java.io.File
 import java.io.IOException
 
-import scala.util.control.Exception.catching
+import com.secdec.codepulse.userSettings
 
+import scala.util.control.Exception.catching
 import org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.io.IOUtils
-
 import net.liftweb.common.Loggable
 import net.liftweb.http.JsonResponse
 import net.liftweb.http.LiftRules
 import net.liftweb.http.LiftRulesMocker.toLiftRules
 import net.liftweb.json.JsonDSL.pair2jvalue
 import net.liftweb.json.JsonDSL.string2jvalue
-
 import com.secdec.codepulse.util.ManualOnDiskFileParamHolder
 
 object FileUploadSetup extends Loggable {
-
-	val MaxFileSize = 500 * 1024 * 1024
 
 	def init(liftRules: LiftRules) = {
 		setupMimeHandler(liftRules)
@@ -56,8 +53,9 @@ object FileUploadSetup extends Loggable {
 
 	def setupMimeHandler(liftRules: LiftRules) = {
 
-		liftRules.maxMimeFileSize = MaxFileSize
-		liftRules.maxMimeSize = MaxFileSize
+		val size = userSettings.maxFileUploadSizeBytes
+		liftRules.maxMimeFileSize = size
+		liftRules.maxMimeSize = size
 
 		// Send uploaded files to a temp folder instead of putting them in memory
 		liftRules.handleMimeFile = (fieldName, contentType, fileName, stream) => {

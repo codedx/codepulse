@@ -82,15 +82,24 @@ $(document).ready(function(){
 			url: uploadUrl,
 			dropZone: fileDropzone,
 			add: function(e, data){
-                if (data.files[0].size > 524288000) {
-                    alert('The file you specified exceeds the maximum file size (500 MB).');
-                    projectFile.set(null);
-                    return
-                }
 
-                // use this `data` as the current file data.
-                // this will be used once the form is submitted.
-                projectFile.set(data)
+				$.ajax('/api/user-settings', {
+					error: function(xhr, status){
+						alert('Unable to fetch user settings that affect file upload')
+						projectFile.set(null)
+					},
+					success: function(userSettings){
+						if (data.files[0].size > userSettings.maxFileUploadSizeBytes) {
+							alert('The file you specified exceeds the maximum file size (' + userSettings.maxFileUploadSizeBytes / (1024*1024) + ' MB).')
+							projectFile.set(null)
+							return
+						}
+
+						// use this `data` as the current file data.
+						// this will be used once the form is submitted.
+						projectFile.set(data)
+					}
+				})
 			},
 			formData: function(){
 				var name = projectName.get()
