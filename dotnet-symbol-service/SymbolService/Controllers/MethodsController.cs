@@ -27,6 +27,7 @@ using SymbolService.Model;
 
 namespace SymbolService.Controllers
 {
+    [ApiController]
     [Produces("application/json")]
     [Route("api/Methods")]
     public class MethodsController : Controller
