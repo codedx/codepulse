@@ -16,12 +16,19 @@ param (
     [switch] $useGitHubDotNetTracerWindowsDownloadUrl,
     [string] $version='1.0.0',
     [string] $versionForDotNetTracerWindowsDownloadUrl='1.0.0',
-    [string] $releaseDate=([DateTime]::Now.ToShortDateString())
+    [string] $releaseDate=([DateTime]::Now.ToShortDateString()),
+    [switch] $skipDotNetCoreInstall
 )
 
 Set-PSDebug -Strict
 $ErrorActionPreference = 'Stop'
 $VerbosePreference = 'Continue'
+
+if (-not $skipDotNetCoreInstall) {
+    $file=([io.path]::gettemppath())+'.ps1'
+    Invoke-WebRequest -Uri 'https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/dotnet-install.ps1' -OutFile $file
+    & $file -Channel 3.1
+}
 
 $dotNetTracerWindowsDownloadUrl = "https://ci.appveyor.com/api/buildjobs/VERSION_NUMBER_FOR_DOWNLOAD/artifacts/installers/CodePulse-DotNetTracer-$version-Windows.zip"
 if ($useGitHubDotNetTracerWindowsDownloadUrl) {
