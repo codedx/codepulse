@@ -2,7 +2,9 @@ version: 2.7.{build}
 image: Visual Studio 2017
 clone_folder: C:\CodePulse
 build_script:
-- cmd: powershell -file C:\CodePulse\installers\build.ps1 -version 2.7.0 -versionForDotNetTracerWindowsDownloadUrl 2.7.0 -useGitHubDotNetTracerWindowsDownloadUrl
+- cmd: >-
+    powershell -command "& {$file=([io.path]::gettemppath())+'.ps1'; (new-object net.webclient).downloadstring('https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/dotnet-install.ps1') | out-file $file -encoding ascii; powershell -file $file -Channel 3.1}"
+    powershell -file C:\CodePulse\installers\build.ps1 -version 2.7.0 -versionForDotNetTracerWindowsDownloadUrl 2.7.0 -useGitHubDotNetTracerWindowsDownloadUrl
 # - cmd: powershell -file C:\CodePulse\installers\build.ps1 -version %APPVEYOR_BUILD_VERSION% -versionForDotNetTracerWindowsDownloadUrl %APPVEYOR_JOB_ID% -skipMac -skipLinux # skips building packages for macOS and Linux
 before_test:
 - cmd: >-
