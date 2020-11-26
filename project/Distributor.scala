@@ -102,7 +102,7 @@ object Distributor extends BuildExtra {
 			.to { _ / "distrib-dependencies" / "common" / "jetty" }
 
 		object tools {
-			val resourcer = Dependency("resourcer", "0.9", "https://github.com/codedx/codepulse/blob/master/tools/Anolis.Resourcer-0.9.zip") // from https://codeplexarchive.blob.core.windows.net/archive/projects/anolis/anolis.zip, releases/0/69c6e9d4-07aa-414b-9a5d-4a22572423d9
+			val resourcer = Dependency("resourcer", "0.9", "https://github.com/codedx/codepulse/raw/master/tools/Anolis.Resourcer-0.9.zip") // from https://codeplexarchive.blob.core.windows.net/archive/projects/anolis/anolis.zip, releases/0/69c6e9d4-07aa-414b-9a5d-4a22572423d9
 				.extractAsZip { identity }
 				.to { _ / "tools" / "resourcer" }
 		}
