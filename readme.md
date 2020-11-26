@@ -34,7 +34,7 @@ Code Pulse lets you trace Java and .NET Framework applications. Use Windows to b
   - In the Windows Features popup, find and select the ".NET Framework 3.5" feature.
   - Allow Windows to update the operating system as needed to complete the operation.
 * **[Windows Only] Install Windows SDK 10.0.16299.91**. This version of the Windows SDK can be downloaded from the official Microsoft website's SDK archives at [https://developer.microsoft.com/en-us/windows/downloads/sdk-archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive)
-* **[Windows Only] Install Visual Studio, including the C++ workload**. The free community edition of Visual Studio is available at [https://visualstudio.microsoft.com/downloads/](https://visualstudio.microsoft.com/downloads/). When installing, select the .NET and C++ desktop development workloads.
+* **[Windows Only] Install Visual Studio 2017, including the C++ workload**. The free community edition of Visual Studio is available at [https://visualstudio.microsoft.com/vs/older-downloads/](https://visualstudio.microsoft.com/vs/older-downloads/). When installing, select the .NET and C++ desktop development workloads.
 * **[Windows Only] Install Wix Toolset 3.11**. The 3.11 version of the Wix Toolset can be downloaded from the official Wix website at [http://wixtoolset.org/releases/](http://wixtoolset.org/releases/).
 * **Install SBT 0.13.18**. The 0.13.18 version of SBT can be downloaded from the official SBT website at [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html).
 * **Install AdoptOpenJDK OpenJ9 8**. The Java JDK can be downloaded from [https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=openj9](https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=openj9).
