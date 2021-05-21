@@ -1,32 +1,72 @@
 ﻿Set-PSDebug -Strict
 $ErrorActionPreference = 'Stop'
 
+function Test-IsCore {
+	$PSVersionTable.PSEdition -eq 'Core'
+}
+
+function Get-Bytes([string] $path) 
+{
+	if (Test-IsCore) {
+		gc -AsByteStream  -LiteralPath $path
+	} else {
+		gc -Encoding byte -LiteralPath $path
+	}
+}
+
+function Get-LeadingBytes([string] $path, [int] $count) 
+{
+	if (Test-IsCore) {
+		gc -AsByteStream  -ReadCount $count -TotalCount $count -LiteralPath $path
+	} else {
+		gc -Encoding byte -ReadCount $count -TotalCount $count -LiteralPath $path
+	}
+}
+
+function Get-TrailingBytes([string] $path, [int] $count) 
+{
+	if (Test-IsCore) {
+		gc -AsByteStream  -Tail $count -LiteralPath $path
+	} else {
+		gc -Encoding byte -Tail $count -LiteralPath $path
+	}
+}
+
+function Get-ByteOrderMarker([string] $path) 
+{
+	$leadingBytes = Get-LeadingBytes $path 4
+	if ($leadingBytes -eq $null) {
+		$leadingBytes = @()
+	}
+	$leadingBytes
+}
+
 function Get-TextEncoding([string] $path)
 {
-    $leadingBytes = gc -Encoding byte -ReadCount 4 -TotalCount 4 -LiteralPath $path
+    $leadingBytes = Get-ByteOrderMarker $path
     if ($leadingBytes -eq $null) {
         $leadingBytes = @()
     }
 
-    $encoding = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::Ascii
+    $encoding = 'Ascii'
     if ($leadingBytes.length -ge 4 -and $leadingBytes[0] -eq 0 -and $leadingBytes[1] -eq 0 -and $leadingBytes[2] -eq 0xfe -and $leadingBytes[3] -eq 0xff) 
     {
-        $encoding = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::UTF32
+        $encoding = 'UTF32'
     } 
     elseif ($leadingBytes.length -ge 2 -and $leadingBytes[0] -eq 0xfe -and $leadingBytes[1] -eq 0xff)
     {
-        $encoding = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::Unicode # UTF-16
+        $encoding = 'Unicode' # UTF-16
     }
     elseif ($leadingBytes.length -ge 3 -and $leadingBytes[0] -eq 0xef -and $leadingBytes[1] -eq 0xbb -and $leadingBytes[2] -eq 0xbf) 
     {
-        $encoding = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::UTF8
+        $encoding = 'UTF8'
     } 
     $encoding
 }
 
 function Test-EndsWithCrLf([string] $path) 
 {
-    $trailingBytes = gc -Encoding byte -Tail 2 -Path $path
+    $trailingBytes = Get-TrailingBytes $path 2 
     if ($trailingBytes -eq $null -or $trailingBytes.Length -ne 2) {
         return $false
     }
@@ -41,7 +81,7 @@ function Set-TextContent([string] $path, [string[]] $text)
     $endsWithCrLfAfter = Test-EndsWithCrLf $path
 
     if (-not $endsWithCrLfBefore -and $endsWithCrLfAfter) {
-        $allBytes = gc -Encoding Byte -Path $path
+        $allBytes = Get-Bytes $path 
         if ($allBytes.Length -lt 2) {
             return
         }
